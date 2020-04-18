@@ -1,0 +1,8 @@
+
+all: $(PCH_NAME) $(PROG)
+
+SRCS=PipeLen.cpp
+
+PipeLen.o : PipeLen.cpp
+	$(CXX) $(CXXFLAGS) PipeLen.cpp
+

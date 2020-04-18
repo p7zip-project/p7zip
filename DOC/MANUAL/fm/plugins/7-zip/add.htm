@@ -1,0 +1,311 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>Add to Archive Dialog Box</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>Add to Archive Dialog Box</H1>
+
+<P>Allows you to specify options for creating or updating an archive.</P>
+
+<H4>How to call this dialog box</H4>
+<OL>
+  <LI>In Windows Explorer or in 7-Zip, right-click the file(s) or folder(s) you want to compress.</LI>
+  <LI>Point to <B>7-Zip</B>, and then click the <B>Add to archive...</B> command item.</LI>
+</OL>
+
+<H4>Parameters</H4>
+<DL>
+  <DT>Archive</DT>
+  <DD>Provides a space for you to specify a destination archive name.
+     You can click &quot;<B>...</B>&quot; button to display &quot;Open&quot; dialog box
+     that you can use to locate archive.</DD>
+
+  <DT>Archive format</DT>
+  <DD>Specifies a format of created archive. Some formats (gzip and bzip2) 
+    do not support compressing more the one file per archive.</DD>
+
+  <DT>Compression level</DT>
+  <DD>
+    <P>Specifies compression level. There are 6 levels of compression:</P>
+    <TABLE>
+      <TR> <TH>Value</TH> <TH>Meaning</TH> </TR>
+      <TR> <TD>Store</TD> <TD>Files will be copied to archive without compression.</TD> </TR>
+      <TR> <TD>Fastest</TD> <TD>Fastest compression.</TD> </TR>
+      <TR> <TD>Fast</TD> <TD>Fast compression.</TD> </TR>
+      <TR> <TD>Normal</TD> <TD>Compression with balanced settings.</TD> </TR>
+      <TR> <TD>Maximum</TD> <TD>Can give a higher compression ratio than Normal level.
+               But it can be slower, and it can require more memory.</TD> </TR>
+      <TR> <TD>Ultra</TD> <TD>Can give a higher compression ratio than Maximum level. 
+               But it can be slower, and it can require more memory.</TD> </TR>
+    </TABLE>
+  </DD>
+
+  <DT>Compression method</DT>
+  <DD>
+    <P>Specifies compression method. Each archive format can have its own compression methods:</P>
+    <TABLE>
+      <TR> <TH>Method</TH> <TH>Description</TH> </TR>
+      <TR> <TD>LZMA</TD> <TD>It's base compression method for 7z format. 
+                     Even old versions of 7-Zip can decompress archives created with LZMA method.
+                     It provides high  compression ratio and very fast decompression.</TD> </TR>
+      <TR> <TD>LZMA2</TD> <TD>Default compression method of 7z format.  LZMA2 is LZMA-based compression method. 
+                     It provides better multithreading support than LZMA. But compression ratio
+                     can be worse in some cases. For best compression ratio with LZMA2 use 1 
+                     or 2 CPU threads. If you use LZMA2 with more than 2 threads, 7-zip splits data 
+                     to chunks and compresses these chunks independently (2 threads per each chunk).</TD> </TR>
+      <TR> <TD>PPMd</TD> <TD>Dmitry Shkarin's PPMdH algorithm with small changes. 
+                  Usually it provides high compression ratio and high speed 
+                  for text files.</TD> </TR>
+      <TR> <TD>BZip2</TD> <TD>Standard compression method based on BWT algorithm. 
+                     Usually it provides high speed and pretty good 
+                     compression ratio for text files.</TD> </TR>
+      <TR> <TD>Deflate</TD> <TD>Standard compression method of ZIP and GZip formats.
+             Compression ratio is not too high. But it provides pretty fast 
+             compressing and decompressing. Deflate method supports only 
+             32 KB dictionary.</TD> </TR>
+      <TR> <TD>Deflate64</TD> <TD>Modified version of Deflate algorithm with 
+             bigger dictionary (64KB).</TD> </TR>
+    </TABLE>
+
+    <BR>
+    <P>Estimated 7-Zip performance and memory requirements for 2 GHz dual core CPU:</P>
+    <TABLE>
+      <TR> 
+        <TH class="cc">Method</TH> 
+        <TH class="cc">Level</TH> 
+        <TH class="cc">Dictionary Size</TH> 
+        <TH class="cc">Compressing Speed</TH> 
+        <TH class="cc">Decompressing Speed</TH> 
+        <TH class="cc">Memory for Compressing</TH> 
+        <TH class="cc">Memory for Decompressing</TH> 
+      </TR>
+      <TR>
+         <TD class="cc" rowspan="5">LZMA</TD>
+         <TD class="cc">fastest</TD>
+         <TD class="cc">64 KB</TD>
+         <TD class="cc">4.5 MB/s</TD>
+         <TD class="cc" rowspan="5">15 MB/s</TD>
+         <TD class="cc">3 MB</TD>
+         <TD class="cc">3 MB</TD></TR>
+      <TR>
+         <TD class="cc">fast</TD>
+         <TD class="cc">1 MB</TD>
+         <TD class="cc">3 MB/s</TD>
+         <TD class="cc">10 MB</TD>
+         <TD class="cc">3 MB</TD></TR>
+      <TR>
+        <TD class="cc">normal</TD>
+        <TD class="cc">16 MB</TD>
+        <TD class="cc">2 MB/s</TD>
+        <TD class="cc">186 MB</TD>
+        <TD class="cc">18 MB</TD></TR>
+      <TR>
+        <TD class="cc">maximum</TD>
+        <TD class="cc">32 MB</TD>
+        <TD class="cc">1.8 MB/s</TD>
+        <TD class="cc">376 MB</TD>
+        <TD class="cc">34 MB</TD></TR>
+      <TR>
+        <TD class="cc">ultra</TD>
+        <TD class="cc">64 MB</TD>
+        <TD class="cc">1.6 MB/s</TD>
+        <TD class="cc">709 MB</TD>
+        <TD class="cc">66 MB</TD></TR>
+      <TR>
+        <TD class="cc" rowspan="4">PPMD</TD>
+        <TD class="cc">fast</TD>
+        <TD class="cc">4 MB</TD>
+        <TD class="cc" colspan="2">1.4 MB/s</TD>
+        <TD class="cc" colspan="2">6 MB</TD></TR>
+      <TR>
+        <TD class="cc">normal</TD>
+        <TD class="cc">24MB</TD>
+        <TD class="cc" colspan="2">1.2 MB/s</TD>
+        <TD class="cc" colspan="2">26 MB</TD></TR>
+      <TR>
+        <TD class="cc">maximum</TD>
+        <TD class="cc">64 MB</TD>
+        <TD class="cc" colspan="2">1.0 MB/s</TD>
+        <TD class="cc" colspan="2">66 MB</TD></TR>
+      <TR>
+        <TD class="cc">ultra</TD>
+        <TD class="cc">192 MB</TD>
+        <TD class="cc" colspan="2">0.9 MB/s</TD>
+        <TD class="cc" colspan="2">194 MB</TD></TR>
+      <TR>
+        <TD class="cc" rowspan="4">Deflate</TD>
+        <TD class="cc">fast</TD>
+        <TD class="cc" rowspan="4">32 KB</TD>
+        <TD class="cc">15 MB/s</TD>
+        <TD class="cc" rowspan="4">40 MB/s</TD>
+        <TD class="cc" rowspan="2">3 MB</TD>
+        <TD class="cc" rowspan="4">2 MB</TD></TR>
+      <TR>
+        <TD class="cc">normal</TD>
+        <TD class="cc">3.5 MB/s</TD></TR>
+      <TR>
+        <TD class="cc">maximum</TD>
+        <TD class="cc">1.5 MB/s</TD>
+        <TD class="cc" rowspan="2">4MB</TD></TR>
+      <TR>
+        <TD class="cc">ultra</TD>
+        <TD class="cc">0.4 MB/s</TD>
+      <TR>
+        <TD class="cc" rowspan="3">BZip2</TD>
+        <TD class="cc">normal</TD>
+        <TD class="cc" rowspan="3">900 KB</TD>
+        <TD class="cc">3 MB/s</TD>
+        <TD class="cc" rowspan="3">16 MB/s</TD>
+        <TD class="cc" rowspan="3">20 MB</TD>
+        <TD class="cc" rowspan="3">7 MB</TD></TR>
+      <TR>
+        <TD class="cc">maximum</TD>
+        <TD class="cc">1.2 MB/s</TD>
+      <TR>
+        <TD class="cc">ultra</TD>
+        <TD class="cc">0.4 MB/s</TD>
+    </TABLE>
+  </DD>
+
+  <DT>Dictionary size</DT>
+  <DD>
+    <P>Specifies Dictionary size for compression method.</P>
+    <P>Usually, a higher Dictionary size gives a higher compression ratio.
+    But compressing can be slower and it can require more memory.</P>
+    <P>
+    Memory (RAM) usage for LZMA compressing is about 11 times more than dictionary size.
+    Memory usage for LZMA decompressing is close to  value of dictionary size. 
+    Memory usage for PPMd compressing and decompressing is almost equal 
+    to dictionary size.</P>
+  </DD>
+
+  <DT>Word size</DT>
+  <DD>
+    <P>Specifies the length of words, which will be used to find identical 
+       sequences of bytes for compression.</P>
+    <P>Usually for LZMA and Deflate, big Word size gives a little bit better
+       compression ratio and slower compression process.
+       A big Word size parameter can significantly increase compression ratio 
+       for files which contain long identical sequences of bytes. For PPMd,
+       the Word size strongly affects both compression ratio and 
+       compression/decompression speed.</P>
+  </DD>
+
+  
+  <DT>Solid Block size</DT>
+  <DD>
+    <P>Specifies the size of a solid block. You can also disable solid mode.
+          In solid mode all files will be compressed as continuous data blocks. 
+          Usually compressing to a solid archive improves the compression ratio.
+          You can use this option only for 7z archives. The updating of solid .7z 
+          archives can be slow, since it can require some recompression.</P>
+.</P>
+  </DD>
+
+  <DT>Number of CPU threads</DT>
+  <DD>
+    <P>Specifies the number of threads for compressing. 
+       A big number of threads can speed up compression speed on Multi-Processor systems.
+       Sometimes it can increase speed even on single-core CPU.</P>
+  </DD>
+
+  <DT>Split to volumes</DT>
+  <DD>
+    <PRE class="syntax">
+    {Size}[b | k | m | g]
+    </PRE>
+
+    <P>Specifies volume sizes in Bytes, Kilobytes (1 Kilobyte = 1024 bytes),
+    Megabytes (1 Megabyte = 1024 Kilobytes) or Gigabytes (1 Gigabyte = 1024 Megabytes).
+    If you specify only {Size}, 7-zip will treat it as bytes. It's possible to specify
+    several values. Example:</P>
+
+    <PRE class="example">
+    10k 15k 2m
+    </PRE>
+
+    <P>The first volume will be 10 KB, the second will be 15 KB, and all others will be 2 MB.</P>
+   
+  </DD>
+
+  <DT>Parameters</DT>
+  <DD>
+    <P>Allows you to specify parameters for compression. See the
+    <A href="../../../../cmdline/switches/method.htm">-m (Method)</A> switch description for 
+    more details. Omit the -m prefix (as in -m switch) when using this dialog box.<P>
+    <P><B>Examples</B></P>
+    <PRE class="example">
+      f=delta:4</PRE>
+      <P>uses Delta:4 filter (if you want to compress WAV files).</P>
+
+    <PRE class="example">
+      f=bcj2</PRE>
+      <P>uses BCJ2 filter (for x86 executables).</P>
+
+  </DD>
+
+  <DT>Update mode</DT>
+  <DD>
+    <P>Specifies update mode:</P>
+    <TABLE>
+      <TR> <TH width="30%">Value</TH> <TH>Meaning</TH> </TR>
+      <TR> <TD>Add and replace files</TD> <TD>Add all specified files to the archive.</TD> </TR>
+      <TR> <TD>Update and add files</TD> <TD>Update older files in the archive and add
+                files that are new to the archive.</TD> </TR>
+      <TR> <TD>Freshen existing files</TD> <TD>Update specified files in the
+               archive that are older than the selected disk files.</TD> </TR>
+      <TR> <TD>Synchronize files</TD> <TD>Replace specified files only if
+         added files are newer. Always add those files, which are not
+         present in the archive. Delete from archive those files,
+         which are not present on the disk.</TD> </TR>
+    </TABLE>
+  </DD>
+
+  <DT>Options</DT>
+  <DD>
+    <P>Specifies compression options:</P>
+    <TABLE>
+      <TR> <TH width="30%">Option</TH> <TH>Meaning</TH> </TR>
+      <TR> <TD>Create SFX archive</TD> <TD>Create self-extracting archive. You can use this option only 
+           for 7z archives. Look to 
+           <A href="../../../../cmdline/switches/sfx.htm">-sfx (Create SFX archive)</A> switch description for 
+           more details about SFX modules.</TD> </TR>
+      <TR> <TD>Compress shared files</TD> <TD>Compress files open for writing by another applications.</TD> </TR>
+      <TR> <TD>Delete files after compression</TD> <TD>Delete files 
+           after including to archive. So it works like moving files to archive.
+           7-Zip deletes files at the end of operation and only if archive was successfully created.</TD> </TR>
+    </TABLE>
+  </DD>
+
+  <DT>Encryption</DT>
+  <DD>
+    <P>Specifies password and encryption options.</P>
+    <DL>
+      <DT>Enter password</DT>
+        <DD>Specify password here</DD>
+      <DT>Reenter password</DT>
+        <DD>Reenter password here for verification</DD>
+      <DT>Show Password</DT>
+        <DD>Shows Password</DD>
+      <DT>Encryption method</DT>
+        <DD>Specifies the encryption method. For 7z format, it can be only AES-256.
+          For ZIP format you can select ZipCrypto or AES-256. 
+          Use ZipCrypto, if you want to get archive compatible with most of the ZIP archivers. 
+          AES-256 provides stronger encryption, but now AES-256 is supported only 
+          by 7-Zip, WinZip and some other ZIP archivers.
+      <DT>Encrypt file names</DT>
+        <DD>Enables or disables archive header encryption, including file name encryption.</DD>
+    </DL>
+  </DD>
+
+
+</DL>
+<UL>
+
+</BODY>
+</HTML>

@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>7z Format</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>7z Format</H1>
+
+<P><B>7z</B> is a new archive format, providing a high compression ratio.</P>
+
+<P>The main features of the <B>7z</B> format:</P>
+<UL>
+  <LI>Open architecture
+  <LI>High compression ratio
+  <LI>Strong AES-256 encryption
+  <LI>Ability to use any compression, conversion or encryption method
+  <LI>Supports files with sizes up to 16000000000 GB
+  <LI>Unicode file names
+  <LI>Solid compression
+  <LI>Archive headers compression
+</UL>
+
+<P><B>7z</B> has an open architecture, so it can support any new compression methods.</P>
+The following methods currently are integrated into <B>7z</B>:<P>
+
+<TABLE cellspacing ="2" cellpadding ="4">
+  <TR> <TH class="Title" width="60">Method</TH> <TH class="Title">Description</TH> </TR>
+  <TR> <TD class="Item">LZMA</TD> <TD class="Item">Improved and optimized version of LZ77 algorithm</TD></TR>
+  <TR> <TD class="Item">LZMA2</TD> <TD class="Item">LZMA-based compression method. It provides better multithreading support than LZMA</TD></TR>
+  <TR> <TD class="Item">PPMD</TD> <TD class="Item">Dmitry Shkarin's PPMdH with small changes</TD></TR>
+  <TR> <TD class="Item">BCJ</TD> <TD class="Item">Converter for 32-bit x86 executables</TD></TR>
+  <TR> <TD class="Item">BCJ2</TD> <TD class="Item">Converter for 32-bit x86 executables</TD></TR>
+  <TR> <TD class="Item">BZip2</TD> <TD class="Item">Standard BWT algorithm</TD></TR>
+  <TR> <TD class="Item">Deflate</TD> <TD class="Item">Standard LZ77-based algorithm</TD></TR>
+</TABLE>
+
+<P><B>LZMA</B> is the default and general compression method of <B>7z</B> format. 
+The main features of the <B>LZMA</B> method:</P>
+<UL>
+  <LI>High compression ratio
+  <LI>Variable dictionary size (up to 4 GB)
+  <LI>Compression speed: about 1 MB/s on 2 GHz CPU
+  <LI>Decompression speed: about 10-20 MB/s on 2 GHz CPU
+  <LI>Small memory requirement for decompression (depends from dictionary size)
+  <LI>Small code size for decompression: about 5 KB
+  <LI>Supports multi-threading and P4's hyper-threading
+</UL>
+
+<P>The <B>LZMA</B> compression algorithm is very suitable for embedded applications.
+If you want to use <B>LZMA</B> code, you can ask for consultation, custom code programming,
+and required developer licenses at 
+<P><A href="http://www.7-zip.org/support.html" target="_blank">www.7-zip.org/support.html</A></P>
+</P>
+
+<H2>AES encryption</H2>
+
+<P>7-Zip supports encryption with the AES-256 algorithm. 
+This algorithm uses a cipher key with length of 256 bits. To create the key, 7-Zip 
+uses a derivation function based on an SHA-256 hash algorithm.
+A key derivation function produces a derived key from a text password defined by the user.
+To increase the cost of an exhaustive search for passwords, 7-Zip uses a big number 
+of iterations to produce the cipher key from the text password.</P>
+
+<H2>Tips for selecting password length</H2>
+
+<P>Here is an estimate of the time required for an exhaustive
+password search attack, when the password is a random
+sequence of lowercase Latin letters.</P>
+
+<P>The most complex task for password search attack is SHA-256 calculation.
+Special SHA-256 hardware or GPU can be used to accelerate password search attack.
+Now modern GPU can provide about 10 times more performance for SHA-256 calculation 
+than modern CPU. And special SHA-256 hardware can provide about 20 times more 
+performance than GPU.</P>
+
+<P>We suppose that one user with a budget of about $2000 (for GPUs) can check 
+10000 passwords per second and an organization with a budget of about 
+10^9 USD (one thousand million US dollars) can check 3 * 10^12 passwords per second.
+We also suppose that the processor in use doubles its performance every two years;
+so, each additional Latin letter of a long password adds about
+9 years to an exhaustive key search attack.</P>
+
+<P>The result is this estimate of the time to succeed in an attack:</P>
+
+<TABLE>
+  <TR align=center>
+    <TH>Password Length</TH>
+    <TH>Single User Attack</TH>
+    <TH>Organization Attack</TH>
+  </TR>
+  <TR align=center> <TD> 1</TD> <TD>      1 s</TD> <TD>      1 s</TD> </TR>
+  <TR align=center> <TD> 2</TD> <TD>      1 s</TD> <TD>      1 s</TD> </TR>
+  <TR align=center> <TD> 3</TD> <TD>      2 s</TD> <TD>      1 s</TD> </TR>
+  <TR align=center> <TD> 4</TD> <TD>    1 min</TD> <TD>      1 s</TD> </TR>
+  <TR align=center> <TD> 5</TD> <TD>   30 min</TD> <TD>      1 s</TD> </TR>
+  <TR align=center> <TD> 6</TD> <TD> 12 hours</TD> <TD>      1 s</TD> </TR>
+  <TR align=center> <TD> 7</TD> <TD>  14 days</TD> <TD>      1 s</TD> </TR>
+  <TR align=center> <TD> 8</TD> <TD>   1 year</TD> <TD>      1 s</TD> </TR>
+  <TR align=center> <TD> 9</TD> <TD> 10 years</TD> <TD>      2 s</TD> </TR>
+  <TR align=center> <TD>10</TD> <TD> 19 years</TD> <TD>    1 min</TD> </TR>
+  <TR align=center> <TD>11</TD> <TD> 28 years</TD> <TD>   30 min</TD> </TR>
+  <TR align=center> <TD>12</TD> <TD> 37 years</TD> <TD> 12 hours</TD> </TR>
+  <TR align=center> <TD>13</TD> <TD> 46 years</TD> <TD>  14 days</TD> </TR>
+  <TR align=center> <TD>14</TD> <TD> 55 years</TD> <TD>   1 year</TD> </TR>
+  <TR align=center> <TD>15</TD> <TD> 64 years</TD> <TD> 10 years</TD> </TR>
+  <TR align=center> <TD>16</TD> <TD> 73 years</TD> <TD> 19 years</TD> </TR>
+  <TR align=center> <TD>17</TD> <TD> 82 years</TD> <TD> 28 years</TD> </TR>
+  <TR align=center> <TD>18</TD> <TD> 91 years</TD> <TD> 37 years</TD> </TR>
+  <TR align=center> <TD>19</TD> <TD>100 years</TD> <TD> 46 years</TD> </TR>
+</TABLE>
+
+</BODY>
+</HTML>

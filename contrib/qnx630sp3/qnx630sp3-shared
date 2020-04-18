@@ -1,0 +1,14 @@
+BIN="p7zip-4.47-x86-qnx6.shared"
+cd ../../ && mkdir -p ../${BIN}/Codecs && \
+make clean && \
+mv makefile.machine makefile.machine.bak && \
+cp makefile.qnx_shared.bin makefile.machine && \
+make 7z && make 7za && make 7zr && make sfx && \
+mv ./bin/7z ../${BIN} && mv ./bin/7za ../${BIN} && mv ./bin/7zr ../${BIN} && mv ./bin/7zCon.sfx ../${BIN} && \
+make clean && \
+cp makefile.qnx_shared.so makefile.machine && \
+make 7z && \
+mv ./bin/7z.so ../${BIN} && mv ./bin/Codecs/Rar.so ../${BIN}/Codecs && \
+make clean && \
+mv makefile.machine.bak makefile.machine
+echo "All done - look for binaries in ../${BIN}"

@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-ai (Include archive filenames) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-ai (Include archive filenames) switch</H1>
+
+<P>Specifies additional include archive filenames and wildcards.</P>
+<P>Multiple include switches are supported.</P>
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+-ai[<A class="parameter" href="#recurse_type">&lt;recurse_type></A>]<A class="parameter" href="#file_ref">&lt;file_ref></A>
+
+<A class="parameter" href="#recurse_type">&lt;recurse_type></A> ::= r[- | 0]
+<A class="parameter" href="#file_ref">&lt;file_ref></A> ::= @{listfile} | !{wildcard}
+</PRE>
+
+<H4>Parameters</H4>
+
+<DL>
+  <DT><A name="recurse_type"></A>&lt;recurse_type></DT>
+  <DD><P>Specifies how wildcards and file names in this switch must
+         be used.  If this option is not given, recursion will be not used.
+         For more details see specification of the
+         <A href="recurse.htm">-r (Recurse)</A> switch.</P>
+<PRE class="syntax">
+&lt;recurse_type> ::= r[- | 0]
+</PRE>
+
+ </DD>
+ <DT><A name="file_ref"></A>&lt;file_ref></DT>
+ <DD>
+   <P>Specifies filenames and wildcards or list file that specify processed files.</P>
+<PRE class="syntax">
+&lt;file_ref> ::= @{listfile} | !{wildcard}
+</PRE>
+   <TABLE>
+     <TR> <TH width="120">Option</TH> <TH>Description</TH> </TR>
+     <TR> <TD>{listfile}</TD> <TD>Specifies name of list file. See
+                  <A href = ../syntax.htm#ListFile>List file</A> description.</TD> </TR>
+     <TR> <TD>{wildcard}</TD> <TD>Specifies wildcard or filename.</TD> </TR>
+   </TABLE>
+ </DD>
+</DL>
+
+<H4>Examples</H4>
+
+<PRE class="example">
+7z t -an -air!*.7z
+</PRE>
+
+<P>tests <SPAN class="filename">*.7z</SPAN> archives in current directory and all it's 
+subdirectories.</P>
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/extract.htm">e (Extract)</A>,
+  <A href="../commands/list.htm">l (List)</A>,
+  <A href="../commands/test.htm">t (Test)</A>,
+  <A href="../commands/extract_full.htm">x (Extract with full paths)</A>
+</P>
+
+<H4>See also</H4>
+
+<P>
+  <B>Switches:</B>
+  <A href="ar_exclude.htm">-ax (Exclude archives)</A>
+  <A href="ar_no.htm">-an (Disable parsing of archive_name)</A>
+</P>
+
+</BODY>
+</HTML>

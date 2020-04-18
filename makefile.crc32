@@ -1,0 +1,8 @@
+
+# CRC32, C version
+OBJ_CRC32_C=7zCrcOpt.o # 7zCrc.o
+
+# CRC32, ASM version
+OBJ_CRC32_x86=7zCrcOpt_asm.o  # 7zCrc.o
+OBJ_CRC32_x86_64=7zCrcOpt_asm.o # 7zCrc.o
+

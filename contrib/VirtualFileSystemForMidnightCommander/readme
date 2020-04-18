@@ -1,0 +1,21 @@
+
+The official site of u7z is : http://sgh-punk.narod.ru/files/u7z/
+
+INSTALL
+=======
+- edit /usr/share/mc/extfs/extfs.ini to add "u7z" after urar.
+
+- edit /usr/share/mc/mc.ext to add :
+=-=-=-=-=-= Cut -=-=-=-=-=-
+regex/\.(7z|7Z)$
+	View=%view{ascii} 7za l %f
+	Open=%cd %p#u7z
+=-=-=-=-=-= Cut -=-=-=-=-=-
+
+This must be added before Manual pages Lines to prevent handle 7z archive
+like man page
+
+- copy u7z to /usr/share/mc/extfs
+
+- launch mc to try ;)
+

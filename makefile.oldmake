@@ -1,0 +1,85 @@
+
+include makefile.common
+
+test_lib: common
+	cd CPP/myWindows              ; $(MAKE) all
+
+other: common
+	cd Utils/CPUTest/MemLat       ; $(MAKE) all
+	cd Utils/CPUTest/PipeLen      ; $(MAKE) all
+	cd CPP/7zip/UI/P7ZIP          ; $(MAKE) all
+	cd CPP/7zip/TEST/TestUI       ; $(MAKE) all
+
+other2:
+	cd CPP/7zip/Bundles/AloneGCOV ; $(MAKE) all
+
+7za: common
+	cd CPP/7zip/Bundles/Alone ; $(MAKE) all
+
+7zr: common
+	cd CPP/7zip/Bundles/Alone7z ; $(MAKE) all
+
+Client7z: common
+	$(MKDIR) bin/Codecs
+	cd CPP/7zip/Bundles/Format7zFree  ; $(MAKE) all
+	cd CPP/7zip/UI/Client7z           ; $(MAKE) all
+
+depend:
+	cd CPP/7zip/Bundles/Alone         ; $(MAKE) depend
+	cd CPP/7zip/Bundles/Alone7z       ; $(MAKE) depend
+	cd CPP/7zip/Bundles/SFXCon        ; $(MAKE) depend
+	cd CPP/7zip/UI/Client7z           ; $(MAKE) depend
+	cd CPP/7zip/UI/Console            ; $(MAKE) depend
+	cd CPP/7zip/Bundles/Format7zFree  ; $(MAKE) depend
+	cd CPP/7zip/Compress/Rar          ; $(MAKE) depend
+	cd CPP/7zip/UI/GUI                ; $(MAKE) depend
+	cd CPP/7zip/UI/FileManager        ; $(MAKE) depend
+
+sfx: common
+	$(MKDIR) bin
+	cd CPP/7zip/Bundles/SFXCon  ; $(MAKE) all
+
+common7z:common
+	$(MKDIR) bin/Codecs
+	cd CPP/7zip/Bundles/Format7zFree ; $(MAKE) all
+	cd CPP/7zip/Compress/Rar         ; $(MAKE) all
+
+lzham:common
+	$(MKDIR) bin/Codecs
+	cd CPP/7zip/Compress/Lzham all
+
+7z: common7z
+	cd CPP/7zip/UI/Console           ; $(MAKE) all
+
+7zG: common7z LangAndHelp
+	cd CPP/7zip/UI/GUI               ; $(MAKE) all
+
+7zFM: common7z LangAndHelp
+	cd CPP/7zip/UI/FileManager       ; $(MAKE) all
+
+clean_C:
+	cd CPP/myWindows                 ; $(MAKE) clean
+	cd CPP/7zip/Bundles/Alone        ; $(MAKE) clean
+	cd CPP/7zip/Bundles/Alone7z      ; $(MAKE) clean
+	cd CPP/7zip/Bundles/SFXCon       ; $(MAKE) clean
+	cd CPP/7zip/UI/Client7z          ; $(MAKE) clean
+	cd CPP/7zip/UI/Console           ; $(MAKE) clean
+	cd CPP/7zip/UI/FileManager       ; $(MAKE) clean
+	cd CPP/7zip/UI/GUI               ; $(MAKE) clean
+	cd CPP/7zip/Bundles/Format7zFree ; $(MAKE) clean
+	cd CPP/7zip/Compress/Rar         ; $(MAKE) clean
+	cd CPP/7zip/Compress/Lzham       ; $(MAKE) clean
+	cd CPP/7zip/Bundles/LzmaCon      ; $(MAKE) clean2
+	cd CPP/7zip/Bundles/AloneGCOV    ; $(MAKE) clean
+	cd CPP/7zip/TEST/TestUI          ; $(MAKE) clean
+	cd CPP/ANDROID                   ; $(MAKE) clean
+	cd Utils/CPUTest/MemLat          ; $(MAKE) clean
+	cd Utils/CPUTest/PipeLen         ; $(MAKE) clean
+	cd CPP/7zip/UI/P7ZIP             ; $(MAKE) clean
+
+LzmaCon:
+	cd CPP/7zip/Bundles/LzmaCon ; $(MAKE)
+
+test_LzmaCon:
+	cd CPP/7zip/Bundles/LzmaCon ; $(MAKE) test
+

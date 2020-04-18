@@ -1,0 +1,29 @@
+#
+# makefile for Linux (x86_64)
+#
+
+# OPTFLAGS=-fast -msse3 -s
+OPTFLAGS=-m64 -O2 -march=core2 # -ipo # -no-gcc
+
+ALLFLAGS=${OPTFLAGS} \
+    	-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
+	-DNDEBUG -D_REENTRANT -DENV_UNIX \
+	-D_7ZIP_LARGE_PAGES \
+	-D_7ZIP_ASM \
+	$(LOCAL_FLAGS)
+
+CXX=icpc -i-static
+CC=icc
+CC_SHARED=-fPIC
+LINK_SHARED=-fPIC -shared
+ASM=yasm -f elf -m amd64 -Dx64
+
+PRE_COMPILED_HEADER=StdAfx.h.gch
+
+LOCAL_LIBS=-lpthread
+LOCAL_LIBS_DLL=$(LOCAL_LIBS) -ldl
+
+CPU=x64
+OBJ_CRC32=$(OBJ_CRC32_x86_64)
+OBJ_AES=AesOpt.o
+

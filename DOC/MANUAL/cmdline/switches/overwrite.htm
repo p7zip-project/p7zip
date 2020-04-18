@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-ao (Overwrite mode) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-ao (Overwrite mode) switch</H1>
+
+<P>Specifies the overwrite mode during extraction, to overwrite files already present on disk.</P>
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+-ao[a | s | t | u ]
+</PRE>
+
+
+<TABLE>
+  <TR> <TH width="80">Switch</TH> <TH>Description</TH> </TR>
+  <TR> <TD>-aoa</TD> <TD>Overwrite All existing files without prompt.</TD> </TR>
+  <TR> <TD>-aos</TD> <TD>Skip extracting of existing files.</TD> </TR>
+  <TR> <TD>-aou</TD> <TD>aUto rename extracting file (for example, name.txt will 
+      be renamed to name_1.txt).</TD> </TR>
+  <TR> <TD>-aot</TD> <TD>auto rename existing file (for example, name.txt will 
+      be renamed to name_1.txt).</TD> </TR>
+</TABLE>
+
+<H4>Examples</H4>
+
+<PRE class="example">
+7z x test.zip -aoa
+</PRE>
+
+<P>extracts all files from <SPAN class="filename">test.zip</SPAN> archive and overwrites
+existing files without any prompt.</P>
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/extract.htm">e (Extract)</A>,
+  <A href="../commands/extract_full.htm">x (Extract with full paths)</A>
+</P>
+
+<H4>See also</H4>
+
+<P>
+  <B>Switches:</B>
+  <A href="yes.htm">-y (assume Yes on all queries)</A>,
+</P>
+
+</BODY>
+</HTML>

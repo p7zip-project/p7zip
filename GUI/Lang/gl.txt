@@ -1,0 +1,404 @@
+﻿;!@Lang2@!UTF-8!
+;  3.12 : Xosé Calvo
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+0
+7-Zip
+Galician
+Galego
+401
+Dacordo
+Cancelar
+
+
+
+&Si
+&Non
+&Fechar
+Axuda
+
+&Continuar
+440
+Si a &Todo
+Non a T&odo
+Parar
+Reiniciar
+&Fondo
+&Letras
+&Pausa
+Parado
+Ten a certeza de que quer cancelar?
+500
+&Ficheiro
+&Modificar
+&Ver
+F&avoritos
+&Ferramentas
+&Axuda
+540
+&Abrir
+Abrir &Dentro
+Abrir &Fora
+&Ver
+&Modificar
+Reno&mear
+&Copiar Para...
+&Mover Para...
+&Eliminar
+
+
+&Propriedades
+Come&ntario
+
+
+Crear Cartafol
+Crear Ficheiro
+Sa&ir
+600
+Seleccionar &Todo
+De-seleccionar Todo
+&Inverter a Selección
+Seleccionar...
+De-seleccionar...
+Seleccionar por Tipo
+De-select por Tipo
+700
+Icones &Grandes
+Icones &Pequenos
+&Lista
+&Detalles
+730
+Sen Orde
+
+&Dous Paineis
+&Barras de Ferramentas
+Abrir o Cartafol Raíz
+Subir un Nível
+Histórico de Cartafois...
+&Refrescar
+750
+Barra de Ferramentas de arquivos
+Barra de Ferramentas normal
+Botóns grandes
+Mostrar o Texto dos Botóns
+800
+&Adicionar o cartafol aos Favoritos como
+Marcador
+900
+&Opcións...
+&Análise
+960
+&Contido...
+&Acerca do 7-Zip...
+1003
+Camiño
+Nome
+Extensión
+Cartafol
+Tamaño
+Tamaño comprimido
+Atributos
+Creado
+Último acceso
+Modificado
+Sólido
+Comentado
+Encriptado
+Partir Antes
+Partir Depois
+Dicionario
+CRC
+Tipo
+Anti
+Método
+OS do Servidor
+Sistema de Ficheiros
+Usario
+Grupo
+Bloco
+Comentario
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Erro
+Tamaño total
+Tamaño disponíbel
+Tamaño co cluster
+Etiqueta
+Nome local
+Fornecedor
+2100
+Opciós
+Idioma
+Idioma:
+Editor
+&Editor:
+
+2200
+Sistema
+Asociar 7-Zip con:
+2301
+Integratar 7-Zip no menú de contexto
+Menú de contexto en cascata
+Elementos do Menú de contexto:
+2320
+<Cartafol>
+<Arquivo>
+Abrir arquivo
+Extrair ficheiros...
+Adicionar ao arquivo...
+Comprobar arquivo
+Extrair Aquí
+Extrair para {0}
+Adicionar a {0}
+Comprimir e enviar por correo...
+Comprimir a {0} e enviar por correo
+2400
+Cartafois
+&cartafol de traballo
+Cartafol &temporario do sistema
+Cartafol a&ctual
+&Especificar:
+Usar só discos removíveis
+Especificar unha localización para os ficheiros de arquivo temporarios.
+2500
+Axustes
+Mostrar o elemento ".."
+Mostrar os icones reais dos ficheiros
+Mostrar o menú do sistema
+
+
+
+
+
+2900
+Sobre o 7-Zip
+7-Zip é un programa gratuito. Contodo, pode contribuir co seu desenvolvimento rexistrándose. Se se rexistrar, terá direito a receber apoio técnico.
+3000
+
+Non se produciron erross
+{0} obxecto(s) seleccionados
+Non é posíbel crear o cartafol '{0}'
+Este tipo de arquivo non permite actualizacións.
+
+
+
+
+Modificouse o Ficheiro '{0}'.\nQuéreo actualizar no arquivo?
+Non é posíbel actualizar o ficheiro\n'{0}'
+Non se pode iniciar o editor.
+
+
+
+
+Demasiados elementos
+3300
+Extraindo
+Comprimir
+Proba
+Abrindo...
+
+3400
+Extrair
+E&xtrair para:
+Especificar unha localización de destino para os ficheiros extraídos.
+3410
+Modo nome de cartafol
+Camiños completos
+Sen camiños
+3420
+Modo sobreposición
+Con confirmación
+Sen confirmación
+Manter os ficheiros existentes
+Renomear automaticamente
+
+3500
+Confirmar a Substitución dos Ficheiros
+O cartafol de destino xa contén un ficheiro co mesmo nome.
+Desexa substituir o ficheiro co mesmo nome
+por este?
+{0} bytes
+Renomear &automaticamente
+3700
+Método de compresión non válido para '{0}'.
+Erro de datos en '{0}'. O ficheiro está mal.
+CRC fallou en '{0}'. O ficheiro está mal.
+
+
+3800
+Introduza o contrasinal
+Introduza o contrasinal:
+
+&Mostrar o contrasinal
+
+
+
+Contrasinal
+3900
+Tempo pasado:
+Tempo restante:
+Tamaño:
+Velocidade:
+
+
+Erros:
+
+4000
+Adicionar ao arquivo
+&Arquivo:
+&Modo de actualización:
+&Format do arquivo:
+&Nível de compresión:
+&Tipo de compresión:
+Tamaño do &dicionario:
+Tamaño das &palabras:
+
+
+&Parámetros:
+Opcións
+Crear un arquivo SF&X
+
+
+
+Encriptar os &nomes dos ficheiros
+Uso da memoria para a Compresión:
+Uso da memoria para a Decompresión:
+4050
+Sen compresión
+Máis rápida
+Rápida
+Normal
+Máxima
+Ultra
+4060
+Adicionar e substituir os ficheiros
+Actualizar e adicionar os ficheiros
+Só actualizar os ficheiros existentes
+Sincronizar os ficheiros
+4070
+Ver
+Todos os ficheiros
+
+
+6000
+Copiar
+Mover
+Copiar para:
+Mover para:
+A copiar...
+a mover...
+A renomear...
+
+Non é posíbel efectuar esta operación.
+Erro ao Renomear Ficheiro ou Cartafol
+
+
+6100
+Confirmar Eliminar Ficheiro
+Confirmar Eliminar Cartafol
+Confirmar Eliminar Múltiplos Ficheiros
+Ten a certeza de que desexa eliminar '{0}'?
+Ten a certeza de que desexa eliminar o cartafol '{0}' e todo o seu contido?
+Ten a certeza de que desexa eliminar estes {0} elementos?
+A eliminar...
+Erro ao eliminar Ficheiro ou Cartafol
+
+6300
+Crear Cartafol
+Crear Ficheiro
+Nome do cartafol:
+Nome do Ficheiro:
+Novo Cartafol
+Novo Ficheiro
+Erro ao crear o Cartafol
+Erro ao crear o Ficheiro
+6400
+Comentario
+&Comentario:
+Seleccionar
+De-seleccionar
+Máscara:
+6600
+
+Histórico dos Cartafois
+mensaxes de diagnóstico
+Mensaxe
+7100
+Computador
+Rede
+
+Sistema
+7200
+Adicionar
+Extrair
+Probar
+Copiar
+Mover
+Eliminar
+Información
+7300
+
+
+Partir en &volumes, bytes:
+
+
+
+
+
+
+7400
+
+
+
+
+
+
+7500
+
+
+
+
+7600
+Análise
+Uso da memoria:
+Compresión
+Decompresión
+Relación
+Relación total
+Actual
+Resultante
+
+
+Pases:

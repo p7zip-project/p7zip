@@ -1,0 +1,27 @@
+#
+# makefile for DJGPP
+# (available targets for DJGPP : all test clean)
+#
+#
+# export DJGPP_HOME=/home/me/djgpp
+#
+
+
+OPTFLAGS=-O -s
+
+ALLFLAGS=${OPTFLAGS} \
+	-I${DJGPP_HOME}/include \
+    	-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
+	-DNDEBUG -D_REENTRANT -DENV_UNIX \
+	$(LOCAL_FLAGS)
+
+CXX=${DJGPP_HOME}/bin/i586-pc-msdosdjgpp-g++
+CC=${DJGPP_HOME}/bin/i586-pc-msdosdjgpp-gcc
+LINK_SHARED=-shared
+
+LOCAL_LIBS=-L${DJGPP_HOME}/lib   -lpthread -lsocket
+LOCAL_LIBS_DLL=$(LOCAL_LIBS)
+
+OBJ_CRC32=$(OBJ_CRC32_C)
+OBJ_AES=
+

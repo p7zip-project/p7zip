@@ -1,0 +1,133 @@
+#! /bin/sh
+#
+# u7z - 7zip file archive Virtual File System for Midnight Commander ( ftp://ftp.ibiblio.org/pub/Linux/utils/file/managers/mc/ )
+# 
+# Copyright (C) 2004 Sergiy Niskorodov (sgh at mail dot zp dot ua)
+
+# Written by Sergiy Niskorodov aka SGh
+#
+# version 4.29 (12 Nov 2005)
+#
+# 7z for linux can be found on http://sourceforge.net/projects/p7zip/
+
+
+# Thanks to urar VFS authors andrey joukov 2:5020/337.13@fidonet.org, 
+# christian.gennerat@alcatel.fr, Andrew V. Samoilov <sav@bcs.zp.ua>
+# I use this script like example
+
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+
+
+SEVENZ=`which 7z` || SEVENZ=`which 7za`
+
+
+mc7zfs_list ()
+{
+    $SEVENZ l "$1" 2> /dev/null | gawk -v uid=${UID-0} '
+BEGIN { flag=0; arr_of_month="JanFebMarAprMayJunJulAugSepOctNovDec" }
+ /^-------/ { flag++; if (flag > 1) exit 0; next }
+{
+if (flag == 0) next
+
+year=substr($1, 1, 4)
+month=substr($1, 6, 2)
+day=substr($1, 9, 2)
+
+month_name=substr(arr_of_month, (month-1)*3+1, 3)
+
+time=substr($2, 1, 5)
+
+if (index($3, "D") != 0)
+    attr="drwxr-xr-x"
+else
+if (index($3, ".") != 0)
+    attr="-rw-r--r--"
+
+size=$4
+
+$0=substr($0, 54)
+if (NF > 1)
+    name=$0
+else
+    name=$1
+
+gsub(/\\/, "/", name)
+
+printf "%s   1 %-8d %-8d %8d %3s %2d %4d %s %s\n", attr, uid, 0, size, month_name, day, year, time, name
+}'
+}
+
+mc7zfs_copyin ()
+{
+# preserve pwd.
+    pwd=`pwd`
+# Create a directory and copy in it the tmp file with the random name
+    dir="$3".dir
+    mkdir "$dir"
+    cd "$dir"
+    di="${2%/*}"
+# if file is to be written upper in the archive tree, make fake dir
+    if test "$di" != "${2##*/}" ; then
+        mkdir -p "$di" 
+    fi
+    cp -fp "$3" "$dir/$2"
+    $SEVENZ a "$1" "$2" >/dev/null 2> /dev/null
+    cd $pwd
+    rm -rf "$3.dir"
+}
+
+mc7zfs_copyout ()
+{
+    $SEVENZ l "$1" | grep -q "[.][/].*$2" &> /dev/null && EXFNAME=*./"$2" || EXFNAME="$2"
+    $SEVENZ e -r- -so "$1" "$EXFNAME" > "$3" 2> /dev/null
+}
+
+mc7zfs_mkdir ()
+{
+# preserve pwd.
+    pwd=`pwd`
+# Create a directory and create in it a tmp directory with the good name     
+    dir=tmpdir.${RANDOM}
+    mkdir $dir
+    cd $dir
+    mkdir -p "$2"
+    $SEVENZ a -r "$1" "$2" >/dev/null 2>/dev/null
+    cd $pwd
+    rm -rf $dir
+}
+
+mc7zfs_rm ()
+{
+    $SEVENZ l "$1" | grep -q "[.][/].*$2" &> /dev/null && EXFNAME=*./"$2" || EXFNAME="$2"
+    $SEVENZ d "$1" "$EXFNAME" 2>&1 | grep -q E_NOTIMPL &> /dev/null && { echo -e "Function not implemented...\n7z cannot delete files from solid archive." >&2 ; exit 1 ; }
+}
+
+umask 077
+
+cmd="$1"
+shift
+
+case "$cmd" in
+  list)    mc7zfs_list    "$@" ;;
+  rm)      mc7zfs_rm      "$@" ;;
+  rmdir)   mc7zfs_rm      "$@" ;;
+  mkdir)   mc7zfs_mkdir   "$@" ;;
+  copyin)  mc7zfs_copyin  "$@" ;;
+  copyout) mc7zfs_copyout "$@" ;;
+  *) exit 1 ;;
+esac
+exit 0

@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-scrc (Set hash function) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-scrc (Set hash function) switch</H1>
+
+<P>Sets hash function for "extract" and "hash" commands.</P> 
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+[-scrc{Method}]
+</PRE>
+
+<P>Supported methods: CRC32, CRC64, SHA1, SHA256, BLAKE2sp, *. Default method is CRC32.</P>
+
+<H4>Examples</H4>
+
+<PRE class="example">
+7z t -scrcSHA256 archive.gz
+</PRE>
+
+<P>tests archive <SPAN class="filename">archive.gz</SPAN> and calculated SHA-256 for decompressed data.</P>
+
+<PRE class="example">
+7z h -scrcsha1 *.iso
+</PRE>
+
+<P>calculates SHA-1 for <SPAN class="filename">*.iso</SPAN> files.</P>
+
+
+<PRE class="example">
+7z h -scrc* file.iso
+</PRE>
+
+<P>calculates hash values for <SPAN class="filename">file.iso</SPAN> file.</P>
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/hash.htm">h (Hash)</A>,
+  <A href="../commands/extract.htm">e (Extract)</A>,
+  <A href="../commands/extract_full.htm">x (Extract with full paths)</A>
+</P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-r (Recurse subdirectories) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-r (Recurse subdirectories) switch</H1>
+
+<P>Specifies the method of treating wildcards and filenames on the command line.</P>
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+-r[- | 0]
+</PRE>
+
+
+<TABLE>
+  <TR><TH width="80">Switch</TH> <TH>Description</TH></TR>
+  <TR><TD>-r</TD> <TD>Enable recurse subdirectories.</TD></TR>
+  <TR><TD>-r-</TD> <TD>Disable recurse subdirectories. This option is default for all commands.</TD></TR>
+  <TR><TD>-r0</TD> <TD>Enable recurse subdirectories only for wildcard names.</TD></TR>
+</TABLE>
+
+<H4>Examples</H4>
+
+<PRE class="example">
+7z l archive.zip *.doc -r-
+</PRE>
+
+<P>lists all <SPAN class="filename">*.doc</SPAN> files
+  that belong to the archived root directory
+  in the <SPAN class="filename">archive.zip</SPAN> archive.
+  </P>
+
+<PRE class="example">
+7z a -tzip archive.zip -r src\*.cpp src\*.h
+</PRE>
+
+<P>adds all <SPAN class="filename">*.cpp</SPAN> and <SPAN class="filename">*.h</SPAN>
+  files from directory <SPAN class="filename">src</SPAN> and all it's subdirectories
+  to the <SPAN class="filename">archive.zip</SPAN> archive.</P>
+
+<PRE class="example">
+7z a archive.7z folder1\
+</PRE>
+
+<P>adds all files from directory <SPAN class="filename">folder1</SPAN> and all it's subdirectories
+  to the <SPAN class="filename">archive.7z</SPAN> archive.</P>
+
+<PRE class="example">
+7z a archive.7z -r folder2\
+</PRE>
+
+<P>searches all <SPAN class="filename">folder2</SPAN> directories in all subdirectories,
+  and adds them (including all subdirectories) to the <SPAN class="filename">archive.7z</SPAN> archive.</P>
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/add.htm">a (Add)</A>,
+  <A href="../commands/delete.htm">d (Delete)</A>,
+  <A href="../commands/extract.htm">e (Extract)</A>,
+  <A href="../commands/hash.htm">h (Hash)</A>,
+  <A href="../commands/list.htm">l (List)</A>,
+  <A href="../commands/rename.htm">rn (Rename)</A>,
+  <A href="../commands/test.htm">t (Test)</A>,
+  <A href="../commands/update.htm">u (Update)</A>,
+  <A href="../commands/extract_full.htm">x (Extract with full paths)</A>
+</P>
+
+<H4>See also</H4>
+
+<P>
+  <B>Switches:</B>
+  <A href="include.htm">-i (Include)</A>,
+  <A href="exclude.htm">-x (Exclude)</A>
+</P>
+
+</BODY>
+</HTML>

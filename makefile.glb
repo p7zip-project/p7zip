@@ -1,0 +1,48 @@
+
+RM=rm -f
+
+CFLAGS=-c -I. \
+-I../../../../C \
+-I../../../../CPP/myWindows \
+-I../../../../CPP/include_windows \
+-I../../../../CPP \
+$(ALLFLAGS) $(ALLFLAGS_C)
+
+CXXFLAGS=-c -I. \
+-I../../../../C \
+-I../../../../CPP/myWindows \
+-I../../../../CPP/include_windows \
+-I../../../../CPP \
+$(ALLFLAGS) $(ALLFLAGS_CPP)
+
+
+PCH_NAME=$(PRE_COMPILED_HEADER)
+
+
+include makefile.list
+include makefile.depend
+
+$(PROG): $(OBJS)
+	$(CXX) $(ALLFLAGS) $(ALLFLAGS_CPP) $(LOCAL_LINK) -o $(PROG) $(LDFLAGS) $(OBJS) $(LIBS)
+
+debug:
+	@echo "LOCAL_FLAGS=$(LOCAL_FLAGS)"
+	@echo "ALLFLAGS=$(ALLFLAGS)"
+	
+depend:
+	rm -f makefile.depend
+	$(CXX) -MM $(CXXFLAGS) $(SRCS)   > makefile.depend
+
+#	$(CC)  $(DFLAGS) $(SRCS_C) >> makefile.depend
+
+clean:
+	-@$(RM) $(PROG) core *.exe *.o *~ .*.swp *.orig *.gch $(PROGS)
+	-@$(RM) -fr SunWS_cache/ 
+	-@$(RM) -r .inslog2 pchdir/ tca.map ir.out
+	-@$(RM) make.log tags 1 2
+
+# CRC32, ASM version
+7zCrcOpt_asm.o : ../../../../Asm/x86/7zCrcOpt_asm.asm
+	$(ASM) -I ../../../../Asm/x86/  ../../../../Asm/x86/7zCrcOpt_asm.asm -o 7zCrcOpt_asm.o
+AesOpt.o : ../../../../Asm/x86/AesOpt.asm
+	$(ASM) -I ../../../../Asm/x86/  ../../../../Asm/x86/AesOpt.asm -o AesOpt.o

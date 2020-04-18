@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>x (Extract with full paths) command</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>x (Extract with full paths) command</H1>
+
+<P>Extracts files from an archive with their full
+paths in the current directory, or in an output directory if specified.</P>
+
+<P>See the <A href="extract.htm">e (Extract)</A> command description for more details.</P>
+
+<H4>Examples</H4>
+
+<PRE class="example">
+7z x archive.zip
+</PRE>
+
+<P>extracts all files from the archive
+    <SPAN class="filename">archive.zip</SPAN> to the current directory.</P>
+
+<PRE class="example">
+7z x archive.zip -oc:\soft *.cpp -r
+</PRE>
+
+<P>extracts all <SPAN class="filename">*.cpp</SPAN> files from the archive
+    <SPAN class="filename">archive.zip</SPAN> to <SPAN class="filename">c:\soft</SPAN> folder.</P>
+
+
+<H4>Notes</H4>
+
+<P>7-Zip doesn't use the system wildcard parser. 7-Zip doesn't
+follow the archaic rule by which *.* means any file. 7-Zip treats
+*.* as matching the name of any file that has an extension. To process 
+all files, you must use a * wildcard.</P>
+
+
+<H4>Switches that can be used with this command</H4>
+
+<P>
+  <A href="../switches/ar_include.htm">-ai (Include archives)</A><BR>
+  <A href="../switches/ar_no.htm">-an (Disable parsing of archive_name)</A><BR>
+  <A href="../switches/overwrite.htm">-ao (Overwrite mode)</A><BR>
+  <A href="../switches/ar_exclude.htm">-ax (Exclude archives)</A><BR>
+  <A href="../switches/include.htm">-i (Include)</A><BR>
+  <A href="../switches/method.htm">-m (Method)</A><BR>
+  <A href="../switches/output_dir.htm">-o (Set Output Directory)</A><BR>
+  <A href="../switches/password.htm">-p (Set Password)</A><BR>
+  <A href="../switches/recurse.htm">-r (Recurse)</A><BR>
+  <A href="../switches/stdin.htm">-si (use StdIn)</A><BR>
+  <A href="../switches/sni.htm">-sni (Store NT security information)</A><BR>
+  <A href="../switches/sns.htm">-sns (Store NTFS alternate Streams)</A><BR>
+  <A href="../switches/stdout.htm">-so (use StdOut)</A><BR>
+  <A href="../switches/spf.htm">-spf (Use fully qualified file paths)</A><BR>
+  <A href="../switches/type.htm">-t (Type of archive)</A><BR>
+  <A href="../switches/exclude.htm">-x (Exclude)</A><BR>
+  <A href="../switches/yes.htm">-y (Assume Yes on all queries)</A>
+</P>
+
+<H4>See also</H4>
+
+<P>
+  <B>Commands:</B> 
+  <A href="extract.htm">e (Extract)</A>
+</P>
+
+</BODY>
+</HTML>

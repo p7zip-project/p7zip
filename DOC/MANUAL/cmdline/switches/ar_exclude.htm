@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-ax (Exclude archive filenames) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-ax (Exclude archive filenames) switch</H1>
+
+<P>Specifies archives to be excluded from the operation.</P>
+<P>Multiple exclude archive switches are supported.</P>
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+-ax[&lt;recurse_type>]&lt;file_ref>
+
+&lt;recurse_type> ::= r[- | 0]
+&lt;file_ref> ::= @{listfile} | !{wildcard}
+</PRE>
+
+<P>See <A href="include.htm">-xi (Include archive filenames)</A> switch description 
+for information about option parameters.</P>
+
+
+<H4>Examples</H4>
+
+<PRE class="example">
+7z t -an -ai!*.7z -ax!a*.7z
+</PRE>
+
+<P>tests all <SPAN class="filename">*.7z</SPAN> archives,
+  except <SPAN class="filename">a*.7z</SPAN> archives.</P>
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/extract.htm">e (Extract)</A>,
+  <A href="../commands/list.htm">l (List)</A>,
+  <A href="../commands/test.htm">t (Test)</A>,
+  <A href="../commands/extract_full.htm">x (Extract with full paths)</A>
+</P>
+
+<H4>See also</H4>
+
+<P>
+  <B>Switches:</B>
+  <A href="include.htm">-ai (Include archives)</A>
+  <A href="ar_no.htm">-an (Disable parsing of archive_name)</A>
+</P>
+
+</BODY>
+</HTML>

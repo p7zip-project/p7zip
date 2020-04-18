@@ -1,0 +1,37 @@
+
+7za/7z
+======
+- auto-generate config.h (use a configure script ...)
+
+- suppress all exit(EXIT_FAILURE), FIXME, ...
+
+- no chmod for TAR (should restore the rights set)
+
+- no chown(uid,gid) for TAR
+
+- Use a more portable "String.h"
+
+- UTF16 : try to test with Complex Unicode filenames
+
+- KNOWN BUGS
+
+  - date (format arj/rar/chm) ?
+
+- zip format : better support of symbolic links
+
+7zG / 7zFM
+==========================
+
+- better help displaying
+
+- better support for space in filenames
+
+
+7zG :
+ - sfx: wants 7z.sfx instead of 7zCon.sfx ?
+ - the dialogs are not on top of other windows => not visible ...
+
+
+7zFM :
+ - the path "/" does not work (on OSX ?)
+ - strange behaviour : selected/unselected items

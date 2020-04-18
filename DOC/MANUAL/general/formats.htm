@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>Supported formats</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>Supported formats</H1>
+
+<TABLE>
+  <TR>
+    <TH>Format</TH>
+    <TH>Creation</TH>
+    <TH>Filename Extensions</TH>
+  </TR>
+  <TR> <TD align="center">7z</TD> <TD align="center">X</TD> <TD>7z</TD> </TR>
+  <TR> <TD align="center">BZIP2</TD> <TD align="center">X</TD> <TD>bz2 bzip2 tbz2 tbz</TD> </TR>
+  <TR> <TD align="center">GZIP</TD> <TD align="center">X</TD> <TD>gz gzip tgz</TD> </TR>
+  <TR> <TD align="center">TAR</TD> <TD align="center">X</TD> <TD>tar</TD> </TR>
+  <TR> <TD align="center">WIM</TD> <TD align="center">X</TD> <TD>wim swm</TD> </TR>
+  <TR> <TD align="center">XZ</TD> <TD align="center">X</TD> <TD>xz txz</TD> </TR>
+  <TR> <TD align="center"><A href="#zip">ZIP</A></TD> <TD align="center">X</TD> <TD>zip zipx jar xpi odt ods docx xlsx epub</TD> </TR>
+
+  <TR> <TD align="center">APM</TD> <TD></TD> <TD>apm</TD> </TR>
+  <TR> <TD align="center">AR</TD> <TD></TD> <TD>ar a deb lib</TD> </TR>
+  <TR> <TD align="center">ARJ</TD> <TD></TD> <TD>arj</TD> </TR>
+  <TR> <TD align="center">CAB</TD> <TD></TD> <TD>cab</TD> </TR>
+  <TR> <TD align="center">CHM</TD> <TD></TD> <TD>chm chw chi chq</TD> </TR>
+  <TR> <TD align="center">COMPOUND</TD> <TD></TD> <TD>msi msp doc xls ppt</TD> </TR>
+  <TR> <TD align="center">CPIO</TD> <TD></TD> <TD>cpio</TD> </TR>
+  <TR> <TD align="center">CramFS</TD> <TD></TD> <TD>cramfs</TD> </TR>
+  <TR> <TD align="center">DMG</TD> <TD></TD> <TD>dmg</TD> </TR>
+  <TR> <TD align="center">Ext</TD> <TD></TD> <TD>ext ext2 ext3 ext4 img</TD> </TR>
+  <TR> <TD align="center">FAT</TD> <TD></TD> <TD>fat img</TD> </TR>
+  <TR> <TD align="center">HFS</TD> <TD></TD> <TD>hfs hfsx</TD> </TR>
+  <TR> <TD align="center">HXS</TD> <TD></TD> <TD>hxs hxi hxr hxq hxw lit</TD> </TR>
+  <TR> <TD align="center">iHEX</TD> <TD></TD> <TD>ihex</TD> </TR>
+  <TR> <TD align="center">ISO</TD> <TD></TD> <TD>iso img</TD> </TR>
+  <TR> <TD align="center"><A href="#lzh">LZH</A></TD> <TD></TD> <TD>lzh lha</TD></TR>
+  <TR> <TD align="center">LZMA</TD> <TD></TD> <TD>lzma</TD> </TR>
+  <TR> <TD align="center">MBR</TD> <TD></TD> <TD>mbr</TD> </TR>
+  <TR> <TD align="center">MsLZ</TD> <TD></TD> <TD>mslz</TD> </TR>
+  <TR> <TD align="center">Mub</TD> <TD></TD> <TD>mub</TD> </TR>
+  <TR> <TD align="center">NSIS</TD> <TD></TD> <TD>nsis</TD> </TR>
+  <TR> <TD align="center">NTFS</TD> <TD></TD> <TD>ntfs img</TD> </TR>
+  <TR> <TD align="center">MBR</TD> <TD></TD> <TD>mbr</TD> </TR>
+  <TR> <TD align="center">RAR</TD> <TD></TD> <TD>rar r00</TD> </TR>
+  <TR> <TD align="center">RPM</TD>  <TD></TD> <TD>rpm</TD></TR>
+  <TR> <TD align="center">PPMD</TD> <TD></TD> <TD>ppmd</TD> </TR>
+  <TR> <TD align="center">QCOW2</TD> <TD></TD> <TD>qcow qcow2 qcow2c</TD> </TR>
+  <TR> <TD align="center">SPLIT</TD> <TD></TD> <TD>001 002 ...</TD> </TR>
+  <TR> <TD align="center">SquashFS</TD> <TD></TD> <TD>squashfs</TD> </TR>
+  <TR> <TD align="center">UDF</TD> <TD></TD> <TD>udf iso img</TD> </TR>
+  <TR> <TD align="center">UEFIc</TD> <TD></TD> <TD>scap</TD> </TR>
+  <TR> <TD align="center">UEFIs</TD> <TD></TD> <TD>uefif</TD> </TR>
+  <TR> <TD align="center">VDI</TD> <TD></TD> <TD>vdi</TD> </TR>
+  <TR> <TD align="center">VHD</TD> <TD></TD> <TD>vhd</TD> </TR>
+  <TR> <TD align="center">VMDK</TD> <TD></TD> <TD>vmdk</TD> </TR>
+  <TR> <TD align="center">WIM</TD> <TD></TD> <TD>wim esd</TD> </TR>
+  <TR> <TD align="center">XAR</TD> <TD></TD> <TD>xar pkg</TD> </TR>
+  <TR> <TD align="center">Z</TD> <TD></TD> <TD>z taz</TD> </TR>
+</TABLE>
+
+<H2><a name="zip"></a>ZIP</H2>
+
+<P>7-Zip creates ZIP compatible archives. 
+7-Zip supports the following ZIP compression methods:</P>
+<UL>
+  <LI>0 - Store</LI>
+  <LI>1 - Shrink (decompression only)</LI>
+  <LI>6 - Implode (decompression only)</LI>
+  <LI>8 - Deflate</LI>
+  <LI>9 - Deflate64</LI>
+  <LI>12 - BZip2</LI>
+  <LI>14 - LZMA</LI>
+  <LI>95 - xz (decompression only)</LI>
+  <LI>98 - PPMd</LI>
+  <LI>99 - WinZip AES</LI>
+</UL>
+
+<P>Files compressed with other ZIP compression methods
+can't be extracted by the current version of the 7-Zip.
+But these supported methods are the most popular today,
+and therefore 7-Zip can decompress most ZIP archives.
+To extract files compressed with non-supported methods you must use some
+other ZIP utility.</P>
+
+<P>7-Zip supports the Zip64 extension of ZIP format.</P>
+
+<H2><a name="lzh"></a>LZH</H2>
+
+<P>7-Zip supports LZH archives only for listing, browsing and decompressing.
+7-Zip supports -lh0-, -lh4-, -lh5-, -lh6- and -lh7- methods.</P>
+
+
+</BODY>
+</HTML>

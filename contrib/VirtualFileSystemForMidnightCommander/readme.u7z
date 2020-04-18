@@ -1,0 +1,30 @@
+For use u7z you must add following line to extfs.ini
+
+=-=-=-=-=-= Cut -=-=-=-=-=-
+u7z
+=-=-=-=-=-= Cut -=-=-=-=-=-
+
+And add somthing like this to extension file
+
+REMARK: 7z may be replaced with 7za
+
+=-=-=-=-=-= Cut -=-=-=-=-=-
+regex/\.(7z|7Z)$
+	View=%view{ascii} 7z l %f
+	Open=%cd %p#u7z
+=-=-=-=-=-= Cut -=-=-=-=-=-
+
+This must be added before Manual pages Lines to prevent handle 7z archive
+like man page
+
+
+If you have installed 7z with plugins, you can view and unpack .cab and other
+(if there is plugin) archive types with u7z, just add
+
+=-=-=-=-=-= Cut -=-=-=-=-=-
+regex/\.(cab|CAB)$
+	View=%view{ascii} 7z l %f
+	Open=%cd %p#u7z
+=-=-=-=-=-= Cut -=-=-=-=-=-
+
+to extension file, and somthing like this for other supported archives.

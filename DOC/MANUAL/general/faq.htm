@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>Frequently Asked Questions (FAQ)</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>Frequently Asked Questions (FAQ)</H1>
+
+<H4>Can I use 7-Zip in a commercial organization?</H4>
+<P>Yes, 7-Zip is free software. You can use it on any computer. You don't need to 
+register or pay for 7-Zip.</P>
+
+<H4>How can I set file associations to 7-Zip in Windows 7 and Windows Vista?</H4>
+<P>You must run 7-Zip File Manager in administrator mode. 
+Right-click the icon of 7-Zip File Manager, and then click <B>Run as administrator</B>.
+Then you can change file associations and some other options.</P>
+
+<H4>Why 7z archives created by new version of 7-Zip can be larger than archives created by old version of 7-Zip?</H4>
+
+<P>New versions of 7-Zip (starting from version 15.06) use another file sorting 
+order by default for solid 7z archives.</P>
+
+<P>Old version of 7-Zip (before version 15.06) used file sorting "by type" ("by extension").</P>
+<P>New version of 7-Zip supports two sorting orders:</P>
+<UL>
+  <LI>sorting by name - default order.</LI>
+  <LI>sorting by type, if '<B>qs</B>' is specified in <B>Parameters</B> field in "Add to archive" window, 
+     (or <B>-mqs</B> switch for command line version).</LI>
+</UL>
+
+<P>You can get big difference in compression ratio for different sorting methods,
+if dictionary size is smaller than total size of files.
+If there are similar files in different folders, the sorting "by type" can provide 
+better compression ratio in some cases.</P>
+
+<P>Note that sorting "by type" has some drawbacks.
+For example, NTFS volumes use sorting order "by name", so if an archive uses 
+another sorting, then the speed of some operations for files with unusual order 
+can fall on HDD devices (HDDs have low speed for "seek" operations).</P>
+
+<P>You can increase compression ratio with the following methods:</P>
+<UL>
+  <LI>Increase dictionary size. It can help when 'qs' is not used.</LI>
+  <LI>Specify '<B>qs</B>' in <B>Parameters</B> field (or use <B>-mqs</B> switch for command line version).</LI>
+</UL>
+
+<P>If you think that unusual file order is not problem for you, 
+and if better compression ratio with small dictionary is more important for you,
+use '<B>qs</B>' mode.</P>
+
+<H4>Why can't 7-Zip open some ZIP archives?</H4>
+<P>In 99% of these cases it means that the archive contains incorrect headers.
+Other ZIP programs can open some archives with incorrect headers, since these programs 
+just ignore errors.</P>
+<P>If you have such archive, please don't call the 7-Zip developers about it.
+Instead try to find the program that was used to create the archive and inform the developers 
+of that program that their software is not ZIP-compatible.</P>
+
+<P>There are also some ZIP archives that were encoded with methods unsupported by 7-Zip,
+for example, WAVPack (WinZip).</P>
+
+<H4>Why does drag-and-drop archive extraction from 7-Zip to Explorer use temp files?</H4>
+<P>7-Zip doesn't know folder path of drop target.
+Only Windows Explorer knows exact drop target.
+And Windows Explorer needs files (drag source) as decompressed files on disk.
+So 7-Zip extracts files from archive to temp folder and then 
+7-Zip notifies Windows Explorer about paths of these temp files.
+Then Windows  Explorer copies these files to drop target folder.</P>
+
+<P>To avoid temp file usage, you can use Extract command of 7-Zip or 
+drag-and-drop from 7-Zip to 7-Zip.</P>
+
+<H4>Why doesn't the command line version add files without extensions to an archive?</H4>
+<P>You're probably using a *.* wildcard. 7-Zip doesn't use the operating system's wildcard mask parser, 
+and consequently treats *.* as any file that has an extension. 
+To process all files you must use the * wildcard instead or omit the wildcard altogether.</P>
+
+<H4>Why doesn't -r switch work as expected?</H4>
+<P>In most cases you don't need -r switch.
+7-Zip can compress subfolders even without -r switch.</P>
+<P>Example 1:</P>
+<PRE>  7z.exe a c:\a.7z "C:\Program Files"</PRE>
+<P>compresses "C:\Program Files" completely, including all subfolders.</P>
+<P>Example 2:</P>
+<PRE>  7z.exe a -r c:\a.7z "C:\Program Files"</PRE>
+<P>searches and compresses "Program Files" in all subfolders of C:\ (for example, in "C:\WINDOWS").</P>
+If you need to compress only files with some extension, you can use -r switch:
+<PRE>  7z a -r c:\a.zip c:\dir\*.txt </PRE>
+<P>compresses all *.txt files from folder c:\dir\ and all it's subfolders.</P>
+
+<H4>Why can't 7-Zip use big dictionary in 32-bit Windows?</H4>
+<P>32-bit Windows allocates only 2 GB of virtual space per one application. 
+Also that block of 2 GB can be fragmented (for example, by some DLL file), 
+so 7-Zip can't allocate one big contiguous block of virtual space.
+There are no such limitations in 64-bit Windows. 
+So you can use any dictionary in Windows x64, if you have required amount of physical RAM.</P>
+
+<H4>How can I install 7-Zip in silent mode?</H4>
+
+<P>For exe installer: Use the "/S" parameter to do a silent installation and the "/D=dir" parameter 
+to specify the "output directory". These options are case-sensitive.</P>
+
+<P>For msi installer: Use the /q INSTALLDIR="C:\Program Files\7-Zip" parameters.</P>
+
+
+<H4>How can I recover corrupted 7z archive?</H4>
+
+<P>There are some possible cases when archive is corrupted:
+<UL>
+  <LI>You can open archive and you can see the list of files, but when you press 
+      Extract or Test command, there are some errors: Data Error or CRC Error.
+  <LI>When you open archive, you get message "Can not open file 'a.7z' as archive"
+</UL>
+
+<P>It's possible to recover some data. Read about recovering procedure:
+
+<P><A href = "http://www.7-zip.org/recover.html" target="_blank">Recover corrupted 7z archive</A></P>
+
+
+</BODY>
+</HTML>

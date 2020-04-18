@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>Performance</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>Performance</H1>
+
+<H4>ZIP Format</H4>
+<P>Compression ratio results are very dependent upon the data used for
+the tests. We compared 7-Zip with some of the leading 
+commercial archivers: PKZIP 2.04g, WinZip 7.0.</P>
+
+<P>FILE SET: The Canterbury Corpus (11 files totaling 2,810,784 bytes,
+popular file set used to compression rates).</P>
+
+<TABLE>
+  <TR>
+    <TH>Archiver</TH>
+    <TH>Compressed size</TH>
+    <TH>Ratio</TH>
+  </TR>
+  <TR>
+    <TD><B>7-Zip (zip format)</B></TD>
+    <TD><B>676284</B></TD>
+    <TD><B>100%</B></TD>
+  </TR>
+  <TR>
+    <TD>PKZIP 2.04g -ex</TD>
+    <TD>726047</TD>
+    <TD>107%</TD>
+  </TR>
+  <TR>
+    <TD>WinZip 7.0 (Max)</TD>
+    <TD>731499</TD>
+    <TD>108%</TD>
+  </TR>
+</TABLE>
+
+
+<H4>7z Format</H4>
+
+<P>7z is the new archive format, providing a high compression ratio.</P>
+
+<P>FILE SET: The GIMP 1.2.4 for Windows after full installation 
+(127 subfolders, 1304 files totaling 27,128,826 bytes).  
+The GIMP is the GNU Image Manipulation Program. It can be downloaded from 
+www.gimp.org.</P>
+
+<TABLE>
+  <TR>
+    <TH>Archiver</TH>
+    <TH>Compressed size</TH>
+    <TH>Ratio</TH>
+  </TR>
+  <TR>
+    <TD><B>7-Zip (7z format)</B></TD>
+    <TD><B>5445402</B></TD>
+    <TD><B>100%</B></TD>
+  </TR>
+  <TR>
+    <TD>WinRAR 3.10</TD>
+    <TD>6004155</TD>
+    <TD>110%</TD>
+  </TR>
+  <TR>
+    <TD>WinAce 2.3</TD>
+    <TD>6242424</TD>
+    <TD>115%</TD>
+  </TR>
+  <TR>
+    <TD>CABARC 1.0</TD>
+    <TD>6455327</TD>
+    <TD>119%</TD>
+  </TR>
+  <TR>
+    <TD><B>7-Zip (zip format)</B></TD>
+    <TD><B>9461621</B></TD>
+    <TD><B>174%</B></TD>
+  </TR>
+  <TR>
+    <TD>PKZIP 2.50</TD>
+    <TD>9842800</TD>
+    <TD>181%</TD>
+  </TR>
+</TABLE>
+
+<H4>GZIP Format</H4>
+
+<P>7-Zip provides the best compression ratio for GZIP format. The compression ratio
+is equal to its compression ratio for ZIP format (above).</P>
+
+</BODY>
+</HTML>

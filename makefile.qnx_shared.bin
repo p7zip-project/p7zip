@@ -1,0 +1,22 @@
+###################################################
+# makefile.machine for "7z , 7za , 7zr , 7zCon.sfx " :
+# tested with p7zip-4.47_beta on qnx-6.3.0 sp3 x86 target
+
+OPTFLAGS=-O -s
+
+ALLFLAGS=${OPTFLAGS} \
+       -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
+       -DNDEBUG -D_REENTRANT -DENV_UNIX \
+       $(LOCAL_FLAGS)
+
+CXX=QCC -V3.3.5,gcc_ntox86
+CC=qcc -V3.3.5,gcc_ntox86
+LINK_SHARED=-shared
+
+#LOCAL_LIBS=-lpthread
+#LOCAL_LIBS_DLL=$(LOCAL_LIBS) -ldl
+LOCAL_LIBS_DLL=$(LOCAL_LIBS)
+
+OBJ_CRC32=$(OBJ_CRC32_C)
+OBJ_AES=
+

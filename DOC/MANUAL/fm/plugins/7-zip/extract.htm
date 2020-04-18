@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>Extract Dialog Box</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>Extract Dialog Box</H1>
+
+<P>Allows you to specify options for extracting files from archive.</P>
+
+<H4>How to run this dialog box</H4>
+
+<P>There are two ways to run this dialog to extract all files from an archive:</P>
+<UL>
+  <LI>In Windows Explorer or in 7-Zip, right-click the archive file, point to <B>7-Zip</B>, and then click <B>Extract files...</B>.</LI>
+  <LI>Select the archive file in 7-Zip and press <B>Extract</B> button.</LI>
+</UL>
+
+
+<H4>Parameters</H4>
+<DL>
+  <DT>Extract to</DT>
+  <DD>Provides a space for you to specify an output folder.
+     You can click &quot;<B>...</B>&quot; button to display &quot;Browse for folder&quot;
+     dialog box that you can use to locate output folder.</DD>
+
+  <DT>Path mode</DT>
+  <DD>
+    <P>Specify extract mode:</P>
+    <TABLE>
+      <TR> <TH>Value</TH> <TH>Meaning</TH> </TR>
+      <TR> <TD>Full pathnames</TD> <TD>Extract files with full pathnames.</TD> </TR>
+      <TR> <TD>No pathnames</TD> <TD>Extract files without folder paths.</TD> </TR>
+      <TR> <TD>Absolute pathnames</TD> <TD>Extract files with absolute pathnames. 
+               7-Zip doesn't use folder specified in "Extract to" field for files in archive 
+               that have absolute pathnames. Absolute path can include drive name. </TD> </TR>
+    </TABLE>
+  </DD>
+
+  <DT>Eliminate duplication of root folder</DT>
+  <DD>That option allows to eliminate duplication of root folder, if all files
+      in archive are placed in folder with name that is identical to name of output folder.</DD>
+
+  <DT>Overwrite mode</DT>
+  <DD>
+    <P>Specify overwrite mode for files that already present on disk:</P>
+    <TABLE>
+      <TR> <TH>Value</TH> <TH>Meaning</TH> </TR>
+      <TR> <TD>Ask before overwrite</TD> <TD>Ask before overwriting existing files.</TD> </TR>
+      <TR> <TD>Overwrite without prompt</TD> <TD>Overwrite existing files without prompt.</TD> </TR>
+      <TR> <TD>Skip existing files</TD> <TD>Skip extracting of existing files.</TD> </TR>
+      <TR> <TD>Auto rename</TD> <TD>Rename extracted files, if a file with the same name already exists.
+                        For example, file document.txt will be renamed to document_1.txt.</TD> </TR>
+      <TR> <TD>Auto rename existing files</TD> <TD>Rename existing files, if a file with the same name already exists.
+                        For example, file document.txt will be renamed to document_1.txt.</TD> </TR>
+    </TABLE>
+  </DD>
+
+  <DT>Password</DT>
+  <DD>
+    <P>Specifies a password for encrypted archives.</P>
+  </DD>
+  <DT>Show Password</DT>
+    <DD>Show a password in Password field.</DD>
+
+  <DT>Restore file security</DT>
+  <DD>Restore file security information, if archive contains that information.
+      That feature now is implemented only for WIM archives.</DD>
+
+</DL>
+<UL>
+
+</BODY>
+</HTML>

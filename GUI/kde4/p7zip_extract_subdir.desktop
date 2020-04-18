@@ -1,0 +1,10 @@
+[Desktop Entry]
+ServiceTypes=application/x-gzip,application/x-lha,application/x-tar,application/x-tgz,application/x-tbz,application/x-tbz2,application/x-zip,application/x-bzip,application/x-tzo,application/x-lzop,application/x-rar,application/x-rar-compressed,application/x-zoo,application/x-tarz,application/x-archive,application/x-bzip2,application/x-jar,application/x-deb,application/x-ace,application/x-7z,application/x-arc,application/x-arj,application/x-compress,application/x-cpio,application/x-pak
+Actions=ExtractSubdir;
+Type=Service
+X-KDE-ServiceTypes=KonqPopupMenu/Plugin
+
+[Desktop Action ExtractSubdir]
+Name=Extract to subdirectory with 7-Zip
+Icon=p7zip
+Exec=p7zipForFilemanager xs %U

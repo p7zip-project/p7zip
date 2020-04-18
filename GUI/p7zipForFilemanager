@@ -1,0 +1,108 @@
+#! /bin/sh
+
+# program t archive1.7z ... archiveN.7z
+# program x directory_out archive1.7z ... archiveN.7z
+# program xd directory_out archive1.7z ... archiveN.7z
+# program a -t7z current_directory file1 ... fileN
+# program ad -tzip current_directory file1 ... fileN
+
+P7ZIP="7zG"
+
+list=/tmp/p7zip.list.$$
+rm -f ${list}
+
+trace=/tmp/7zG1.txt
+rm -f ${trace}
+
+for file in "$@"
+do
+	echo "arg=${file}" >> ${trace}
+done
+
+cmd="$1"
+shift
+
+flag_ad=""
+flag_type=""
+
+case "${cmd}" in
+b|t)
+	;;
+x|xs)
+	;;
+xd)
+	flag_ad="-ad"
+	;;
+a)
+	flag_type="$1"
+	shift
+	;;
+ad)
+	flag_type="$1"
+	shift
+	flag_ad="-ad"
+	;;
+*)
+	echo "Unknown command \"${cmd}\""
+	exit 1
+	;;
+esac
+
+#ext=".7z"
+#if [ "${flag_type}" = "-tzip" ]
+#then
+#	ext=".zip"
+#fi
+
+argn="$#"
+file1="$1"
+dir1=`dirname "${file1}"`
+file2="$2"
+echo "argn=${argn}" >> ${trace}
+echo "flag_type=${flag_type}" >> ${trace}
+echo "file1=${file1}" >> ${trace}
+echo "dir1=${dir1}" >> ${trace}
+echo "file2=${file2}" >> ${trace}
+
+if [ "a${dir1}" != "a" ]
+then
+	cd "${dir1}"
+fi
+
+for file in "$@"
+do
+	file=`basename "${file}"`
+	echo ${file} >> ${list}
+	echo "list=${file}" >> ${trace}
+done
+
+case "${cmd}" in
+b)
+	${P7ZIP} b
+	;;
+t)
+	${P7ZIP} t -an -ai@${list}
+	;;
+x|xd)
+	${P7ZIP} x ${flag_ad} -an -ai@${list}
+	;;
+xs)
+	dir_out=`dirname "${file1}"`
+	${P7ZIP} x ${flag_ad} -o"*" -an -ai@${list}
+	;;
+a|ad)
+	if [ ${argn} -eq "1" ]
+	then
+		file=`basename "${file1}"`${ext}
+		echo "archive_out=${file}" >> ${trace}
+		${P7ZIP} a ${flag_ad} ${flag_type} -i@${list} ${flag} -- "${file}"
+	else
+		file=`basename "${dir1}"`${ext}
+		echo "archive_out=${file}" >> ${trace}
+		${P7ZIP} a ${flag_ad} ${flag_type} -i@${list} ${flag} -- "${file}"
+	fi
+	;;
+esac
+
+rm -f ${list}
+

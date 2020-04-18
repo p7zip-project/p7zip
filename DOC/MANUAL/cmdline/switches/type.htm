@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-t (set Type of archive) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-t (set Type of archive) switch</H1>
+
+<P>Specifies the type of archive.</P>
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+-t{archive_type}[:s{Size}][:r][:e][:a]
+</PRE>
+
+<DL>
+  <DT>{archive_type}</DT>
+    <DD> Specifies the type of archive. It can be: *, #, 7z, xz, split, zip, gzip, bzip2, tar, ....
+    </DD>
+
+  <DT>*:r</DT>
+    <DD> Default mode. 7-Zip opens archive and subfile, if it's supported by format.
+    </DD>
+
+  <DT>*</DT>
+    <DD> Opens only one top level archive.
+    </DD>
+
+  <DT>*:s{Size}[b | k | m | g]</DT>
+    <DD>Sets upper limit for start of archive position.
+        Default scan size is 8 MBytes "*:s8m".
+        Example: "*:s0" means that it will open only file that has no any stub before archive.
+    </DD>
+
+  <DT>#</DT>
+    <DD> Opens file in Parser mode, and ignores full archives.
+    </DD>
+
+  <DT>#:a</DT>
+    <DD> Same as *, but it opens files with unknown extensions that contain archives in Parser Mode.
+    </DD>
+
+  <DT>#:e</DT>
+    <DD> Opens file in Parser mode and checks all byte positions as start of archive.
+    </DD>
+</DL>
+
+<P>If -t{archive_type} switch is not specified, 7-Zip uses extension of archive filename to 
+  detect the type of archive. If you create new archive, -t{archive_type} switch is not 
+  specified and there is no extension of archive, 7-Zip will create .7z archive.</P>
+
+<P>If -t{archive_type} switch is not specified and archive name contains incorrect extension,
+the program will show the warning.</P>
+
+<P>It's possible to use the combined type (for example, mbr.vhd) for "Extract" and "List" 
+commands for some archives.</P>
+                             
+<P>When you extract archive of some types that contains another 
+archive without compression (for example, MBR in VHD), 7-Zip can open both 
+levels in one step. If you want to open/extract just top 
+level archive, use <SPAN class="filename">-t*</SPAN> switch.</P>
+
+<P>Note: xz, gzip and bzip2 formats support only one file per archive.
+If you want to compress more than one file to these formats,
+create a tar archive at first, and then compress it with your selected format.</P>
+
+<H4>Example</H4>
+
+<PRE class="example">
+7z a -tzip archive.zip *.txt
+</PRE>
+
+<P>adds all <SPAN class="filename">*.txt</SPAN> files from current directory 
+to zip archive <SPAN class="filename">archive.zip</SPAN>.</P>
+
+<PRE class="example">
+7z t -t7z.split archive.7z.001
+</PRE>
+
+<P>tests all files in <SPAN class="filename">archive.7z.001</SPAN>. It also checks
+that archive is multivolume .7z archive.</P>
+
+<PRE class="example">
+7z x -t# sfxarchive.exe
+</PRE>
+
+<P>extracts <SPAN class="filename">sfxarchive.exe </SPAN> in parser mode.</P>
+
+
+<PRE class="example">
+7z x -tiso archive.iso
+</PRE>
+
+<P>extracts files from <SPAN class="filename">archive.iso</SPAN> open as ISO archive.
+
+<PRE class="example">
+7z x -tudf archive.iso
+</PRE>
+
+<P>extracts files from <SPAN class="filename">archive.iso</SPAN> open as UDF archive.
+
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/add.htm">a (Add)</A>,
+  <A href="../commands/delete.htm">d (Delete)</A>,
+  <A href="../commands/extract.htm">e (Extract)</A>,
+  <A href="../commands/list.htm">l (List)</A>,
+  <A href="../commands/test.htm">t (Test)</A>,
+  <A href="../commands/update.htm">u (Update)</A>,
+  <A href="../commands/extract_full.htm">x (Extract with full paths)</A>
+</P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,23 @@
+
+OPTFLAGS=-O -s
+
+ALLFLAGS=${OPTFLAGS} \
+    	-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
+	-DNDEBUG -D_REENTRANT \
+	-DENV_UNIX \
+	-D_7ZIP_ASM \
+	$(LOCAL_FLAGS)
+
+CXX=g++
+CC=gcc
+LINK_SHARED=-shared
+ASM=nasm -f gnuwin32
+
+# Cygwin does not need -ldl
+LOCAL_LIBS=-lpthread
+LOCAL_LIBS_DLL=$(LOCAL_LIBS)
+
+CPU=x86
+OBJ_CRC32=$(OBJ_CRC32_x86)
+OBJ_AES=AesOpt.o
+

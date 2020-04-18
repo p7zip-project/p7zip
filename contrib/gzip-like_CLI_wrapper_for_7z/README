@@ -1,0 +1,21 @@
+gzip-like CLI wrapper (for 7z)
+==============================
+
+The official site of the script p7zip provided in this directory
+is http://packages.debian.org/unstable/utils/p7zip.
+
+
+The script p7zip provides a CLI similar to that of
+gzip/bzip2/etc Un*x utilities for 7z.
+
+When necessary, it emulates streaming by using
+temporary files in /tmp. This is all transparent to
+the application using it, which can use the same
+semantincs than with gzip or bzip2.
+
+For example, you can do:
+
+tar --use-compress-program=p7zip -cf file.tar.7z dir/
+
+to generate a 7zipped tarball.
+

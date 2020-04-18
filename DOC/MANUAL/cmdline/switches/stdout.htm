@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-so (write data to stdout) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-so (write data to stdout) switch</H1>
+
+<P>Causes 7-Zip to write output data to stdout (standard output stream).</P> 
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+-so
+</PRE>
+
+<P>If the -so switch is used with the command that creates archive, it works only 
+with some archive formats: xz, gzip, bzip2 and tar.</P>
+
+
+<H4>Examples</H4>
+
+<PRE class="example">
+7z x archive.gz -so > Doc.txt
+</PRE>
+
+<P>decompresses <SPAN class="filename">archive.gz</SPAN> 
+archive to output stream and then redirects that stream to
+<SPAN class="filename">Doc.txt</SPAN> file.</P>
+
+
+<PRE class="example">
+7z a dummy -tgzip -so Doc.txt > archive.gz
+</PRE>
+
+<P>compresses the <SPAN class="filename">Doc.txt</SPAN> file to the 7-Zip standard
+output stream and writes that stream to 
+<SPAN class="filename">archive.gz</SPAN> file.</P>
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/add.htm">a (Add)</A>,
+  <A href="../commands/extract.htm">e (Extract)</A>,
+  <A href="../commands/update.htm">u (Update)</A>,
+  <A href="../commands/extract_full.htm">x (Extract with full paths)</A>
+</P>
+
+</BODY>
+</HTML>

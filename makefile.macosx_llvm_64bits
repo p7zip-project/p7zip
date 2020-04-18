@@ -1,0 +1,27 @@
+
+OPTFLAGS=-O
+
+# don't use -DNDEBUG in order to use MacOSX wxWidgets
+
+ALLFLAGS=-m64 ${OPTFLAGS}  \
+	-DENV_MACOSX \
+    	-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
+	-D_REENTRANT -DENV_UNIX \
+	$(LOCAL_FLAGS)
+
+# For old Mac OS X :
+# CXX=/Developer/usr/bin/llvm-g++
+# CC=/Developer/usr/bin/llvm-gcc
+
+# For new Mac OS X :
+XX=/usr/bin/llvm-g++
+CC=/usr/bin/llvm-gcc
+
+LINK_SHARED=-bundle
+
+LOCAL_LIBS=-framework CoreFoundation
+LOCAL_LIBS_DLL=$(LOCAL_LIBS)
+
+OBJ_CRC32=$(OBJ_CRC32_C)
+OBJ_AES=
+

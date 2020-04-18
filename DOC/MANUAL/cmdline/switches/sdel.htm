@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-sdel (Delete files after including to archive) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-sdel (Delete files after compression) switch</H1>
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+-sdel
+</PRE>
+
+<P> If -sdel switch is specified, 7-Zip deletes files 
+after including to archive. So it works like moving files to archive.</P>
+7-Zip deletes files at the end of operation and only if archive was successfully created.</P>
+
+<H4>Examples</H4>
+
+<PRE class="example">
+7z a a.7z *.txt -sdel
+</PRE>
+
+<P>moves <SPAN class="filename">txt</SPAN> files from disk's directory to a.7z archive.</P>
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/add.htm">a (Add)</A>
+</P>
+
+</BODY>
+</HTML>
+

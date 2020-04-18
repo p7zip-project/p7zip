@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>Command Line Switches</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>Command Line Switches</H1>
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+&ltswitch>::= &lt;switch_symbol>&lt;switch_characters>[&lt;option>]
+&lt;switch_symbol> ::= '/' | '-' 
+
+</PRE>
+<P>On the command line, a switch consists of a switch specifier,
+either a dash (-) or a forward slash (/), followed by the name of
+the switch. Switch names cannot be abbreviated.</P>
+
+<P>Some switches take an argument after the switch name.
+No spaces or tabs are allowed within a switch specification.
+Switch names are not case sensitive, but arguments can be case sensitive.
+</P>
+
+<P>Switch can be used in any place in command line.</B>
+
+<P>See also <A href ="../syntax.htm">Command Line Syntax</A> for more details
+   about using the command line.</P>
+
+<H2>Switch quick reference</H2>
+
+<TABLE border="1" cellpadding="3" cellspacing="0">
+<TR><TH>Switch</TH><TH>Description</TH></TR>
+
+<TR> <TD><A href="stop_switch.htm">--</A></TD> <TD><A href="stop_switch.htm">Stop switches parsing</A></TD></TR>
+<TR> <TD>-ad</A></TD> <TD>Show dialog box in GUI version (7zg)</TD></TR>
+<TR> <TD><A href="ar_include.htm">-ai</A></TD> <TD><A href="ar_include.htm">Include archive filenames</A></TD></TR>
+<TR> <TD><A href="ar_no.htm">-an</A></TD> <TD><A href="ar_no.htm">Disable parsing of archive_name</A></TD></TR>
+<TR> <TD><A href="overwrite.htm">-ao</A></TD> <TD><A href="overwrite.htm">Overwrite mode</A></TD></TR>
+<TR> <TD><A href="ar_exclude.htm">-ax</A></TD> <TD><A href="ar_exclude.htm">Exclude archive filenames</A></TD></TR>
+
+<TR> <TD><A href="bb.htm"> -bb[0-3] </A></TD> <TD> Set output log level</TD></TR>
+<TR> <TD>-bd</TD> <TD> Disable progress indicator</TD></TR>
+<TR> <TD><A href="bs.htm"> -bs{o|e|p}{0|1|2} </A></TD> <TD> Set output stream for output/error/progress</TD></TR>
+<TR> <TD>-bt</TD> <TD> Show execution time statistics</TD></TR>
+
+<TR> <TD><A href="include.htm">-i</A></TD> <TD><A href="include.htm">Include filenames</A></TD></TR>
+<TR> <TD><A href="method.htm">-m</A></TD> <TD><A href="method.htm">Set Compression Method</A></TD></TR>
+<TR> <TD><A href="output_dir.htm">-o</A></TD> <TD><A href="output_dir.htm">Set Output directory</A></TD></TR>
+<TR> <TD><A href="password.htm">-p</A></TD> <TD><A href="password.htm">Set Password</A></TD></TR>
+<TR> <TD><A href="recurse.htm">-r</A></TD> <TD><A href="recurse.htm">Recurse subdirectories</A></TD></TR>
+
+<TR> <TD><A href="sa.htm">  -sa  </A></TD> <TD><A href="sa.htm"> Set Archive name mode </A></TD></TR>
+<TR> <TD><A href="scc.htm"> -scc </A></TD> <TD><A href="charset.htm"> Set charset for for console input/output </A></TD></TR>
+<TR> <TD><A href="scrc.htm">-scrc</A></TD> <TD><A href="scrc.htm">Set hash function</A></TD></TR>
+<TR> <TD><A href="charset.htm">-scs</A></TD> <TD><A href="charset.htm">Set charset for list files</A></TD></TR>
+<TR> <TD><A href="sdel.htm"> -sdel </A></TD> <TD><A href="sdel.htm"> Delete files after including to archive </A></TD></TR>
+<TR> <TD><A href="sfx.htm">-sfx</A></TD> <TD><A href="sfx.htm">Create SFX archive</A></TD></TR>
+<TR> <TD><A href="stdin.htm">-si</A></TD> <TD><A href="stdin.htm">Read data from StdIn</A></TD></TR>
+<TR> <TD><A href="large_pages.htm">-slp</A></TD> <TD><A href="large_pages.htm">Set Large Pages mode</A></TD></TR>
+<TR> <TD><A href="list_tech.htm">-slt</A></TD> <TD><A href="list_tech.htm">Show technical information</A></TD></TR>
+<TR> <TD><A href="sni.htm"> -sni </A></TD> <TD><A href="sni.htm"> Store NT security information </A></TD></TR>
+<TR> <TD><A href="sns.htm"> -sns </A></TD> <TD><A href="sns.htm"> Store NTFS alternate Streams </A></TD></TR>
+
+<TR> <TD>-snc</TD> <TD> Extract file as alternate stream, if there is ':' character in name </TD></TR>
+<TR> <TD>-snr</TD> <TD> Replace ':' character to '_' character in paths of alternate streams </TD></TR>
+
+<TR> <TD>-snh</TD> <TD> Store hard links as links (WIM and TAR formats only) </TD></TR>
+<TR> <TD>-snl</TD> <TD> Store symbolic links as links (WIM and TAR formats only) </TD></TR>
+
+<TR> <TD><A href="stdout.htm">-so</A></TD> <TD><A href="stdout.htm">Write data to StdOut</A></TD></TR>
+<TR> <TD>-spd</TD> <TD> Disable wildcard matching for file names</TD></TR>
+<TR> <TD>-spe</TD> <TD> Eliminate duplication of root folder for extract archive command</TD></TR>
+<TR> <TD><A href="spf.htm"> -spf </A></TD> <TD><A href="spf.htm"> Use fully qualified file paths </A></TD></TR>
+<TR> <TD><A href="ssc.htm">-ssc</A></TD> <TD><A href="ssc.htm">Set Sensitive Case mode</A></TD></TR>
+<TR> <TD><A href="shared.htm">-ssw</A></TD> <TD><A href="shared.htm">Compress files open for writing</A></TD></TR>
+<TR> <TD><A href="stl.htm">-stl</A></TD> <TD><A href="stl.htm">Set archive timestamp from the most recently modified file</A></TD></TR>
+<TR> <TD>-stm{HexMask}</TD> <TD> Set CPU thread affinity mask (hexadecimal number).</TD></TR>
+<TR> <TD><A href="stx.htm">-stx{Type}</A></TD> <TD> Exclude archive type </TD></TR>
+
+<TR> <TD><A href="type.htm">-t</A></TD> <TD><A href="type.htm">Type of archive</A></TD></TR>
+<TR> <TD><A href="update.htm">-u</A></TD> <TD><A href="update.htm">Update options</A></TD></TR>
+<TR> <TD><A href="volume.htm">-v</A></TD> <TD><A href="volume.htm">Create Volumes</A></TD></TR>
+<TR> <TD><A href="working_dir.htm">-w</A></TD> <TD><A href="working_dir.htm">Set Working directory</A></TD></TR>
+<TR> <TD><A href="exclude.htm">-x</A></TD> <TD><A href="exclude.htm">Exclude filenames</A></TD></TR>
+<TR> <TD><A href="yes.htm">-y</A></TD> <TD><A href="yes.htm">Assume Yes on all queries</A></TD></TR>
+
+</TABLE>
+
+</BODY>
+</HTML>

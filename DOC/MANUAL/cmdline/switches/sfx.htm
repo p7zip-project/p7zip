@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-sfx (Create SFX archive) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-sfx (Create SFX archive) switch</H1>
+
+<P>Creates self extracting archive.</P>
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+-sfx[<A class="parameter" href="#SFX_Module">{SFX_Module}</A>]
+</PRE>
+
+<DL>
+  <DT><A name="SFX_Module"></A>{SFX_Module}</DT>
+  <DD>
+    <P>Specifies the SFX module that will be combined with the archive.
+       This module must be placed in the same directory as the 7z.exe.
+       If {SFX_Module} is not assigned, 7-Zip will use standard console 
+       SFX module 7zCon.sfx.</P>
+    <TABLE>
+      <TR> <TH width="60">SFX_Module</TH> <TH>Description</TH> </TR>
+      <TR> <TD>7z.sfx</TD> <TD>Windows version.</TD> </TR>
+      <TR> <TD>7zCon.sfx</TD> <TD>Console version.</TD> </TR>
+      <TR> <TD>7zS.sfx</TD> <TD>Windows version for installers.</TD> </TR>
+      <TR> <TD>7zSD.sfx</TD> <TD>Windows version for installers (uses MSVCRT.dll).</TD> </TR>
+    </TABLE>
+  </DD>
+</DL>
+
+<P>SFX module can unpack 7z archive or 7z multivolume archive. For example, 
+if you have name.7z or name.7z.001 archive, just rename sfx muldule to name.exe and place 
+to same folder with archive.</P>
+
+<H4>SFX modules for installers</H4>
+
+<P>SFX modules for installers are included in an external package (7z_extra). You can download
+these modules from www.7-zip.org. SFX modules for installers (7zS.sfx and 7zSD.sfx)
+allow you to create your own installation program.
+Such a module extracts the archive to the user's temp folder, and runs a specified program,
+and removes the temp files after the program finishes.
+A self-extracting archive for installers must be created as joining the following files:
+SFX_Module, Installer_Config (optional), 7z_Archive. 
+You can use the following command to create an installer self-extracting archive:</P>
+<PRE class="example">
+copy /b 7zS.sfx + config.txt + archive.7z archive.exe
+</PRE>
+
+<P>An optimally small installation package size can be achieved,
+if the installation files are uncompressed before including them in the 7z archive.</P>
+
+<P><SPAN class="filename">-y</SPAN> switch for installer module specifies quiet mode extraction.</P>
+
+<H4>Installer Config file format</H4>
+<P>
+This config file contains commands for the Installer. The file begins with the string
+<B>;!@Install@!UTF-8!</B> and ends with <B>;!@InstallEnd@!</B>.
+The file must be written in UTF-8 encoding.
+The file contains any or all these string pairs:
+<P>ID_String="Value"</P>
+<P>
+    <TABLE>
+      <TR> <TH width="60">ID_String</TH> <TH>Description</TH> </TR>
+      <TR> <TD>Title</TD> <TD>Title for messages</TD> </TR>
+      <TR> <TD>BeginPrompt</TD> <TD>Begin Prompt message</TD> </TR>
+      <TR> <TD>Progress</TD> <TD>Value can be "yes" or "no". Default value is "yes".</TD> </TR>
+      <TR> <TD>RunProgram</TD> <TD>Command for executing. Default value is "setup.exe". Substring <B>%%T</B> 
+      will be replaced with path to temporary folder, where files were extracted</TD> </TR>
+      <TR> <TD>Directory</TD> <TD>Directory prefix for "RunProgram". Default value is ".\\"</TD> </TR>
+      <TR> <TD>ExecuteFile</TD> <TD>Name of file for executing</TD> </TR>
+      <TR> <TD>ExecuteParameters</TD> <TD>Parameters for "ExecuteFile"</TD> </TR>
+    </TABLE>
+</P>
+<P>You may omit any pair.</P>
+
+<P>There are two ways to run a installation program: <B>RunProgram</B> and <B>ExecuteFile</B>.
+Use <B>RunProgram</B>, if you want to run a program from the .7z archive.
+Use <B>ExecuteFile</B>, if you want to open a document from the .7z archive, or
+if you want to execute a command from Windows.</P>
+
+<P>If you use <B>RunProgram</B>, and if you specify empty directory prefix: <B>Directory</B>="",
+the system searches for the executable file in the following sequence:</P>
+<OL>
+<LI>The directory from which the application (installer) loaded. 
+<LI>The temporary folder, where files were extracted.
+<LI>The Windows system directory. 
+</OL>
+
+<H4>Config file Examples</H4>
+
+<PRE class="example">
+;!@Install@!UTF-8!
+Title="7-Zip 4.00"
+BeginPrompt="Do you want to install the 7-Zip 4.00?"
+RunProgram="setup.exe"
+;!@InstallEnd@!
+</PRE>
+
+<BR>
+
+
+<PRE class="example">
+;!@Install@!UTF-8!
+Title="7-Zip 4.00"
+BeginPrompt="Do you want to install the 7-Zip 4.00?"
+ExecuteFile="7zip.msi"
+;!@InstallEnd@!
+</PRE>
+
+<BR>
+
+<PRE class="example">
+;!@Install@!UTF-8!
+Title="7-Zip 4.01 Update"
+BeginPrompt="Do you want to install the 7-Zip 4.01 Update?"
+ExecuteFile="msiexec.exe"
+ExecuteParameters="/i 7zip.msi REINSTALL=ALL REINSTALLMODE=vomus"
+;!@InstallEnd@!
+</PRE>
+
+<H4>Examples</H4>
+
+<PRE class="example">
+7z a -sfx a.exe *.txt
+</PRE>
+
+<P>adds <SPAN class="filename">*.txt</SPAN> files to self extracting 
+  archive  <SPAN class="filename">a.exe</SPAN> using the default console SFX module.</P>
+
+<PRE class="example">
+7z a -sfx7z.sfx a.exe *
+</PRE>
+
+<P>adds all files to self extracting archive <SPAN class="filename">a.exe</SPAN>
+with module <SPAN class="filename">7z.sfx</SPAN> using windows version of SFX mudule.</P>
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/add.htm">a (Add)</A>,
+  <A href="../commands/delete.htm">d (Delete)</A>,
+  <A href="../commands/update.htm">u (Update)</A>,
+</P>
+
+</BODY>
+</HTML>

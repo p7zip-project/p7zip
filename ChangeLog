@@ -1,0 +1,1162 @@
+
+Version 16.02
+=============
+
+
+  - From Windows version of 7-Zip 16.02:
+    - The BUG in 16.00 - 16.01 was fixed: 7-Zip mistakenly reported the warning 
+      "There are some data after the end of the payload data" for split archives.
+
+Version 16.01 (never published)
+=============
+
+  - From Windows version of 7-Zip 16.01:
+    - The bugs in SWM (WIM), EXE (PE) and CHM code were fixed.
+    - there are some internal changes in source code for better compatibility with VS2015 C++ compiler.
+
+Version 16.00 (never published)
+=============
+
+  - better support for OpenBsd (CPP/Windows/System.cpp), thanks Josh (https://sourceforge.net/p/p7zip/discussion/383043/thread/ee32dcd8/?limit=25#c322)
+
+  - From Windows version of 7-Zip 16.00:
+    - 7-Zip now can extract multivolume ZIP archives (z01, z02, ... , zip).
+    - Some fixed bugs:
+      - bzip2 decoder -mmt2 reported E_FAIL (for k_My_HRESULT_WritingWasCut case), if we extract partial file.
+      - 7z solid update (hang in break)
+      - sha1 worked incorrectly for call after call with ((size & 3) != 0)
+      - 7z update bcj bugs were fixed.
+      - split (aaa.001) fixed
+      - iso loop fix
+      - rar4 multivol -stdin kpidSize
+      - drag and drop 1<2.txt
+      - memory access violation fix
+
+
+
+Version 15.14.1
+===============
+
+  - patch #32 Compiling in OS X fails with p7zip_15.14 
+
+
+Version 15.14
+=============
+
+  - bug #147 Directory traversal through symlinks
+    ( https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-1038 )
+
+  - patch #26 : Patch to correctly set permissions for docs that permits non-sudo deletion of docs 
+
+  - patch #27 : Update Mac OS X LLVM 64bits Makefile 
+
+  - patch #28 : p7zip version 15.09 fails to build on s390 
+
+  - patch #29 : please fix incorrect fsf address 
+
+  - patch #31 : p7zip 15.09 fails to build on mips 
+
+  - bug :  "7za a -p ..." was fixed
+
+  - bug #172 : Impossible to create archive with some unicode symbols in filename 
+
+  - From Windows version of 7-Zip 15.13:
+    - The BUG in 15.13 in CAB code was fixed.
+    
+  - From Windows version of 7-Zip 15.12:
+    - Some bugs were fixed.
+    - New localization: Yoruba.
+
+  - test_emul becomes test_lib  (tests libraries)
+
+  - cross building added :
+		makefile.linux_cross_mipsel
+
+  - support for android 5+ (-fPIE -pie)
+
+Version 15.12 (never published)
+=============
+  - From Windows version of 7-Zip 15.12 :
+    - "There are no errors" string after "Test" operation inside archive.
+    - The bugs in LZMA SDK were fixed (but these bugs are not related directly to 7-Zip's code).
+
+
+  - From Windows version of 7-Zip 15.11 :
+        - Some bugs were fixed.
+        - 7-Zip 15.10 showed incorrect error message about missing volume for multivolume RAR archives.
+
+   - ..../LZHAM added
+   
+
+
+Version 15.10 beta
+==================
+
+  - bug #147 Directory traversal through symlinks 
+    Bug-Debian: https://bugs.debian.org/774660
+    Delay creation of symlinks to prevent arbitrary file writes (CVE-2015-1038)
+    Fix given by Ben Hutchings
+
+  - From Windows version of 7-zip 15.10 beta:
+    - The BUG in 9.21 - 15.09 was fixed:
+      7-Zip could ignore some parameters, specified for archive creation operation
+	  for gzip and bzip2 formats in "Add to Archive" window and in command line 
+	  version (-m switch).
+    - Some bugs were fixed.
+      - extracting from solid wim archives worked incorrectly in some cases,
+    - Also there are some minor changes.
+      - 7-Zip can show the name of missing volume for multivolume RAR and VMDK archives.
+      - Some internal changes with 7-Zip Benchmark.
+
+Version 15.09 beta
+==================
+
+  - From Windows version of 7-zip 15.09 beta:
+    - 7-Zip now can extract ext2 and multivolume VMDK images.
+    - Some bugs were fixed.
+
+
+Version 15.08 beta
+==================
+
+  - From Windows version of 7-zip 15.08 beta:
+
+    - 7-Zip now can extract ext3 and ext4 (Linux file system) images.
+    - Some bugs were fixed.
+
+
+Version 15.07 beta
+==================
+
+  - "bin/Codecs/Rar29.so" renamed to "bin/Codecs/Rar.so"
+  
+  - support for cygwin 64 bits
+  
+  - support for cygwin 64 bits with asm
+  
+  - cygwin : fix in GetRamSize()
+  
+  - cross building added :
+		makefile.linux_cross_aarch64
+		makefile.linux_cross_arm
+		makefile.linux_cross_ppc
+		makefile.linux_cross_ppc64
+		makefile.linux_cross_ppc64le
+		makefile.linux_cross_s390x  (7za and 7zr pass tests, 7z does not pass tests)
+    
+
+  - From Windows version of 7-zip 15.07 beta:
+    - 7-Zip now can extract GPT images and single file QCOW2, VMDK, VDI images.
+    - 7-Zip now can extract solid WIM archives with LZMS compression.
+    - Some bugs were fixed.
+
+
+  - From Windows version of 7-zip 15.06 beta:
+
+    - 7-Zip now can extract RAR5 archives.
+    - 7-Zip now doesn't sort files by type while adding to solid 7z archive.
+      new -mqs switch to sort files by type while adding to solid 7z archive.
+    - The BUG in 7-Zip File Manager was fixed:
+      The "Move" operation to open 7z archive didn't delete empty files.
+    - The BUG in 15.05 was fixed:
+      console version added some text to the end of stdout stream, is -so switch was used.
+    - The BUG in 9.30 - 15.05 was fixed:
+      7-Zip could not open multivolume sfx RAR archive.
+    - Some bugs were fixed.
+
+  - From Windows version of 7-zip 15.05 beta:
+    - 7-Zip now can create 7z, xz and zip archives with 1536 MB dictionary for LZMA/LZMA2.
+    - 7-Zip File Manager now can operate with alternate file streams at NTFS volumes via "File / Alternate Streams" menu command.
+    - 7-Zip now can extract .zipx (WinZip) archives that use xz compression.
+    - new optional "section size" parameter for BCJ2 filter for compression ratio improving.
+      Example: -mf=BCJ2:d9M, if largest executable section in files is smaller than 9 MB.
+    - Speed optimizations for BCJ2 filter and SHA-1 and SHA-256 calculation.
+    - Console version now uses stderr stream for error messages.
+    - Console version now shows names of processed files only in progress line by default.
+    - new -bb[0-3] switch to set output log level. -bb1 shows names of processed files in log.
+    - new -bs[o|e|p][0|1|2] switch to set stream for output messages;
+      o: output, e: error, p: progress line; 0: disable, 1: stdout, 2: stderr.
+    - new -bt switch to show execution time statistics.
+    - new -myx[0-9] switch to set level of file analysis.
+    - new -mmtf- switch to set single thread mode for filters.
+    - The BUG was fixed:
+      - 7-Zip didn't restore NTFS permissions for folders during extracting from WIM archives.
+    - The BUG was fixed:
+        The command line version: if the command "rn" (Rename) was called with more
+        than one pair of paths, 7-Zip used only first rename pair.
+    - The BUG was fixed:
+        7-Zip crashed for ZIP/LZMA/AES/AES-NI.
+    - The BUG in 15.01-15.02 was fixed:
+        7-Zip created incorrect ZIP archives, if ZipCrypto encryption was used.
+        7-Zip 9.20 can extract such incorrect ZIP archives.
+    - Some bugs were fixed.
+
+
+
+Version 9.38.2
+==============
+  - patch #27 : Update Mac OS X LLVM 64bits Makefile
+    and all others makefile.macosx_* become makefile.macosx_gcc_*
+
+  - bug #153 Relative paths extracted outside of extraction directory
+
+
+Version 9.38.1
+==============
+  - bug #145 "p7zip crashes while moving memory in MoveItems
+
+
+Version 9.38
+==============
+
+  - patch #23 fixes "7z with unicode file name with surrogate pair is not handled well in Linux"
+
+  - bug #139 "password from commanline is visible in processes list"
+      Now the characters of the password are replaced with *.
+
+  - From Windows version of 7-zip
+     - bug#138 If you extract the password with # program crashes
+       7z now supports long password in RAR 3 and 4.
+
+
+
+Version 9.22
+==============
+  - From Windows version of 7-zip 9.22
+    - 7-Zip could ignore some options when you created ZIP archives.
+      For example, it could use ZipCrypto cipher instead of AES-256.
+
+  - From Windows version of 7-zip 9.21
+    - New -mf=FilterID switch to specify compression filter. Examples:
+      7z a -mf=bcj2 a.7z a.tar
+      7z a -mf=delta:4 a.7z a.wav
+      7z a -mf=bcj a.tar.xz a.tar
+
+    - New class FString for file names at file systems.
+    - Speed optimization in CRC code for big-endian CPUs.
+
+  - From  Windows version of 7-zip
+    - Speed optimizations in AES code for Intel's 32nm CPUs.
+    - Speed optimizations in CRC calculation code for Intel's Atom CPUs.
+
+
+  - 7za can run on ANDROID 2.3 !
+
+  - bug with multi archives which are links.
+
+  - #3283518 : Asm/x{32,64}/7zCrcT8U.asm introduces executable stack
+
+
+Version 9.20.1
+==============
+
+  - #3211479 "p7zip 9.20 - "unsupported method" with RAR files - " fixed
+    "install.sh" installs again "bin/Codecs/Rar29.so"
+
+Version 9.20
+============
+
+  - From Windows version of 7-zip 9.20, What's new after 7-Zip 4.65 (2009-02-03):
+    - 7-Zip now supports LZMA2 compression method.
+    - 7-Zip now can update solid .7z archives.
+    - 7-Zip now supports XZ archives.
+    - 7-Zip now supports PPMd compression in ZIP archives.
+    - 7-Zip now can unpack NTFS, FAT, VHD, MBR, APM, SquashFS, CramFS, MSLZ archives.
+    - 7-Zip now can unpack GZip, BZip2, LZMA, XZ and TAR archives from stdin.
+    - 7-Zip now can unpack some TAR and ISO archives with incorrect headers.
+    - 7-Zip now supports files that are larger than 8 GB in TAR archives.
+    - NSIS and WIM support was improved.
+    - Partial parsing for EXE resources, SWF and FLV.
+    - The support for archives in installers was improved.
+    - 7-Zip now can stores NTFS file timestamps to ZIP archives.
+    - Speed optimizations in PPMd codec.
+    - Speed optimizations in CRC calculation code for Intel's Atom CPUs.
+    - New -scrc switch to calculate total CRC-32 during extracting / testing.
+    - 7-Zip File Manager now doesn't use temp files to open nested archives stored without compression.
+    - Disk fragmentation problem for ZIP archives created by 7-Zip was fixed.
+    - Some bugs were fixed.
+    - New localizations: Hindi, Gujarati, Sanskrit, Tatar, Uyghur, Kazakh.
+    - Not in p7zip : Speed optimizations in AES code for Intel's 32nm CPUs.
+
+
+
+
+Version 9.18
+============
+  - From Windows version of 7-zip 9.17
+    - Disk fragmentation problem for ZIP archives created by 7-Zip was fixed.
+    Notes: 7-Zip now uses 4 MB RAM buffer as file cache, when you create ZIP archives.
+    It reduces the number of Move_File_Position and Write_to_File operations.
+
+  - From Windows version of 7-zip 9.18
+    - 7-Zip now can unpack SquashFS and CramFS filesystem images.
+    - 7-Zip now can unpack some TAR and ISO archives with incorrect headers.
+    - Some bugs were fixed.
+
+  - Some bugs were fixed in 7zG and 7zFM on MacOSX
+
+
+Version 9.16
+============
+  - From Windows version of 7-zip 9.16
+    - 7-Zip now supports files that are larger than 8 GB in TAR archives.
+    - NSIS support was improved :
+      - 7-Zip now supports BZip2 method in NSIS installers.
+      - 7-Zip now can extract identical files from NSIS installers.
+    - Some bugs were fixed.
+    - New localizations: Hindi, Gujarati, Sanskrit.
+
+  - From Windows version of 7-zip 9.15
+    - Some bugs were fixed.
+    - New localization: Tatar
+
+  - From Windows version of 7-zip 9.14
+    - WIM support was improved. 7-Zip now can create WIM archives without compression.
+
+
+  - #3069545 "kSignatureDummy?" fixed
+
+
+
+
+Version 9.13
+============
+  - From Windows version of 7-zip 9.12
+    - Some bugs were fixed.
+
+
+  - #2863580 "Crash in Rar decoder on a corrupted file" fixed
+
+  - #2860898 "Dereferencing a zero pointer in cab handler" fixed
+
+  - #2860679 "Division by zero in cab decoder" fixed
+
+
+
+Version 9.12
+============
+  - From Windows version of 7-zip 9.12
+    - ZIP / PPMd compression ratio was improved in Maximum and Ultra modes.
+    - The BUG in 7-Zip 9.* beta was fixed: LZMA2 codec didn't work,
+      if more than 10 threads were used (or more than 20 threads in some modes).
+
+  - makefile.openbsd is now compatible with OpenBSD ports tree.
+    (thanks to jggimi)
+
+  - cmake projects added.
+
+  - 7zFM and 7zG can be built on MacOSX but these ports are in very alpha stage.
+    make app to build p7zip.app (p7zip for MacOSX)
+
+
+Version 9.11 (never published)
+============
+  - From Windows version of 7-zip 9.11
+    - 7-Zip now supports PPMd compression in .ZIP archives.
+    - Speed optimizations in PPMd codec.
+    - The support for archives in installers was improved.
+    - Some bugs were fixed.
+
+
+Version 9.10 (never published)
+============
+
+  - From Windows version of 7-zip 9.05 to 9.10
+    - 7-Zip now can unpack Apple Partition Map (APM) disk images.
+    - 7-Zip now can unpack MSLZ archives.
+    - Partial parsing for EXE resources, SWF and FLV.
+    - Some bugs were fixed.
+
+  - p7zip can now use hugetlbfs on Linux (thank to Joachim Henke)
+    Like with the Windows large pages, this gives a nice speedup,
+    when running memory intensive operations.
+
+  - p7zip now uses UTF8 (kCFStringNormalizationFormD) On MacOSX
+    fixes  #2831266 "p7zip can't find NFC Unicode  filename in OSX Terminal"
+    and    #2976169 "German Umlauts Failure"
+
+
+Version 9.05 (never published)
+============
+
+  - p7zip now uses precompiled header with gcc 4
+
+
+Version 9.04 (Major bugfixes and Major enhancements)
+============
+
+  - From Windows version of 7-zip 9.04 :
+    - 7-Zip now can update solid .7z archives.
+    - 7-Zip now supports LZMA2 compression method.
+    - 7-Zip now supports XZ archives.
+    - 7-Zip now can unpack NTFS, FAT, VHD and MBR archives.
+    - 7-Zip now can unpack GZip, BZip2, LZMA, XZ and TAR archives from stdin.
+    - New -scrc switch to calculate total CRC-32 during extracting / testing.
+    - Some bugs were fixed.
+
+  - #2799966 " A newly created 7z archive (by p7zip 4.65) is broken and cannot be unpacked / listed / tested"
+    Fixed : now "7za a -mx=9 archive.7z directory" creates a good archive even
+    if there are a lot of executable files.
+
+  - Fixed : the RAM size was reported incorrectly on MacOSX 64bits (with 2Gb+ RAM)
+
+  - #2798023 "segfault handling very large multivolume .7z file"
+    p7zip now displays the following error "Error: Too many open files"
+    if you don't have enough rights to open all the splitted files
+    ( on Linux : ulimit -n)
+
+
+Version 4.65
+============
+  - From Windows version of 7-zip 4.62 to 4.65
+    - The bug in 7-Zip 4.63 was fixed: 7-Zip could not decrypt .ZIP archives encrypted with WinZip-AES method.
+    - 7-Zip now can unpack ZIP archives encrypted with PKWARE-AES.
+    - Some bugs were fixed.
+
+  - Fixed : the RAM size was reported incorrectly on MacOSX 64bits
+
+  - Fixed : makefile.linux_amd64_asm_icc
+
+  - DJGPP :
+     makefile.djgpp becomes makefile.djgpp_old
+     makefile.djgpp_watt added (thank to Rugxulo)
+
+
+  - you can now compile 7za with a cmake project (see README)
+    the cmake project can build a codeblock project ;)
+    Remark : the kdevelop3 or Eclipse/CDT4 project don't work :(
+
+Version 4.61
+============
+  - From Windows version of 7-zip 4.61 :
+    - 7-Zip now supports LZMA compression for .ZIP archives.
+    - Some bugs were fixed.
+
+  - #2199036 : Ask for password twice when creating encrypted archive
+
+  - 7zG added (read GUI/readme.txt)
+
+
+Version 4.60 (never published)
+============
+
+  - From Windows version of 7-zip 4.60 :
+    - Some bugs were fixed
+
+  - p7zip didn't use the BCJ /BCJ2 filters for executables (:
+  - makefile.linux_amd64_asm_icc added (tested with Intel Compiler 11 on Ubuntu 8.04 x64)
+
+
+Version 4.59 (never published)
+============
+
+  - From Windows version of 7-zip 4.59 :
+    - 7-Zip now can unpack UDF, XAR and DMG/HFS archives.
+    - It's allowed to use -t switch for "list" and "extract" commands.
+    - Some bugs were fixed.
+
+  - Bug : wrong timestamp for files extracted from .zip or .rar archives
+
+
+Version 4.58
+============
+  - From Windows version of 7-zip 4.58 :
+    - Some speed optimizations.
+    - 7-Zip now can unpack .lzma archives.
+    - Unicode (UTF-8) support for filenames in .ZIP archives. Now there are 3 modes:
+        1) Default mode: 7-Zip uses UTF-8, if the local code page doesn't contain required symbols.
+        2) -mcu switch:  7-Zip uses UTF-8, if there are non-ASCII symbols.
+        3) -mcl switch:  7-Zip uses local code page.
+    - Now it's possible to store file creation time in 7z and ZIP archives (-mtc switch).
+    - 7-Zip now can unpack multivolume RAR archives created with
+      "old style volume names" scheme and names *.001, *.002, ...
+    - Now it's possible to use -mSW- and -mSW+ switches instead of -mSW=off and -mSW=on
+    - Some bugs were fixed.
+
+  - Bug #1898410 : Timestamp error in archive listing
+      now "7za l .." and "ls -l just_extracted_file" give the same date and time.
+
+  - Bug #1860938 : unix file rights only 600 instead of 644
+
+  - Bug #1941574 : gzip files always marked as OS FAT, Now p7zip uses "Unix".
+
+  - Bug #1947700 : file containing excluded files not read
+      When using the -xr <filename> flag to list files not to be included in the
+      archive the file <filename> is not read if it is a symbolic link.
+
+  - Feature Requests #1868080 : add support to compile for NetWare (makefile.netware_asm_gcc_3.X)
+
+  - Patch #1883893 : Incorrect path ref to docs in man pages (When using the last ($DEST_DIR) argument with install.sh)
+
+  - now "install.sh" supports filenames with spaces.
+
+  - some code cleanup (Synchronization)
+
+  - some minor fix in the BZip2 codec.
+
+  - fix with the define "__TEXT" for s390
+
+
+Version 4.57
+============
+  - From Windows version of 7-zip 4.57 :
+    - The BUG in command line version was fixed: -up3 switch could work incorrectly.
+    - Minor improvement in ZIP compression.
+
+
+Version 4.56  (never published)
+============
+  - From Windows version of 7-zip 4.56 :
+    - Some bugs were fixed
+
+  - On HPUX : fixed "Can't load '../bin/7z.dll'"
+    (Unsatisfied data symbol '_ZTVN10__cxxabiv121__vmi_class_type_infoE' in load module '../bin/7z.so'.)
+
+  - bug : p7zip used to build a zip file with an "FAT" header instead of "Unix" header
+     If LANG was set, "unzip" tried to translate the filenames from "FAT" to locale ...
+
+  - On AIX : fixed "HugeFiles=off" (thank kuriath)
+
+  - bug #1800180 : LZMAlone compilation error in COutFile
+
+  - Patch #1796569 : Fix FreeBSD FTBFS
+
+  - Patch #1796575 : fix man1/7za.1 man1/7zr.1 man1/7z.1
+
+
+Version 4.55
+============
+  - From Windows version of 7-zip 4.55 :
+    - Some bugs were fixed
+
+  - fixed #1783007 : when make p7-zip 4.51 under hp-ux 11.11 error
+
+  - fixed #1789154 : 7z use default or -m0=LZMA runtime error under HP-UX IA11.23
+
+  - support added for HPUX on Itanium.
+    (makefile.hpux-acc and makefile.hpux-acc_64)
+
+
+Version 4.54 (never published)
+============
+  - From Windows version of 7-zip 4.54 :
+    - Decompression speed was increased
+
+Version 4.53
+============
+  - From Windows version of 7-zip 4.53 :
+    - The bug in 7-Zip 4.48 - 4.52 beta was fixed:
+        7-Zip could create .ZIP archives with broken files.
+    - Some bugs were fixed.
+
+Version 4.52 (never published)
+============
+  - From Windows version of 7-zip 4.52 :
+    - 7z now can unpack Compound files (msi, doc, ...).
+    - Some bugs were fixed (CAB decompressing)
+
+  - lzma (CPP/7zip/Compress/LZMA_Alone) is now multi-threaded.
+
+  - fixed #632912 : Extracting large directories takes quadratic time
+    (this bug was not fully fixed ...)
+
+  - fixed : "7za x -odirectory archive.7z" now works even if "directory" is a symbolic link.
+
+  - makefile.linux_s390x added : support for Linux on IBM z/Series Mainframe with s390x CPU
+    (thank y_stephen)
+
+  - fixed crashes on BeOs with the flag "@filename"
+
+  - cleanup in the makefile : defining LITTLE_ENDIAN or BIG_ENDIAN is not needed anymore
+
+  - ppmd.exe added (CPP/7zip/Compress/PPMD_Alone)
+
+Version 4.51
+============
+  - From Windows version of 7-zip 4.51 :
+     - Bug was fixed: 7-Zip 4.50 beta could not open some .7z archives.
+
+  - fix built of test_emul
+
+Version 4.50 (never published)
+============
+  - From Windows version of 7-zip 4.50 :
+    - New switch for command line version:
+    -ssc[-] enables/disables case-sensitive mode for file names.
+    - Speed optimizations for AES encryption.
+    - Some bugs were fixed.
+
+  - contrib/gzip-like_CLI_wrapper_for_7z/p7zip now supports commands like :
+    p7zip -- -name
+    p7zip "file name"
+    p7zip file1 file2 file3
+    p7zip -d file1.7z file2.7z file3.7z
+
+  never published because this version does not pass my tests.
+
+Version 4.49
+============
+  - From Windows version of 7-zip 4.49 :
+    - 7-Zip (7z) now can unpack WIM archives
+
+   - fixed : On Sparc Solaris, core dump during "7z a -sfx exe.x dir" with p7zip compiled with makefile.solaris_sparc_CC_32
+
+   - some code cleanup
+
+   - On HPUX, p7zip can get the number of CPU and the size of the memory.
+
+
+Version 4.48
+============
+  - From Windows version of 7-zip 4.48 :
+    - Encryption strength for .7z format was increased.
+      Now it uses random initialization vectors.
+    - Some bugs were fixed.
+
+  - fixed #1729236 : Makefile infrastructure not safe for parallel compilation
+    (if your make command understands -C and -j4, copy makefile.parallel_jobs over makefile)
+
+  - Now the executables are not built with the PIC (position-independent code) flag.
+    7z.so are still built with the PIC flag.
+    7za and 7zr are now faster than 7z with 7z.so.
+    7za, 7zr and 7r are now smaller.
+
+  - contrib/gzip-like_CLI_wrapper_for_7z/p7zip now supports spaces in filename
+    and use 7za instead of 7z.
+
+  - contrib/qnx630sp3 added to support QNX built (thank termterm)
+
+
+Version 4.47
+============
+  - From Windows version of 7-zip 4.47 :
+    - Bugs of 7-Zip 4.46 beta were fixed: BZip2 could work incorrectly
+
+Version 4.46 (never published)
+============
+
+  - From Windows version of 7-zip 4.46 :
+    - New fast compression mode for Deflate method in Zip and GZip.
+    - Some bugs were fixed.
+
+  - LZMA Benchmark :
+    - cygwin : RAM size detection
+    - computation of the CPU %
+
+  - fixed #1721827 : install.sh now copies 7z.so
+
+  - Client7z now uses 7z.so instead of 7za.so
+
+  - new target : cygwin with asm
+
+  - LZMA SDK added in the source package (CPP/7zip/Compress/LZMA_Alone)
+
+  - fixed #1716987 : 7zr removed from 4.45 binary distribution
+
+  - fixed #1706002 : make and install.sh use the same variables in the same order.
+
+
+Version 4.45
+============
+
+  - From Windows version of 7-zip 4.45 :
+   - Default dictionary size was increased: Normal: 16 MB, Max: 32 MB.
+   - Speed optimizations.
+   - Benchmark was improved (new "b" command in command line version).
+   - The number of DLL files was reduced.
+   - switch -mhcf=off is not supported now.
+   - If -t{Type} switch is not specified, 7-Zip now uses extension of archive to detect the type of archive.
+   - Some bugs were fixed (BZip2 in multithread)
+   - x86 or x86_64 : ASM version of crc32 available
+
+  - better detection of executable file (scripts do not need BCJ/BCJ2 filter)
+
+  - default permissions are now :
+    - for a file      : -rw-------
+    - for a directory : drwx------
+
+  - on MacOSX, locale is always utf8 (because the MacOSX filesystem supports only utf8 filenames)
+
+  - makefile.qnx_static and makefile.qnx_shared added (Thank to termterm)
+
+
+Version 4.44
+============
+
+  - From Windows version of 7-zip 4.44 :
+    - 7za : Cab support
+    - Speed optimizations for LZMA, Deflate, BZip2 and unRAR.
+    - fix : now, updating a crypted header archive keeps the crypted header
+
+  - fixes in the help displayed by 7za/7z/7zr.
+
+  - code cleanup
+    - remove of mySetModuleFileNameA (and its memory leak), GetModuleFileName ...
+
+  - fixed : p7zip for DJGPP can now update an archive (thank stranix)
+
+  - fixed : in the plugins of 7z, the "Utf16" state was always off.
+
+  - fixed : support for directory names that are not encoded with the current locale.
+    (ex : directory name is in "iso 8859-15" whereas the locale is "utf8")
+
+  - patch #1581907 : fix for FreeBSD in contrib/gzip-like_CLI_wrapper_for_7z/p7zip
+
+  - fixed : p7zip can now restore a symbolic link from a Zip archive (archive.zip made with "zip -y")
+      remark/todo : p7zip stores, in a zip archive, the linked file instead of the symbolic link
+
+  - fixed #1630452 : small fix in the output of the script install.sh
+
+  - fixed #632912 : Extracting large directories takes quadratic time
+
+  - preliminary support of HP-UX : remove of RTLD_GROUP for dlopen in DLL.cpp
+      makefile.hpux-acc should be able to build 7za for HP-UX (thank furiol)
+
+  - Client7z added.
+
+Version 4.43
+============
+  - From Windows version of 7-zip 4.43 :
+    - 7-Zip now can use multi-threading mode for compressing to .ZIP archives.
+    - ZIP format supporting was improved.
+    - 7-Zip now supports WinZip-compatible AES-256 encryption for .ZIP archives.
+    - 7-Zip now uses order list (list of extensions) for files sorting for compressing
+      to .7z archives. It can slightly increase compression ratio in some cases.
+    - 7-Zip now restores modification time of folders during .7z archives extracting.
+    - Some bugs were fixed.
+
+  - fixed : the user can now see the percentage indicator.
+
+  - fix "Bugs item #1612285" : doesn't preserve directory timestamps
+
+  - support added for Tru64 / OSF 5.1  (makefile.tru64)
+
+  - small fix "Bugs item #1533765" in install.sh (7zr install)
+
+  - fix "Bugs item #1507913" : "make all" now build 7za and 7zCon.sfx
+    following the README.
+
+  - manpage updated "bugs item #1509098" : exit codes added
+
+  - manpage updated :-mhe=on (Header encryption) added
+
+  - install.sh now can install the file README, ChangeLog and the directory DOCS
+
+
+Version 4.42
+============
+  - From Windows version of 7-zip 4.42 :
+    - Some bugs were fixed
+
+  - the binaries provided by p7zip_4.XY_x86_linux_bin.tar.bz2
+    can now run on Fedora x86_64,
+    and should now run on any 64bits Linux.
+
+  - patch #1473746 - gzip-like CLI wrapper (for 7z)
+    see the directory "contrib/gzip-like_CLI_wrapper_for_7z".
+
+  - patch #471478 - Support for OPTFLAGS
+    This patch allows to use system specific opt flags.
+    example : make OPTFLAGS="-O2 -march=athlon-xp"
+
+  - the djgpp and cygwin makefile now build "7za" with case insensitive filenames
+    (Windows filesystem is case insensitive).
+
+
+Version 4.41
+============
+  - From Windows version of 7-zip 4.41 :
+    - Some bugs were fixed
+
+
+Version 4.40
+============
+
+  - From Windows version of 7-zip 4.40 :
+    - 7-Zip now can unpack some installers created by NSIS
+    - Some bugs were fixed
+
+  - format LZH/LHA : fixed directory display during listing or extracting
+    (a directory does not end with the path separator)
+
+  - patch #1470817 - Handle 7zr in install.sh
+
+  - code cleanup
+
+
+Version 4.39
+============
+
+  - From Windows version of 7-zip 4.39 :
+    - Bug in versions 4.33:4.38 was fixed:
+      7-Zip could not correctly compress files larger than 2 GB
+      to 7z archive in fast/fastest modes (HC4 match finder).
+
+
+Version 4.38
+============
+
+  - From Windows version of 7-zip 4.38 :
+    - Some bugs were fixed.
+
+  - new manpage : 7zr.1
+  - update manpages : 7z.1 and 7za.1
+  - new switch : --help
+
+  - patch #1465026 - Patch for install.sh for packagers
+
+  - DosDateTimeToFileTime fixed (rar format)
+
+  - contrib/VirtualFileSystemForMidnightCommander/u7z updated
+    (thank sgh_punk)
+
+
+Version 4.37
+============
+  - From Windows version of 7-zip 4.37 :
+    - Some bugs were fixed.
+
+  - fix build for Solaris sparc with CC instead of g++.
+
+  - fix build for Solaris  9 x86
+  - fix build for Solaris 10 x86
+  - fix build for OpenBSD
+  - p7zip can now be build with djgpp.
+  - new target  : 7zr (light version of 7za)
+  - new machine : IBM AIX
+
+Version 4.36
+============
+  - From Windows version of 7-zip 4.36 :
+    - 7-zip now can unpack ISO archives
+
+  - GCC 4.X : add C++ visibility support to reduce the size of the *.so
+   (see makefile.linux_x86_ppc_alpha__gcc_4.X)
+
+  - cygwin now supports '-o/tmp'
+
+Version 4.35
+============
+  - From Windows version of 7-zip 4.35 :
+    - New switch : -slt ("l" (list) command with -slt shows technical information for archive).
+    - Some bugs were fixed.
+
+  - From Windows version of 7-zip 4.34 :
+    - BZip2 compressing / decompressing now can work in multi-threading mode
+    - Multi-threading mode now is default for multi-processor systems
+
+Version 4.33
+============
+  - From Windows version of 7-zip 4.33 :
+    - Compressing speed and Memory requirements were increased.
+      Default dictionary size was increased: Fastest: 64 KB, Fast: 1 MB,
+      Normal: 4 MB, Max: 16 MB, Ultra: 64 MB.
+    - 64-bit version now supports 1 GB dictionary
+    - 7z/LZMA now can use only these match finders: HC4, BT2, BT3, BT4
+    - Compression ratio in Zip/GZip/Deflate in Ultra mode was increased
+    - Some bugs were fixed
+
+  - fix "Bugs item #1407358" : Passwords entered are not visible on command line
+    if the target has the system function "getpass".
+
+  - fix "BCJ2" : now p7zip uses the "BCJ2" filter when the file has execute permission
+    (7-zip uses the "BCJ2" filter when the filename ends with ".dll", ".exe", ".ocx", ".sfx" or ".sys")
+
+  - patch #1390722 : no new line at end of file
+
+  - patch #1390716 : allow compiling with gcc-4.1
+
+  - patch #1425862 : allow other make programs than GNU make
+
+  - Testing framework added ("make test" and "make test_7z")
+
+  - fix 'lstat' : p7zip can compile if 'lstat' is not available
+
+Version 4.30
+============
+  - From Windows version of 7-zip 4.30 :
+    - Speed optimizations in LZMA maximum/ultra compressing.
+    - LZMA now supports word size up to 273
+    - 7-Zip now reduces dictionary size for LZMA, if you compress files
+      smaller than specified dictionary size.
+    - Some bugs were fixed
+
+  - fix minor build trouble with MacOS X
+  - fix "Bugs item #1349229" : 7-zip now displays "e: Extract files from archive (without using directory names)"
+
+Version 4.29
+============
+
+  - fix "Bugs item #1305781" : "7z a -sfx" sets the execute-flag
+    and does not add ".exe" extension.
+
+  - fix "Bugs item #1306783" : "7za a /tmp/t.7z /etc/passwd"
+
+  - fix "Bugs item #1304797" : @lists don't handle files starting with ./
+
+  - fix "Bugs item #1309287" : man 7za fails after install
+
+Version 4.27
+============
+  - From Windows version of 7-zip 4.27 :
+    - new plugin for 7z : 7-Zip can unpack CHM/HXS (MS HTML HELP) archives
+    - cab plugin for 7z : 7-Zip can unpack multivolume CAB archives
+    - Some bugs were fixed
+    - better support for 64bits (PPMD coder/decoder)
+
+Version 4.26
+============
+  - From Windows version of 7-zip 4.26 :
+    - new plugin for 7z : LZH format support (extracting only)
+
+  - fix (courtesy from Robert Millan) to make p7zip compile on GNU/kFreeBSD.
+
+  - fix "Bug item #1273057", now "7z -so -t7z a dummy.7z file >output.7z" does not
+    finish with a "Segmentation fault (core dumped)".
+
+  - fix "Bug item #1221056", now, makefile for p7zip use the flag "-O" to
+  support compilers that build invalid programs with the flag "-O2".
+
+Version 4.25
+============
+  - From Windows version of 7-zip 4.25 :
+    - Some bugs were fixed
+    - DOCS/MANUAL/exit_codes.htm added
+
+  - new plugin for 7z : RAR format support (extracting only)
+
+  - better dependencies in makefile
+
+Version 4.23
+============
+  - From Windows version of 7-zip 4.23 :
+    - Some bugs were fixed
+
+  - manpages for 7za and 7z updated by Mohammed Adnene Trojette.
+
+  - little fix for the help message of 7za or 7z.
+
+  - bug #1224304 : Files and directories with \ in name not handled properly.
+
+  - fix for tar archives that have pax header.
+
+Version 4.20
+============
+
+  - From Windows version of 7-zip 4.19 and 4.20 :
+    - BZip2 code was rewritten. Now it supports 3 modes: Normal, Maximum and
+      Ultra. In Normal mode it compresses almost as original BZip2 compressor.
+      Compression ratio in Maximum and Ultra modes is 1-3% better for some files,
+      but Maximum Mode is about 3 times slower and Ultra Mode is about 8 times
+      slower than Normal mode.
+    - Console version now prints all messages to stdout by default,
+      and if -so switch is specified, 7-Zip prints messages to stderr.
+    - Some bugs were fixed
+
+  - Updating "contrib/VirtualFileSystemForMidnightCommander/" with u7z-4.16beta.tar.bz2
+
+  - bug #1204993 (does not find broken filenames)
+
+  - bug #1201244 (Missing files in p7zip_4.18_x86_linux_bin.tar.bz2)
+
+  - makefile.linux_x86_ppc_alpha : flag "-fPIC" added
+
+  - flag "-l" added.
+    without   : p7zip stores symlinks (like p7zip 4.18)
+    with "-l" : p7zip stores the files/directories pointed by symlinks (like before p7zip 4.18)
+      CAUTION : the scanning stage can never end because of symlinks like ".."
+                 (ex:  ln -s .. ldir)
+
+Version 4.18
+============
+
+  - From Windows version of 7-zip 4.18 and 4.17 :
+    - minor fixes
+
+  - p7zip can now store and restore :
+    - symbolic links,
+    - file permission bits
+      Remark : for directory, restored_perm = stored_perm | 0700 .
+
+  - fix in install.sh
+
+  - On MacOSX, p7zip now restore times of a file.
+
+  - more detailed errors during scanning stage.
+
+
+Version 4.16
+============
+
+  - From Windows version of 7-zip 4.16 :
+    - Speed optimization (5%) for 7z / LZMA
+    - 7za now supports .Z archives
+    - -r- switch in command line now is default for all commands
+    - Some bugs were fixed
+    - bug #1119193 (list mode output confusing/wrong)
+
+  - From Windows version of 7-zip 4.15 :
+    - Z format supporting (extracting only)
+    - 7-Zip now can extract ZIP archives compressed with "Shrink" method
+    - 7-Zip now doesn't interrupt the compressing when it can not open file.
+      7-Zip just skips that file and shows warning.
+    - Some bugs were fixed
+
+  - man pages added (thank Mohammed Adnene Trojette)
+  - bug #1112167 fixed (Temporary directory must be on same partition as target)
+    p7zip failed moving the temporary file at the end of
+    compressing to target file if the directories don't reside
+    on the same partition (or network path).
+  - bug #1164659 fixed (Invalid file date for "big endian" machine)
+  - p7zip now uses ".so" instead of ".dll"
+  - p7zip now handles "ctrl-c" and "kill" to cleanup temporary files before exiting
+  - p7zip now runs on BeOS.
+  - better support of filenames with spaces.
+  - some code cleanup
+    - "myWindows/myFiles.cpp" is now in "Windows/FileIO.cpp"
+    - "myWindows/myFindFile.cpp" is now in "Windows/FileFind.cpp"
+    - "myWindows/myDirectoryAndPath.cpp" is now in "Windows/FileDir.cpp"
+    - "myWindows/myEvents.cpp" is now in "Windows/Synchronization.cpp"
+    - "myWindows/wine_strings.cpp" is now in "Windows/String.cpp"
+
+
+Version 4.14.01
+===============
+  - huge speed up for multi CPUs machines (Thanks to loderunner - http://sourceforge.net/users/loderunner/).
+  - some code cleanup
+  - Fix problems with link files or directories.
+  - "7z a dummy -tgzip -so Doc.txt > archive.gz" now works.
+  - in the messages, the path separator is now '/' instead of '\'.
+
+Version 4.14
+============
+
+  - From Windows version of 7-zip 4.14 :
+    - STL using was reduced
+    - 7za now supports Split(001) archives
+    - "7za | more" now works
+    - Bugs item #1093095 : Usage banner now says "7za" (instead of "7z") when the binary is "7za"
+
+  - use of AString instead of std::string (no more need of #include <string>")
+  - makefile.linux_gcc_2.95_no_need_for_libstdc added to build 7za for the
+    p7zip*_bin.tar.bz2 package.
+    7za provided by p7zip*_bin.tar.bz2 is build on Debian 3.0 with gcc 2.95.4
+    and should now find the locale on all kinds of Linux (Debian, Fedora, Mandrake, ...).
+
+Version 4.13
+============
+  - new port of 7za from the source of 7za 4.13Beta for Windows
+
+  - From Windows version of 7-zip 4.13 :
+    - Switch "--" stops switches parsing
+    - Some bugs were fixed
+    - User's manual updated (DOCS/MANUAL/index.htm)
+
+  - makefile.netbsd_x86 added [Bug #1069055].
+
+  - new method to install 7z and its plugins (the "link" method do no work)
+
+  - installer added (install.sh).
+
+  - makefile.macosx_with_fink becomes makefile.macosx
+    and makefile.macosx uses c++ instead of CC
+    (on some MacOSX, CC is a link to gcc instead of g++)
+
+  - new flag "-utf16" to enable "utf16" conversion [Bug #1075229].
+
+  - new logic to automatically enable or disable "utf16" conversion :
+    no locale, locale=="C" or locale=="POSIX" implies utf16=off
+    else  utf16=on
+    uses "-utf16" or "-no-utf16" to change this behaviour.
+    [Bug #1075229]
+
+  - 7z (compiled with -O2) works now on Sparc Solaris.
+
+Version 4.12
+============
+  - new port of 7za from the source of 7za 4.12Beta for Windows
+
+  - From Windows version of 7-zip 4.11 and 4.12 :
+    - 7-Zip now supports Zip64 extension of ZIP format. So now it's
+      possible to compress files bigger than 4 GB to ZIP archives.
+    - Some bugs were fixed
+
+  - fix "7za a archive.7z file" that added all the files and directories
+    with filename "file", "FILE", "File" ...
+
+  - p7zip now displays the locale (ex : en_US.UTF-8) in the banner.
+
+  - new flag "-no-utf16" to avoid lossly conversion in filenames.
+    CAUTION : use this flag when you do not plan to export your archive.
+
+  - support creation of self extracting archive.
+
+  - better support of symbolic link (now, an invalid symbolic link
+    do not stop archiving but displays a warning).
+
+  - better support of files that the user cannot read.
+    (now this kind of file is not added to the archive, and p7zip displays a warning).
+
+  - return of 7z and its plugins.
+
+  - support of listing/testing/extracting files from a splitted archive (only with 7z).
+
+  - support of MacOX X 10.X.
+
+  - creation of Gzip/Tar archives didn't work on Linux Alpha.
+
+  - see "contrib/VirtualFileSystemForMidnightCommander/readme" to use 7za with "mc".
+
+Version 4.10
+============
+  - new port of 7za from the source of 7za 4.10Beta for Windows
+    => p7zip now work on big endian CPU.
+
+  - 7z for Unix is not maintain anymore (because as the source of unrar plugin for 7z
+    is not available, 7z is unless on Unix).
+
+Version 0.91
+============
+  - add support for FreeBSD 5.2.1
+    In Windows/Time.h add "#include <time.h>"
+    and prototype change for FileTimeToUnixTime()
+
+  - bug 990684 Corrected : support of filesystem
+    that support case sensitive filenames.
+    Example, since version 0.91 :
+    "7z a glibc -r glibc-2.3.2"
+    does not terminate with error :
+      Duplicate filename:
+      glibc-2.3.2\sysdeps\m88k\m88100\add_n.S
+      glibc-2.3.2\sysdeps\m88k\m88100\add_n.s
+
+Version 0.90
+============
+  - build of 7z.exe and its DLL.
+  7z.exe support more archive formats than 7za.exe
+  thanks to DLL in Formats and Codecs directories
+  - "#pragma once" is now in comments
+  - mainly For OpenBSD :
+    - add #include <wchar.h> in include_windows/winnt.h
+    - remove stuff for GUID_SECTION and GUID_SECT in include_windows/basetyps.h
+      and include_windows/initguid.h
+    - some changes in 7zip/Crypto/aesopt.h because of endian.h
+
+Version 0.81
+============
+  - add a copy of the help of 7-zip (see html directory)
+  - "7z a -r tmp.7z directory" works as expected.
+    no more need for commands like : 7z a -r tmp.7z "directory/*"
+  - 7z restores the date of each files (but not directories)
+  - 7z supports UNICODE filenames (version 0.80 supports only ASCII/Latin1 filenames)
+  - support of gcc 2.95
+  - support of gcc 3.4
+  - 7z needs no more libgen.h (dirname() and basename())
+  - less "Internal Error #7" during arguments parsing
+  - minor change in class CThread
+
+Version 0.80
+============
+  - First public release
+  - support of gcc 3.2 and 3.3
+

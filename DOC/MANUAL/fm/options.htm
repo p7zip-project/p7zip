@@ -1,0 +1,152 @@
+  <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>Options Dialog Box</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>Options Dialog Box</H1>
+
+
+<P>You can change many of the settings that affect the 7-Zip File Manager 
+in the Options dialog box. To access this dialog box select Options 
+from the Tools menu.</P> 
+
+<P>The options dialog box contains the following pages:</P>
+<UL>
+  <LI><A href = "#system">System  Page</A></LI>
+  <LI><A href = "#sevenZip">7-Zip</A></LI>
+  <LI><A href = "#folders">Folders Page</A></LI>
+  <LI><A href = "#editor">Editor Page</A></LI>
+  <LI><A href = "#settings">Settings Page</A></LI>
+  <LI><A href = "#language">Language Page</A></LI>
+</UL>
+
+<H2><a name="system"></a>System  Page</H2>
+<P>Allows you to specify the behavior of 7-Zip in the filing system.</P>
+<DL>
+  <DT>Associate 7-Zip with</DT>
+    <DD>Allows to associate 7-Zip with file name extensions.
+        There are two list of associations: for "Current User" and for "All Users".
+        To set associations for "All Users" you must run 7-Zip File Manager 
+        with administrator rights.
+        Each association can have up to 4 states: 
+    <UL>
+      <LI>no association.
+      <LI>AppName - the extension is associated with another program (not 7-Zip).
+      <LI>[7-Zip] - the extension is associated with another copy (edition) of 7-Zip.
+      <LI>7-Zip - the extension is associated with this copy of 7-Zip.
+    </UL>
+
+    <P> You can switch between these states by clicking on cell. Or you can change states 
+        for all extension by clicking on "+" button.</P>
+</DL>
+
+<H2><a name="sevenZip"></a>7-Zip Page</H2>
+<P>Allows you to specify behavior of 7-Zip in Windows Shell.</P>
+<DL>
+  <DT>Integrate 7-Zip to shell context menu</DT>
+    <DD>Select this check box to add 7-Zip commands to Shell Context Menu. 
+        There are two check boxes in 64-bit system. So it's possible to enable
+        7-Zip context menu for 32-bit and 64-bit applications.</DD>
+  <DT>Cascaded context menu</DT>
+    <DD>Select this check box to group 7-Zip context menu items to one <B>7-Zip</B> submenu.</DD>
+  <DT>Icons in context menu</DT>
+    <DD>Select this check box to show 7-Zip icon in context menu items.</DD>
+  <DT>Eliminate duplication of root folder</DT>
+    <DD>That option allows to eliminate duplication of root folder for "Extract to" operations,
+        if all files in archive are placed in folder with name that is identical to name of output folder.</DD>
+  <DT>Context menu items</DT>
+    <DD>Lists the optional context menu items. If an item is checked,
+        7-Zip will add this item to the context menu.</DD>
+</DL>
+
+
+<H2><a name="folders"></a>Folders Page</H2>
+<P>Allows you to set the folders which 7-Zip will use for internal purposes.</P>
+
+<H3>Working folder</H3>
+
+<P>The working folder section allows you to specify a folder which will be used
+for temporary archive files:</P>
+
+<DL>
+  <DT>System temp folder</DT>
+    <DD>7-Zip will use the Windows temp folder.</DD>
+  <DT>Current</DT>
+    <DD>7-Zip will use the folder containing the target archive.</DD>
+  <DT>Specified</DT>
+    <DD>7-Zip will use the folder specified in the following edit control.</DD>
+</DL>
+
+<DL>
+  <DT>Use for removable drives only</DT>
+    <DD> Specifies whether 7-Zip should use the specified folder settings
+         only for removable drives;  for other drives, 7-Zip will create
+         temporary archives in the folder containing the target archive.
+         If you clear this check box, 7-Zip always will use the specified folder
+         settings mode always.
+    </DD>
+</DL>
+
+<P>7-Zip uses temporary archive files for all update operations. 
+So, for speed reasons, it is recommended that you select the
+<B>System temp folder</B> option and select 
+<B>Use for removable drives only</B> check box.
+</P>
+
+<H2><a name="editor"></a>Editor Page</H2>
+<P>Allows you to specify settings for the editor.</P>
+<DL>
+  <DT>View</DT>
+    <DD>Specifies the path to the viewer that will be used for "View" command (F3).</DD>
+  <DT>Editor</DT>
+    <DD>Specifies the path to the editor that will be used for "Edit" command (F4).</DD>
+  <DT>Diff</DT>
+    <DD>Specifies the path to a file comparison utility that shows the 
+       differences between two files.</DD>
+</DL>
+
+<H2><a name="settings"></a>Settings Page</H2>
+<P>Allows you to specify some settings.</P>
+<DL>
+  <DT>Show .. item</DT>
+    <DD>Shows .. item in file list.</DD>
+  <DT>Show real file icons</DT>
+    <DD>Shows real file icons in file list. If this option is enabled,
+      listing updates can be slower.</DD>
+  <DT>Full row select</DT>
+    <DD>When an item is selected, the item and all its subitems are highlighted.</DD>
+  <DT>Show grid lines</DT>
+    <DD>Displays gridlines around items and subitems.</DD>
+  <DT>Single-click to open an item</DT>
+    <DD>If enabled, File Manager opens files and folders by single-clicking them.</DT>
+  <DT>Alternative selection mode</DT>
+    <DD>If enabled, File Manager keeps selection mark when you move cursor.</DD>
+
+  <DT>Show system menu</DT>
+    <DD>Shows a system context sub-menu in the File menu.</DD>
+
+  <DT>Use large memory pages</DT>
+    <DD>If enabled, 7-Zip will try to use large pages. This feature allows an increase in speed of compression.
+      This may cause 7-Zip to pause when starting compression, because of allocation of the large pages.
+      Also, the Windows Task Manager doesn't show the real memory usage of the program, if 7-Zip uses large pages.
+      This feature works only on Windows 2003 / XP x64. 
+      Also you must have administrator's rights for your system.
+      Recommended size of RAM: 1 GB or more.
+      To install this feature you must run 7-Zip File Manager at least once, 
+      close it and reboot the system.</DD>
+</DL>
+
+<H2><a name="language"></a>Language Page</H2>
+<P><P>Allows you to change the default language.</P>
+<DL>
+  <DT>Language</DT>
+    <DD>Lists the available languages.</DD>
+</DL>
+
+</BODY>
+</HTML>

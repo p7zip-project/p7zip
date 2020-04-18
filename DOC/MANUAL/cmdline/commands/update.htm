@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>u (Update) command</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>u (Update) command</H1>
+
+<P>Update older files in the archive and add files that are not already in the archive.</P>
+
+<P>Note: the updating of solid .7z archives can be slow, since it 
+can require some recompression.</P>
+
+<H4>Example</H4>
+
+<PRE class="example">
+7z u archive.zip *.doc
+</PRE>
+
+<P>updates <SPAN class="filename">*.doc</SPAN> files to archive
+    <SPAN class="filename">archive.zip</SPAN>.</P>
+
+
+<H4>Notes</H4>
+
+<P>7-Zip doesn't use the system wildcard parser. 7-Zip doesn't
+follow the archaic rule by which *.* means any file. 7-Zip treats
+*.* as matching the name of any file that has an extension. To process 
+all files, you must use a * wildcard.</P>
+
+
+<H4>Switches that can be used with this command</H4>
+
+<P>
+  <A href="../switches/include.htm">-i (Include)</A><BR>
+  <A href="../switches/method.htm">-m (Method)</A><BR>
+  <A href="../switches/password.htm">-p (Set Password)</A><BR>
+  <A href="../switches/recurse.htm">-r (Recurse)</A><BR>
+  <A href="../switches/sfx.htm">-sfx (create SFX)</A><BR>
+  <A href="../switches/stdin.htm">-si (use StdIn)</A><BR>
+  <A href="../switches/stdout.htm">-so (use StdOut)</A><BR>
+  <A href="../switches/sni.htm">-sni (Store NT security information)</A><BR>
+  <A href="../switches/sns.htm">-sns (Store NTFS alternate Streams)</A><BR>
+  <A href="../switches/shared.htm">-ssw (Compress shared files)</A><BR>
+  <A href="../switches/spf.htm">-spf (Use fully qualified file paths)</A><BR>
+  <A href="../switches/stl.htm">-stl (Set archive timestamp from the most recently modified file)</A><BR>
+  <A href="../switches/type.htm">-t (Type of archive)</A><BR>
+  <A href="../switches/update.htm">-u (Update)</A><BR>
+  <A href="../switches/working_dir.htm">-w (Working Dir)</A><BR>
+  <A href="../switches/exclude.htm">-x (Exclude)</A>
+</P>
+
+<H4>See also</H4>
+
+<P>
+  <B>Commands:</B> 
+  <A href="add.htm">a (Add)</A>,
+  <A href="delete.htm">d (Delete)</A>,
+</P>
+
+<P>
+  <B>Switches:</B>
+  <A href="../switches/update.htm">-u (Update)</A>
+</P>
+
+</BODY>
+</HTML>

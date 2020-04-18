@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-spf (Use fully qualified file paths) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-spf (Use fully qualified file paths) switch</H1>
+
+<TABLE>
+  <TR> <TH width="80">Switch</TH> <TH>Description</TH> </TR>
+  <TR> <TD>-spf</TD> <TD>Use absolute paths including drive letter.</TD> </TR>
+  <TR> <TD>-spf2</TD> <TD>Use full paths without drive letter.</TD> </TR>
+</TABLE>
+
+<P>Enables the mode that allows to use fully qualified file paths in archives.
+If -spf switch is not specified, 7-Zip reduces file paths to relative paths when 
+it adds files to archive, and 7-Zip converts paths to relative paths when 
+you extract archive. 
+If -spf switch is specified, 7-Zip doesn't try to process or convert paths.</P>
+
+<P>Fully qualified file paths begin with one of the following:</P>
+<UL>
+<LI>A UNC name, which starts with two backslash characters, for example, "\\Server1\".
+<LI>A disk designator with a backslash, for example "C:\".
+<LI>A single backslash, for example, "\Folder".
+</UL>
+
+<P>If -spf switch is specified, but the path is not fully qualified, 7-Zip will use specified path, 
+it will not convert the path to fully qualified path.</P>
+
+
+<P>Please be careful, if you use -spf switch with "extract" command. 
+Check that file names in archive are correct. Note that with -spf switch 
+7-Zip can try to rewrite any file with path specified in archive.</P>
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+-spf
+</PRE>
+
+<H4>Examples</H4>
+
+<PRE class="example">
+7z a a.7z -spf c:\Files\test.txt d:\test.txt
+</PRE>
+
+<P>stores both <SPAN class="filename">txt</SPAN> files with full paths.</P>
+
+<PRE class="example">
+7z x a.7z -spf
+</PRE>
+
+<P>extracts files from <SPAN class="filename">a.7z</SPAN> archive with exact 
+file paths specified in archive.</P>
+
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/add.htm">a (Add)</A>,
+  <A href="../commands/delete.htm">d (Delete)</A>,
+  <A href="../commands/extract.htm">e (Extract)</A>,
+  <A href="../commands/update.htm">u (Update)</A>,
+  <A href="../commands/extract_full.htm">x (Extract with full paths)</A>
+</P>
+
+<H4>See also</H4>
+
+<P>
+  <B>Switches:</B>
+</P>
+
+</BODY>
+</HTML>
+

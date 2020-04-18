@@ -1,0 +1,27 @@
+#
+# makefile for Linux (CROSS MIPSEL)
+#
+#
+
+
+OPTFLAGS=-O -s
+
+ALLFLAGS=${OPTFLAGS} -pipe \
+    	-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
+	-DNDEBUG -D_REENTRANT -DENV_UNIX \
+	-D_7ZIP_LARGE_PAGES \
+	$(LOCAL_FLAGS)
+
+CXX=mipsel-linux-gnu-g++
+CC=mipsel-linux-gnu-gcc
+CC_SHARED=-fPIC -DPIC
+LINK_SHARED=-fPIC -DPIC -shared
+
+TOOLS=qemu-mipsel  /usr/mipsel-linux-gnu/lib/ld.so.1  --library-path /usr/mipsel-linux-gnu/lib
+
+LOCAL_LIBS=-lpthread
+LOCAL_LIBS_DLL=$(LOCAL_LIBS) -ldl
+
+OBJ_CRC32=$(OBJ_CRC32_C)
+OBJ_AES=
+

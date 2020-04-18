@@ -1,0 +1,41 @@
+=-=-=-= 4.29
+* Code optimization for using less temporary files as possible (may not work with p7zip 
+  versions oldest than 4.29)
+
+=-=-=-= 4.16beta
+* Changed internal date representation, because old date format may not work with 
+  some mc versions. (thanks to Valery Koval for patch)
+* Aligned with p7zip 4.16 beta (for properly handle old type archives with "./" prefix in 
+  archive root, and deletion error from solid archives handle)
+
+=-=-=-= 4.14.2beta
+* extract files with same name from different archive subdirs was not a bug, but feature,
+  so I made code cleanup. (thanks to myspace and Igor Pavlov)
+
+=-=-=-= 4.14.1beta
+Aligned with p7zip 4.14.01 beta (may work with v 4.x) Not work with oldest versions!
+* workaround p7zip bug for extract files with same name from different archive subdirs
+
+=-=-=-= 4.12.2beta
+* incorrect show small text files in internal (mc) viewer = fixed
+
+=-=-=-= 4.12.1beta
+Aligned with p7zip 4.12 beta (may work with v 4.10) Not work with oldest versions!
+* many workarounds to aligning with 4.12
+
+=-=-=-= 0.3.2beta
+Aligned with p7zip 0.91 cause version 4.10beta is buggy
+* incorrect handle files inside subdirs of archive without prefix "./" = fixed
+
+=-=-=-= 0.3.1beta
+Aligned with p7zip 0.91 cause version 4.10beta is buggy
+* incorrect handle filenames inside archive with length little than 12 symbols = fixed
+* p7zip trying extract all files with same name in top dir and other dirs of archive = workaround
+* some workarounds to align with version 0.91
+
+=-=-=-= 0.3beta
+Aligned with p7zip 0.90 cause version 4.10beta is buggy
+* incorrect handle filenames with spaces = fixed
+
+=-=-=-= 0.2beta
+first version, full of bugs...

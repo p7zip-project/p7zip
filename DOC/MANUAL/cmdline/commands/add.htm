@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>a (Add) command</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>a (Add) command</H1>
+
+<P>Adds files to archive.</P>
+
+<H4>Examples</H4>
+
+<PRE class="example">
+7z a archive1.zip subdir\
+</PRE>
+
+<P>adds all files and subfolders from folder <SPAN class="filename">subdir</SPAN> to archive
+  <SPAN class="filename">archive1.zip</SPAN>. 
+  The filenames in archive will contain <SPAN class="filename">subdir\</SPAN> prefix.</P>
+
+<PRE class="example">
+7z a archive2.zip .\subdir\*
+</PRE>
+
+<P>adds all files and subfolders from folder <SPAN class="filename">subdir</SPAN> to archive
+  <SPAN class="filename">archive2.zip</SPAN>.
+  The filenames in archive will not contain <SPAN class="filename">subdir\</SPAN> prefix.</P>
+
+
+<PRE class="example">
+cd /D c:\dir1\
+7z a c:\archive3.zip dir2\dir3\ 
+</PRE>
+
+The filenames in archive <SPAN class="filename">c:\archive3.zip</SPAN> 
+will contain <SPAN class="filename">dir2\dir3\</SPAN> prefix, 
+but they will not contain <SPAN class="filename">c:\dir1\</SPAN> prefix.
+
+<PRE class="example">
+7z a Files.7z *.txt -r
+</PRE>
+
+<P>adds all *.txt files from current folder and its subfolders to archive
+    <SPAN class="filename">Files.7z</SPAN>.</P>
+
+
+<H4>Notes</H4>
+
+<P>7-Zip doesn't use the system wildcard parser. 7-Zip doesn't
+follow the archaic rule by which *.* means any file. 7-Zip treats
+*.* as matching the name of any file that has an extension. To process 
+all files, you must use a * wildcard.</P>
+
+
+<H4>Switches that can be used with this command</H4>
+
+<P>
+  <A href="../switches/include.htm">-i (Include)</A><BR>
+  <A href="../switches/method.htm">-m (Method)</A><BR>
+  <A href="../switches/password.htm">-p (Set Password)</A><BR>
+  <A href="../switches/recurse.htm">-r (Recurse)</A><BR>
+  <A href="../switches/sdel.htm">-sdel (Delete files after including to archive)</A><BR>
+  <A href="../switches/sfx.htm">-sfx (create SFX)</A><BR>
+  <A href="../switches/stdin.htm">-si (use StdIn)</A><BR>
+  <A href="../switches/sni.htm">-sni (Store NT security information)</A><BR>
+  <A href="../switches/sns.htm">-sns (Store NTFS alternate Streams)</A><BR>
+  <A href="../switches/stdout.htm">-so (use StdOut)</A><BR>
+  <A href="../switches/spf.htm">-spf (Use fully qualified file paths)</A><BR>
+  <A href="../switches/shared.htm">-ssw (Compress shared files)</A><BR>
+  <A href="../switches/stl.htm">-stl (Set archive timestamp from the most recently modified file)</A><BR>
+  <A href="../switches/type.htm">-t (Type of archive)</A><BR>
+  <A href="../switches/update.htm">-u (Update)</A><BR>
+  <A href="../switches/volume.htm">-v (Volumes)</A><BR>
+  <A href="../switches/working_dir.htm">-w (Working Dir)</A><BR>
+  <A href="../switches/exclude.htm">-x (Exclude)</A><BR>
+</P>
+
+<H4>See also</H4>
+
+<P>
+  <B>Commands:</B>
+    <A href="delete.htm">d (Delete)</A>,
+    <A href="update.htm">u (Update)</A><BR>
+  <B>Switches:</B>
+    <A href="../switches/update.htm">-u (Update)</A>
+</P>
+
+</BODY>
+</HTML>

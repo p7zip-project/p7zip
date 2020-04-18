@@ -1,0 +1,144 @@
+#!/bin/sh
+# gzip-like CLI wrapper for p7zip
+# version 2.0
+#
+# History
+#  2.0 :
+#    - support for -filename, "file name"
+#    - p7zip file1 file2 ...
+
+set -e
+
+usage ()
+  {
+    echo "Usage: $0 [-d] [-h|--help] [--] [ name ... ]"
+    echo ""
+    echo "    -h print this help"
+    echo "    -d decompress file"
+    echo "    -- treats  all  subsequent  arguments  as  file names, even if they start with a dash"
+    echo ""
+    exit 1
+  }
+
+doit()
+{
+  compress=$1
+  file="$2"
+  
+  if [ "${file}" != "" ] ; then
+    if ${compress} ; then
+      if [ -f "${file}" ] ; then
+        rm -f -- "${file}.7z"
+        7za a -- "${file}.7z" "${file}"
+        if [ "$?" != "0" ] ; then
+          rm -f -- "${file}.7z"
+          exit 1
+        fi
+        rm -- "${file}"
+      else
+        exit 1
+      fi
+    else
+      case "${file}" in
+        *.7z)
+          if [ -f "${file}" ] ; then
+            7za x -- "${file}"
+            if [ "$?" != "0" ] ; then
+              exit 1
+            fi
+            rm -- "${file}"
+           else
+             exit 1
+           fi
+        ;;
+        *)
+          echo "$0: ${file}: unknown suffix"
+          exit 1
+        ;;
+      esac
+    fi
+    return 0
+  fi
+  
+  P7ZIPTMP=${TMP:-/tmp}
+  tmp=`mktemp ${P7ZIPTMP}/p7zip.XXXXXXXX`
+  trap "rm -f -- ${tmp}" 0
+
+  if ${compress} ; then
+    if tty > /dev/null ; then
+      echo "$0: compressed data not written to a terminal."
+      echo "For help, type: $0 -h"
+      exit 1
+    fi
+    rm -f -- ${tmp}
+    7za a -si -- ${tmp} >/dev/null
+    if [ "$?" != "0" ] ; then
+      exit 1
+    fi
+    cat ${tmp}
+  else
+    cat > ${tmp}
+    7za x -so -- ${tmp} 2>/dev/null | cat
+    if [ "$?" != "0" ] ; then
+      exit 1
+    fi
+  fi
+  
+  rm -f -- ${tmp}
+  return 0
+}
+
+
+## MAIN
+
+compress=true
+flag=true
+file=""
+
+# make sure they're present, before we screw up
+for i in mktemp 7za rm cat tty ; do
+  if ! which $i > /dev/null ; then
+    echo "$0: $i: command not found"
+    exit 1
+  fi
+done
+
+# files and flags
+while [ "$#" != "0" ] ; do
+  case "$1" in
+    -d)
+      compress=false # decompressing
+      ;;
+    -c)
+      echo "$0: ignoring $1 option (not yet implemented)"
+      ;;
+    -h|--help)
+      usage
+      ;;
+    --)
+      flag=false
+      shift
+      break
+      ;;
+    *)
+	doit ${compress} "$1"
+        file="$1"
+    ;;
+  esac
+  shift
+done
+
+# only files now
+while [ "$#" != "0" ] ; do
+  doit ${compress} "$1"
+  file="$1"
+  shift
+done
+
+if [ "${file}" = "" ] ; then
+  # compressing/decompressing using standart I/O
+  doit ${compress}
+fi
+
+exit 0
+

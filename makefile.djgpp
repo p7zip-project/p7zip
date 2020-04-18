@@ -1,0 +1,22 @@
+#
+# makefile for DJGPP
+# (available targets for DJGPP : all test clean)
+#
+
+OPTFLAGS=-O -s
+
+ALLFLAGS=${OPTFLAGS} \
+    	-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
+	-DNDEBUG -D_REENTRANT -DENV_UNIX \
+	$(LOCAL_FLAGS)
+
+CXX=gpp
+CC=gcc
+LINK_SHARED=-shared
+
+LOCAL_LIBS=-lpthread -lsocket
+LOCAL_LIBS_DLL=$(LOCAL_LIBS)
+
+OBJ_CRC32=$(OBJ_CRC32_C)
+OBJ_AES=
+

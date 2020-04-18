@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-ssw (Compress files open for writing) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-ssw (Compress files open for writing) switch</H1>
+
+<P>Compresses files open for writing by another applications. If this switch is not 
+set, 7-zip doesn't include such files to archive.</P>
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+-ssw
+</PRE>
+
+<H4>Example</H4>
+
+<PRE class="example">
+7z a archive.7z -ssw *.txt
+</PRE>
+
+<P>compresses all <SPAN class="filename">*.txt</SPAN> files in 
+current folder including files open for writing by another applications.</P>
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/add.htm">a (Add)</A>,
+  <A href="../commands/hash.htm">h (Hash)</A>,
+  <A href="../commands/update.htm">u (Update)</A>
+</P>
+
+</BODY>
+</HTML>

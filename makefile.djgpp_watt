@@ -1,0 +1,49 @@
+# makefile.djgpp (using DJDEV 2.04, GCC/G++ 4.3.2, BinUtils 2.19, Make 3.81)
+# Tested with p7zip 4.61 at http://sourceforge.net/projects/p7zip
+#
+# Add this via REGEDIT.EXE to Vista SP1 registry (dword, e.g. "128000000"):
+# HKLM\System\CurrentControlSet\Control\Wow\DpmiLimit
+#
+# Needs two libs (N.B. Note that /beta/PTH207B.ZIP is 686+ only !!):
+# 1). ftp://ftp.delorie.com/pub/djgpp/current/v2gnu/pth207[bs].zip (297k,728k)
+#     http://gd.tuwien.ac.at/pc/dos/djgpp/current/v2gnu/           (faster URL)
+# 2). http://www.bgnett.no/~giva/watt32s-2.2-dev.10.zip            (2.3 MB)
+#
+# How to build: "cp makefile.djgpp makefile.machine ; make"
+# Available targets (.EXEs) for DJGPP: 7za 7zr sfx
+#
+# P.S. "upx --best --lzma --all-filters bin/*"
+# http://rugxulo.googlepages.com/upx303c.txt   (how to compile UPX-UCL)
+
+ifeq ($(WATT_ROOT),)
+$(error Please set WATT_ROOT env. var. first!)
+endif
+
+#OPTFLAGS=-O -s
+OPTIMIZE=-Os -mtune=i686 -fomit-frame-pointer -s
+OPTFLAGS=$(OPTIMIZE) -I$(WATT_ROOT)/inc -L$(WATT_ROOT)/lib
+
+ALLFLAGS=$(OPTFLAGS) \
+       -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
+       -DNDEBUG -D_REENTRANT -DENV_UNIX \
+	-D_7ZIP_ASM \
+       $(LOCAL_FLAGS)
+
+CXX=gpp
+CC=gcc
+#LINK_SHARED=-shared
+LINK_SHARED=
+
+LOCAL_LIBS_DLL=$(LOCAL_LIBS)
+
+#LOCAL_LIBS=-lpthread -lsocket
+LOCAL_LIBS=-lpthread -lwatt
+
+#OBJ_CRC32=$(OBJ_CRC32_C)
+
+ASM=yasm -f coff
+#ASM=nasm -f coff
+CPU=x86
+OBJ_CRC32=$(OBJ_CRC32_x86)
+OBJ_AES=AesOpt.o
+

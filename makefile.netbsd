@@ -1,0 +1,22 @@
+#
+# NetBSD >= 1.5.2 (which has no libc_r -- use libpthread)
+# makefile for NetBSD (x86, PPC, alpha ...)
+#
+
+OPTFLAGS=-O -s
+
+ALLFLAGS=${OPTFLAGS} \
+    	-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
+	-DNDEBUG -D_REENTRANT -DENV_UNIX \
+	$(LOCAL_FLAGS)
+
+CXX=g++
+CC=gcc
+LINK_SHARED=-shared
+
+LOCAL_LIBS=-lpthread
+LOCAL_LIBS_DLL=$(LOCAL_LIBS)
+
+OBJ_CRC32=$(OBJ_CRC32_C)
+OBJ_AES=
+

@@ -1,0 +1,10 @@
+BIN="p7zip-4.47-x86-qnx6.static"
+cd ../../ && mkdir ../${BIN} && \
+make clean && \
+mv makefile.machine makefile.machine.bak && \
+cp makefile.qnx_static makefile.machine && \
+make 7za && make 7zr && make sfx && \
+mv ./bin/7za ../${BIN} && mv ./bin/7zr ../${BIN} && mv ./bin/7zCon.sfx ../${BIN} ; \
+make clean && \
+mv makefile.machine.bak makefile.machine
+echo "All done - look for binaries in ../${BIN}"

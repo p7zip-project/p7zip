@@ -1,0 +1,25 @@
+
+#-fast -xarch=v9 => 64 bits
+# use "isainfo -v" to set the flag "-xarch"
+
+OPTFLAGS=-fast -xarch=v9 -s
+
+ALLFLAGS=${OPTFLAGS} -mt \
+        -DHAVE_LONG_LONG \
+        -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
+        -DENV_UNIX \
+        -DNDEBUG -D_REENTRANT \
+        $(LOCAL_FLAGS)
+
+CXX=CC
+CC=cc
+CC_SHARED=-KPIC
+LINK_SHARED=-KPIC -G
+
+# -lCrun : standard C++ library (for new/delete)
+LOCAL_LIBS=-lpthread -lCrun
+LOCAL_LIBS_DLL=$(LOCAL_LIBS) -ldl
+
+OBJ_CRC32=$(OBJ_CRC32_C)
+OBJ_AES=
+

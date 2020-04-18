@@ -1,0 +1,150 @@
+MKDIR = mkdir -p
+
+DEST_HOME=/usr/local
+DEST_BIN=$(DEST_HOME)/bin
+DEST_SHARE=$(DEST_HOME)/lib/p7zip
+DEST_SHARE_DOC=$(DEST_HOME)/share/doc/p7zip
+DEST_MAN=$(DEST_HOME)/man
+
+.PHONY: default all all2 7za 7zG 7zFM sfx 7z 7zr Client7z common common7z LangAndHelp tar_bin depend test test_7z test_7zr test_7zG test_Client7z LzmaCon test_LzmaCon  all_test app cppcheck lzham test_lib other
+
+.PHONY: clean clean_full clean_C
+
+include makefile.machine
+
+default:7za
+
+all:7za sfx
+
+all2: all 7z
+
+all3: all2 7zr
+
+all4: all3 Client7z LzmaCon lzham test_lib
+
+all4bis: all3 Client7z LzmaCon test_lib  # lzham not supported on x32 CPU.
+
+all5: all4 7zG 7zFM
+
+all6: all5 other
+
+all_all : all6 
+
+all_test : test test_7z test_7zr test_LzmaCon test_Client7z
+
+all_test2 : all_test test_7zG
+
+common:
+	$(MKDIR) bin
+
+app: common 7zFM 7zG 7z sfx
+	rm -fr               p7zip.app
+	$(MKDIR)             p7zip.app
+	cp -rp GUI/Contents  p7zip.app/
+	$(MKDIR)             p7zip.app/Contents
+	$(MKDIR)             p7zip.app/Contents/MacOS
+	cp bin/7zFM_do_not_use  p7zip.app/Contents/MacOS/
+	cp bin/7zG           p7zip.app/Contents/MacOS/
+	cp bin/7z.so         p7zip.app/Contents/MacOS/
+	cp bin/7zCon.sfx     p7zip.app/Contents/MacOS/
+	cp -rp bin/Codecs    p7zip.app/Contents/MacOS/
+	cp -rp GUI/Lang      p7zip.app/Contents/MacOS/
+	cp -rp DOC/MANUAL    p7zip.app/Contents/MacOS/help
+
+LangAndHelp:
+	cd bin ; rm -f Lang ; ln -s ../GUI/Lang   .
+	cd bin ; rm -f help ; ln -s ../DOC/MANUAL help
+
+clean: clean_C
+	rm -fr bin
+	rm -fr p7zip.app
+	rm -f  Lang
+	rm -fr CPP/7zip/P7ZIP.*
+	rm -fr CPP/7zip/CMAKE/P7ZIP.*
+	rm -fr CPP/7zip/PREMAKE/P7ZIP.*
+	rm -f  CPP/7zip/QMAKE/*/*.o
+	rm -f  CPP/7zip/QMAKE/*/Makefile
+	rm -f  CPP/7zip/QMAKE/*/*.pro.user
+	rm -f  CPP/7zip/QMAKE/*/*.x
+	-find . -name "build*"    -exec rm -fr {} \;
+	-find . -name "*-build-*" -exec rm -fr {} \;
+	-find . -name "*.user"    -exec rm -f {} \;
+	-find . -name "._*"       -exec rm -f {} \;
+	rm -fr CPP/7zip/ANDROID/libs
+	rm -fr CPP/7zip/ANDROID/obj
+	rm -f make.log 1 2 cppcheck.out scan-build.out
+	rm -f check/7z.so
+	rm -fr p7zip.app/Contents/MacOS
+	cd check                  ; ./clean_all.sh
+
+
+clean_full:clean
+	find . -name "makefile.depend" -exec rm -f {} \; -exec touch {} \;  # empty makefile.depend
+	find . -name "*~"        -exec rm -f {} \;
+	find . -name "*.orig"    -exec rm -fr {} \;  # kdiff3 merge
+	find . -name ".*.swp"    -exec rm -f {} \;
+	find . -name "*.i"       -exec rm -f {} \;
+	find . -name "*.s"       -exec rm -f {} \;
+	find . -name ".DS_Store" -exec rm -f {} \;  # MacOSX
+	find . -name "._*"       -exec rm -f {} \;  # MacOSX
+	find . -name "*.pyc"     -exec rm -f {} \;
+	find . -name "*.[ch]"    -exec chmod -x {} \;
+	find . -name "*.cpp"     -exec chmod -x {} \;
+	find . -name "*.asm"     -exec chmod -x {} \;
+	find . -name "makefile*" -exec chmod -x {} \;
+	chmod -x ChangeLog README TODO man1/* DOC/*.txt
+	chmod +x contrib/VirtualFileSystemForMidnightCommander/u7z
+	chmod +x contrib/gzip-like_CLI_wrapper_for_7z/p7zip
+	chmod +x install.sh check/*.sh
+
+test: 7za sfx
+	cd check ; TOOLS="${TOOLS}" ./check.sh "`pwd`/../bin/7za"
+
+test_7z: 7z sfx
+	cd check ; TOOLS="${TOOLS}" ./check.sh "`pwd`/../bin/7z"
+
+test_7zr: 7zr sfx
+	cd check ; TOOLS="${TOOLS}" ./check_7zr.sh "`pwd`/../bin/7zr"
+
+test_7zG: 7zG sfx
+	cd check ; TOOLS="${TOOLS}" ./check.sh "`pwd`/../bin/7zG"
+
+test_Client7z: Client7z
+	cd check ; TOOLS="${TOOLS}" ./check_Client7z.sh "`pwd`/../bin/Client7z"
+
+install:
+	./install.sh $(DEST_BIN) $(DEST_SHARE) $(DEST_MAN) $(DEST_SHARE_DOC) $(DEST_DIR)
+
+# cppcheck -f : test all flags
+cppcheck:
+	cppcheck --enable=all -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -DNDEBUG -D_REENTRANT -DENV_UNIX -D_7ZIP_LARGE_PAGES -DBREAK_HANDLER -DUNICODE -D_UNICODE   . 2>&1 | tee -i cppcheck.out
+
+REP=$(shell pwd)
+ARCHIVE=$(shell basename $(REP))
+
+.PHONY: tar_all tar_all2 src_7z tar_bin tar_bin2
+
+tar_all : clean_full
+	rm -f  ../$(ARCHIVE)_src_all.tar.bz2
+	cp makefile.linux_any_cpu makefile.machine
+	cd .. ; (tar cf - $(ARCHIVE) | bzip2 -9 > $(ARCHIVE)_src_all.tar.bz2)
+
+tar_all2 : clean_full
+	rm -f  ../$(ARCHIVE)_src_all.tar.bz2
+	cp makefile.linux_any_cpu makefile.machine
+	cd .. ; (tar cf - $(ARCHIVE) | 7za a -mx=9 -tbzip2 -si $(ARCHIVE)_src_all.tar.bz2 )
+
+src_7z : clean_full
+	rm -f  ../$(ARCHIVE)_src.7z
+	cd .. ; 7za a -mx=9 -m0=ppmd:mem=128m:o=32 $(ARCHIVE)_src.7z $(ARCHIVE)
+
+tar_bin:
+	rm -f  ../$(ARCHIVE)_x86_linux_bin.tar.bz2
+	chmod +x install.sh contrib/VirtualFileSystemForMidnightCommander/u7z contrib/gzip-like_CLI_wrapper_for_7z/p7zip
+	cd .. ; (tar cf - $(ARCHIVE)/bin $(ARCHIVE)/contrib $(ARCHIVE)/man1 $(ARCHIVE)/install.sh $(ARCHIVE)/ChangeLog $(ARCHIVE)/DOC $(ARCHIVE)/README $(ARCHIVE)/TODO | bzip2 -9 > $(ARCHIVE)_x86_linux_bin.tar.bz2)
+
+tar_bin2:
+	rm -f  ../$(ARCHIVE)_x86_linux_bin.tar.bz2
+	chmod +x install.sh contrib/VirtualFileSystemForMidnightCommander/u7z contrib/gzip-like_CLI_wrapper_for_7z/p7zip
+	cd .. ; (tar cf - $(ARCHIVE)/bin $(ARCHIVE)/contrib $(ARCHIVE)/man1 $(ARCHIVE)/install.sh $(ARCHIVE)/ChangeLog $(ARCHIVE)/DOC $(ARCHIVE)/README $(ARCHIVE)/TODO | 7za a -mx=9 -tbzip2 -si $(ARCHIVE)_x86_linux_bin.tar.bz2)
+

@@ -1,0 +1,174 @@
+.TH 7z 1 "September 1 2006" "Mohammed Adnene Trojette"
+.SH NAME
+7z \- A file archiver with highest compression ratio
+.SH SYNOPSIS
+.B 7z
+.BR [adeltux]
+.BR [\-]
+.BR [SWITCH]
+.BR <ARCHIVE_NAME>
+.BR <ARGUMENTS>...
+.PP
+.SH DESCRIPTION
+7-Zip is a file archiver with the highest compression ratio. The program supports 7z (that implements LZMA compression algorithm), ZIP, CAB, ARJ, GZIP, BZIP2, TAR, CPIO, RPM and DEB formats. Compression ratio in the new 7z format is 30-50% better than ratio in ZIP format.
+.TP
+7z uses plugins to handle archives.
+.PP
+.SH FUNCTION LETTERS
+.TP
+.B a
+Add
+.TP
+.B d
+Delete
+.TP
+.B e
+Extract
+.TP
+.B l
+List
+.TP
+.B t
+Test
+.TP
+.B u
+Update
+.TP
+.B x
+eXtract with full paths
+.PP
+.SH SWITCHES
+.TP
+.B \-ai[r[\-|0]]{@listfile|!wildcard}
+Include archives
+.TP
+.B \-ax[r[\-|0]]{@listfile|!wildcard}
+eXclude archives
+.TP
+.B \-bd
+Disable percentage indicator
+.TP
+.B \-i[r[\-|0]]{@listfile|!wildcard}
+Include filenames
+.TP
+.B \-l
+don't store symlinks; store the files/directories they point to (CAUTION : the scanning stage can never end because of recursive symlinks like 'ln \-s .. ldir')
+.TP
+.B \-m{Parameters}
+Set Compression Method (see {DEST_SHARE_DOC}/MANUAL/switches/method.htm for a list of methods)
+.TP
+.B \-mhe=on|off
+7z format only : enables or disables archive header encryption (Default : off)
+.TP
+.B \-o{Directory}
+Set Output directory
+.TP
+.B \-p{Password}
+Set Password
+.TP
+.B \-r[\-|0]
+Recurse subdirectories (CAUTION: this flag does not do what you think, avoid using it)
+.TP
+.B \-sfx[{name}]
+Create SFX archive
+.TP
+.B \-si
+Read data from StdIn (eg: tar cf \- directory | 7z a \-si directory.tar.7z)
+.TP
+.B \-so
+Write data to StdOut (eg: % echo foo | 7z a dummy \-tgzip \-si \-so > /dev/null)
+.TP
+.B \-slt
+Sets technical mode for l (list) command
+.TP
+.B \-t{Type}
+Type of archive (7z, zip, gzip, bzip2 or tar. 7z format is default)
+.TP
+.B \-v{Size}[b|k|m|g]
+Create volumes
+.TP
+.B \-u[\-][p#][q#][r#][x#][y#][z#][!newArchiveName]
+Update options
+.TP
+.B \-w[path]
+Set Working directory
+.TP
+.B \-x[r[\-|0]]]{@listfile|!wildcard}
+Exclude filenames
+.TP
+.B \-y
+Assume Yes on all queries
+.PP
+.SH DIAGNOSTICS
+7-Zip returns the following exit codes:
+.RS
+.IP 0
+Normal (no errors or warnings detected)
+.IP 1
+Warning (Non fatal error(s)). For example, some files cannot be read during compressing. So they were not compressed
+.IP 2
+Fatal error
+.IP 7
+Bad command line parameters
+.IP 8
+Not enough memory for operation
+.IP 255
+User stopped the process with control-C (or similar)
+.SH Backup and limitations
+DO NOT USE the 7-zip format for backup purpose on Linux/Unix because :
+ \- 7-zip does not store the owner/group of the file.
+
+.LP
+On Linux/Unix, in order to backup directories you must use tar :
+ \- to backup a directory  : tar cf \- directory | 7za a \-si directory.tar.7z
+ \- to restore your backup : 7za x \-so directory.tar.7z | tar xf \-
+
+If you want to send files and directories (not the owner of file)
+to others Unix/MacOS/Windows users, you can use the 7-zip format.
+
+  example : 7za a directory.7z  directory
+
+.LP
+Do not use "\-r" because this flag does not do what you think.
+.LP
+Do not use directory/* because of ".*" files (example : "directory/*" does not match "directory/.profile")
+.SH EXAMPLE 1
+.TP
+.B 7z a \-t7z  \-m0=lzma \-mx=9 \-mfb=64 \-md=32m \-ms=on archive.7z  dir1
+adds all files from directory "dir1" to archive archive.7z using "ultra settings"
+.TP
+.B \-t7z
+7z archive
+.TP
+.B \-m0=lzma
+lzma method
+.TP
+.B \-mx=9
+level of compression = 9 (Ultra)
+.TP
+.B \-mfb=64
+number of fast bytes for LZMA = 64
+.TP
+.B \-md=32m
+dictionary size = 32 megabytes
+.TP
+.B \-ms=on
+solid archive = on
+.SH EXAMPLE 2
+.TP
+.B
+7z a \-sfx archive.exe dir1
+add all files from directory "dir1" to SFX archive archive.exe (Remark : SFX archive MUST end with ".exe")
+.SH EXAMPLE 3
+.TP
+.B
+7z a \-mhe=on \-pmy_password archive.7z a_directory
+add all files from directory "a_directory" to the archive "archive.7z" (with data and header archive encryption on)
+.SH "SEE ALSO"
+7za(1), 7zr(1), bzip2(1), gzip(1), zip(1)
+.PP
+.SH "HTML Documentation"
+{DEST_SHARE_DOC}/MANUAL/index.htm
+.SH AUTHOR
+.TP
+Written for Debian by Mohammed Adnene Trojette.

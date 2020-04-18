@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>Benchmark</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>Benchmark</H1>
+
+<P>This form allows you to measure the performance of your computer.</P>
+
+<P>There are two tests:<P>
+<OL>
+  <LI>Compression with LZMA method
+  <LI>Decompression with LZMA method
+</OL>
+
+<P>The benchmark shows a rating in MIPS (million instructions per second).
+The rating value is calculated from the measured speed, and it
+is normalized with results of Intel Core 2 CPU with multi-threading option switched off. 
+So if you have modern CPU from Intel or AMD, rating values in single-thread mode 
+must be close to real CPU frequency.</P>
+
+<P>You can change the dictionary size to increase memory usage.
+Also you can change the number of threads.</P>
+
+<P>The <B>CPU Usage</B> column shows the percentage of time the processor is working.
+It's normalized for a one-thread load. For example, 180% CPU Usage for 2 threads
+can mean that average CPU usage is about 90% for each thread.</P>
+
+<P>The <B>Rating / Usage</B> column shows rating normalized for 100% of CPU usage.
+That column shows performance of the one CPU thread. It must be close to real CPU frequency,
+if you have modern CPU.</P>
+
+<P>The <B>Total rating</B> shows averages of the compressing and decompression ratings.</P>
+
+
+<P>Compression speed and rating strongly depend from memory (RAM) latency.
+
+<P>Decompression speed and rating strongly depend on CPU integer operations.
+For example, an Intel Pentium 4 has big branch
+misprediction penalty (which is effect of long pipeline) and pretty slow
+multiply and shift operations. So, the  Pentium 4 has pretty low decompressing
+ratings.</P>
+
+
+<P>Also the program checks possible errors. 
+If the program shows some error message, in most cases it means that 
+your RAM is defective. If so, don't use 7-Zip for
+compressing data, since such errors can lead to data losses.</P>
+
+</BODY>
+</HTML>

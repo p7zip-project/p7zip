@@ -1,0 +1,47 @@
+[Desktop Entry]
+ServiceTypes=all/allfiles
+Actions=CompressDialog;Compress7z;CompressZip;extractHere;ExtractSubdir;ExtractTo;test;Benchmark
+X-KDE-Priority=TopLevel
+X-KDE-Submenu=7-Zip
+X-KDE-Icon=p7zip
+
+[Desktop Action CompressDialog]
+Name=Add to Archive ...
+Icon=p7zip
+Exec=p7zipForFilemanager ad -t7z %U
+
+[Desktop Action Compress7z]
+Name=Add to 7z Archive
+Icon=p7zip
+Exec=p7zipForFilemanager a -t7z %U
+
+[Desktop Action CompressZip]
+Name=Add to Zip Archive
+Icon=p7zip
+Exec=p7zipForFilemanager a -tzip %U
+
+[Desktop Action extractHere]
+Name=Extract Here
+Exec=p7zipForFilemanager x %U
+Icon=p7zip
+
+[Desktop Action ExtractSubdir]
+Name=Extract to subdirectory
+Icon=p7zip
+Exec=p7zipForFilemanager xs %U
+
+[Desktop Action ExtractTo]
+Name=Extract to ...
+Icon=p7zip
+Exec=p7zipForFilemanager xd %U
+
+[Desktop Action test]
+Name=Test Archive
+Exec=p7zipForFilemanager t %U
+Icon=p7zip
+
+[Desktop Action Benchmark]
+Name=Benchmark
+Icon=p7zip
+Exec=p7zipForFilemanager b
+

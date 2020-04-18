@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-w (set Working directory) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-w (set Working directory) switch</H1>
+
+<P>Sets the working directory for the temporary base archive. By
+default, 7-Zip builds a new base archive file in the same directory as the
+old base archive file. By specifying this switch, you can set the
+working directory where the temporary base archive file will be built.
+After the temporary base archive file is built, it is copied over the
+original archive; then, the temporary file is deleted.</P>
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+-w[<A class="parameter" href="#dir_path">{dir_path}</A>]
+</PRE>
+
+<DL>
+  <DT><A name="dir_path"></A>{dir_path}</DT>
+  <DD>
+    <P>Specifies the destination directory path. It's not required that
+      a path end with a backslash.</P>
+    <P>If &lt;dir_path> is not assigned, then 7-Zip will use the Windows temporary directory.</P>
+  </DD>
+</DL>
+
+
+<H4>Example</H4>
+
+<PRE class="example">
+7z a -tzip archive.zip *.cpp -wc:\temp
+</PRE>
+
+<P>adds <SPAN class="filename">*.cpp</SPAN> files to the
+<SPAN class="filename">archive.zip</SPAN> archive, creating a temporary archive
+in <SPAN class="filename">c:\temp</SPAN> folder.</P>
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/add.htm">a (Add)</A>,
+  <A href="../commands/delete.htm">d (Delete)</A>,
+  <A href="../commands/rename.htm">rn (Rename)</A>,
+  <A href="../commands/update.htm">u (Update)</A>,
+</P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-si (read data from stdin) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-si (read data from stdin) switch</H1>
+
+<P>Causes 7-Zip to read data from stdin (standard input) instead of from disc files.</P>
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+-si{file_name}
+</PRE>
+
+<DL>
+  <DT>{file_name}</DT>
+  <DD>Specifies a name that will be stored in the archive for the compressed data.
+    If file_name is not specified, data will be stored without a name.</DD>
+</DL>
+
+<P>Note: The current version of 7-Zip support reading of archives from stdin only for xz, lzma, tar, gzip and bzip2 archives.</P>
+
+<H4>Examples</H4>
+
+<PRE class="example">
+7z a archive.gz -tgzip -siDoc2.txt < Doc.txt
+</PRE>
+
+<P>compresses input stream from file Doc.txt to 
+<SPAN class="filename">archive.gz</SPAN> archive
+using <SPAN class="filename">Doc2.txt</SPAN> file name.</P>
+
+<PRE class="example">
+7z x 7z905.tar.gz -so | 7z x -si -ttar
+</PRE>
+
+<P>decompresses <SPAN class="filename">tar.gz</SPAN> archive.</P>
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/add.htm">a (Add)</A>,
+  <A href="../commands/extract.htm">e (Extract)</A>,
+  <A href="../commands/hash.htm">h (Hash)</A>,
+  <A href="../commands/update.htm">u (Update)</A>,
+  <A href="../commands/extract_full.htm">x (Extract with full paths)</A>
+</P>
+
+</BODY>
+</HTML>

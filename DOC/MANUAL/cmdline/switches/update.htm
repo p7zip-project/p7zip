@@ -1,0 +1,177 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+  <META http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+  <TITLE>-u (Update options) switch</TITLE>
+  <LINK href="style.css" rel="stylesheet" type="text/css">
+</HEAD>
+
+<BODY>
+
+<H1>-u (Update options) switch</H1>
+
+<P>Specifies how to update files in an archive and (or) how to create new archives.</P>
+
+<H4>Syntax</H4>
+
+<PRE class="syntax">
+-u<A class="parameter" href="#disable_base_archive">[-]</A>&lt;action_set><A class="parameter" href="#new_archive_name">[!{new_archive_name}]</A>
+
+  &lt;action_set> ::= &lt;state_action>...
+
+    &lt;state_action> ::= <A class="parameter" href="#state">&lt;state></A><A class="parameter" href="#state">&lt;action></A>
+
+      <A class="parameter" href="#action">&lt;state></A> ::= p | q | r | x | y | z | w
+
+      <A class="parameter" href="#action">&lt;action></A> ::= 0 | 1 | 2 | 3
+</PRE>
+
+
+<H4>Parameters</H4>
+
+<DL>
+  <DT><A name="disable_base_archive"></A>dash (-)</DT>
+  <DD><P>Disables any updates in the base archive.</P>
+
+      <P>The term <B>base archive</B> means the archive assigned by "base_archive_name"
+      on the command line. See <A href="../syntax.htm">Command line syntax</A>
+      for more details.</P>
+  </DD>
+  <DT><A name="new_archive_name"></A>{new_archive_name}</DT>
+  <DD><P>Specifies the path name of the new archive to be created.
+    All options in this switch will refer to this new archive.</P>
+    <P>If not assigned, then all options in this switch will
+                  refer to the base archive of the command.</P>
+  </DD>
+  <DT><A name="state"></A>&lt;state></DT>
+  <DD><P>Specifies the state of a particular file to be processed.</P>
+    <PRE class="syntax">&lt;state> ::= p | q | r | x | y | z | w</PRE>
+    <P>For each unique filename there are 6 variants of state:</P>
+    <TABLE>
+      <TR> <TH>&lt;state></TH> <TH>State condition</TH>
+           <TH width="20%">File on Disk</TH> <TH width="20%">File in Archive</TH> </TR>
+
+      <TR> <TD align="center">p</TD> <TD>File exists in archive, but is not matched with wildcard.</TD>
+           <TD>&nbsp;</TD> <TD>Exists, but is not matched</TD> </TR>
+
+      <TR> <TD align="center">q</TD> <TD>File exists in archive, but doesn't exist on disk.</TD>
+           <TD>Doesn't exist</TD> <TD>Exists</TD> </TR>
+
+      <TR> <TD align="center">r</TD> <TD>File doesn't exist in archive, but exists  on disk.</TD>
+           <TD>Exists</TD> <TD>Doesn't exist</TD> </TR>
+
+      <TR> <TD align="center">x</TD> <TD>File in archive is newer than the file on disk.</TD>
+           <TD>Older</TD> <TD>Newer</TD> </TR>
+
+      <TR> <TD align="center">y</TD> <TD>File in archive is older than the file on disk.</TD>
+           <TD>Newer</TD> <TD>Older</TD> </TR>
+
+      <TR> <TD align="center">z</TD> <TD>File in archive is same as the file on disk</TD>
+           <TD>Same</TD> <TD>Same</TD> </TR>
+
+      <TR> <TD align="center">w</TD> <TD>Can not be detected what file is newer  
+              (times are the same, sizes are different)</TD>
+           <TD>?</TD> <TD>?</TD> </TR>
+    </TABLE>
+  </DD>
+
+  <DT><A name="action"></A>&lt;action></DT>
+  <DD><P>Specifies the action for a given <A class="parameter" href="#state">&lt;state></A>.</P>
+    <PRE class="syntax">&lt;action> ::= 0 | 1 | 2 | 3</PRE>
+    <P>For each state you can specify one of the three variants of actions:</P>
+    <TABLE>
+      <TR> <TH>&lt;action></TH> <TH>Description</TH></TR>
+      <TR> <TD align="center">0</TD> <TD>Ignore file (don't create item in new archive for this file)</TD></TR>
+      <TR> <TD align="center">1</TD> <TD>Copy file (copy from old archive to new)</TD></TR>
+      <TR> <TD align="center">2</TD> <TD>Compress (compress file from disk to new archive)</TD></TR>
+      <TR> <TD align="center">3</TD> <TD>Create Anti-item (item that will delete file or directory during extracting). This feature is supported only in 7z format.</TD></TR>
+    </TABLE>
+  </DD>
+</DL>
+
+
+<H4>Remarks</H4>
+
+<P>Any update command (such as <A href="../commands/add.htm">a (Add)</A>,
+  <A href="../commands/delete.htm">d (Delete)</A>,
+  <A href="../commands/update.htm">u (Update)</A>) can be assigned in these terms.</P>
+<P>The following table shows action sets for update commands.</P>
+
+<TABLE>
+  <TR> <TH>command \ <A class="parameter" href="#state">&lt;state></A></TH>
+              <TH>p</TH> <TH>q</TH> <TH>r</TH> <TH>x</TH> <TH>y</TH> <TH>z</TH> <TH>w</TH></TR>
+  <TR> <TH><A href="../commands/delete.htm">d (Delete)</A></TH> <TD>1</TD> <TD>0</TD> <TD>0</TD> <TD>0</TD> <TD>0</TD> <TD>0</TD> <TD>0</TD></TR>
+  <TR> <TH><A href="../commands/add.htm">a (Add)</A></TH> <TD>1</TD> <TD>1</TD> <TD>2</TD> <TD>2</TD> <TD>2</TD> <TD>2</TD>  <TD>2</TD></TR>
+  <TR> <TH><A href="../commands/update.htm">u (Update)</A></TH> <TD>1</TD> <TD>1</TD> <TD>2</TD> <TD>1</TD> <TD>2</TD> <TD>1</TD> <TD>2</TD></TR>
+  <TR> <TH>Freshen</TH> <TD>1</TD> <TD>1</TD> <TD>0</TD> <TD>1</TD> <TD>2</TD> <TD>1</TD> <TD>2</TD></TR>
+  <TR> <TH>Synchronize</TH> <TD>1</TD> <TD>0</TD> <TD>2</TD> <TD>1</TD> <TD>2</TD> <TD>1</TD> <TD>2</TD></TR>
+</TABLE>
+
+
+<P>If you don't specify a
+<A class="parameter" href="#new_archive_name"><I>!{new_archive_name}</I></A> option, then
+all options will refer to the main archive (the archive assigned on the command line after the 7z command).
+If you specify <A class="parameter" href="#new_archive_name"><I>!{new_archive_name}</I></A>
+option, then 7-Zip also will create a new archive with the specified name and all options
+will refer to that new archive.</P>
+
+<P>Multiple update switches are supported.
+7-Zip can create any number of new archives during one operation.</P>
+
+<P>By default, the action set for each new archive is assigned
+as the action set of the main command. There are 3 different
+action sets for commands: <A href="../commands/add.htm">a (Add)</A>,
+  <A href="../commands/delete.htm">d (Delete)</A>,
+  <A href="../commands/update.htm">u (Update)</A>.
+You can overload any &lt;state_action> pair.</P>
+
+<H4>Time zone notes</H4>
+<P>If you change time zone (when you move your computer to another time zone 
+or if there are clock changes for daylight saving in your zone), you can have some problems 
+with update commands that depend from file's modification time. It's strongly recommended to use only 
+file system that uses Coordinated Universal Time (UTC) and archive format that also uses UTC. 
+In that case you will have no problems with time zone changes.
+Also it's recommended to use only UTC formats in other cases, for example, if you send files to 
+someone in another time zone.</P>
+
+<P>Also in some cases there are no problems, if both file system and archive format use local time, for example, FAT file system and ZIP format.</P> 
+<UL>
+<LI>UTC file systems: NTFS
+<LI>UTC archive formats: .zip with -mtc switch, 7z, tar, gzip2, iso, wim
+<LI>Local time file systems : FAT, FAT32
+<LI>Local time archive formats : rar, zip, cab
+</UL>
+
+<H4>Examples</H4>
+
+<PRE class="example">
+7z u c:\1\exist.7z -u- -up0q3x2z0!c:\1\update.7z *
+</PRE>
+
+<P>creates a new archive <SPAN class="filename">update.7z</SPAN> and
+writes to this archive all files from current directory which differ from
+files in <SPAN class="filename">exist.7z</SPAN> archive.
+<SPAN class="filename">exist.7z</SPAN> archive will not be changed.</P>
+
+<PRE class="example">
+7z u c:\1\exist.7z -up0q3x2z0!c:\1\update.7z * -ms=off
+</PRE>
+
+<P>creates a new archive <SPAN class="filename">update.7z</SPAN> and
+writes to this archive all files from the current directory which differ from
+files in <SPAN class="filename">exist.7z</SPAN> archive.
+
+<P>Note: the updating of solid .7z archives can be slow, since it 
+can require some recompression.</P>
+
+<H4>Commands that can be used with this switch</H4>
+
+<P>
+  <A href="../commands/add.htm">a (Add)</A>,
+  <A href="../commands/delete.htm">d (Delete)</A>,
+  <A href="../commands/rename.htm">rn (Rename)</A>,
+  <A href="../commands/update.htm">u (Update)</A>,
+</P>
+
+</BODY>
+</HTML>

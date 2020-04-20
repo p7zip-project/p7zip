@@ -69,6 +69,7 @@ SRCS=\
   ../../../../CPP/7zip/Archive/Zip/ZipOut.cpp \
   ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp \
   ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp \
+  ../../../../CPP/7zip/Archive/ZstdHandler.cpp \
   ../../../../CPP/7zip/Common/CWrappers.cpp \
   ../../../../CPP/7zip/Common/CreateCoder.cpp \
   ../../../../CPP/7zip/Common/FilePathAutoRename.cpp \
@@ -517,6 +518,11 @@ ZipRegister.o : ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp
 ZipUpdate.o : ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp
+
+# zstd ARC
+ZstdHandler.o : ../../../../CPP/7zip/Archive/ZstdHandler.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/ZstdHandler.cpp 
+
 CWrappers.o : ../../../../CPP/7zip/Common/CWrappers.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Common/CWrappers.cpp
 CreateCoder.o : ../../../../CPP/7zip/Common/CreateCoder.cpp
@@ -633,6 +639,7 @@ ShrinkDecoder.o : ../../../../CPP/7zip/Compress/ShrinkDecoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ShrinkDecoder.cpp
 ZDecoder.o : ../../../../CPP/7zip/Compress/ZDecoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZDecoder.cpp
+
 # zstd Handler
 ZstdDecoder.o : ../../../../CPP/7zip/Compress/ZstdDecoder.cpp 
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZstdDecoder.cpp 
@@ -1035,4 +1042,5 @@ OBJS=\
  zstdmt_compress.o \
  ZstdDecoder.o \
  ZstdEncoder.o \
- ZstdRegister.o 
+ ZstdRegister.o \
+ ZstdHandler.o

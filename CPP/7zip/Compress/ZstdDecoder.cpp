@@ -8,7 +8,7 @@
 
 #include "StdAfx.h"
 #include "ZstdDecoder.h"
-#include <iostream>
+
 namespace NCompress {
 namespace NZSTD {
 

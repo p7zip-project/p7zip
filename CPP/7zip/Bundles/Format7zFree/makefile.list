@@ -270,7 +270,6 @@ SRCS_C=\
   ../../../../C/XzDec.c \
   ../../../../C/XzEnc.c \
   ../../../../C/XzIn.c \
-# zstd src File
   ../../../../C/zstd/debug.c \
   ../../../../C/zstd/entropy_common.c \
   ../../../../C/zstd/error_private.c \
@@ -1159,4 +1158,3 @@ OBJS=\
  ZstdRegister.o \
  ZstdHandler.o
 
- 

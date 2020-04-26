@@ -8,7 +8,7 @@
 
 #include "StdAfx.h"
 #include "ZstdDecoder.h"
-#include <iostream>
+
 namespace NCompress {
 namespace NZSTD {
 
@@ -73,7 +73,7 @@ HRESULT CDecoder::CodeSpec(ISequentialInStream * inStream,
   size_t srcBufLen, result;
   ZSTD_inBuffer zIn;
   ZSTD_outBuffer zOut;
-
+ 
   /* 1) create context */
   if (!_ctx) {
     _ctx = ZSTD_createDCtx();

@@ -69,6 +69,8 @@ SRCS=\
   ../../../../CPP/7zip/Archive/Zip/ZipOut.cpp \
   ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp \
   ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp \
+  ../../../../CPP/7zip/Archive/ZstdHandler.cpp \
+  ../../../../CPP/7zip/Archive/Lz4Handler.cpp \
   ../../../../CPP/7zip/Common/CWrappers.cpp \
   ../../../../CPP/7zip/Common/CreateCoder.cpp \
   ../../../../CPP/7zip/Common/FilePathAutoRename.cpp \
@@ -130,6 +132,9 @@ SRCS=\
   ../../../../CPP/7zip/Compress/ZstdDecoder.cpp \
   ../../../../CPP/7zip/Compress/ZstdEncoder.cpp \
   ../../../../CPP/7zip/Compress/ZstdRegister.cpp \
+  ../../../../CPP/7zip/Compress/Lz4Decoder.cpp \
+  ../../../../CPP/7zip/Compress/Lz4Encoder.cpp \
+  ../../../../CPP/7zip/Compress/Lz4Register.cpp \
   ../../../../CPP/7zip/Crypto/7zAes.cpp \
   ../../../../CPP/7zip/Crypto/7zAesRegister.cpp \
   ../../../../CPP/7zip/Crypto/HmacSha1.cpp \
@@ -240,7 +245,6 @@ SRCS_C=\
   ../../../../C/XzDec.c \
   ../../../../C/XzEnc.c \
   ../../../../C/XzIn.c \
-# zstd src File
   ../../../../C/zstd/debug.c \
   ../../../../C/zstd/entropy_common.c \
   ../../../../C/zstd/error_private.c \
@@ -272,10 +276,19 @@ SRCS_C=\
   ../../../../C/zstd/zstd_v06.c \
   ../../../../C/zstd/zstd_v07.c \
   ../../../../C/zstd/zstdmt_compress.c \
-\
+  ../../../../C/lz4/lz4.c \
+  ../../../../C/lz4/lz4frame.c \
+  ../../../../C/lz4/lz4hc.c \
+  ../../../../C/zstdmt/lz4-mt_common.c \
+  ../../../../C/zstdmt/lz4-mt_compress.c \
+  ../../../../C/zstdmt/lz4-mt_decompress.c \
+  ../../../../C/zstdmt/zstd-mt_threading.c \
+
 StdAfx.h.gch : ../../../myWindows/StdAfx.h
 	rm -f StdAfx.h.gch
 	$(CXX) $(CXXFLAGS) ../../../myWindows/StdAfx.h -o StdAfx.h.gch
+
+# C compile
 7zCrc.o : ../../../../C/7zCrc.c
 	$(CC) $(CFLAGS) ../../../../C/7zCrc.c
 7zCrcOpt.o : ../../../../C/7zCrcOpt.c
@@ -415,6 +428,25 @@ zstd_v07.o : ../../../../C/zstd/zstd_v07.c
 zstdmt_compress.o : ../../../../C/zstd/zstdmt_compress.c 
 	$(CC) $(CFLAGS) ../../../../C/zstd/zstdmt_compress.c 
 
+# lz4 compile 
+lz4.o : ../../../../C/lz4/lz4.c 
+	$(CC) $(CFLAGS) ../../../../C/lz4/lz4.c
+lz4frame.o : ../../../../C/lz4/lz4frame.c 
+	$(CC) $(CFLAGS) ../../../../C/lz4/lz4frame.c
+lz4hc.o : ../../../../C/lz4/lz4hc.c 
+	$(CC) $(CFLAGS) ../../../../C/lz4/lz4hc.c 
+
+# mt compile 
+lz4-mt_common.o : ../../../../C/zstdmt/lz4-mt_common.c 
+	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz4-mt_common.c 
+lz4-mt_compress.o : ../../../../C/zstdmt/lz4-mt_compress.c 
+	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz4-mt_compress.c 
+lz4-mt_decompress.o : ../../../../C/zstdmt/lz4-mt_decompress.c
+	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz4-mt_decompress.c 
+zstd-mt_threading.o : ../../../../C/zstdmt/zstd-mt_threading.c
+	$(CC) $(CFLAGS)  ../../../../C/zstdmt/zstd-mt_threading.c 
+
+# CXX compile
 7zCompressionMode.o : ../../../../CPP/7zip/Archive/7z/7zCompressionMode.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/7z/7zCompressionMode.cpp
 7zDecode.o : ../../../../CPP/7zip/Archive/7z/7zDecode.cpp
@@ -517,6 +549,15 @@ ZipRegister.o : ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp
 ZipUpdate.o : ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp
+
+# zstd ARC
+ZstdHandler.o : ../../../../CPP/7zip/Archive/ZstdHandler.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/ZstdHandler.cpp
+
+# Lz4 ARC
+Lz4Handler.o : ../../../../CPP/7zip/Archive/Lz4Handler.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Lz4Handler.cpp 
+
 CWrappers.o : ../../../../CPP/7zip/Common/CWrappers.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Common/CWrappers.cpp
 CreateCoder.o : ../../../../CPP/7zip/Common/CreateCoder.cpp
@@ -633,13 +674,23 @@ ShrinkDecoder.o : ../../../../CPP/7zip/Compress/ShrinkDecoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ShrinkDecoder.cpp
 ZDecoder.o : ../../../../CPP/7zip/Compress/ZDecoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZDecoder.cpp
-# zstd Handler
+
+# zstd register compile
 ZstdDecoder.o : ../../../../CPP/7zip/Compress/ZstdDecoder.cpp 
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZstdDecoder.cpp 
 ZstdEncoder.o : ../../../../CPP/7zip/Compress/ZstdEncoder.cpp 
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZstdEncoder.cpp 
 ZstdRegister.o : ../../../../CPP/7zip/Compress/ZstdRegister.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZstdRegister.cpp
+
+# lz4 register compile
+Lz4Decoder.o : ../../../../CPP/7zip/Compress/Lz4Decoder.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Decoder.cpp 
+Lz4Encoder.o : ../../../../CPP/7zip/Compress/Lz4Encoder.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Encoder.cpp 
+Lz4Register.o : ../../../../CPP/7zip/Compress/Lz4Register.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Register.cpp 
+
 7zAes.o : ../../../../CPP/7zip/Crypto/7zAes.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Crypto/7zAes.cpp
 7zAesRegister.o : ../../../../CPP/7zip/Crypto/7zAesRegister.cpp
@@ -1035,4 +1086,18 @@ OBJS=\
  zstdmt_compress.o \
  ZstdDecoder.o \
  ZstdEncoder.o \
- ZstdRegister.o 
+ ZstdRegister.o \
+ ZstdHandler.o \
+ lz4.o \
+ lz4frame.o \
+ lz4hc.o \
+ lz4-mt_common.o \
+ lz4-mt_compress.o \
+ lz4-mt_decompress.o \
+ zstd-mt_threading.o \
+ Lz4Decoder.o \
+ Lz4Encoder.o \
+ Lz4Register.o \
+ Lz4Handler.o
+
+ 

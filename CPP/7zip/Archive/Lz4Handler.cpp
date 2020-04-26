@@ -1,4 +1,4 @@
-// ZstdHandler.cpp
+// Lz4Handler.cpp
 
 #include "StdAfx.h"
 
@@ -10,8 +10,8 @@
 #include "../Common/RegisterArc.h"
 #include "../Common/StreamUtils.h"
 
-#include "../Compress/ZstdDecoder.h"
-#include "../Compress/ZstdEncoder.h"
+#include "../Compress/Lz4Decoder.h"
+#include "../Compress/Lz4Encoder.h"
 #include "../Compress/CopyCoder.h"
 
 #include "Common/DummyOutStream.h"
@@ -20,7 +20,7 @@
 using namespace NWindows;
 
 namespace NArchive {
-namespace NZSTD {
+namespace NLZ4 {
 
 class CHandler:
   public IInArchive,
@@ -99,10 +99,8 @@ STDMETHODIMP CHandler::GetProperty(UInt32 /* index */, PROPID propID, PROPVARIAN
 }
 
 static const unsigned kSignatureCheckSize = 4;
-/*
- 判断数据是否采用 ZSTD 算法
- */
-API_FUNC_static_IsArc IsArc_zstd(const Byte *p, size_t size)
+
+API_FUNC_static_IsArc IsArc_lz4(const Byte *p, size_t size)
 {
   if (size < 4)
     return k_IsArc_Res_NEED_MORE;
@@ -116,26 +114,14 @@ API_FUNC_static_IsArc IsArc_zstd(const Byte *p, size_t size)
     magic = GetUi32(p+12);
   }
 
-#ifdef ZSTD_LEGACY_SUPPORT
-  // zstd 0.1
-  if (magic == 0xFD2FB51E)
+  // lz4 magic
+  if (magic == 0x184D2204)
     return k_IsArc_Res_YES;
-
-  // zstd magic's for 0.2 .. 0.8 (aka 1.x)
-  if (magic >= 0xFD2FB522 && magic <= 0xFD2FB528)
-    return k_IsArc_Res_YES;
-#else
-  /* only version 1.x */
-  if (magic == 0xFD2FB528)   // 0xFD2FB528 ZSTD 编码标识符
-    return k_IsArc_Res_YES;
-#endif
 
   return k_IsArc_Res_NO;
 }
 }
-/*
-  解码打开 需要判断 IsArc_zstd
- */
+
 STDMETHODIMP CHandler::Open(IInStream *stream, const UInt64 *, IArchiveOpenCallback *)
 {
   COM_TRY_BEGIN
@@ -143,7 +129,7 @@ STDMETHODIMP CHandler::Open(IInStream *stream, const UInt64 *, IArchiveOpenCallb
   {
     Byte buf[kSignatureCheckSize];
     RINOK(ReadStream_FALSE(stream, buf, kSignatureCheckSize));
-    if (IsArc_zstd(buf, kSignatureCheckSize) == k_IsArc_Res_NO)
+    if (IsArc_lz4(buf, kSignatureCheckSize) == k_IsArc_Res_NO)
       return S_FALSE;
     _isArc = true;
     _stream = stream;
@@ -154,9 +140,6 @@ STDMETHODIMP CHandler::Open(IInStream *stream, const UInt64 *, IArchiveOpenCallb
   COM_TRY_END
 }
 
-/*
- 打开 stream 不判断 IsArc_zstd 应该为编码打开
- */
 STDMETHODIMP CHandler::OpenSeq(ISequentialInStream *stream)
 {
   Close();
@@ -164,9 +147,7 @@ STDMETHODIMP CHandler::OpenSeq(ISequentialInStream *stream)
   _seqStream = stream;
   return S_OK;
 }
-/*
- 关闭 handler 所有属性复位
- */
+
 STDMETHODIMP CHandler::Close()
 {
   _isArc = false;
@@ -182,9 +163,7 @@ STDMETHODIMP CHandler::Close()
   _stream.Release();
   return S_OK;
 }
-/*
- 解码 接口
- */
+
 STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
     Int32 testMode, IArchiveExtractCallback *extractCallback)
 {
@@ -211,7 +190,7 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
 
   {
 
-  NCompress::NZSTD::CDecoder *decoderSpec = new NCompress::NZSTD::CDecoder;
+  NCompress::NLZ4::CDecoder *decoderSpec = new NCompress::NLZ4::CDecoder;
   CMyComPtr<ICompressCoder> decoder = decoderSpec;
   decoderSpec->SetInStream(_seqStream);
 
@@ -282,9 +261,7 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
 
   COM_TRY_END
 }
-/*
- 更新归档包
- */
+
 static HRESULT UpdateArchive(
     UInt64 unpackSize,
     ISequentialOutStream *outStream,
@@ -297,7 +274,7 @@ static HRESULT UpdateArchive(
   CLocalProgress *localProgressSpec = new CLocalProgress;
   CMyComPtr<ICompressProgressInfo> localProgress = localProgressSpec;
   localProgressSpec->Init(updateCallback, true);
-  NCompress::NZSTD::CEncoder *encoderSpec = new NCompress::NZSTD::CEncoder;
+  NCompress::NLZ4::CEncoder *encoderSpec = new NCompress::NLZ4::CEncoder;
   CMyComPtr<ICompressCoder> encoder = encoderSpec;
   RINOK(props.SetCoderProps(encoderSpec, NULL));
   RINOK(encoder->Code(fileInStream, outStream, NULL, NULL, localProgress));
@@ -309,9 +286,7 @@ STDMETHODIMP CHandler::GetFileTimeType(UInt32 *type)
   *type = NFileTimeType::kUnix;
   return S_OK;
 }
-/*
- 调用 UpdateArchive 更新项目
- */
+
 STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numItems,
     IArchiveUpdateCallback *updateCallback)
 {
@@ -379,29 +354,13 @@ STDMETHODIMP CHandler::SetProperties(const wchar_t * const *names, const PROPVAR
   return _props.SetProperties(names, values, numProps);
 }
 
-static const Byte k_Signature[] = "0xFD2FB522..28";
-/*
- 注册 zstd handler, handler 去掉用具体的算法类和类中的编解码算法
- */
+static const Byte k_Signature[] = "0x184D2204";
+
 REGISTER_ARC_IO(
-  "zstd", "zst tzstd", "* .tar", 0x0e,
+  "lz4", "lz4 tlz4", "* .tar", 0x0f,
   k_Signature,
   0,
   NArcInfoFlags::kKeepName,
-  IsArc_zstd)
+  IsArc_lz4)
 
 }}
-
-/* 将归档编码算法注册进 g_Arcs 静态全局数组中
-  创建
-    static IInArchive *CreateArc() { return new CHandler(); }
-    static IOutArchive *CreateArcOut() { return new CHandler(); } 静态函数接口
-  并将其传入 （倒数第二，第三 参数）
-  REGISTER_ARC_R(n, e, ae, id, ARRAY_SIZE(sig), sig, offs, flags, CreateArc, CreateArcOut, isArc)
-  使用宏定义生成，静态结构体并且注册进 静态全局数组 g_Arcs
-
-
-
-
-  作为 ZSTD 压缩的单文件的 解压接口，脱离归档格式
-*/

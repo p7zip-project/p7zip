@@ -726,7 +726,7 @@ int Main2(
 
     for (i = 0; i < g_NumCodecs; i++)
     {
-      const CCodecInfo &cod = *g_Codecs[i];
+      const CCodecInfo &cod = *g_Codecs[i];   // 全局数组 记录了所有的注册算法
 
       PrintLibIndex(so, -1);
 

@@ -31,7 +31,7 @@ struct CCodecInfo
   CreateCodecP CreateEncoder;  函数指针返回压缩类的指针
   CMethodId Id;                算法的 ID 0x4F71101
   const char *Name;            算法的名字 “ZSTD”
-  UInt32 NumStreams;           流数？ 默认为 1
+  UInt32 NumStreams;           算法输入的数据流个数，通常为 1
   bool IsFilter;               是否为过滤器 False
 };
 */

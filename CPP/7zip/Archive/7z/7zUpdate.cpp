@@ -1994,7 +1994,7 @@ HRESULT Update(
       method.Password.Empty();
     }
 
-    CEncoder encoder(method);
+    CEncoder encoder(method);     // 生成对应算法的 encoder 对象
 
     // ---------- Repack and copy old solid blocks ----------
 

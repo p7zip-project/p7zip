@@ -55,9 +55,10 @@ HRESULT CHandler::SetHeaderMethod(CCompressionMethodMode &headerMethod)
   if (!_compressHeaders)
     return S_OK;
   COneMethodInfo m;
-  m.MethodName = k_LZMA_Name;  // k_ZSTD_Name zstd compress rate lower than lzma
+  m.MethodName = k_LZMA_Name;  // k_ZSTD_Name zstd compress rate lower than lzma 
   m.AddProp_Ascii(NCoderPropID::kMatchFinder, k_MatchFinder_ForHeaders);
   m.AddProp_Level(k_Level_ForHeaders);
+  // m.AddProp_Level(22); // zstd level set
   m.AddProp32(NCoderPropID::kNumFastBytes, k_NumFastBytes_ForHeaders);
   m.AddProp32(NCoderPropID::kDictionarySize, k_Dictionary_ForHeaders);
   m.AddProp_NumThreads(1);
@@ -539,14 +540,14 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
 
   CCompressionMethodMode methodMode, headerMethod;
 
-  HRESULT res = SetMainMethod(methodMode
+  HRESULT res = SetMainMethod(methodMode          // 设置主压缩算法
     #ifndef _7ZIP_ST
     , _numThreads
     #endif
     );
   RINOK(res);
 
-  RINOK(SetHeaderMethod(headerMethod));
+  RINOK(SetHeaderMethod(headerMethod));           // 设置尾部头压缩算法
   
   #ifndef _7ZIP_ST
   methodMode.NumThreads = _numThreads;

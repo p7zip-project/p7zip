@@ -166,7 +166,7 @@ TRACEN((printf("load_add_on(%s)=%d\n",p.Path(),(int)image)))
     int num_err;
     const char *file,*err;
     NSLinkEditError(&c,&num_err,&file,&err);
-    printf("Can't load '%ls' (%s)\n", lpLibFileName,err);
+    printf("Can't load '%ls' (%s)\n", lpLibFileName,err);  // lpLibFileName to name 
 #elif ENV_BEOS
     printf("Can't load '%ls' (%s)\n", lpLibFileName,strerror(err));
 #else

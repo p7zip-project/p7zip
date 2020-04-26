@@ -117,7 +117,7 @@
                         意GUI更新和
                         CLI更新,优
                         先做CLI</td>
-	    <td >7za完成 7z完成</td>
+	    <td >7za OK 7z OK</td>
 	</tr>
 	<tr >
 	    <td >Brotli</td>

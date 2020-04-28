@@ -1,5 +1,8 @@
 HISTORY of the 7-Zip source code
 --------------------------------
+17.00          2020-04-27
+-------------------------
+- Add Zstd and Lz4 in to Compresssion Support list
 
 16.02          2016-05-21
 -------------------------

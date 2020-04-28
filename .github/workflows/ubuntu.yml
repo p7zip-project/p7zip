@@ -1,0 +1,27 @@
+name: Ubuntu
+# Qt官方没有linux平台的x86包
+on: 
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1    
+      - name: build 7za
+        run: make 7za
+        
+      - name: build 7z
+        run: make 7z
+        

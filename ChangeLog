@@ -1,7 +1,12 @@
 
+Version 17.00
+=============
+  
+  - Supports Zstd 1.4.4 compression method
+  - Supports Lz4 1.9.2 compression method
+
 Version 16.02
 =============
-
 
   - From Windows version of 7-Zip 16.02:
     - The BUG in 16.00 - 16.01 was fixed: 7-Zip mistakenly reported the warning 

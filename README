@@ -1,7 +1,7 @@
-    p7zip 16.02
+    p7zip 17.00
     ===========
 
-Homepage : http://p7zip.sourceforge.net/
+Homepage : https://github.com/szcnick/p7zip
 
 p7zip is a port of the Windows programs 7z.exe and 7za.exe provided by 7-zip.
 

@@ -3,6 +3,14 @@
 
 This is the Github Page of [p7-Zip] with support of additional Codecs. The library used therefore is located here: [Multithreading Library](https://github.com/mcmilk/zstdmt)
 
+# status
+| [Ubuntu][ubuntu-link]|
+|---------------|
+| ![ubuntu-badge]  |
+
+[ubuntu-link]: https://github.com/2273816832/test_github_action/actions?query=workflow%3AUbuntu "UbuntuAction"
+[ubuntu-badge]: https://github.com/2273816832/test_github_action/workflows/Ubuntu/badge.svg "Ubuntu"
+
 ## Codec overview
 1. [Zstandard] v1.4.4 is a real-time compression algorithm, providing high compression ratios. It offers a very wide range of compression / speed trade-off, while being backed by a very fast decoder.
    - Levels: 1..22

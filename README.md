@@ -1,207 +1,104 @@
-# **p7zip-Advanced**
 
-## 增加压缩算法到 p7zip 中 
+# README
 
-+ 实现7z的命令行版本（7za）支持多种压缩算法。
-   1. 实现 zstd 算法的融入，zstd 源码融入，将 zstd Register 进 p7zip 的压缩算法数组中。
-   2. 实现 zstd 算法 Archive 接口层函数，并将 zstd Archive Register 进 p7zip Archive 数组中。
-   3. 实现 lz4 算法的融入，lz4 源码融入，将 lz4 Register 进 p7zip 的压缩算法数组中。
-   4. 实现 lz4 算法 Archive 接口层函数，并将 lz4 Archive Register 进 p7zip Archive 数组中。
+This is the Github Page of [p7-Zip] with support of additional Codecs. The library used therefore is located here: [Multithreading Library](https://github.com/mcmilk/zstdmt)
 
-+ 实现多种算法的 7z.zo 库以及 7z 可执行程序
-   1. 实现 zstd 算法的 7z.zo 库和对应 7z 可执行程序。
-   2. 实现 lz4 算法的 7z.zo 库和对应 7z 可执行程序。
+## Codec overview
+1. [Zstandard] v1.4.4 is a real-time compression algorithm, providing high compression ratios. It offers a very wide range of compression / speed trade-off, while being backed by a very fast decoder.
+   - Levels: 1..22
 
-# **使用方法**
+2. [LZ4] v1.9.2 is lossless compression algorithm, providing compression speed at 400 MB/s per core (0.16 Bytes/cycle). It features an extremely fast decoder, with speed in multiple GB/s per core (0.71 Bytes/cycle). A high compression derivative, called LZ4_HC, is available, trading customizable CPU time for compression ratio.
+   - Levels: 1..12
 
-## p7zip-Advanced 编译 & 使用 
+### install CLI
+#### (Currently only supports CLI, if you want to do GUI please contact us)
+1. git clone https://github.com/szcnick/p7zip.git
+2. cd p7zip && make 7z . (OR make 7za)
+3. ./bin/7z i . (OR 7za i)
 
-+ 7za : Standalone version of 7-Zip console that supports only 7z/xz/cab/zip/gzip/bzip2/tar.
-   1. 编译 7za ：工程根目录 make 7za 命令，将在根目录生成 bin 目录。
-   2. 使用 7za 打包 ：./7za a test.7z TESTFILEorFOLDER (默认使用 zstd 压缩)
-   3. 使用 7za 解包 ：./7za x test.7z
-+ 7z : 7-Zip console that supports 7z/APM/Ar/Arj/bzip2/Cab/Chm/Hxs/Compound/Cpio/CramFS/Dmg/ELF/Ext/FAT/FLV/gzip/GPT/HFS/IHex/Iso/Lzh/lzma/lzma86/MachO/MBR/MsLZ/Mub/Nsis/NTFS/PE/TE/Ppmd/QCOW/Rar/Rar5/Rpm/Split/SquashFS/SWFc/SWF/tar/Udf/UEFIc/UEFIf/VDI/VHD/VMDK/wim/Xar/xz/Z/zip 
-   1. 编译 7z ：工程根目录 make 7z 命令，将在根目录生成 bin 目录。
-   2. 使用 7z 打包 ：./7z a test.7z TESTFILEorFOLDER (默认使用 zstd 压缩)
-   3. 使用 7z 解包 ：./7z x test.7z
-+ 7z or 7za 指定压缩算法 -m0=xxx 其中xxx为算法名忽略大小写
-   1. 指定 zstd 压缩算法
-      ./7z a test.7z TESTFILEorFOLDER -m0=zstd
-   2. 指定 zstd 压缩算法
-      ./7z a test.7z TESTFILEorFOLDER -m0=lz4
+The output should look like this:
+```
+7-Zip (a) [64] 17.00 : Copyright (c) 1999-2016 Igor Pavlov 
+p7zip Version 17.00 (locale=zh_CN.UTF-8,Utf16=on,HugeFiles=on,64 bits,12 CPUs x64)
+ 
+Formats:
+...
+ 0 CK            xz       xz txz (.tar) FD 7 z X Z 00
+ 0               Z        z taz (.tar)  1F 9D
+ 0 CK            zstd     zst tzstd (.tar) 0 x F D 2 F B 5 2 5 . . 0 x F D 2 F B 5 2 8 00
+ 0 C   F         7z       7z            7 z BC AF ' 1C
+ 0     F         Cab      cab           M S C F 00 00 00 00
+...
 
-## FAQ 
-+ 运行环境要求 
-   1. 7z 7za 程序只能在类UNIX环境运行，如果采用cygwin编译则只能在cygwin终端运行。无法在windows终端或者powershell终端运行。
+Codecs:
+ 0 4ED  303011B BCJ2
+ 0  ED  3030103 BCJ
+ 0  ED  3030205 PPC
+ 0  ED  3030401 IA64
+ 0  ED  3030501 ARM
+ 0  ED  3030701 ARMT
+ 0  ED  3030805 SPARC
+ 0  ED    20302 Swap2
+ 0  ED    20304 Swap4
+ 0  ED    40202 BZip2
+ 0  ED        0 Copy
+ 0  ED    40109 Deflate64
+ 0  ED    40108 Deflate
+ 0  ED        3 Delta
+ 0  ED       21 LZMA2
+ 0  ED    30101 LZMA
+ 0  ED    30401 PPMD
+ 0   D    40301 Rar1
+ 0   D    40302 Rar2
+ 0   D    40303 Rar3
+ 0   D    40305 Rar5
+ 0  ED  4F71104 LZ4
+ 0  ED  4F71101 ZSTD
+ 0  ED  6F10701 7zAES
+ 0  ED  6F00181 AES256CBC
+ 1 3ED  4F712FF RawSplitter
 
-# **p7zip 规划**
+Hashers:
+ 0    4        1 CRC32
+ 0   20      201 SHA1
+ 0   32        A SHA256
+ 0    8        4 CRC64
+ 0   32      202 BLAKE2sp
+```
 
-## **p7zip 划分**
+### Usage (codec plugin)
 
-<table >
-   <tr >
-	    <th colspan="7">p7zip</th>
-	</tr>
-	<tr>
-	    <th >描述</th>
-	    <th colspan="4">CLI</th>
-	    <th colspan="2">GUI</th>  
-	</tr>
-	<tr >
-	    <th >名称</th>
-	    <td  text-align:center>7za</td>
-	    <td colspan="3">7z</td>
-	    <td >7zG</td>
-	    <td >7zFM</td>
-	</tr>
-	<tr>
-	    <th rowspan="2">运行条件</th>
-	    <td rowspan="2">7za 采用静态编译，不依赖任何动态库运行</td>
-	    <td>7z</td>
-	    <td>7z.so</td>
-	    <td>Rar.so</td>
-	    <td rowspan="5">暂无规划</td>
-	    <td rowspan="5">7z文件管理</td>
-	</tr>
-	<tr>
-	    <td colspan="3">7z 依赖 7z.ao & Rar.so 运行</td>
-	</tr>
-	<tr>
-	    <th>支持格式</th>
-	    <td >7z/xz/cab/zip/gzip/bzip2/tar</td>
-	    <td style="table-layout:fixed" width="200" colspan="3">7z/APM/Ar/Arj/bzip2/Cab/Chm/Hxs/Compound/
-       Cpio/CramFS/Dmg/ELF/Ext/FAT/FLV/gzip/GPT/HFS/
-       IHex/Iso/Lzh/lzma/lzma86/MachO/MBR/MsLZ/Mub/
-       Nsis/NTFS/PE/TE/Ppmd/QCOW/Rar/Rar5/Rpm/Split/
-       SquashFS/SWFc/SWF/tar/Udf/UEFIc/UEFIf/VDI/VHD/
-       VMDK/wim/Xar/xz/Z/zip </td>
-	</tr>
-	<tr><th>支持编解码算法</th>
-	    <td >BZip2/BCJ2/BCJ/PPC/IA64/ARM/
-       ARMT/SPARC/Swap2/Swap4/Copy/
-       Deflate64/Deflate/Delta/LZMA2/
-       LZMA/PPMD/7zAES/AES256CBC</td>
-	    <td style="table-layout:fixed" width="200" colspan="3">BZip2/BCJ2/BCJ/PPC/IA64/ARM/ARMT/SPARC/
-       Swap2/Swap4/Copy/Deflate64/Deflate/Delta/LZMA2/
-       LZMA/PPMD/7zAES/AES256CBC/Rar1/Rar2/Rar3/Rar5</td>
-	</tr>
-	<tr>
-	    <th>支持Hash算法</th>
-	    <td>CRC32/SHA1/SHA256/CRC64</td>
-	    <td colspan="3">BLAKE2sp/CRC32/SHA1/SHA256/CRC64</td>
-	</tr>
-</table>
+- compression and decompression for [LZ4] and [Zstandard] within the p7-Zip container format
+- you can only create `.7z` files, the files like `.lz4` and `.zst` are not covered by the plugins
+- when compressing binaries (*.exe, *.dll), you have to explicitly disable the bcj2 filter via `-m0=bcj`.
+- so the usage should look like this:
+```
+7z a archiv.7z -m0=bcj -m1=zstd -mx1   Fast mode, with BCJ preprocessor on executables
+7z a archiv.7z -m0=bcj -m1=zstd -mx..  ...
+7z a archiv.7z -m0=bcj -m1=zstd -mx21  2nd Slowest Mode, with BCJ preprocessor on executables
+7z a archiv.7z -m0=bcj -m1=zstd -mx22  Ultra Mode, with BCJ preprocessor on executables
+7z a archiv.7z -m0=bcj -m1=lz4 -mxN  ...
+```
 
-## **CLI工作规划**
+## License and redistribution
 
-<table >
-   <tr >
-	     <th rowspan="20">CLI工作规划</th>
-	     <th >维护方向</th>
-	     <th >条目</th>
-	     <th >条目说明</th>
-	     <th >注意事项</th>
-	     <th >完成情况</th>
-	</tr>
-	<tr>
-	    <td rowspan="8">增加算法至 p7zip中</td>
-	    <td >ZSTD</td>
-	    <td rowspan="8">在7zip-zstd基础上择优加入p7zip</td>
-	    <td style="table-layout:fixed" width="100" rowspan="13">所有维护工作
-                        都必须考虑
-                        7za & 7z两
-                        个可执行程
-                        序的编译运
-                        行，对标7zip
-                        版本更新时注
-                        意GUI更新和
-                        CLI更新,优
-                        先做CLI</td>
-	    <td >7za OK 7z OK</td>
-	</tr>
-	<tr >
-	    <td >Brotli</td>
-	    <td >计划中</td>
-	</tr>
-	<tr >
-	    <td >LZ4</td>
-	    <td >7za OK 7z OK</td>
-	</tr>
-	<tr >
-	    <td >LZ5</td>
-	    <td >计划中</td>
-	</tr>
-	<tr >
-	    <td >lzham</td>
-	    <td >计划中</td>
-	</tr>
-	<tr >
-	    <td >snappy</td>
-	    <td >计划中</td>
-	</tr>
-	<tr >
-	    <td >Fast Lzma2</td>
-	    <td >计划中</td>
-	</tr>
-	<tr >
-	    <td >Lizard</td>
-	    <td >计划中</td>
-	</tr>
-	<tr>
-	    <td rowspan="5">根据 7zip 版本对 p7zip进行版本对齐维护</td>
-	    <td style="table-layout:fixed" width="200" >17.00:新增NewHandler.h / NewHandler.cpp重新定义了new(),针对老版本的_MSC_VER < 1900,修改了C/7zTypes.h中变量名，一些造成崩溃的BUG修复</td>
-	    <td rowspan="5">根据紧迫度和难度分步迭代优化</td>
-	    <td>计划中</td>
-	</tr>
-	<tr>
-	    <td style="table-layout:fixed" width="200" >18.03：汇编优化的LZMA 解压缩函数，在数据块独立时，支持对LZMA2/xz的多线程打包</td>
-	    <td>计划中</td>
-	</tr>
-	<tr>
-	    <td style="table-layout:fixed" width="200" >18.05：LZMA&LZMA2压缩速度提升，修复7zip在 LargePages模式的BUG</td>
-	    <td>计划中</td>
-	</tr>
-	<tr>
-	    <td style="table-layout:fixed" width="200" >18.06：修复18.05中的xz的多线程内存泄漏，提升压缩速度</td>
-	    <td>计划中</td>
-	</tr>
-	<tr>
-	    <td style="table-layout:fixed" width="200" >19.00：增强加密，初始随机值有64big升值128bit，&修复一些BUG</td>
-	    <td>计划中</td>
-	</tr>
-	<tr>
-	   <td rowspan="6">优化算法</td>
-	    <td>CRC32</td>
-	   <td rowspan="5">采用SIMD优化加密</td>
-	   <td style="table-layout:fixed" width="100" rowspan="5">在加密算法中
-                      需要注意7zip
-                      中的加密方法
-                      是否与simd中
-                      的加密逻辑
-                      一致</td>
-	    <td>计划中</td>
-	</tr>
-	<tr>
-	    <td>CRC64</td>
-	    <td>计划中</td>
-	</tr>
-	<tr>
-	    <td>AES</td>
-	    <td>计划中</td>
-	</tr>
-	<tr>
-	    <td>sha1</td>
-	    <td>计划中</td>
-	</tr>
-	<tr>
-	    <td>sha256</td>
-	    <td>计划中</td>
-	</tr>
-	<tr>
-	    <td>其他优化方案</td>
-	    <td >-</td>
-	    <td >-</td>
-	    <td >-</td>
-	</tr>
-</table>
+- the same as the Mainline [p7-Zip], which means GNU LGPL
 
+## Links
+
+- [7-Zip Homepage](https://www.7-zip.org/)
+- [Request for inclusion](https://sourceforge.net/p/sevenzip/discussion/45797/thread/a7e4f3f3/) into the mainline 7-Zip:
+  - result, will currently not included :(
+
+## Version Information
+
+- 7-Zip ZS Version 17.00
+  - [LZ4] Version 1.9.2
+  - [Zstandard] Version 1.4.4
+
+## Working Plan
+ - [check here](https://github.com/szcnick/p7zip/tree/dev/DOC)
+
+[p7-Zip]:https://www.7-zip.org/
+[LZ4]:https://github.com/lz4/lz4/
+[Zstandard]:https://github.com/facebook/zstd/

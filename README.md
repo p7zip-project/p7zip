@@ -18,6 +18,17 @@ This is the Github Page of [p7-Zip] with support of additional Codecs. The libra
 2. [LZ4] v1.9.2 is lossless compression algorithm, providing compression speed at 400 MB/s per core (0.16 Bytes/cycle). It features an extremely fast decoder, with speed in multiple GB/s per core (0.71 Bytes/cycle). A high compression derivative, called LZ4_HC, is available, trading customizable CPU time for compression ratio.
    - Levels: 1..12
 
+## Benchmark
+We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(total size 211938580 Byte) for packaging.
+
+|format|method|encode_size(Byte)|encode_time(ms)|encode_speed(M/s)|decode_time(ms)|decode_speed(M/s)|compression_ratio|
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+|7z-zip|deflaut-9|64727443|60637 ms|3.33|1751|115.43|3.27|
+|7z-7z|lzma-9|48752532|92016 ms|2.20|3832|52.75|4.35|
+|7z-7z|lzma2-9|48749158|91595 ms|2.21|3837|52.67|4.35|
+|7z-7z|zstd-22|52739890|145423 ms|1.39|1063|190.14|4.02|
+|7z-7z|lz4-12|77788397|3632 ms|55.65|452|447.17|2.72|
+
 ### install CLI
 #### (Currently only supports CLI, if you want to do GUI please contact us)
 1. git clone https://github.com/szcnick/p7zip.git

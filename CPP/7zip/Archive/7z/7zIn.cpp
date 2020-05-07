@@ -1097,7 +1097,9 @@ HRESULT CInArchive::ReadAndDecodePackedStreams(
       if (CrcCalc(data, unpackSize) != folders.FolderCRCs.Vals[i])
         ThrowIncorrect();
   }
-  HeadersSize += folders.PackPositions[folders.NumPackStreams];
+  if(folders.PackPositions){
+    HeadersSize += folders.PackPositions[folders.NumPackStreams];
+  }
   return S_OK;
 }
 

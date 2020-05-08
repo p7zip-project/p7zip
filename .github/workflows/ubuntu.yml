@@ -11,7 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1    
       - name: build 7za
-        run: make 7za
+        run: |
+             make 7za
              cd ./bin
              7za a t.7z ../CPP
              7za x t.7z

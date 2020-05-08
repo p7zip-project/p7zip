@@ -92,7 +92,8 @@ CDecoder::CDecoder():
   _writtenFileSize(0),
   _vmData(0),
   _vmCode(0),
-  m_IsSolid(false)
+  m_IsSolid(false),
+  _solidAllowed(false)
 {
   Ppmd7_Construct(&_ppmd);
 }
@@ -545,6 +546,8 @@ HRESULT CDecoder::ReadTables(bool &keepDecompressing)
     return InitPPM();
   }
 
+  TablesOK = false;
+
   _lzMode = true;
   PrevAlignBits = 0;
   PrevAlignCount = 0;
@@ -623,6 +626,7 @@ HRESULT CDecoder::ReadTables(bool &keepDecompressing)
   RIF(m_LenDecoder.Build(&newLevels[kMainTableSize + kDistTableSize + kAlignTableSize]));
 
   memcpy(m_LastLevels, newLevels, kTablesSizesSum);
+  TablesOK = true;
   return S_OK;
 }
 
@@ -830,7 +834,11 @@ HRESULT CDecoder::CodeReal(ICompressProgressInfo *progress)
     bool keepDecompressing;
     RINOK(ReadTables(keepDecompressing));
     if (!keepDecompressing)
-      return S_OK;
+    {
+       _solidAllowed = true;
+       return S_OK;
+    }
+
   }
 
   for (;;)
@@ -838,6 +846,8 @@ HRESULT CDecoder::CodeReal(ICompressProgressInfo *progress)
     bool keepDecompressing;
     if (_lzMode)
     {
+      if (!TablesOK)
+        return S_FALSE;
       RINOK(DecodeLZ(keepDecompressing))
     }
     else
@@ -853,6 +863,7 @@ HRESULT CDecoder::CodeReal(ICompressProgressInfo *progress)
     if (!keepDecompressing)
       break;
   }
+  _solidAllowed = true;
   RINOK(WriteBuf());
   UInt64 packSize = m_InBitStream.BitDecoder.GetProcessedSize();
   RINOK(progress->SetRatioInfo(&packSize, &_writtenFileSize));
@@ -872,6 +883,9 @@ STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream 
   {
     if (!inSize)
       return E_INVALIDARG;
+    if (m_IsSolid && !_solidAllowed)
+      return S_FALSE;
+    _solidAllowed = false;
 
     if (!_vmData)
     {

@@ -248,6 +248,7 @@ class CDecoder:
   bool _unsupportedFilter;
   bool _lzError;
   bool _writeError;
+  bool _solidAllowed;
   
   // CBitDecoder _bitStream;
   Byte *_window;

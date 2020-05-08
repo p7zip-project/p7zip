@@ -29,7 +29,8 @@ public:
 };
 */
 
-CDecoder::CDecoder(): m_IsSolid(false) { }
+
+CDecoder::CDecoder(): m_IsSolid(false),_solidAllowed(false) { }
 
 void CDecoder::InitStructures()
 {
@@ -391,6 +392,10 @@ HRESULT CDecoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *
   if (inSize == NULL || outSize == NULL)
     return E_INVALIDARG;
 
+  if (m_IsSolid && !_solidAllowed)
+    return S_FALSE;
+  _solidAllowed = false;
+
   if (!m_OutWindowStream.Create(kHistorySize))
     return E_OUTOFMEMORY;
   if (!m_InBitStream.Create(1 << 20))
@@ -470,6 +475,8 @@ HRESULT CDecoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *
   }
   if (m_UnpackSize < 0)
     return S_FALSE;
+
+  _solidAllowed = true;	
   return m_OutWindowStream.Flush();
 }
 

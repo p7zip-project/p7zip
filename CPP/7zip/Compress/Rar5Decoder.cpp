@@ -72,6 +72,7 @@ CDecoder::CDecoder():
     _writtenFileSize(0),
     _dictSizeLog(0),
     _isSolid(false),
+    _solidAllowed(false),
     _wasInit(false),
     _inputBuf(NULL)
 {
@@ -801,7 +802,10 @@ HRESULT CDecoder::CodeReal()
   */
 
   if (res == S_OK)
+  {
+    _solidAllowed = true;
     res = res2;
+  }
      
   if (res == S_OK && _unpackSize_Defined && _writtenFileSize != _unpackSize)
     return S_FALSE;
@@ -821,6 +825,9 @@ STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream 
 {
   try
   {
+    if (_isSolid && !_solidAllowed)
+      return S_FALSE;
+    _solidAllowed = false;
     if (_dictSizeLog >= sizeof(size_t) * 8)
       return E_NOTIMPL;
 

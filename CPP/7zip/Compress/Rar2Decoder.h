@@ -139,6 +139,8 @@ class CDecoder :
 
   UInt64 m_PackSize;
   bool m_IsSolid;
+  bool _solidAllowed;
+  bool m_TablesOK;
 
   void InitStructures();
   UInt32 ReadBits(unsigned numBits);

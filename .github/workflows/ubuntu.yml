@@ -17,7 +17,7 @@ jobs:
              7za a t.7z ../CPP
              7za x t.7z
              echo "diff folder"
-             diff -r ../CPP ./CPP
+             diff -r ../C ./CPP
              echo "delete tmp file"
              rm -rf t.7z ./CPP
              cd ..

@@ -14,12 +14,12 @@ jobs:
         run: |
              make 7za
              cd ./bin
-             7za a t.7z ../CPP
-             7za x t.7z
-             echo "diff folder"
-             diff -r ../C ./CPP
+             7za a ta.7z ../CPP
+             7za x ta.7z
+             echo "compare file"
+             diff -r ../CPP ./CPP
              echo "delete tmp file"
-             rm -rf t.7z ./CPP
+             rm -rf ./ta.7z ./CPP
              cd ..
              
       - name: build 7z
@@ -28,9 +28,9 @@ jobs:
              cd ./bin
              7z a t.7z ../CPP
              7z x t.7z
-             echo "diff folder"
+             echo "compare file"
              diff -r ../CPP ./CPP
              echo "delete tmp file"
-             rm -rf t.7z ./CPP
+             rm -rf ./t.7z ./CPP
              cd ..
         

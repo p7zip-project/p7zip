@@ -122,7 +122,7 @@ HRESULT CDecoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *
       _stack[i++] = _suffixes[cur];
       cur = _parents[cur];
       if (cur >= kNumItems || i >= kNumItems)
- 	break;
+        break;
     }
 	
     if (cur >= kNumItems || i >= kNumItems)

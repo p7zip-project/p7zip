@@ -1,5 +1,5 @@
 
-# README
+# A new p7zip fork with additional codecs and improvements (forked from https://sourceforge.net/projects/p7zip/).
 
 This is the Github Page of [p7-Zip] with support of additional Codecs. The library used therefore is located here: [Multithreading Library](https://github.com/mcmilk/zstdmt)
 

@@ -37,8 +37,8 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
 
 The output should look like this:
 ```
-7-Zip (a) [64] 17.00 : Copyright (c) 1999-2016 Igor Pavlov 
-p7zip Version 17.00 (locale=zh_CN.UTF-8,Utf16=on,HugeFiles=on,64 bits,12 CPUs x64)
+7-Zip (a) [64] 17.01 : Copyright (c) 1999-2016 Igor Pavlov 
+p7zip Version 17.01 (locale=zh_CN.UTF-8,Utf16=on,HugeFiles=on,64 bits,12 CPUs x64)
  
 Formats:
 ...
@@ -111,7 +111,7 @@ Hashers:
 
 ## Version Information
 
-- 7-Zip ZS Version 17.00
+- p7zip Version 17.01
   - [LZ4] Version 1.9.2
   - [Zstandard] Version 1.4.4
 

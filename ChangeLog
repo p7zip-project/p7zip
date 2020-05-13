@@ -1,3 +1,9 @@
+Version 17.01
+=============
+
+  - Fix BUG CVE-2018-5996
+  - Fix BUG CVE-2017-17969
+  - Fix BUG CVE-2016-9296
 
 Version 17.00
 =============

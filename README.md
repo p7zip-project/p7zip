@@ -109,15 +109,14 @@ Hashers:
 ## Links
 
 - [7-Zip Homepage](https://www.7-zip.org/)
-- [Request for inclusion](https://sourceforge.net/p/sevenzip/discussion/45797/thread/a7e4f3f3/) into the mainline 7-Zip:
-  - result, will currently not included :(
 
 ## Version Information
 
 - p7zip Version 17.01
   - [LZ4] Version 1.9.2
   - [Zstandard] Version 1.4.4
-
+  - [Fast LZMA2] Version v1.0.1
+  
 ## Working Plan
  - [check here](https://github.com/szcnick/p7zip/tree/dev/DOC)
 

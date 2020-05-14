@@ -27,8 +27,10 @@
 + 7z or 7za 指定压缩算法 -m0=xxx 其中xxx为算法名忽略大小写
    1. 指定 zstd 压缩算法
       ./7z a test.7z TESTFILEorFOLDER -m0=zstd
-   2. 指定 zstd 压缩算法
+   2. 指定 lz4 压缩算法
       ./7z a test.7z TESTFILEorFOLDER -m0=lz4
+   2. 指定 flzma2 压缩算法
+      ./7z a test.7z TESTFILEorFOLDER -m0=flzma2
 
 ## FAQ 
 + 运行环境要求 

@@ -186,6 +186,78 @@ bool FindMethod(
   return false;
 }
 
+int FindMethod_Index(
+    DECL_EXTERNAL_CODECS_LOC_VARS
+    const AString &name,
+    bool encode,
+    CMethodId &methodId,
+    UInt32 &numStreams)
+{
+  unsigned i;
+  for (i = 0; i < g_NumCodecs; i++)
+  {
+    const CCodecInfo &codec = *g_Codecs[i];
+    if ((encode ? codec.CreateEncoder : codec.CreateDecoder)
+        && StringsAreEqualNoCase_Ascii(name, codec.Name))
+    {
+      methodId = codec.Id;
+      numStreams = codec.NumStreams;
+      return i;
+    }
+  }
+  
+  #ifdef EXTERNAL_CODECS
+  
+  CHECK_GLOBAL_CODECS
+
+  if (__externalCodecs)
+    for (i = 0; i < __externalCodecs->Codecs.Size(); i++)
+    {
+      const CCodecInfoEx &codec = __externalCodecs->Codecs[i];
+      if ((encode ? codec.EncoderIsAssigned : codec.DecoderIsAssigned)
+          && StringsAreEqualNoCase_Ascii(name, codec.Name))
+      {
+        methodId = codec.Id;
+        numStreams = codec.NumStreams;
+        return g_NumCodecs + i;
+      }
+    }
+  
+  #endif
+  
+  return -1;
+}
+
+
+static int FindMethod_Index(
+    DECL_EXTERNAL_CODECS_LOC_VARS
+    CMethodId methodId, bool encode)
+{
+  unsigned i;
+  for (i = 0; i < g_NumCodecs; i++)
+  {
+    const CCodecInfo &codec = *g_Codecs[i];
+    if (codec.Id == methodId && (encode ? codec.CreateEncoder : codec.CreateDecoder))
+      return i;
+  }
+  
+  #ifdef EXTERNAL_CODECS
+  
+  CHECK_GLOBAL_CODECS
+
+  if (__externalCodecs)
+    for (i = 0; i < __externalCodecs->Codecs.Size(); i++)
+    {
+      const CCodecInfoEx &codec = __externalCodecs->Codecs[i];
+      if (codec.Id == methodId && (encode ? codec.EncoderIsAssigned : codec.DecoderIsAssigned))
+        return g_NumCodecs + i;
+    }
+  
+  #endif
+  
+  return -1;
+}
+
 bool FindMethod(
     DECL_EXTERNAL_CODECS_LOC_VARS
     CMethodId methodId,
@@ -280,6 +352,169 @@ void GetHashMethods(
   #endif
 }
 
+HRESULT CreateCoder_Index(
+    DECL_EXTERNAL_CODECS_LOC_VARS
+    unsigned i, bool encode,
+    CMyComPtr<ICompressFilter> &filter,
+    CCreatedCoder &cod)
+{
+  cod.IsExternal = false;
+  cod.IsFilter = false;
+  cod.NumStreams = 1;
+
+  if (i < g_NumCodecs)
+  {
+    const CCodecInfo &codec = *g_Codecs[i];
+    // if (codec.Id == methodId)
+    {
+      if (encode)
+      {
+        if (codec.CreateEncoder)
+        {
+          void *p = codec.CreateEncoder();
+          if (codec.IsFilter) filter = (ICompressFilter *)p;
+          else if (codec.NumStreams == 1) cod.Coder = (ICompressCoder *)p;
+          else { cod.Coder2 = (ICompressCoder2 *)p; cod.NumStreams = codec.NumStreams; }
+          return S_OK;
+        }
+      }
+      else
+        if (codec.CreateDecoder)
+        {
+          void *p = codec.CreateDecoder();
+          if (codec.IsFilter) filter = (ICompressFilter *)p;
+          else if (codec.NumStreams == 1) cod.Coder = (ICompressCoder *)p;
+          else { cod.Coder2 = (ICompressCoder2 *)p; cod.NumStreams = codec.NumStreams; }
+          return S_OK;
+        }
+    }
+  }
+
+  #ifdef EXTERNAL_CODECS
+
+  CHECK_GLOBAL_CODECS
+  
+  if (__externalCodecs)
+  {
+    i -= g_NumCodecs;
+    cod.IsExternal = true;
+    if (i < __externalCodecs->Codecs.Size())
+    {
+      const CCodecInfoEx &codec = __externalCodecs->Codecs[i];
+      // if (codec.Id == methodId)
+      {
+        if (encode)
+        {
+          if (codec.EncoderIsAssigned)
+          {
+            if (codec.NumStreams == 1)
+            {
+              HRESULT res = __externalCodecs->GetCodecs->CreateEncoder(i, &IID_ICompressCoder, (void **)&cod.Coder);
+              if (res != S_OK && res != E_NOINTERFACE && res != CLASS_E_CLASSNOTAVAILABLE)
+                return res;
+              if (cod.Coder)
+                return res;
+              return __externalCodecs->GetCodecs->CreateEncoder(i, &IID_ICompressFilter, (void **)&filter);
+            }
+            cod.NumStreams = codec.NumStreams;
+            return __externalCodecs->GetCodecs->CreateEncoder(i, &IID_ICompressCoder2, (void **)&cod.Coder2);
+          }
+        }
+        else
+          if (codec.DecoderIsAssigned)
+          {
+            if (codec.NumStreams == 1)
+            {
+              HRESULT res = __externalCodecs->GetCodecs->CreateDecoder(i, &IID_ICompressCoder, (void **)&cod.Coder);
+              if (res != S_OK && res != E_NOINTERFACE && res != CLASS_E_CLASSNOTAVAILABLE)
+                return res;
+              if (cod.Coder)
+                return res;
+              return __externalCodecs->GetCodecs->CreateDecoder(i, &IID_ICompressFilter, (void **)&filter);
+            }
+            cod.NumStreams = codec.NumStreams;
+            return __externalCodecs->GetCodecs->CreateDecoder(i, &IID_ICompressCoder2, (void **)&cod.Coder2);
+          }
+      }
+    }
+  }
+  #endif
+
+  return S_OK;
+}
+
+
+HRESULT CreateCoder_Index(
+    DECL_EXTERNAL_CODECS_LOC_VARS
+    unsigned index, bool encode,
+    CCreatedCoder &cod)
+{
+  CMyComPtr<ICompressFilter> filter;
+  HRESULT res = CreateCoder_Index(
+      EXTERNAL_CODECS_LOC_VARS
+      index, encode,
+      filter, cod);
+  
+  if (filter)
+  {
+    cod.IsFilter = true;
+    CFilterCoder *coderSpec = new CFilterCoder(encode);
+    cod.Coder = coderSpec;
+    coderSpec->Filter = filter;
+  }
+  
+  return res;
+}
+
+HRESULT CreateCoder_Id(
+    DECL_EXTERNAL_CODECS_LOC_VARS
+    CMethodId methodId, bool encode,
+    CMyComPtr<ICompressFilter> &filter,
+    CCreatedCoder &cod)
+{
+  int index = FindMethod_Index(EXTERNAL_CODECS_LOC_VARS methodId, encode);
+  if (index < 0)
+    return S_OK;
+  return CreateCoder_Index(EXTERNAL_CODECS_LOC_VARS index, encode, filter, cod);
+}
+
+
+HRESULT CreateCoder_Id(
+    DECL_EXTERNAL_CODECS_LOC_VARS
+    CMethodId methodId, bool encode,
+    CCreatedCoder &cod)
+{
+  CMyComPtr<ICompressFilter> filter;
+  HRESULT res = CreateCoder_Id(
+      EXTERNAL_CODECS_LOC_VARS
+      methodId, encode,
+      filter, cod);
+  
+  if (filter)
+  {
+    cod.IsFilter = true;
+    CFilterCoder *coderSpec = new CFilterCoder(encode);
+    cod.Coder = coderSpec;
+    coderSpec->Filter = filter;
+  }
+  
+  return res;
+}
+
+
+HRESULT CreateCoder_Id(
+    DECL_EXTERNAL_CODECS_LOC_VARS
+    CMethodId methodId, bool encode,
+    CMyComPtr<ICompressCoder> &coder)
+{
+  CCreatedCoder cod;
+  HRESULT res = CreateCoder_Id(
+      EXTERNAL_CODECS_LOC_VARS
+      methodId, encode,
+      cod);
+  coder = cod.Coder;
+  return res;
+}
 HRESULT CreateCoder(
     DECL_EXTERNAL_CODECS_LOC_VARS
     CMethodId methodId, bool encode,
@@ -413,7 +648,7 @@ HRESULT CreateFilter(
     CMyComPtr<ICompressFilter> &filter)
 {
   CCreatedCoder cod;
-  return CreateCoder(
+  return CreateCoder_Id(
       EXTERNAL_CODECS_LOC_VARS
       methodId, encode,
       filter, cod);

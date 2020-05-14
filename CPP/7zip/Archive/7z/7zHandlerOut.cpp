@@ -42,9 +42,11 @@ STDMETHODIMP CHandler::GetFileTimeType(UInt32 *type)
 
 HRESULT CHandler::PropsMethod_To_FullMethod(CMethodFull &dest, const COneMethodInfo &m)
 {
-  if (!FindMethod(
+  dest.CodecIndex = FindMethod_Index(
       EXTERNAL_CODECS_VARS
-      m.MethodName, dest.Id, dest.NumStreams))
+      m.MethodName, true,
+      dest.Id, dest.NumStreams);
+  if (dest.CodecIndex < 0)
     return E_INVALIDARG;
   (CProps &)dest = (CProps &)m;
   return S_OK;

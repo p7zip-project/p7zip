@@ -22,7 +22,7 @@ This is the place for the active development of p7zip to include major modern co
    
 ## Benchmark
 We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(total size 211938580 Byte) for packaging. 
-CPU frequency：2.20GHz
+   CPU frequency：2.20GHz
 |format|method|encode_size(Byte)|encode_time(ms)|encode_speed(M/s)|decode_time(ms)|decode_speed(M/s)|compression_ratio|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
 |7z-zip|deflaut-9|64727443|59170 ms|3.33|1649|122.57|3.27|

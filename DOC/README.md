@@ -125,7 +125,7 @@
 	</tr>
 	<tr >
 	    <td >LZ4</td>
-	    <td >计划中</td>
+	    <td >7za完成 7z完成</td>
 	</tr>
 	<tr >
 	    <td >LZ5</td>
@@ -141,7 +141,7 @@
 	</tr>
 	<tr >
 	    <td >Fast Lzma2</td>
-	    <td >计划中</td>
+	    <td >7za完成 7z完成</td>
 	</tr>
 	<tr >
 	    <td >Lizard</td>

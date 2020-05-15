@@ -88,6 +88,9 @@ STDMETHODIMP CEncoder::WriteCoderProperties(ISequentialOutStream *outStream)
   return WriteStream(outStream, &prop, 1);
 }
 
+#define RET_IF_WRAP_ERROR(wrapRes, sRes, sResErrorCode) \
+  if (wrapRes != S_OK /* && (sRes == SZ_OK || sRes == sResErrorCode) */) return wrapRes;
+
 STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
     const UInt64 * /* inSize */, const UInt64 * /* outSize */, ICompressProgressInfo *progress)
 {
@@ -96,13 +99,10 @@ STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream, ISequentialOutStream 
   CCompressProgressWrap progressWrap(progress);
 
   SRes res = Lzma2Enc_Encode(_encoder, &outWrap.p, &inWrap.p, progress ? &progressWrap.p : NULL);
-  if (res == SZ_ERROR_READ && inWrap.Res != S_OK)
-    return inWrap.Res;
-  if (res == SZ_ERROR_WRITE && outWrap.Res != S_OK)
-    return outWrap.Res;
-  if (res == SZ_ERROR_PROGRESS && progressWrap.Res != S_OK)
-    return progressWrap.Res;
-  return SResToHRESULT(res);
+  
+  RET_IF_WRAP_ERROR(inWrap.Res, res, SZ_ERROR_READ)
+  RET_IF_WRAP_ERROR(outWrap.Res, res, SZ_ERROR_WRITE)
+  RET_IF_WRAP_ERROR(progressWrap.Res, res, SZ_ERROR_PROGRESS)
 }
 
 // Fast LZMA2 encoder

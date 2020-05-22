@@ -354,23 +354,23 @@ STDMETHODIMP CHandler::GetProperty(UInt32, PROPID propID, PROPVARIANT *value)
 
 struct COpenCallbackWrap
 {
-  ICompressProgress p;
+  ICompressProgress vt;
   IArchiveOpenCallback *OpenCallback;
   HRESULT Res;
   COpenCallbackWrap(IArchiveOpenCallback *progress);
 };
 
-static SRes OpenCallbackProgress(void *pp, UInt64 inSize, UInt64 /* outSize */)
+static SRes OpenCallbackProgress(const ICompressProgress *pp, UInt64 inSize, UInt64 /* outSize */)
 {
-  COpenCallbackWrap *p = (COpenCallbackWrap *)pp;
+  COpenCallbackWrap *p = CONTAINER_FROM_VTBL(pp, COpenCallbackWrap, vt);
   if (p->OpenCallback)
     p->Res = p->OpenCallback->SetCompleted(NULL, &inSize);
-  return (SRes)p->Res;
+  return HRESULT_To_SRes(p->Res, SZ_ERROR_PROGRESS);
 }
 
 COpenCallbackWrap::COpenCallbackWrap(IArchiveOpenCallback *callback)
 {
-  p.Progress = OpenCallbackProgress;
+  vt.Progress = OpenCallbackProgress;
   OpenCallback = callback;
   Res = SZ_OK;
 }
@@ -408,7 +408,7 @@ HRESULT CHandler::Open2(IInStream *inStream, /* UInt32 flags, */ IArchiveOpenCal
   {
     CXzStreamFlags st;
     CSeqInStreamWrap inStreamWrap(inStream);
-    SRes res = Xz_ReadHeader(&st, &inStreamWrap.p);
+    SRes res = Xz_ReadHeader(&st, &inStreamWrap.vt);
     if (res != SZ_OK)
       return SRes_to_Open_HRESULT(res);
 
@@ -416,7 +416,7 @@ HRESULT CHandler::Open2(IInStream *inStream, /* UInt32 flags, */ IArchiveOpenCal
       CXzBlock block;
       Bool isIndex;
       UInt32 headerSizeRes;
-      SRes res2 = XzBlock_ReadHeader(&block, &inStreamWrap.p, &isIndex, &headerSizeRes);
+      SRes res2 = XzBlock_ReadHeader(&block, &inStreamWrap.vt, &isIndex, &headerSizeRes);
       if (res2 == SZ_OK && !isIndex)
       {
         unsigned numFilters = XzBlock_GetNumFilters(&block);
@@ -436,14 +436,14 @@ HRESULT CHandler::Open2(IInStream *inStream, /* UInt32 flags, */ IArchiveOpenCal
 
   CLookToRead lookStream;
   LookToRead_CreateVTable(&lookStream, True);
-  lookStream.realStream = &inStreamImp.p;
+  lookStream.realStream = &inStreamImp.vt;
   LookToRead_Init(&lookStream);
 
   COpenCallbackWrap openWrap(callback);
 
   CXzsCPP xzs;
   Int64 startPosition;
-  SRes res = Xzs_ReadBackward(&xzs.p, &lookStream.s, &startPosition, &openWrap.p, &g_Alloc);
+  SRes res = Xzs_ReadBackward(&xzs.p, &lookStream.s, &startPosition, &openWrap.vt, &g_Alloc);
   if (res == SZ_ERROR_PROGRESS)
     return (openWrap.Res == S_OK) ? E_FAIL : openWrap.Res;
   /*
@@ -759,7 +759,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
   
   if (numItems == 0)
   {
-    SRes res = Xz_EncodeEmpty(&seqOutStream.p);
+    SRes res = Xz_EncodeEmpty(&seqOutStream.vt);
     return SResToHRESULT(res);
   }
   
@@ -869,7 +869,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
       if (!deltaDefined)
         return E_INVALIDARG;
     }
-    SRes res = Xz_Encode(&seqOutStream.p, &seqInStream.p, &xzProps, &progressWrap.p);
+    SRes res = Xz_Encode(&seqOutStream.vt, &seqInStream.vt, &xzProps, &progressWrap.vt);
     if (res == SZ_OK)
       return updateCallback->SetOperationResult(NArchive::NUpdate::NOperationResult::kOK);
     return SResToHRESULT(res);

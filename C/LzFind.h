@@ -47,6 +47,8 @@ typedef struct _CMatchFinder
   SRes result;
   UInt32 crc[256];
   size_t numRefs;
+
+  UInt64 expectedDataSize;
 } CMatchFinder;
 
 #define Inline_MatchFinder_GetPointerToCurrentPos(p) ((p)->buffer)

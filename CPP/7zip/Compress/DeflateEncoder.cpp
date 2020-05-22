@@ -923,6 +923,7 @@ void CCoder::CodeBlock(unsigned tableIndex, bool finalBlock)
   }
 }
 
+
 SRes Read(void *object, void *data, size_t *size)
 {
   const UInt32 kStepSize = (UInt32)1 << 31;
@@ -944,9 +945,12 @@ HRESULT CCoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *ou
 
   UInt64 nowPos = 0;
 
-  _seqInStream.RealStream = inStream;
-  _seqInStream.SeqInStream.Read = Read;
-  _lzInWindow.stream = &_seqInStream.SeqInStream;
+  CSeqInStreamWrap _seqInStream;
+  
+  // _seqInStream.RealStream = inStream;
+  // _seqInStream.SeqInStream.Read = Read;
+  _seqInStream.Init(inStream);
+  _lzInWindow.stream = &_seqInStream.vt;
 
   MatchFinder_Init(&_lzInWindow);
   m_OutStream.SetStream(outStream);

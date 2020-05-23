@@ -6,45 +6,55 @@
 #include "../ICoder.h"
 #include "../../Common/MyCom.h"
 
+SRes HRESULT_To_SRes(HRESULT res, SRes defaultRes) throw();
+HRESULT SResToHRESULT(SRes res) throw();
+
 struct CCompressProgressWrap
 {
-  ICompressProgress p;
+  ICompressProgress vt;
   ICompressProgressInfo *Progress;
   HRESULT Res;
   
+  void Init(ICompressProgressInfo *progress) throw();
   CCompressProgressWrap(ICompressProgressInfo *progress) throw();
+  CCompressProgressWrap() throw(){};
 };
 
 struct CSeqInStreamWrap
 {
-  ISeqInStream p;
+  ISeqInStream vt;
   ISequentialInStream *Stream;
   HRESULT Res;
   UInt64 Processed;
   
+  void Init(ISequentialInStream *stream) throw();
   CSeqInStreamWrap(ISequentialInStream *stream) throw();
+  CSeqInStreamWrap() throw(){};
 };
 
 struct CSeekInStreamWrap
 {
-  ISeekInStream p;
+  ISeekInStream vt;
   IInStream *Stream;
   HRESULT Res;
   
+  void Init(IInStream *stream) throw();
   CSeekInStreamWrap(IInStream *stream) throw();
+  CSeekInStreamWrap() throw(){};
 };
 
 struct CSeqOutStreamWrap
 {
-  ISeqOutStream p;
+  ISeqOutStream vt;
   ISequentialOutStream *Stream;
   HRESULT Res;
   UInt64 Processed;
   
+  void Init(ISequentialOutStream *stream) throw();
   CSeqOutStreamWrap(ISequentialOutStream *stream) throw();
+  CSeqOutStreamWrap() throw(){};
 };
 
-HRESULT SResToHRESULT(SRes res) throw();
 
 struct CByteInBufWrap
 {

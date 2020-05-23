@@ -1003,7 +1003,7 @@ HRESULT CMixerMT::Code(
     if (i != MainCoderIndex)
       _coders[i].Start();
 
-  _coders[MainCoderIndex].Code(progress);
+  _coders[MainCoderIndex].Code(progress);  // code Enter
 
   for (i = 0; i < _coders.Size(); i++)
     if (i != MainCoderIndex)

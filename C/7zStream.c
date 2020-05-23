@@ -148,9 +148,9 @@ void LookToRead_Init(CLookToRead *p)
   p->pos = p->size = 0;
 }
 
-static SRes SecToLook_Read(void *pp, void *buf, size_t *size)
+static SRes SecToLook_Read(const ISeqInStream *pp, void *buf, size_t *size)
 {
-  CSecToLook *p = (CSecToLook *)pp;
+  CSecToLook *p = CONTAINER_FROM_VTBL(pp, CSecToLook, s);
   return LookInStream_LookRead(p->realStream, buf, size);
 }
 
@@ -159,10 +159,10 @@ void SecToLook_CreateVTable(CSecToLook *p)
   p->s.Read = SecToLook_Read;
 }
 
-static SRes SecToRead_Read(void *pp, void *buf, size_t *size)
+static SRes SecToRead_Read(const ISeqInStream *pp, void *buf, size_t *size)
 {
-  CSecToRead *p = (CSecToRead *)pp;
-  return p->realStream->Read(p->realStream, buf, size);
+  CSecToRead *p = CONTAINER_FROM_VTBL(pp, CSecToRead, s);
+  return ILookInStream_Read(p->realStream, buf, size);
 }
 
 void SecToRead_CreateVTable(CSecToRead *p)

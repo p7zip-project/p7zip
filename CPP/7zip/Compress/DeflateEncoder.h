@@ -6,6 +6,7 @@
 #include "../../../C/LzFind.h"
 
 #include "../../Common/MyCom.h"
+#include "../Common/CWrappers.h"
 
 #include "../ICoder.h"
 
@@ -76,7 +77,6 @@ class CCoder
   CMatchFinder _lzInWindow;
   CBitlEncoder m_OutStream;
 
-  CSeqInStream _seqInStream;
 
 public:
   CCodeValue *m_Values;

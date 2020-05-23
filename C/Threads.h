@@ -88,6 +88,8 @@ typedef struct _CSemaphore
 
 #define Semaphore_Construct(p) (p)->_created = 0
 
+#define Semaphore_IsCreated(p) ((p)->_created != 0)
+
 WRes Semaphore_Create(CSemaphore *p, UInt32 initiallyCount, UInt32 maxCount);
 WRes Semaphore_ReleaseN(CSemaphore *p, UInt32 num);
 #define Semaphore_Release1(p) Semaphore_ReleaseN(p, 1)

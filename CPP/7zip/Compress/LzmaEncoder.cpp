@@ -131,6 +131,9 @@ STDMETHODIMP CEncoder::WriteCoderProperties(ISequentialOutStream *outStream)
   return WriteStream(outStream, props, size);
 }
 
+#define RET_IF_WRAP_ERROR(wrapRes, sRes, sResErrorCode) \
+  if (wrapRes != S_OK /* && (sRes == SZ_OK || sRes == sResErrorCode) */) return wrapRes;
+
 STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
     const UInt64 * /* inSize */, const UInt64 * /* outSize */, ICompressProgressInfo *progress)
 {
@@ -138,14 +141,14 @@ STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream, ISequentialOutStream 
   CSeqOutStreamWrap outWrap(outStream);
   CCompressProgressWrap progressWrap(progress);
 
-  SRes res = LzmaEnc_Encode(_encoder, &outWrap.p, &inWrap.p, progress ? &progressWrap.p : NULL, &g_Alloc, &g_BigAlloc);
+  SRes res = LzmaEnc_Encode(_encoder, &outWrap.vt, &inWrap.vt, progress ? &progressWrap.vt : NULL, &g_Alloc, &g_BigAlloc);
+  
   _inputProcessed = inWrap.Processed;
-  if (res == SZ_ERROR_READ && inWrap.Res != S_OK)
-    return inWrap.Res;
-  if (res == SZ_ERROR_WRITE && outWrap.Res != S_OK)
-    return outWrap.Res;
-  if (res == SZ_ERROR_PROGRESS && progressWrap.Res != S_OK)
-    return progressWrap.Res;
+
+  RET_IF_WRAP_ERROR(inWrap.Res, res, SZ_ERROR_READ)
+  RET_IF_WRAP_ERROR(outWrap.Res, res, SZ_ERROR_WRITE)
+  RET_IF_WRAP_ERROR(progressWrap.Res, res, SZ_ERROR_PROGRESS)
+
   return SResToHRESULT(res);
 }
 

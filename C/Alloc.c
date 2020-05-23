@@ -75,7 +75,7 @@ void *MyAlloc(size_t size)
   #ifdef _SZ_ALLOC_DEBUG
   {
     void *p = align_alloc(size);
-    fprintf(stderr, "\nAlloc %10d bytes, count = %10d,  addr = %8X", size, g_allocCount++, (unsigned)p);
+    fprintf(stderr, "\nAlloc %10d bytes, count = %10d,  addr = %8X", size, g_allocCount++, (long long)p);
     return p;
   }
   #else
@@ -87,7 +87,7 @@ void MyFree(void *address)
 {
   #ifdef _SZ_ALLOC_DEBUG
   if (address != 0)
-    fprintf(stderr, "\nFree; count = %10d,  addr = %8X", --g_allocCount, (unsigned)address);
+    fprintf(stderr, "\nFree; count = %10d,  addr = %8X", --g_allocCount, (long long)address);
   #endif
   align_free(address);
 }
@@ -318,11 +318,11 @@ void BigFree(void *address)
   VirtualFree(address);
 }
 
-static void *SzAlloc(void *p, size_t size) { UNUSED_VAR(p); return MyAlloc(size); }
-static void SzFree(void *p, void *address) { UNUSED_VAR(p); MyFree(address); }
+static void *SzAlloc(ISzAllocPtr p, size_t size) { UNUSED_VAR(p); return MyAlloc(size); }
+static void SzFree(ISzAllocPtr p, void *address) { UNUSED_VAR(p); MyFree(address); }
 ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
-static void *SzBigAlloc(void *p, size_t size) { UNUSED_VAR(p); return BigAlloc(size); }
-static void SzBigFree(void *p, void *address) { UNUSED_VAR(p); BigFree(address); }
+static void *SzBigAlloc(ISzAllocPtr p, size_t size) { UNUSED_VAR(p); return BigAlloc(size); }
+static void SzBigFree(ISzAllocPtr p, void *address) { UNUSED_VAR(p); BigFree(address); }
 ISzAlloc g_BigAlloc = { SzBigAlloc, SzBigFree };
 

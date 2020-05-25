@@ -8,7 +8,7 @@ CFLAGS=-c -I. \
 -I../../../../CPP \
 $(ALLFLAGS) $(ALLFLAGS_C)
 
-CXXFLAGS=-c -I. \
+CXXFLAGS=-c -I. -std=gnu++11\
 -I../../../../C \
 -I../../../../CPP/myWindows \
 -I../../../../CPP/include_windows \

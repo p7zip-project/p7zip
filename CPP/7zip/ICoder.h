@@ -120,6 +120,14 @@ namespace NCoderPropID
     kEndMarker,
     kLevel,
     kReduceSize, // estimated size of data that will be compressed. Encoder can use this value to reduce dictionary size.
+    kExpectedDataSize,  // VT_UI8 : for ICompressSetCoderPropertiesOpt :
+                        //   it's estimated size of current data stream
+                        //   real data size can differ from that size
+                        //   encoder can use this value to optimize encoder initialization
+
+    kBlockSize2,        // VT_UI4 or VT_UI8
+    kCheckSize,         // VT_UI4 : size of digest in bytes
+    kFilter,            // VT_BSTR
 
      /* zstd props */
     kStrategy,          // VT_UI4 1=ZSTD_fast, 2=ZSTD_dfast, 3=ZSTD_greedy, 4=ZSTD_lazy, 5=ZSTD_lazy2, 6=ZSTD_btlazy2, 7=ZSTD_btopt, 8=ZSTD_btultra
@@ -138,6 +146,11 @@ namespace NCoderPropID
     kLdmHashRateLog    // VT_UI4 The default value is wlog - ldmhlog.
   };
 }
+
+CODER_INTERFACE(ICompressSetCoderPropertiesOpt, 0x1F)
+{
+  STDMETHOD(SetCoderPropertiesOpt)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) PURE;
+};
 
 CODER_INTERFACE(ICompressSetCoderProperties, 0x20)
 {

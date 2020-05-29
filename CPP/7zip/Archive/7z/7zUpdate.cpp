@@ -2379,7 +2379,7 @@ HRESULT Update(
       inStreamSpec->Init(updateCallback, &indices[i], numSubFiles);
       
       unsigned startPackIndex = newDatabase.PackSizes.Size();
-      UInt64 curFolderUnpackSize;
+      UInt64 curFolderUnpackSize = totalSize;
       RINOK(encoder.Encode(
           EXTERNAL_CODECS_LOC_VARS
           solidInStream,

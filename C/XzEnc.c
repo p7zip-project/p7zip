@@ -160,9 +160,12 @@ static SRes Xz_AddIndexRecord(CXzStream *p, UInt64 unpackSize, UInt64 totalSize,
 
 typedef struct
 {
-  ISeqInStream p;
+  ISeqInStream vt;
   ISeqInStream *realStream;
+  const Byte *data;
+  UInt64 limit;
   UInt64 processed;
+  int realStreamFinished;
   CXzCheck check;
 } CSeqCheckInStream;
 
@@ -177,12 +180,31 @@ static void SeqCheckInStream_GetDigest(CSeqCheckInStream *p, Byte *digest)
   XzCheck_Final(&p->check, digest);
 }
 
-static SRes SeqCheckInStream_Read(void *pp, void *data, size_t *size)
+static SRes SeqCheckInStream_Read(const ISeqInStream *pp, void *data, size_t *size)
 {
-  CSeqCheckInStream *p = (CSeqCheckInStream *)pp;
-  SRes res = p->realStream->Read(p->realStream, data, size);
-  XzCheck_Update(&p->check, data, *size);
-  p->processed += *size;
+  CSeqCheckInStream *p = CONTAINER_FROM_VTBL(pp, CSeqCheckInStream, vt);
+  size_t size2 = *size;
+  SRes res = SZ_OK;
+  
+  if (p->limit != (UInt64)(Int64)-1)
+  {
+    UInt64 rem = p->limit - p->processed;
+    if (size2 > rem)
+      size2 = (size_t)rem;
+  }
+  if (size2 != 0)
+  {
+    if (p->realStream)
+    {
+      res = ISeqInStream_Read(p->realStream, data, &size2);
+      p->realStreamFinished = (size2 == 0) ? 1 : 0;
+    }
+    else
+      memcpy(data, p->data + (size_t)p->processed, size2);
+    XzCheck_Update(&p->check, data, size2);
+    p->processed += size2;
+  }
+  *size = size2;
   return res;
 }
 
@@ -196,7 +218,7 @@ typedef struct
   UInt64 processed;
 } CSeqSizeOutStream;
 
-static size_t MyWrite(void *pp, const void *data, size_t size)
+static size_t MyWrite(const ISeqOutStream *pp, const void *data, size_t size)
 {
   CSeqSizeOutStream *p = (CSeqSizeOutStream *)pp;
   size = p->realStream->Write(p->realStream, data, size);
@@ -220,9 +242,9 @@ typedef struct
   int srcWasFinished;
 } CSeqInFilter;
 
-static SRes SeqInFilter_Read(void *pp, void *data, size_t *size)
+static SRes SeqInFilter_Read(const ISeqInStream *pp, void *data, size_t *size)
 {
-  CSeqInFilter *p = (CSeqInFilter *)pp;
+  CSeqInFilter *p = CONTAINER_FROM_VTBL(pp, CSeqInFilter, p);
   size_t sizeOriginal = *size;
   if (sizeOriginal == 0)
     return SZ_OK;
@@ -234,7 +256,7 @@ static SRes SeqInFilter_Read(void *pp, void *data, size_t *size)
     {
       p->curPos = 0;
       p->endPos = FILTER_BUF_SIZE;
-      RINOK(p->realStream->Read(p->realStream, p->buf, &p->endPos));
+      RINOK(ISeqInStream_Read(p->realStream, p->buf, &p->endPos));
       if (p->endPos == 0)
         p->srcWasFinished = 1;
     }
@@ -457,7 +479,7 @@ static SRes Xz_Compress(CXzStream *xz, CLzma2WithFilters *lzmaf,
     
     RINOK(XzBlock_WriteHeader(&block, &seqSizeOutStream.p));
     
-    checkInStream.p.Read = SeqCheckInStream_Read;
+    checkInStream.vt.Read = SeqCheckInStream_Read;
     checkInStream.realStream = inStream;
     SeqCheckInStream_Init(&checkInStream, XzFlags_GetCheckType(xz->flags));
     
@@ -466,13 +488,13 @@ static SRes Xz_Compress(CXzStream *xz, CLzma2WithFilters *lzmaf,
       #ifdef USE_SUBBLOCK
       if (fp->id == XZ_ID_Subblock)
       {
-        lzmaf->sb.inStream = &checkInStream.p;
+        lzmaf->sb.inStream = &checkInStream.vt;
         RINOK(SbEncInStream_Init(&lzmaf->sb));
       }
       else
       #endif
       {
-        lzmaf->filter.realStream = &checkInStream.p;
+        lzmaf->filter.realStream = &checkInStream.vt;
         RINOK(SeqInFilter_Init(&lzmaf->filter, filter));
       }
     }
@@ -480,14 +502,23 @@ static SRes Xz_Compress(CXzStream *xz, CLzma2WithFilters *lzmaf,
     {
       UInt64 packPos = seqSizeOutStream.processed;
       
-      SRes res = Lzma2Enc_Encode(lzmaf->lzma2, &seqSizeOutStream.p,
-          fp ?
+      // SRes res = Lzma2Enc_Encode(lzmaf->lzma2, &seqSizeOutStream.p,
+      //     fp ?
+      //       #ifdef USE_SUBBLOCK
+      //       (fp->id == XZ_ID_Subblock) ? &lzmaf->sb.p:
+      //       #endif
+      //       &lzmaf->filter.p:
+      //       &checkInStream.vt,
+      //     progress);
+      SRes res = Lzma2Enc_Encode2(lzmaf->lzma2, 
+            &seqSizeOutStream.p, NULL, NULL,
+            fp ?
             #ifdef USE_SUBBLOCK
             (fp->id == XZ_ID_Subblock) ? &lzmaf->sb.p:
             #endif
             &lzmaf->filter.p:
-            &checkInStream.p,
-          progress);
+            &checkInStream.vt, NULL, 0,
+            progress);
       
       RINOK(res);
       block.unpackSize = checkInStream.processed;

@@ -33,6 +33,9 @@
 static const char *kUpdateIsNotSupoorted =
   "update operations are not supported for this archive";
 
+static const char * const kUpdateIsNotSupoorted_MultiVol =
+  "Updating for multivolume archives is not implemented";
+
 using namespace NWindows;
 using namespace NCOM;
 using namespace NFile;
@@ -1086,8 +1089,12 @@ HRESULT UpdateArchive(
         throw "there is no such archive";
       if (fi.IsDevice)
         return E_NOTIMPL;
-      if (options.VolumesSizes.Size() > 0)
+      if (options.VolumesSizes.Size() > 0){
+        errorInfo.FileNames.Add(us2fs(arcPath));
+        errorInfo.SystemError = (DWORD)E_NOTIMPL;
+        errorInfo.Message = kUpdateIsNotSupoorted_MultiVol;
         return E_NOTIMPL;
+      }
       CObjectVector<COpenType> types2;
       // change it.
       if (options.MethodMode.Type_Defined)
@@ -1108,7 +1115,7 @@ HRESULT UpdateArchive(
 
       RINOK(callback->StartOpenArchive(arcPath));
 
-      HRESULT result = arcLink.Open3(op, openCallback);
+      HRESULT result = arcLink.Open_Strict(op, openCallback);
 
       if (result == E_ABORT)
         return result;

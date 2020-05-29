@@ -8,11 +8,15 @@
 
 EXTERN_C_BEGIN
 
+#define LZMA2_ENC_PROPS__BLOCK_SIZE__AUTO 0
+#define LZMA2_ENC_PROPS__BLOCK_SIZE__SOLID ((UInt64)(Int64)-1)
+
 typedef struct
 {
   CLzmaEncProps lzmaProps;
-  size_t blockSize;
-  int numBlockThreads;
+  UInt64 blockSize;
+  int numBlockThreads_Reduced;
+  int numBlockThreads_Max;
   int numTotalThreads;
 } CLzma2EncProps;
 
@@ -36,10 +40,16 @@ typedef void * CLzma2EncHandle;
 CLzma2EncHandle Lzma2Enc_Create(ISzAlloc *alloc, ISzAlloc *allocBig);
 void Lzma2Enc_Destroy(CLzma2EncHandle p);
 SRes Lzma2Enc_SetProps(CLzma2EncHandle p, const CLzma2EncProps *props);
+void Lzma2Enc_SetDataSize(CLzma2EncHandle p, UInt64 expectedDataSiize);
 Byte Lzma2Enc_WriteProperties(CLzma2EncHandle p);
-SRes Lzma2Enc_Encode(CLzma2EncHandle p,
-    ISeqOutStream *outStream, ISeqInStream *inStream, ICompressProgress *progress);
-
+// SRes Lzma2Enc_Encode(CLzma2EncHandle p,
+//     ISeqOutStream *outStream, ISeqInStream *inStream, ICompressProgress *progress);
+SRes Lzma2Enc_Encode2(CLzma2EncHandle p,
+    ISeqOutStream *outStream,
+    Byte *outBuf, size_t *outBufSize,
+    ISeqInStream *inStream,
+    const Byte *inData, size_t inDataSize,
+    ICompressProgress *progress);
 /* ---------- One Call Interface ---------- */
 
 /* Lzma2Encode

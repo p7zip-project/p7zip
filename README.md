@@ -1,7 +1,7 @@
 
 # A new p7zip fork with additional codecs and improvements (forked from https://sourceforge.net/projects/p7zip/).
 
-This is the Github Page of [p7-Zip] with support of additional Codecs. The library used therefore is located here: [Multithreading Library](https://github.com/mcmilk/zstdmt)
+This is the place for the active development of p7zip to include major modern codecs such as LZ4 and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
 
 # status
 | [Ubuntu][ubuntu-link]|
@@ -17,17 +17,20 @@ This is the Github Page of [p7-Zip] with support of additional Codecs. The libra
 
 2. [LZ4] v1.9.2 is lossless compression algorithm, providing compression speed at 400 MB/s per core (0.16 Bytes/cycle). It features an extremely fast decoder, with speed in multiple GB/s per core (0.71 Bytes/cycle). A high compression derivative, called LZ4_HC, is available, trading customizable CPU time for compression ratio.
    - Levels: 1..12
-
+3. [Fast LZMA2] v1.0.1 is a LZMA2 compression algorithm, 20% to 100% faster than normal LZMA2 at levels 5 and above, but with a slightly lower compression ratio. It uses a parallel buffered radix matchfinder and some optimizations from Zstandard. The codec uses much less additional memory per thread than standard LZMA2.
+   - Levels: 1..9
+   
 ## Benchmark
-We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(total size 211938580 Byte) for packaging.
-
+We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(total size 211938580 Byte) for packaging. 
+   CPU frequency：2.20GHz
 |format|method|encode_size(Byte)|encode_time(ms)|encode_speed(M/s)|decode_time(ms)|decode_speed(M/s)|compression_ratio|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|7z-zip|deflaut-9|64727443|60637 ms|3.33|1751|115.43|3.27|
-|7z-7z|lzma-9|48752532|92016 ms|2.20|3832|52.75|4.35|
-|7z-7z|lzma2-9|48749158|91595 ms|2.21|3837|52.67|4.35|
-|7z-7z|zstd-22|52739890|145423 ms|1.39|1063|190.14|4.02|
-|7z-7z|lz4-12|77788397|3632 ms|55.65|452|447.17|2.72|
+|7z-zip|deflaut-9|64727443|59170 ms|3.33|1649|122.57|3.27|
+|7z-7z|lzma-9|48752521|80680 ms|2.51|3780|53.47|4.35|
+|7z-7z|lzma2-9|48749147|81106 ms|2.50|3742|54.01|4.35|
+|7z-7z|zstd-22|52739879|134245 ms|1.51|893|226.34|4.02|
+|7z-7z|lz4-12|77788386|3548 ms|56.97|409|494.18|2.72|
+|7z-7z|flzma2-9|48676481|12619 ms|16.02|3877|52.13|4.35|
 
 ### install CLI
 #### (Currently only supports CLI, if you want to do GUI please contact us)
@@ -106,18 +109,18 @@ Hashers:
 ## Links
 
 - [7-Zip Homepage](https://www.7-zip.org/)
-- [Request for inclusion](https://sourceforge.net/p/sevenzip/discussion/45797/thread/a7e4f3f3/) into the mainline 7-Zip:
-  - result, will currently not included :(
 
 ## Version Information
 
 - p7zip Version 17.01
   - [LZ4] Version 1.9.2
   - [Zstandard] Version 1.4.4
-
+  - [Fast LZMA2] Version v1.0.1
+  
 ## Working Plan
  - [check here](https://github.com/szcnick/p7zip/tree/dev/DOC)
 
 [p7-Zip]:https://www.7-zip.org/
 [LZ4]:https://github.com/lz4/lz4/
 [Zstandard]:https://github.com/facebook/zstd/
+[Fast LZMA2]:https://github.com/conor42/fast-lzma2

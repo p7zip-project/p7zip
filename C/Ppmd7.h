@@ -60,8 +60,8 @@ typedef struct
 } CPpmd7;
 
 void Ppmd7_Construct(CPpmd7 *p);
-Bool Ppmd7_Alloc(CPpmd7 *p, UInt32 size, ISzAlloc *alloc);
-void Ppmd7_Free(CPpmd7 *p, ISzAlloc *alloc);
+Bool Ppmd7_Alloc(CPpmd7 *p, UInt32 size, ISzAllocPtr alloc);
+void Ppmd7_Free(CPpmd7 *p, ISzAllocPtr alloc);
 void Ppmd7_Init(CPpmd7 *p, unsigned maxOrder);
 #define Ppmd7_WasAllocated(p) ((p)->Base != NULL)
 

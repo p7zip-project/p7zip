@@ -19,7 +19,7 @@ void DynBuf_SeekToBeg(CDynBuf *p)
   p->pos = 0;
 }
 
-int DynBuf_Write(CDynBuf *p, const Byte *buf, size_t size, ISzAlloc *alloc)
+int DynBuf_Write(CDynBuf *p, const Byte *buf, size_t size, ISzAllocPtr alloc)
 {
   if (size > p->size - p->pos)
   {
@@ -42,7 +42,7 @@ int DynBuf_Write(CDynBuf *p, const Byte *buf, size_t size, ISzAlloc *alloc)
   return 1;
 }
 
-void DynBuf_Free(CDynBuf *p, ISzAlloc *alloc)
+void DynBuf_Free(CDynBuf *p, ISzAllocPtr alloc)
 {
   alloc->Free(alloc, p->data);
   p->data = 0;

@@ -128,18 +128,18 @@ void CSeqOutStreamWrap::Init(ISequentialOutStream *stream) throw()
 }
 
 
-static SRes InStreamWrap_Read(void *pp, void *data, size_t *size) throw()
+static SRes InStreamWrap_Read(const ISeekInStream *pp, void *data, size_t *size) throw()
 {
-  CSeekInStreamWrap *p = (CSeekInStreamWrap *)pp;
+  CSeekInStreamWrap *p = CONTAINER_FROM_VTBL(pp, CSeekInStreamWrap, vt);
   UInt32 curSize = ((*size < kStreamStepSize) ? (UInt32)*size : kStreamStepSize);
   p->Res = p->Stream->Read(data, curSize, &curSize);
   *size = curSize;
   return (p->Res == S_OK) ? SZ_OK : SZ_ERROR_READ;
 }
 
-static SRes InStreamWrap_Seek(void *pp, Int64 *offset, ESzSeek origin) throw()
+static SRes InStreamWrap_Seek(const ISeekInStream *pp, Int64 *offset, ESzSeek origin) throw()
 {
-  CSeekInStreamWrap *p = (CSeekInStreamWrap *)pp;
+  CSeekInStreamWrap *p = CONTAINER_FROM_VTBL(pp, CSeekInStreamWrap, vt);
   UInt32 moveMethod;
   switch (origin)
   {

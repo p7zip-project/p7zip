@@ -22,6 +22,7 @@
 #include "../../Compress/ImplodeDecoder.h"
 #include "../../Compress/PpmdZip.h"
 #include "../../Compress/ShrinkDecoder.h"
+#include "../../Compress/XzDecoder.h"
 
 #include "../../Crypto/WzAes.h"
 #include "../../Crypto/ZipCrypto.h"
@@ -523,30 +524,30 @@ HRESULT CLzmaDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream *
 }
 
 
-class CXzDecoder:
-  public ICompressCoder,
-  public CMyUnknownImp
-{
-  NArchive::NXz::CDecoder _decoder;
-public:
+// class CXzDecoder:
+//   public ICompressCoder,
+//   public CMyUnknownImp
+// {
+//   NArchive::NXz::CDecoder _decoder;
+// public:
 
-  STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-      const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
+//   STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
+//       const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
 
-  MY_UNKNOWN_IMP
-};
+//   MY_UNKNOWN_IMP
+// };
 
-HRESULT CXzDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-    const UInt64 * /* inSize */, const UInt64 * /* outSize */, ICompressProgressInfo *progress)
-{
-  RINOK(_decoder.Decode(inStream, outStream, progress));
-  Int32 opRes = _decoder.Get_Extract_OperationResult();
-  if (opRes == NExtract::NOperationResult::kUnsupportedMethod)
-    return E_NOTIMPL;
-  if (opRes != NExtract::NOperationResult::kOK)
-    return S_FALSE;
-  return S_OK;
-}
+// HRESULT CXzDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
+//     const UInt64 * /* inSize */, const UInt64 * /* outSize */, ICompressProgressInfo *progress)
+// {
+//   RINOK(_decoder.Decode(inStream, outStream, progress));
+//   Int32 opRes = _decoder.Get_Extract_OperationResult();
+//   if (opRes == NExtract::NOperationResult::kUnsupportedMethod)
+//     return E_NOTIMPL;
+//   if (opRes != NExtract::NOperationResult::kOK)
+//     return S_FALSE;
+//   return S_OK;
+// }
 
 
 struct CMethodItem
@@ -790,7 +791,7 @@ HRESULT CZipDecoder::Decode(
     else if (id == NFileHeader::NCompressionMethod::kLZMA)
       mi.Coder = new CLzmaDecoder;
     else if (id == NFileHeader::NCompressionMethod::kXz)
-      mi.Coder = new CXzDecoder;
+      mi.Coder = new NCompress::NXz::CComDecoder;
     else if (id == NFileHeader::NCompressionMethod::kPPMd)
       mi.Coder = new NCompress::NPpmdZip::CDecoder(true);
     else

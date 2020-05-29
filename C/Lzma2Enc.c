@@ -112,9 +112,9 @@ static void Lzma2EncInt_InitBlock(CLzma2EncInt *p)
 
 
 SRes LzmaEnc_PrepareForLzma2(CLzmaEncHandle pp, ISeqInStream *inStream, UInt32 keepWindowSize,
-    ISzAlloc *alloc, ISzAlloc *allocBig);
+    ISzAllocPtr alloc, ISzAllocPtr allocBig);
 SRes LzmaEnc_MemPrepare(CLzmaEncHandle pp, const Byte *src, SizeT srcLen,
-    UInt32 keepWindowSize, ISzAlloc *alloc, ISzAlloc *allocBig);
+    UInt32 keepWindowSize, ISzAllocPtr alloc, ISzAllocPtr allocBig);
 SRes LzmaEnc_CodeOneMemBlock(CLzmaEncHandle pp, Bool reInit,
     Byte *dest, size_t *destLen, UInt32 desiredPackSize, UInt32 *unpackSize);
 const Byte *LzmaEnc_GetCurBuf(CLzmaEncHandle pp);
@@ -360,8 +360,8 @@ typedef struct
   
   Byte *tempBufLzma;
 
-  ISzAlloc *alloc;
-  ISzAlloc *allocBig;
+  ISzAllocPtr alloc;
+  ISzAllocPtr allocBig;
 
   CLzma2EncInt coders[MTCODER__THREADS_MAX];
 
@@ -397,7 +397,7 @@ typedef struct
 
 /* ---------- Lzma2Enc ---------- */
 
-CLzma2EncHandle Lzma2Enc_Create(ISzAlloc *alloc, ISzAlloc *allocBig)
+CLzma2EncHandle Lzma2Enc_Create(ISzAllocPtr alloc, ISzAllocPtr allocBig)
 {
   CLzma2Enc *p = (CLzma2Enc *)alloc->Alloc(alloc, sizeof(CLzma2Enc));
   if (!p)

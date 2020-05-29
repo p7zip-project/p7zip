@@ -86,8 +86,8 @@ typedef struct
 } CPpmd8;
 
 void Ppmd8_Construct(CPpmd8 *p);
-Bool Ppmd8_Alloc(CPpmd8 *p, UInt32 size, ISzAlloc *alloc);
-void Ppmd8_Free(CPpmd8 *p, ISzAlloc *alloc);
+Bool Ppmd8_Alloc(CPpmd8 *p, UInt32 size, ISzAllocPtr alloc);
+void Ppmd8_Free(CPpmd8 *p, ISzAllocPtr alloc);
 void Ppmd8_Init(CPpmd8 *p, unsigned maxOrder, unsigned restoreMethod);
 #define Ppmd8_WasAllocated(p) ((p)->Base != NULL)
 

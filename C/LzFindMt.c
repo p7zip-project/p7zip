@@ -443,13 +443,13 @@ void MatchFinderMt_Construct(CMatchFinderMt *p)
   MtSync_Construct(&p->btSync);
 }
 
-static void MatchFinderMt_FreeMem(CMatchFinderMt *p, ISzAlloc *alloc)
+static void MatchFinderMt_FreeMem(CMatchFinderMt *p, ISzAllocPtr alloc)
 {
   alloc->Free(alloc, p->hashBuf);
   p->hashBuf = NULL;
 }
 
-void MatchFinderMt_Destruct(CMatchFinderMt *p, ISzAlloc *alloc)
+void MatchFinderMt_Destruct(CMatchFinderMt *p, ISzAllocPtr alloc)
 {
   MtSync_Destruct(&p->hashSync);
   MtSync_Destruct(&p->btSync);
@@ -472,7 +472,7 @@ static THREAD_FUNC_RET_TYPE THREAD_FUNC_CALL_TYPE BtThreadFunc2(void *p)
 }
 
 SRes MatchFinderMt_Create(CMatchFinderMt *p, UInt32 historySize, UInt32 keepAddBufferBefore,
-    UInt32 matchMaxLen, UInt32 keepAddBufferAfter, ISzAlloc *alloc)
+    UInt32 matchMaxLen, UInt32 keepAddBufferAfter, ISzAllocPtr alloc)
 {
   CMatchFinder *mf = p->MatchFinder;
   p->historySize = historySize;

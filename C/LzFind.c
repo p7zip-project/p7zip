@@ -16,7 +16,7 @@
 
 #define kStartMaxLen 3
 
-static void LzInWindow_Free(CMatchFinder *p, ISzAlloc *alloc)
+static void LzInWindow_Free(CMatchFinder *p, ISzAllocPtr alloc)
 {
   if (!p->directInput)
   {
@@ -27,7 +27,7 @@ static void LzInWindow_Free(CMatchFinder *p, ISzAlloc *alloc)
 
 /* keepSizeBefore + keepSizeAfter + keepSizeReserv must be < 4G) */
 
-static int LzInWindow_Create(CMatchFinder *p, UInt32 keepSizeReserv, ISzAlloc *alloc)
+static int LzInWindow_Create(CMatchFinder *p, UInt32 keepSizeReserv, ISzAllocPtr alloc)
 {
   UInt32 blockSize = p->keepSizeBefore + p->keepSizeAfter + keepSizeReserv;
   if (p->directInput)
@@ -154,19 +154,19 @@ void MatchFinder_Construct(CMatchFinder *p)
   }
 }
 
-static void MatchFinder_FreeThisClassMemory(CMatchFinder *p, ISzAlloc *alloc)
+static void MatchFinder_FreeThisClassMemory(CMatchFinder *p, ISzAllocPtr alloc)
 {
   alloc->Free(alloc, p->hash);
   p->hash = NULL;
 }
 
-void MatchFinder_Free(CMatchFinder *p, ISzAlloc *alloc)
+void MatchFinder_Free(CMatchFinder *p, ISzAllocPtr alloc)
 {
   MatchFinder_FreeThisClassMemory(p, alloc);
   LzInWindow_Free(p, alloc);
 }
 
-static CLzRef* AllocRefs(size_t num, ISzAlloc *alloc)
+static CLzRef* AllocRefs(size_t num, ISzAllocPtr alloc)
 {
   size_t sizeInBytes = (size_t)num * sizeof(CLzRef);
   if (sizeInBytes / sizeof(CLzRef) != num)
@@ -176,7 +176,7 @@ static CLzRef* AllocRefs(size_t num, ISzAlloc *alloc)
 
 int MatchFinder_Create(CMatchFinder *p, UInt32 historySize,
     UInt32 keepAddBufferBefore, UInt32 matchMaxLen, UInt32 keepAddBufferAfter,
-    ISzAlloc *alloc)
+    ISzAllocPtr alloc)
 {
   UInt32 sizeReserv;
   

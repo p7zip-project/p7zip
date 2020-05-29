@@ -37,7 +37,7 @@ Returns:
 
 typedef void * CLzma2EncHandle;
 
-CLzma2EncHandle Lzma2Enc_Create(ISzAlloc *alloc, ISzAlloc *allocBig);
+CLzma2EncHandle Lzma2Enc_Create(ISzAllocPtr alloc, ISzAllocPtr allocBig);
 void Lzma2Enc_Destroy(CLzma2EncHandle p);
 SRes Lzma2Enc_SetProps(CLzma2EncHandle p, const CLzma2EncProps *props);
 void Lzma2Enc_SetDataSize(CLzma2EncHandle p, UInt64 expectedDataSiize);
@@ -64,7 +64,7 @@ Return code:
 /*
 SRes Lzma2Encode(Byte *dest, SizeT *destLen, const Byte *src, SizeT srcLen,
     const CLzmaEncProps *props, Byte *propsEncoded, int writeEndMark,
-    ICompressProgress *progress, ISzAlloc *alloc, ISzAlloc *allocBig);
+    ICompressProgress *progress, ISzAllocPtr alloc, ISzAllocPtr allocBig);
 */
 
 EXTERN_C_END

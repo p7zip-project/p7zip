@@ -138,6 +138,8 @@ SRCS=\
   ../../../../CPP/7zip/Compress/Lz4Decoder.cpp \
   ../../../../CPP/7zip/Compress/Lz4Encoder.cpp \
   ../../../../CPP/7zip/Compress/Lz4Register.cpp \
+  ../../../../CPP/7zip/Compress/XzDecoder.cpp \
+  ../../../../CPP/7zip/Compress/XzEncoder.cpp \
   ../../../../CPP/7zip/Crypto/7zAes.cpp \
   ../../../../CPP/7zip/Crypto/7zAesRegister.cpp \
   ../../../../CPP/7zip/Crypto/HmacSha1.cpp \
@@ -730,6 +732,12 @@ Lz4Encoder.o : ../../../../CPP/7zip/Compress/Lz4Encoder.cpp
 Lz4Register.o : ../../../../CPP/7zip/Compress/Lz4Register.cpp 
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Register.cpp 
 
+# Xz compile
+XzDecoder.o : ../../../../CPP/7zip/Compress/XzDecoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/XzDecoder.cpp
+XzEncoder.o : ../../../../CPP/7zip/Compress/XzEncoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/XzEncoder.cpp
+
 7zAes.o : ../../../../CPP/7zip/Crypto/7zAes.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Crypto/7zAes.cpp
 7zAesRegister.o : ../../../../CPP/7zip/Crypto/7zAesRegister.cpp
@@ -1139,6 +1147,8 @@ OBJS=\
  Lz4Encoder.o \
  Lz4Register.o \
  Lz4Handler.o \
+ XzDecoder.o \
+ XzEncoder.o \
  dict_buffer.o \
  fl2_common.o \
  fl2_compress.o \

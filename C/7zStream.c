@@ -68,7 +68,7 @@ SRes LookInStream_Read(ILookInStream *stream, void *buf, size_t size)
   return LookInStream_Read2(stream, buf, size, SZ_ERROR_INPUT_EOF);
 }
 
-static SRes LookToRead_Look_Lookahead(void *pp, const void **buf, size_t *size)
+static SRes LookToRead_Look_Lookahead(const ILookInStream *pp, const void **buf, size_t *size)
 {
   SRes res = SZ_OK;
   CLookToRead *p = (CLookToRead *)pp;
@@ -86,7 +86,7 @@ static SRes LookToRead_Look_Lookahead(void *pp, const void **buf, size_t *size)
   return res;
 }
 
-static SRes LookToRead_Look_Exact(void *pp, const void **buf, size_t *size)
+static SRes LookToRead_Look_Exact(const ILookInStream *pp, const void **buf, size_t *size)
 {
   SRes res = SZ_OK;
   CLookToRead *p = (CLookToRead *)pp;
@@ -105,14 +105,14 @@ static SRes LookToRead_Look_Exact(void *pp, const void **buf, size_t *size)
   return res;
 }
 
-static SRes LookToRead_Skip(void *pp, size_t offset)
+static SRes LookToRead_Skip(const ILookInStream *pp, size_t offset)
 {
   CLookToRead *p = (CLookToRead *)pp;
   p->pos += offset;
   return SZ_OK;
 }
 
-static SRes LookToRead_Read(void *pp, void *buf, size_t *size)
+static SRes LookToRead_Read(const ILookInStream *pp, void *buf, size_t *size)
 {
   CLookToRead *p = (CLookToRead *)pp;
   size_t rem = p->size - p->pos;
@@ -126,7 +126,7 @@ static SRes LookToRead_Read(void *pp, void *buf, size_t *size)
   return SZ_OK;
 }
 
-static SRes LookToRead_Seek(void *pp, Int64 *pos, ESzSeek origin)
+static SRes LookToRead_Seek(const ILookInStream *pp, Int64 *pos, ESzSeek origin)
 {
   CLookToRead *p = (CLookToRead *)pp;
   p->pos = p->size = 0;
@@ -147,6 +147,89 @@ void LookToRead_Init(CLookToRead *p)
 {
   p->pos = p->size = 0;
 }
+
+//############################################
+
+#define GET_LookToRead2 CLookToRead2 *p = CONTAINER_FROM_VTBL(pp, CLookToRead2, vt);
+
+static SRes LookToRead2_Look_Lookahead(const ILookInStream *pp, const void **buf, size_t *size)
+{
+  SRes res = SZ_OK;
+  GET_LookToRead2
+  size_t size2 = p->size - p->pos;
+  if (size2 == 0 && *size != 0)
+  {
+    p->pos = 0;
+    p->size = 0;
+    size2 = p->bufSize;
+    res = ISeekInStream_Read(p->realStream, p->buf, &size2);
+    p->size = size2;
+  }
+  if (*size > size2)
+    *size = size2;
+  *buf = p->buf + p->pos;
+  return res;
+}
+
+static SRes LookToRead2_Look_Exact(const ILookInStream *pp, const void **buf, size_t *size)
+{
+  SRes res = SZ_OK;
+  GET_LookToRead2
+  size_t size2 = p->size - p->pos;
+  if (size2 == 0 && *size != 0)
+  {
+    p->pos = 0;
+    p->size = 0;
+    if (*size > p->bufSize)
+      *size = p->bufSize;
+    res = ISeekInStream_Read(p->realStream, p->buf, size);
+    size2 = p->size = *size;
+  }
+  if (*size > size2)
+    *size = size2;
+  *buf = p->buf + p->pos;
+  return res;
+}
+
+static SRes LookToRead2_Skip(const ILookInStream *pp, size_t offset)
+{
+  GET_LookToRead2
+  p->pos += offset;
+  return SZ_OK;
+}
+
+static SRes LookToRead2_Read(const ILookInStream *pp, void *buf, size_t *size)
+{
+  GET_LookToRead2
+  size_t rem = p->size - p->pos;
+  if (rem == 0)
+    return ISeekInStream_Read(p->realStream, buf, size);
+  if (rem > *size)
+    rem = *size;
+  memcpy(buf, p->buf + p->pos, rem);
+  p->pos += rem;
+  *size = rem;
+  return SZ_OK;
+}
+
+static SRes LookToRead2_Seek(const ILookInStream *pp, Int64 *pos, ESzSeek origin)
+{
+  GET_LookToRead2
+  p->pos = p->size = 0;
+  return ISeekInStream_Seek(p->realStream, pos, origin);
+}
+
+void LookToRead2_CreateVTable(CLookToRead2 *p, int lookahead)
+{
+  p->vt.Look = lookahead ?
+      LookToRead2_Look_Lookahead :
+      LookToRead2_Look_Exact;
+  p->vt.Skip = LookToRead2_Skip;
+  p->vt.Read = LookToRead2_Read;
+  p->vt.Seek = LookToRead2_Seek;
+}
+
+//############################################
 
 static SRes SecToLook_Read(const ISeqInStream *pp, void *buf, size_t *size)
 {

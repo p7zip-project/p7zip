@@ -1,5 +1,5 @@
 /* LzFindMt.h -- multithreaded Match finder for LZ algorithms
-2015-05-03 : Igor Pavlov : Public domain */
+2017-04-03 : Igor Pavlov : Public domain */
 
 #ifndef __LZ_FIND_MT_H
 #define __LZ_FIND_MT_H

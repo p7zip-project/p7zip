@@ -4,13 +4,14 @@ on:
     paths-ignore:
       - 'README.md'
       - 'LICENSE'
+      - 'README'
 jobs:
   build:
     name: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1    
-      - name: build 7za
+      - name: build 7za & test
         run: |
              make 7za
              cd ./bin
@@ -22,7 +23,7 @@ jobs:
              rm -rf ./ta.7z ./CPP
              cd ..
              
-      - name: build 7z
+      - name: build 7z & test
         run: |
              make 7z
              cd ./bin

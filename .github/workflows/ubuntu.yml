@@ -40,8 +40,6 @@ jobs:
 
       - name: check
         run: |
-             pwd
-             echo /bin/7za
              cd ./check
              bash check.sh `pwd`/../bin/7za
              bash check.sh `pwd`/../bin/7z

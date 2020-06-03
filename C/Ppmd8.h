@@ -1,5 +1,5 @@
 /* Ppmd8.h -- PPMdI codec
-2011-01-27 : Igor Pavlov : Public domain
+2017-04-03 : Igor Pavlov : Public domain
 This code is based on:
   PPMd var.I (2002): Dmitry Shkarin : Public domain
   Carryless rangecoder (1999): Dmitry Subbotin : Public domain */
@@ -112,7 +112,7 @@ void Ppmd8_Update2(CPpmd8 *p);
 void Ppmd8_UpdateBin(CPpmd8 *p);
 
 #define Ppmd8_GetBinSumm(p) \
-    &p->BinSumm[p->NS2Indx[Ppmd8Context_OneState(p->MinContext)->Freq - 1]][ \
+    &p->BinSumm[p->NS2Indx[(size_t)Ppmd8Context_OneState(p->MinContext)->Freq - 1]][ \
     p->NS2BSIndx[Ppmd8_GetContext(p, p->MinContext->Suffix)->NumStats] + \
     p->PrevSuccess + p->MinContext->Flags + ((p->RunLength >> 26) & 0x20)]
 

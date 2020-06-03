@@ -75,7 +75,7 @@ HRESULT CDecoder::CodeSpec(Byte *memStream, UInt32 size)
   int sym = 0;
   for (i = 0; i != size; i++)
   {
-    sym = Ppmd7_DecodeSymbol(&_ppmd, &_rangeDec.p);
+    sym = Ppmd7_DecodeSymbol(&_ppmd, &_rangeDec.vt);
     if (_inStream.Extra || sym < 0)
       break;
     memStream[i] = (Byte)sym;

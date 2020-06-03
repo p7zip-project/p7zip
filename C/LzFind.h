@@ -1,5 +1,5 @@
 /* LzFind.h -- Match finder for LZ algorithms
-2015-10-15 : Igor Pavlov : Public domain */
+2017-06-10 : Igor Pavlov : Public domain */
 
 #ifndef __LZ_FIND_H
 #define __LZ_FIND_H
@@ -105,7 +105,9 @@ typedef struct _IMatchFinder
 
 void MatchFinder_CreateVTable(CMatchFinder *p, IMatchFinder *vTable);
 
-void MatchFinder_Init_2(CMatchFinder *p, int readData);
+void MatchFinder_Init_LowHash(CMatchFinder *p);
+void MatchFinder_Init_HighHash(CMatchFinder *p);
+void MatchFinder_Init_3(CMatchFinder *p, int readData);
 void MatchFinder_Init(CMatchFinder *p);
 
 UInt32 Bt3Zip_MatchFinder_GetMatches(CMatchFinder *p, UInt32 *distances);

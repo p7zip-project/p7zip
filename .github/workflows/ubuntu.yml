@@ -40,9 +40,8 @@ jobs:
 
       - name: check
         run: |
-             PWD=`pwd`
              pwd
-             echo $(PWD)/bin/7za
+             echo `pwd`/bin/7za
              cd ./check
              bash check.sh $(PWD)/bin/7za
              bash check.sh $(PWD)/bin/7z

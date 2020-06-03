@@ -43,8 +43,8 @@ jobs:
              PWD=`pwd`
              pwd
              echo $(PWD)/bin/7za
-            #  cd ./check
-            #  bash check.sh $(PWD)/bin/7za
-            #  bash check.sh $(PWD)/bin/7z
+             cd ./check
+             bash check.sh $(PWD)/bin/7za
+             bash check.sh $(PWD)/bin/7z
              cd ..
         

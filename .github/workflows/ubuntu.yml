@@ -45,4 +45,6 @@ jobs:
              bash check.sh `pwd`/../bin/7za
              bash check.sh `pwd`/../bin/7z
              cd ..
-        
+
+      - name: clean
+        run: make clean

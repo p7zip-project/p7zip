@@ -37,14 +37,6 @@ jobs:
       - name: build sfx
         run: |
              make sfx
-             cd ./bin
-             7z a t.7z ../CPP
-             7z x t.7z
-             echo "compare file"
-             diff -r ../CPP ./CPP
-             echo "delete tmp file"
-             rm -rf ./t.7z ./CPP
-             cd ..
 
       - name: check
         run: |

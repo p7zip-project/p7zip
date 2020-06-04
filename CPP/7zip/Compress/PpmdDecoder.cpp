@@ -134,6 +134,13 @@ STDMETHODIMP CDecoder::SetOutStreamSize(const UInt64 *outSize)
   return S_OK;
 }
 
+
+STDMETHODIMP CDecoder::GetInStreamProcessedSize(UInt64 *value)
+{
+  *value = _inStream.GetProcessed();
+  return S_OK;
+}
+
 #ifndef NO_READ_FROM_CODER
 
 STDMETHODIMP CDecoder::SetInStream(ISequentialInStream *inStream)

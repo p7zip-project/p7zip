@@ -199,6 +199,10 @@ CODER_INTERFACE(ICompressSetFinishMode, 0x26)
     1 : full decoding. The stream must be finished at the end of decoding. */
 };
 
+CODER_INTERFACE(ICompressGetInStreamProcessedSize2, 0x27)
+{
+  STDMETHOD(GetInStreamProcessedSize2)(UInt32 streamIndex, UInt64 *value) PURE;
+};
 
 CODER_INTERFACE(ICompressGetSubStreamSize, 0x30)
 {

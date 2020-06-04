@@ -126,6 +126,7 @@ typedef int Bool;
 #else
 
 #define MY_NO_INLINE
+#define MY_FORCE_INLINE
 #define MY_CDECL
 #define MY_FAST_CALL
 

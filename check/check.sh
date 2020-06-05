@@ -109,6 +109,7 @@ sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -fr 7za433_7zip_lzma
 # FIXME - only for 7zG
 sure chmod +x ./7za433_7zip_lzma.x
+# sure ${P7ZIP} x -sfx7zCon.sfx 7za433_7zip_lzma.x
 sure ${TOOLS} ./7za433_7zip_lzma.x
 sure diff -r 7za433_ref 7za433_7zip_lzma
 

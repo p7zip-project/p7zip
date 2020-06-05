@@ -12,7 +12,7 @@ This is the place for the active development of p7zip to include major modern co
 [ubuntu-badge]: https://github.com/2273816832/test_github_action/workflows/Ubuntu/badge.svg "Ubuntu"
 
 ## Codec overview
-1. [Zstandard] v1.4.4 is a real-time compression algorithm, providing high compression ratios. It offers a very wide range of compression / speed trade-off, while being backed by a very fast decoder.
+1. [Zstandard] v1.4.5 is a real-time compression algorithm, providing high compression ratios. It offers a very wide range of compression / speed trade-off, while being backed by a very fast decoder.
    - Levels: 1..22
 
 2. [LZ4] v1.9.2 is lossless compression algorithm, providing compression speed at 400 MB/s per core (0.16 Bytes/cycle). It features an extremely fast decoder, with speed in multiple GB/s per core (0.71 Bytes/cycle). A high compression derivative, called LZ4_HC, is available, trading customizable CPU time for compression ratio.
@@ -114,7 +114,7 @@ Hashers:
 
 - p7zip Version 17.01
   - [LZ4] Version 1.9.2
-  - [Zstandard] Version 1.4.4
+  - [Zstandard] Version 1.4.5
   - [Fast LZMA2] Version v1.0.1
   
 ## Working Plan

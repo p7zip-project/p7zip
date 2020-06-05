@@ -180,25 +180,29 @@ typedef enum
   SZ_SEEK_END = 2
 } ESzSeek;
 
-typedef struct
+typedef struct ISeekInStream ISeekInStream;
+struct ISeekInStream
 {
-  SRes (*Read)(void *p, void *buf, size_t *size);  /* same as ISeqInStream::Read */
-  SRes (*Seek)(void *p, Int64 *pos, ESzSeek origin);
-} ISeekInStream;
+  SRes (*Read)(const ISeekInStream *p, void *buf, size_t *size);  /* same as ISeqInStream::Read */
+  SRes (*Seek)(const ISeekInStream *p, Int64 *pos, ESzSeek origin);
+};
+#define ISeekInStream_Read(p, buf, size)   (p)->Read(p, buf, size)
+#define ISeekInStream_Seek(p, pos, origin) (p)->Seek(p, pos, origin)
 
-typedef struct
+typedef struct ILookInStream ILookInStream;
+struct ILookInStream
 {
-  SRes (*Look)(void *p, const void **buf, size_t *size);
+  SRes (*Look)(const ILookInStream *p, const void **buf, size_t *size);
     /* if (input(*size) != 0 && output(*size) == 0) means end_of_stream.
        (output(*size) > input(*size)) is not allowed
        (output(*size) < input(*size)) is allowed */
-  SRes (*Skip)(void *p, size_t offset);
+  SRes (*Skip)(const ILookInStream *p, size_t offset);
     /* offset must be <= output(*size) of Look */
 
-  SRes (*Read)(void *p, void *buf, size_t *size);
+  SRes (*Read)(const ILookInStream *p, void *buf, size_t *size);
     /* reads directly (without buffer). It's same as ISeqInStream::Read */
-  SRes (*Seek)(void *p, Int64 *pos, ESzSeek origin);
-} ILookInStream;
+  SRes (*Seek)(const ILookInStream *p, Int64 *pos, ESzSeek origin);
+};
 
 #define ILookInStream_Look(p, buf, size)   (p)->Look(p, buf, size)
 #define ILookInStream_Skip(p, offset)      (p)->Skip(p, offset)
@@ -214,6 +218,23 @@ SRes LookInStream_Read2(ILookInStream *stream, void *buf, size_t size, SRes erro
 SRes LookInStream_Read(ILookInStream *stream, void *buf, size_t size);
 
 #define LookToRead_BUF_SIZE (1 << 14)
+
+typedef struct
+{
+  ILookInStream vt;
+  const ISeekInStream *realStream;
+ 
+  size_t pos;
+  size_t size; /* it's data size */
+  
+  /* the following variables must be set outside */
+  Byte *buf;
+  size_t bufSize;
+} CLookToRead2;
+
+void LookToRead2_CreateVTable(CLookToRead2 *p, int lookahead);
+
+#define LookToRead2_Init(p) { (p)->pos = (p)->size = 0; }
 
 typedef struct
 {

@@ -176,6 +176,7 @@ bool StringsAreEqualNoCase(const wchar_t *s1, const wchar_t *s2) throw();
 
 bool IsString1PrefixedByString2(const char *s1, const char *s2) throw();
 bool IsString1PrefixedByString2(const wchar_t *s1, const wchar_t *s2) throw();
+bool IsString1PrefixedByString2_NoCase_Ascii(const wchar_t *u, const char *a) throw();
 bool IsString1PrefixedByString2_NoCase(const wchar_t *s1, const wchar_t *s2) throw();
 
 int MyStringCompareNoCase(const wchar_t *s1, const wchar_t *s2) throw();
@@ -300,6 +301,7 @@ public:
   
   void Add_Space();
   void Add_Space_if_NotEmpty();
+  void Add_OptSpaced(const char *s);
   void Add_LF();
   void Add_PathSepar() { operator+=(CHAR_PATH_SEPARATOR); }
 
@@ -307,6 +309,8 @@ public:
   AString &operator+=(const AString &s);
   void AddAscii(const char *s) { operator+=(s); }
 
+  void Add_UInt32(UInt32 v);
+  
   void SetFrom(const char *s, unsigned len); // no check
   void SetFrom_CalcLen(const char *s, unsigned len);
   // void SetFromAscii(const char *s) { operator+=(s); }

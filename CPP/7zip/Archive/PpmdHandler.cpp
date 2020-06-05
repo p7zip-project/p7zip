@@ -251,13 +251,13 @@ public:
 
 extern "C" {
 
-static UInt32 Range_GetThreshold(void *pp, UInt32 total)
+static UInt32 Range_GetThreshold(const IPpmd7_RangeDec *pp, UInt32 total)
 {
   CRangeDecoder *p = (CRangeDecoder *)pp;
   return p->Code / (p->Range /= total);
 }
 
-static void Range_Decode(void *pp, UInt32 start, UInt32 size)
+static void Range_Decode(const IPpmd7_RangeDec *pp, UInt32 start, UInt32 size)
 {
   CRangeDecoder *p = (CRangeDecoder *)pp;
   start *= p->Range;
@@ -267,17 +267,17 @@ static void Range_Decode(void *pp, UInt32 start, UInt32 size)
   p->Normalize();
 }
 
-static UInt32 Range_DecodeBit(void *pp, UInt32 size0)
+static UInt32 Range_DecodeBit(const IPpmd7_RangeDec *pp, UInt32 size0)
 {
   CRangeDecoder *p = (CRangeDecoder *)pp;
   if (p->Code / (p->Range >>= 14) < size0)
   {
-    Range_Decode(p, 0, size0);
+    Range_Decode(&p->s, 0, size0);
     return 0;
   }
   else
   {
-    Range_Decode(p, size0, (1 << 14) - size0);
+    Range_Decode(&p->s, size0, (1 << 14) - size0);
     return 1;
   }
 }

@@ -87,6 +87,11 @@ HRESULT CDecoder::CodeSpec(ISequentialInStream * inStream,
     _dstBuf = MyAlloc(_dstBufSize);
     if (!_dstBuf)
       return E_OUTOFMEMORY;
+
+    result = ZSTD_DCtx_setParameter(_ctx, ZSTD_d_windowLogMax, ZSTD_WINDOWLOG_MAX);
+    if(ZSTD_isError(result))
+      return E_OUTOFMEMORY;
+
   } else {
     ZSTD_resetDStream(_ctx);
   }
@@ -110,8 +115,21 @@ HRESULT CDecoder::CodeSpec(ISequentialInStream * inStream,
       zOut.pos = 0;
 
       result = ZSTD_decompressStream(_ctx, &zOut, &zIn);
-      if (ZSTD_isError(result))
-        return E_FAIL;
+      if (ZSTD_isError(result)){
+        switch (ZSTD_getErrorCode(result)) {
+          case ZSTD_error_memory_allocation:
+            return E_OUTOFMEMORY;
+          case ZSTD_error_frameParameter_unsupported:
+          case ZSTD_error_parameter_unsupported:
+          case ZSTD_error_version_unsupported:
+            return E_NOTIMPL;
+          case ZSTD_error_frameParameter_windowTooLarge:
+          case ZSTD_error_parameter_outOfBound:
+            return E_INVALIDARG;
+          default:
+            return E_FAIL;
+        }
+      }
 
 #if DEBUG
       printf("res       = %u\n", (unsigned)result);

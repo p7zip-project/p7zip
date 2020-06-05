@@ -8,6 +8,9 @@
 #include <ctype.h>
 #endif
 
+#include "IntToString.h"
+
+
 #if !defined(_UNICODE) || !defined(USE_UNICODE_FSTRING)
 #include "StringConvert.h"
 #endif
@@ -279,6 +282,17 @@ bool IsString1PrefixedByString2(const wchar_t *s1, const wchar_t *s2) throw()
   {
     wchar_t c2 = *s2++; if (c2 == 0) return true;
     wchar_t c1 = *s1++; if (c1 != c2) return false;
+  }
+}
+
+bool IsString1PrefixedByString2_NoCase_Ascii(const wchar_t *s1, const char *s2) throw()
+{
+  for (;;)
+  {
+    char c2 = *s2++; if (c2 == 0) return true;
+    wchar_t c1 = *s1++;
+    if (c1 != (unsigned char)c2 && MyCharLower_Ascii(c1) != (unsigned char)MyCharLower_Ascii(c2))
+      return false;
   }
 }
 
@@ -577,12 +591,25 @@ AString &AString::operator+=(const char *s)
   return *this;
 }
 
+void AString::Add_OptSpaced(const char *s)
+{
+  Add_Space_if_NotEmpty();
+  (*this) += s;
+}
+
 AString &AString::operator+=(const AString &s)
 {
   Grow(s._len);
   MyStringCopy(_chars + _len, s._chars);
   _len += s._len;
   return *this;
+}
+
+void AString::Add_UInt32(UInt32 v)
+{
+  char sz[16];
+  ConvertUInt32ToString(v, sz);
+  (*this) += sz;
 }
 
 void AString::SetFrom(const char *s, unsigned len) // no check

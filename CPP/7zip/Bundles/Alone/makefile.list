@@ -138,6 +138,8 @@ SRCS=\
   ../../../../CPP/7zip/Compress/Lz4Decoder.cpp \
   ../../../../CPP/7zip/Compress/Lz4Encoder.cpp \
   ../../../../CPP/7zip/Compress/Lz4Register.cpp \
+  ../../../../CPP/7zip/Compress/XzDecoder.cpp \
+  ../../../../CPP/7zip/Compress/XzEncoder.cpp \
   ../../../../CPP/7zip/Crypto/7zAes.cpp \
   ../../../../CPP/7zip/Crypto/7zAesRegister.cpp \
   ../../../../CPP/7zip/Crypto/HmacSha1.cpp \
@@ -263,6 +265,7 @@ SRCS_C=\
   ../../../../C/zstd/zstd_compress.c \
   ../../../../C/zstd/zstd_compress_literals.c \
   ../../../../C/zstd/zstd_compress_sequences.c \
+  ../../../../C/zstd/zstd_compress_superblock.c \
   ../../../../C/zstd/zstd_ddict.c \
   ../../../../C/zstd/zstd_decompress.c \
   ../../../../C/zstd/zstd_decompress_block.c \
@@ -409,6 +412,8 @@ zstd_compress_literals.o : ../../../../C/zstd/zstd_compress_literals.c
 	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_compress_literals.c 
 zstd_compress_sequences.o : ../../../../C/zstd/zstd_compress_sequences.c 
 	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_compress_sequences.c 
+zstd_compress_superblock.o : ../../../../C/zstd/zstd_compress_superblock.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_compress_superblock.c 
 zstd_ddict.o : ../../../../C/zstd/zstd_ddict.c 
 	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_ddict.c 
 zstd_decompress.o : ../../../../C/zstd/zstd_decompress.c 
@@ -729,6 +734,12 @@ Lz4Encoder.o : ../../../../CPP/7zip/Compress/Lz4Encoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Encoder.cpp 
 Lz4Register.o : ../../../../CPP/7zip/Compress/Lz4Register.cpp 
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Register.cpp 
+
+# Xz compile
+XzDecoder.o : ../../../../CPP/7zip/Compress/XzDecoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/XzDecoder.cpp
+XzEncoder.o : ../../../../CPP/7zip/Compress/XzEncoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/XzEncoder.cpp
 
 7zAes.o : ../../../../CPP/7zip/Crypto/7zAes.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Crypto/7zAes.cpp
@@ -1108,6 +1119,7 @@ OBJS=\
  zstd_compress.o \
  zstd_compress_literals.o \
  zstd_compress_sequences.o \
+ zstd_compress_superblock.o\
  zstd_ddict.o \
  zstd_decompress.o \
  zstd_decompress_block.o \
@@ -1139,6 +1151,8 @@ OBJS=\
  Lz4Encoder.o \
  Lz4Register.o \
  Lz4Handler.o \
+ XzDecoder.o \
+ XzEncoder.o \
  dict_buffer.o \
  fl2_common.o \
  fl2_compress.o \

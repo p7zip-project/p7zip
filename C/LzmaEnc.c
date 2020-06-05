@@ -1,5 +1,5 @@
 /* LzmaEnc.c -- LZMA Encoder
-2016-05-16 : Igor Pavlov : Public domain */
+2017-06-22 : Igor Pavlov : Public domain */
 
 #include "Precomp.h"
 
@@ -526,7 +526,7 @@ static int RangeEnc_Alloc(CRangeEnc *p, ISzAllocPtr alloc)
 {
   if (!p->bufBase)
   {
-    p->bufBase = (Byte *)alloc->Alloc(alloc, RC_BUF_SIZE);
+    p->bufBase = (Byte *)ISzAlloc_Alloc(alloc, RC_BUF_SIZE);
     if (!p->bufBase)
       return 0;
     p->bufLim = p->bufBase + RC_BUF_SIZE;
@@ -536,7 +536,7 @@ static int RangeEnc_Alloc(CRangeEnc *p, ISzAllocPtr alloc)
 
 static void RangeEnc_Free(CRangeEnc *p, ISzAllocPtr alloc)
 {
-  alloc->Free(alloc, p->bufBase);
+  ISzAlloc_Free(alloc, p->bufBase);
   p->bufBase = 0;
 }
 
@@ -560,7 +560,7 @@ static void RangeEnc_FlushStream(CRangeEnc *p)
   if (p->res != SZ_OK)
     return;
   num = p->buf - p->bufBase;
-  if (num != p->outStream->Write(p->outStream, p->bufBase, num))
+  if (num != ISeqOutStream_Write(p->outStream, p->bufBase, num))
     p->res = SZ_ERROR_WRITE;
   p->processed += num;
   p->buf = p->bufBase;
@@ -1607,7 +1607,7 @@ static UInt32 GetOptimumFast(CLzmaEnc *p, UInt32 *backRes)
   matches = p->matches;
   if (mainLen >= p->numFastBytes)
   {
-    *backRes = matches[numPairs - 1] + LZMA_NUM_REPS;
+    *backRes = matches[(size_t)numPairs - 1] + LZMA_NUM_REPS;
     MovePos(p, mainLen - 1);
     return mainLen;
   }
@@ -1775,7 +1775,7 @@ void LzmaEnc_Construct(CLzmaEnc *p)
 CLzmaEncHandle LzmaEnc_Create(ISzAllocPtr alloc)
 {
   void *p;
-  p = alloc->Alloc(alloc, sizeof(CLzmaEnc));
+  p = ISzAlloc_Alloc(alloc, sizeof(CLzmaEnc));
   if (p)
     LzmaEnc_Construct((CLzmaEnc *)p);
   return p;
@@ -1783,8 +1783,8 @@ CLzmaEncHandle LzmaEnc_Create(ISzAllocPtr alloc)
 
 void LzmaEnc_FreeLits(CLzmaEnc *p, ISzAllocPtr alloc)
 {
-  alloc->Free(alloc, p->litProbs);
-  alloc->Free(alloc, p->saveState.litProbs);
+  ISzAlloc_Free(alloc, p->litProbs);
+  ISzAlloc_Free(alloc, p->saveState.litProbs);
   p->litProbs = NULL;
   p->saveState.litProbs = NULL;
 }
@@ -1803,7 +1803,7 @@ void LzmaEnc_Destruct(CLzmaEnc *p, ISzAllocPtr alloc, ISzAllocPtr allocBig)
 void LzmaEnc_Destroy(CLzmaEncHandle p, ISzAllocPtr alloc, ISzAllocPtr allocBig)
 {
   LzmaEnc_Destruct((CLzmaEnc *)p, alloc, allocBig);
-  alloc->Free(alloc, p);
+  ISzAlloc_Free(alloc, p);
 }
 
 static SRes LzmaEnc_CodeOneBlock(CLzmaEnc *p, Bool useLimits, UInt32 maxPackSize, UInt32 maxUnpackSize)
@@ -1985,8 +1985,8 @@ static SRes LzmaEnc_Alloc(CLzmaEnc *p, UInt32 keepWindowSize, ISzAllocPtr alloc,
     if (!p->litProbs || !p->saveState.litProbs || p->lclp != lclp)
     {
       LzmaEnc_FreeLits(p, alloc);
-      p->litProbs = (CLzmaProb *)alloc->Alloc(alloc, ((UInt32)0x300 << lclp) * sizeof(CLzmaProb));
-      p->saveState.litProbs = (CLzmaProb *)alloc->Alloc(alloc, ((UInt32)0x300 << lclp) * sizeof(CLzmaProb));
+      p->litProbs = (CLzmaProb *)ISzAlloc_Alloc(alloc, ((UInt32)0x300 << lclp) * sizeof(CLzmaProb));
+      p->saveState.litProbs = (CLzmaProb *)ISzAlloc_Alloc(alloc, ((UInt32)0x300 << lclp) * sizeof(CLzmaProb));
       if (!p->litProbs || !p->saveState.litProbs)
       {
         LzmaEnc_FreeLits(p, alloc);
@@ -2165,15 +2165,15 @@ void LzmaEnc_Finish(CLzmaEncHandle pp)
 
 typedef struct
 {
-  ISeqOutStream funcTable;
+  ISeqOutStream vt;
   Byte *data;
   SizeT rem;
   Bool overflow;
-} CSeqOutStreamBuf;
+} CLzmaEnc_SeqOutStreamBuf;
 
-static size_t MyWrite(const ISeqOutStream *pp, const void *data, size_t size)
+static size_t SeqOutStreamBuf_Write(const ISeqOutStream *pp, const void *data, size_t size)
 {
-  CSeqOutStreamBuf *p = CONTAINER_FROM_VTBL(pp, CSeqOutStreamBuf, funcTable);
+  CLzmaEnc_SeqOutStreamBuf *p = CONTAINER_FROM_VTBL(pp, CLzmaEnc_SeqOutStreamBuf, vt);
   if (p->rem < size)
   {
     size = p->rem;
@@ -2206,9 +2206,9 @@ SRes LzmaEnc_CodeOneMemBlock(CLzmaEncHandle pp, Bool reInit,
   CLzmaEnc *p = (CLzmaEnc *)pp;
   UInt64 nowPos64;
   SRes res;
-  CSeqOutStreamBuf outStream;
+  CLzmaEnc_SeqOutStreamBuf outStream;
 
-  outStream.funcTable.Write = MyWrite;
+  outStream.vt.Write = SeqOutStreamBuf_Write;
   outStream.data = dest;
   outStream.rem = *destLen;
   outStream.overflow = False;
@@ -2222,7 +2222,7 @@ SRes LzmaEnc_CodeOneMemBlock(CLzmaEncHandle pp, Bool reInit,
   LzmaEnc_InitPrices(p);
   nowPos64 = p->nowPos64;
   RangeEnc_Init(&p->rc);
-  p->rc.outStream = &outStream.funcTable;
+  p->rc.outStream = &outStream.vt;
 
   res = LzmaEnc_CodeOneBlock(p, True, desiredPackSize, *unpackSize);
   
@@ -2264,7 +2264,7 @@ static SRes LzmaEnc_Encode2(CLzmaEnc *p, ICompressProgress *progress)
   LzmaEnc_Finish(p);
 
   /*
-  if (res == S_OK && !Inline_MatchFinder_IsFinishedOK(&p->matchFinderBase))
+  if (res == SZ_OK && !Inline_MatchFinder_IsFinishedOK(&p->matchFinderBase))
     res = SZ_ERROR_FAIL;
   }
   */
@@ -2308,10 +2308,12 @@ SRes LzmaEnc_WriteProperties(CLzmaEncHandle pp, Byte *props, SizeT *size)
   return SZ_OK;
 }
 
+
 unsigned LzmaEnc_IsWriteEndMark(CLzmaEncHandle pp)
 {
   return ((CLzmaEnc *)pp)->writeEndMark;
 }
+
 
 SRes LzmaEnc_MemEncode(CLzmaEncHandle pp, Byte *dest, SizeT *destLen, const Byte *src, SizeT srcLen,
     int writeEndMark, ICompressProgress *progress, ISzAllocPtr alloc, ISzAllocPtr allocBig)
@@ -2319,15 +2321,15 @@ SRes LzmaEnc_MemEncode(CLzmaEncHandle pp, Byte *dest, SizeT *destLen, const Byte
   SRes res;
   CLzmaEnc *p = (CLzmaEnc *)pp;
 
-  CSeqOutStreamBuf outStream;
+  CLzmaEnc_SeqOutStreamBuf outStream;
 
-  outStream.funcTable.Write = MyWrite;
+  outStream.vt.Write = SeqOutStreamBuf_Write;
   outStream.data = dest;
   outStream.rem = *destLen;
   outStream.overflow = False;
 
   p->writeEndMark = writeEndMark;
-  p->rc.outStream = &outStream.funcTable;
+  p->rc.outStream = &outStream.vt;
 
   res = LzmaEnc_MemPrepare(pp, src, srcLen, 0, alloc, allocBig);
   

@@ -112,6 +112,18 @@ sure ${P7ZIP} a -t7z 7za433_7zip_zstd.7z 7za433_7zip_lzma -m0=zstd -mx=22 # mx=l
 
 sure ${P7ZIP} a -t7z 7za433_7zip_lz4.7z 7za433_7zip_lzma -m0=lz4 -mmt=on # mmt=multithreading mode
 
+sure ${P7ZIP} a -t7z 7za433_7zip_lzma3.7z 7za433_7zip_lzma -m0=LZMA -mf=BCJ # mf=FilterID
+
+sure ${P7ZIP} a -t7z 7za433_7zip_lzma4.7z 7za433_7zip_lzma -m0=LZMA -mf=ARM
+
+sure ${P7ZIP} a -t7z 7za433_7zip_lzma5.7z 7za433_7zip_lzma -m0=LZMA -mf=ARMT -mtm=on # mt=multithreading mode
+
+sure ${P7ZIP} a -t7z 7za433_7zip_lzma6.7z 7za433_7zip_lzma -m0=LZMA -mf=BCJ2 -mtc=on # tc=Creation timestamps
+
+sure ${P7ZIP} a -t7z 7za433_7zip_lzma7.7z 7za433_7zip_lzma -m0=LZMA -mf=SPARC -mta=on # mta=last Access timestamps
+
+sure ${P7ZIP} a -t7z 7za433_7zip.7z 7za433_7zip_lzma -m0=bcj -m1=zstd -mx=22
+
 sure ${P7ZIP} a -tzip 7za433_7zip_lzma.zip 7za433_7zip_lzma
 
 sure ${P7ZIP} a -tzip 7za433_7zip_ZipCrypto.zip 7za433_7zip_lzma -mem=ZipCrypto # mem=Encryption MethodID
@@ -131,18 +143,6 @@ sure ${P7ZIP} a -tzip 7za433_7zip_BZip2.zip 7za433_7zip_lzma -mm=BZip2 -md=32m #
 sure ${P7ZIP} a -tzip 7za433_7zip_PPMd.zip 7za433_7zip_lzma -mm=PPMd -mmem=24m -mo=8 # mo=model order for PPMd & mmem={Size}[b|k|m]
 
 sure ${P7ZIP} a -tzip 7za433_7zip_mc.zip 7za433_7zip_lzma -mcl=on -mcp=2 # mcl=local code page & mcp=code page
-
-sure ${P7ZIP} a -t7z 7za433_7zip_lzma3.7z 7za433_7zip_lzma -m0=LZMA -mf=BCJ # mf=FilterID
-
-sure ${P7ZIP} a -t7z 7za433_7zip_lzma4.7z 7za433_7zip_lzma -m0=LZMA -mf=ARM
-
-sure ${P7ZIP} a -t7z 7za433_7zip_lzma5.7z 7za433_7zip_lzma -m0=LZMA -mf=ARMT -mtm=on # mt=multithreading mode
-
-sure ${P7ZIP} a -t7z 7za433_7zip_lzma6.7z 7za433_7zip_lzma -m0=LZMA -mf=BCJ2 -mtc=on # tc=Creation timestamps
-
-sure ${P7ZIP} a -t7z 7za433_7zip_lzma7.7z 7za433_7zip_lzma -m0=LZMA -mf=SPARC -mta=on # mta=last Access timestamps
-
-sure ${P7ZIP} a -t7z 7za433_7zip.7z 7za433_7zip_lzma -m0=bcj -m1=zstd -mx=22
 
 sure ${P7ZIP} a -tzip -paaa 7za433_7zip_AES128.zip 7za433_7zip_lzma -mem=AES128 
 
@@ -213,6 +213,30 @@ sure ${P7ZIP} x 7za433_7zip_lz4.7z
 sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 
+sure ${P7ZIP} x 7za433_7zip_lzma3.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lzma4.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lzma5.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lzma6.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lzma7.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
 sure ${P7ZIP} x 7za433_7zip_lzma.zip
 sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
@@ -250,30 +274,6 @@ sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 
 sure ${P7ZIP} x 7za433_7zip_mc.zip
-sure diff -r 7za433_ref 7za433_7zip_lzma
-sure rm -rf 7za433_7zip_lzma
-
-sure ${P7ZIP} x 7za433_7zip_lzma3.7z
-sure diff -r 7za433_ref 7za433_7zip_lzma
-sure rm -rf 7za433_7zip_lzma
-
-sure ${P7ZIP} x 7za433_7zip_lzma4.7z
-sure diff -r 7za433_ref 7za433_7zip_lzma
-sure rm -rf 7za433_7zip_lzma
-
-sure ${P7ZIP} x 7za433_7zip_lzma5.7z
-sure diff -r 7za433_ref 7za433_7zip_lzma
-sure rm -rf 7za433_7zip_lzma
-
-sure ${P7ZIP} x 7za433_7zip_lzma6.7z
-sure diff -r 7za433_ref 7za433_7zip_lzma
-sure rm -rf 7za433_7zip_lzma
-
-sure ${P7ZIP} x 7za433_7zip_lzma7.7z
-sure diff -r 7za433_ref 7za433_7zip_lzma
-sure rm -rf 7za433_7zip_lzma
-
-sure ${P7ZIP} x 7za433_7zip.7z
 sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 

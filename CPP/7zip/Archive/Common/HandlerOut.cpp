@@ -20,6 +20,13 @@ static void SetMethodProp32(COneMethodInfo &m, PROPID propID, UInt32 value)
     m.AddProp32(propID, value);
 }
 
+void CMultiMethodProps::SetGlobalLevelTo(COneMethodInfo &oneMethodInfo) const
+{
+  UInt32 level = _level;
+  if (level != (UInt32)(Int32)-1)
+    SetMethodProp32(oneMethodInfo, NCoderPropID::kLevel, (UInt32)level);
+}
+
 void CMultiMethodProps::SetGlobalLevelAndThreads(COneMethodInfo &oneMethodInfo
     #ifndef _7ZIP_ST
     , UInt32 numThreads

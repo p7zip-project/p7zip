@@ -153,7 +153,7 @@ IMP_IInArchive_ArcProps
 
 static bool ParseUInt64(const CXmlItem &item, const char *name, UInt64 &res)
 {
-  const AString s = item.GetSubStringForTag(name);
+  const AString s (item.GetSubStringForTag(name));
   if (s.IsEmpty())
     return false;
   const char *end;
@@ -163,7 +163,7 @@ static bool ParseUInt64(const CXmlItem &item, const char *name, UInt64 &res)
 
 static UInt64 ParseTime(const CXmlItem &item, const char *name)
 {
-  const AString s = item.GetSubStringForTag(name);
+  const AString s (item.GetSubStringForTag(name));
   if (s.Len() < 20)
     return 0;
   const char *p = s;
@@ -198,10 +198,10 @@ static bool ParseSha1(const CXmlItem &item, const char *name, Byte *digest)
   if (index < 0)
     return false;
   const CXmlItem &checkItem = item.SubItems[index];
-  const AString style = checkItem.GetPropVal("style");
+  const AString style (checkItem.GetPropVal("style"));
   if (style == "SHA1")
   {
-    const AString s = checkItem.GetSubString();
+    const AString s (checkItem.GetSubString());
     if (s.Len() != SHA1_DIGEST_SIZE * 2)
       return false;
     for (unsigned i = 0; i < s.Len(); i += 2)
@@ -227,7 +227,7 @@ static bool AddItem(const CXmlItem &item, CObjectVector<CFile> &files, int paren
     file.Parent = parent;
     parent = files.Size();
     file.Name = item.GetSubStringForTag("name");
-    AString type = item.GetSubStringForTag("type");
+    const AString type (item.GetSubStringForTag("type"));
     if (type == "directory")
       file.IsDir = true;
     else if (type == "file")
@@ -254,14 +254,14 @@ static bool AddItem(const CXmlItem &item, CObjectVector<CFile> &files, int paren
         const CXmlItem &encodingItem = dataItem.SubItems[encodingIndex];
         if (encodingItem.IsTag)
         {
-          AString s = encodingItem.GetPropVal("style");
-          if (s.Len() >= 0)
+          AString s (encodingItem.GetPropVal("style"));
+          if (!s.IsEmpty())
           {
-            AString appl = "application/";
+            const AString appl ("application/");
             if (s.IsPrefixedBy(appl))
             {
               s.DeleteFrontal(appl.Len());
-              AString xx = "x-";
+              const AString xx ("x-");
               if (s.IsPrefixedBy(xx))
               {
                 s.DeleteFrontal(xx.Len());
@@ -280,7 +280,7 @@ static bool AddItem(const CXmlItem &item, CObjectVector<CFile> &files, int paren
     file.ATime = ParseTime(item, "atime");
 
     {
-      const AString s = item.GetSubStringForTag("mode");
+      const AString s (item.GetSubStringForTag("mode"));
       if (s[0] == '0')
       {
         const char *end;
@@ -365,12 +365,12 @@ HRESULT CHandler::Open2(IInStream *stream)
   {
     const CFile &file = _files[i];
     file.UpdateTotalPackSize(totalPackSize);
-    if (file.Name == "Payload")
+    if (file.Name == "Payload" || file.Name == "Content")
     {
       _mainSubfile = i;
       numMainFiles++;
     }
-    if (file.Name == "PackageInfo")
+    else if (file.Name == "PackageInfo")
       _is_pkg = true;
   }
 
@@ -723,7 +723,7 @@ STDMETHODIMP CHandler::GetStream(UInt32 index, ISequentialInStream **stream)
 static const Byte k_Signature[] = { 'x', 'a', 'r', '!', 0, 0x1C };
 
 REGISTER_ARC_I(
-  "Xar", "xar pkg", 0, 0xE1,
+  "Xar", "xar pkg xip", 0, 0xE1,
   k_Signature,
   0,
   0,

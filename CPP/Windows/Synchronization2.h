@@ -170,6 +170,12 @@ public:
       return 0;
     return CBaseEventWFMO::Create(sync,false, false);
   }
+  WRes CreateIfNotCreated()
+  {
+    if (IsCreated())
+      return 0;
+    return CBaseEventWFMO::Create(_sync, false, false);
+  }
 };
 
 class CSemaphoreWFMO : public CBaseHandleWFMO

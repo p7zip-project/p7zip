@@ -37,6 +37,10 @@ public:
 
   HRes AllocateSpace(NWindows::NSynchronization::CSynchro *sync ,size_t numBlocks, size_t numNoLockBlocks = 0);
   HRes AllocateSpaceAlways(NWindows::NSynchronization::CSynchro *sync, size_t desiredNumberOfBlocks, size_t numNoLockBlocks = 0);
+  
+  // HRes AllocateSpace(size_t numBlocks, size_t numNoLockBlocks = 0);
+  // HRes AllocateSpaceAlways(size_t desiredNumberOfBlocks, size_t numNoLockBlocks = 0);
+
   void FreeSpace();
   void *AllocateBlock();
   void FreeBlock(void *p, bool lockMode = true);

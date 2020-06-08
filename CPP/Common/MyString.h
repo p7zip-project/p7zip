@@ -456,7 +456,7 @@ class UString
 
   // ---------- forbidden functions ----------
   
-  UString &operator+=(char c);
+  // UString &operator+=(char c);
   UString &operator+=(unsigned char c);
   UString &operator=(char c);
   UString &operator=(unsigned char c);
@@ -480,6 +480,7 @@ public:
   UString(wchar_t c);
   UString(const wchar_t *s);
   UString(const UString &s);
+  explicit UString(const char *s);
   ~UString() { MY_STRING_DELETE(_chars); }
 
   unsigned Len() const { return _len; }
@@ -523,6 +524,8 @@ public:
   UString &operator=(const wchar_t *s);
   UString &operator=(const UString &s);
   void SetFromBstr(BSTR s);
+  UString &operator=(const char *s);
+  UString &operator=(const AString &s) { return operator=(s.Ptr()); }
 
   UString &operator+=(wchar_t c)
   {
@@ -536,6 +539,8 @@ public:
     return *this;
   }
 
+  UString &operator+=(char c) { return (*this)+=((wchar_t)(unsigned char)c); }
+
   void Add_Space();
   void Add_Space_if_NotEmpty();
   void Add_LF();
@@ -543,6 +548,10 @@ public:
 
   UString &operator+=(const wchar_t *s);
   UString &operator+=(const UString &s);
+  UString &operator+=(const char *s);
+  UString &operator+=(const AString &s) { return operator+=(s.Ptr()); }
+
+  void Add_UInt32(UInt32 v);
 
   void SetFrom(const wchar_t *s, unsigned len); // no check
 

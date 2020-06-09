@@ -458,7 +458,7 @@ class UString
   
   // UString &operator+=(char c);
   UString &operator+=(unsigned char c);
-  UString &operator=(char c);
+  // UString &operator=(char c);
   UString &operator=(unsigned char c);
   UString(char c);
   UString(unsigned char c);
@@ -521,6 +521,7 @@ public:
   }
 
   UString &operator=(wchar_t c);
+  UString &operator=(char c) { return (*this)=((wchar_t)c); }
   UString &operator=(const wchar_t *s);
   UString &operator=(const UString &s);
   void SetFromBstr(BSTR s);

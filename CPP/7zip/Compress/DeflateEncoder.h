@@ -6,7 +6,6 @@
 #include "../../../C/LzFind.h"
 
 #include "../../Common/MyCom.h"
-#include "../Common/CWrappers.h"
 
 #include "../ICoder.h"
 
@@ -47,11 +46,6 @@ struct CTables: public CLevels
   void InitStructures();
 };
 
-typedef struct _CSeqInStream
-{
-  ISeqInStream SeqInStream;
-  ISequentialInStream *RealStream;
-} CSeqInStream;
 
 struct CEncProps
 {
@@ -76,7 +70,6 @@ class CCoder
 {
   CMatchFinder _lzInWindow;
   CBitlEncoder m_OutStream;
-
 
 public:
   CCodeValue *m_Values;

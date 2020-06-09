@@ -1,5 +1,5 @@
 /* LzmaDec.c -- LZMA Decoder
-2016-05-16 : Igor Pavlov : Public domain */
+2017-04-03 : Igor Pavlov : Public domain */
 
 #include "Precomp.h"
 

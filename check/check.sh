@@ -88,11 +88,65 @@ sure ${P7ZIP} a 7za433_7zip_lzma.7z 7za433_7zip_lzma
 
 sure ${P7ZIP} a -sfx7zCon.sfx 7za433_7zip_lzma.x 7za433_7zip_lzma
 
-sure ${P7ZIP} a -pqwerty -mhc=on -mhe=on 7za433_7zip_lzma_crypto.7z 7za433_7zip_lzma_crypto
+sure ${P7ZIP} a -pqwerty -mhc=on -mhe=on 7za433_7zip_lzma_crypto.7z 7za433_7zip_lzma_crypto # -p = password
 
 sure ${P7ZIP} a -mx=9 -m0=ppmd:mem=64m:o=32 7za433_7zip_ppmd.7z 7za433_7zip_ppmd
 
 sure ${P7ZIP} a -m0=bzip2 7za433_7zip_bzip2.7z 7za433_7zip_bzip2
+
+sure ${P7ZIP} a -t7z 7za433_7zip_lzma.7z 7za433_7zip_lzma -m0=LZMA # m0=methodID
+
+sure ${P7ZIP} a -t7z 7za433_7zip_lzma2.7z 7za433_7zip_lzma -m0=LZMA2
+
+sure ${P7ZIP} a -t7z 7za433_7zip_Deflate.7z 7za433_7zip_lzma -m0=Deflate
+
+sure ${P7ZIP} a -t7z 7za433_7zip_Delta.7z 7za433_7zip_lzma -m0=Delta
+
+sure ${P7ZIP} a -t7z 7za433_7zip_BCJ.7z 7za433_7zip_lzma -m0=BCJ
+
+sure ${P7ZIP} a -t7z 7za433_7zip_BCJ2.7z 7za433_7zip_lzma -m0=BCJ2
+
+sure ${P7ZIP} a -t7z 7za433_7zip_Copy.7z 7za433_7zip_lzma -m0=Copy
+
+sure ${P7ZIP} a -t7z 7za433_7zip_zstd.7z 7za433_7zip_lzma -m0=zstd -mx=22 # mx=level
+
+sure ${P7ZIP} a -t7z 7za433_7zip_lz4.7z 7za433_7zip_lzma -m0=lz4 -mmt=on # mmt=multithreading mode
+
+sure ${P7ZIP} a -t7z 7za433_7zip_lzma3.7z 7za433_7zip_lzma -m0=LZMA -mf=BCJ # mf=FilterID
+
+sure ${P7ZIP} a -t7z 7za433_7zip_lzma4.7z 7za433_7zip_lzma -m0=LZMA -mf=ARM
+
+sure ${P7ZIP} a -t7z 7za433_7zip_lzma5.7z 7za433_7zip_lzma -m0=LZMA -mf=ARMT -mtm=on # mt=multithreading mode
+
+sure ${P7ZIP} a -t7z 7za433_7zip_lzma6.7z 7za433_7zip_lzma -m0=LZMA -mf=BCJ2 -mtc=on # tc=Creation timestamps
+
+sure ${P7ZIP} a -t7z 7za433_7zip_lzma7.7z 7za433_7zip_lzma -m0=LZMA -mf=SPARC -mta=on # mta=last Access timestamps
+
+sure ${P7ZIP} a -t7z 7za433_7zip.7z 7za433_7zip_lzma -m0=bcj -m1=zstd -mx=22
+
+sure ${P7ZIP} a -tzip 7za433_7zip_lzma.zip 7za433_7zip_lzma
+
+sure ${P7ZIP} a -tzip 7za433_7zip_ZipCrypto.zip 7za433_7zip_lzma -mem=ZipCrypto # mem=Encryption MethodID
+
+sure ${P7ZIP} a -tzip 7za433_7zip_AES192.zip 7za433_7zip_lzma -mem=AES192
+
+sure ${P7ZIP} a -tzip 7za433_7zip_AES256.zip 7za433_7zip_lzma -mem=AES256
+
+sure ${P7ZIP} a -tzip 7za433_7zip_Copy.zip 7za433_7zip_lzma -mm=Copy -mmt=on # mm=MethodID
+
+sure ${P7ZIP} a -tzip 7za433_7zip_Deflate.zip 7za433_7zip_lzma -mm=Deflate
+
+sure ${P7ZIP} a -tzip 7za433_7zip_Deflate64.zip 7za433_7zip_lzma -mm=Deflate64
+
+sure ${P7ZIP} a -tzip 7za433_7zip_BZip2.zip 7za433_7zip_lzma -mm=BZip2 -md=32m # md={Size}[b|k|m]
+
+sure ${P7ZIP} a -tzip 7za433_7zip_PPMd.zip 7za433_7zip_lzma -mm=PPMd -mmem=24m -mo=8 # mo=model order for PPMd & mmem={Size}[b|k|m]
+
+sure ${P7ZIP} a -tzip 7za433_7zip_mc.zip 7za433_7zip_lzma -mcl=on -mcp=2 # mcl=local code page & mcp=code page
+
+sure ${P7ZIP} a -tzip -paaa 7za433_7zip_AES128.zip 7za433_7zip_lzma -mem=AES128 
+
+
 
 echo ""
 echo "# EXTRACTING (PASS 2) ..."
@@ -112,6 +166,7 @@ sure chmod +x ./7za433_7zip_lzma.x
 # sure ${P7ZIP} x -sfx7zCon.sfx 7za433_7zip_lzma.x
 sure ${TOOLS} ./7za433_7zip_lzma.x
 sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
 
 sure ${P7ZIP} x -pqwerty 7za433_7zip_lzma_crypto.7z
 sure diff -r 7za433_ref 7za433_7zip_lzma_crypto
@@ -121,6 +176,111 @@ sure diff -r 7za433_ref 7za433_7zip_ppmd
 
 sure ${P7ZIP} x 7za433_7zip_bzip2.7z
 sure diff -r 7za433_ref 7za433_7zip_bzip2
+
+sure ${P7ZIP} x 7za433_7zip_lzma.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lzma2.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_Deflate.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_Delta.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_BCJ.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_BCJ2.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_Copy.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_zstd.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lz4.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lzma3.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lzma4.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lzma5.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lzma6.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lzma7.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lzma.zip
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_ZipCrypto.zip
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_AES192.zip
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_AES256.zip
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_Copy.zip
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_Deflate.zip
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_Deflate64.zip
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_BZip2.zip
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_PPMd.zip
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_mc.zip
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x -paaa 7za433_7zip_AES128.zip
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
 
 echo ""
 echo "# EXTRACTING (LZMA) ..."
@@ -164,6 +324,6 @@ rm -fr   ${REP}
 
 echo ""
 echo "========"
-echo "ALL DONE"
+echo "ALL SUCCESS"
 echo "========"
 echo ""

@@ -144,8 +144,17 @@ sure ${P7ZIP} a -tzip 7za433_7zip_PPMd.zip 7za433_7zip_lzma -mm=PPMd -mmem=24m -
 
 sure ${P7ZIP} a -tzip 7za433_7zip_mc.zip 7za433_7zip_lzma -mcl=on -mcp=2 # mcl=local code page & mcp=code page
 
-sure ${P7ZIP} a -tzip -paaa 7za433_7zip_AES128.zip 7za433_7zip_lzma -mem=AES128 
+sure ${P7ZIP} a -tzip -pqazwsx 7za433_7zip_AES128.zip 7za433_7zip_lzma -mem=AES128 
 
+sure ${P7ZIP} a -ttar 7za433_7zip_lzma.tar 7za433_7zip_lzma
+
+sure ${P7ZIP} a -txz 7za433_7zip_lzma.tar.xz 7za433_7zip_lzma.tar
+
+sure ${P7ZIP} a -tgzip 7za433_7zip_lzma.tar.gz 7za433_7zip_lzma.tar
+
+sure ${P7ZIP} a -tbzip2 7za433_7zip_lzma.tar.bz2 7za433_7zip_lzma.tar
+
+sure ${P7ZIP} a -twim 7za433_7zip_lzma.tar.wim 7za433_7zip_lzma.tar
 
 
 echo ""
@@ -277,9 +286,33 @@ sure ${P7ZIP} x 7za433_7zip_mc.zip
 sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 
-sure ${P7ZIP} x -paaa 7za433_7zip_AES128.zip
+sure ${P7ZIP} x -pqazwsx 7za433_7zip_AES128.zip
 sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lzma.tar.xz -y
+sure ${P7ZIP} x 7za433_7zip_lzma.tar
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma.tar
+
+sure ${P7ZIP} x 7za433_7zip_lzma.tar.gz
+sure ${P7ZIP} x 7za433_7zip_lzma.tar
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma.tar
+
+sure ${P7ZIP} x 7za433_7zip_lzma.tar.bz2
+sure ${P7ZIP} x 7za433_7zip_lzma.tar
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma.tar
+
+sure ${P7ZIP} x 7za433_7zip_lzma.tar.wim
+sure ${P7ZIP} x 7za433_7zip_lzma.tar
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma.tar
 
 
 echo ""
@@ -299,6 +332,7 @@ sure rm -f 7za.exe
 sure ${P7ZIP} x ../test/7za.exe.lzma_eos
 sure diff 7za.exe 7za433_ref/bin/7za.exe
 sure rm -f 7za.exe
+
 
 echo ""
 echo "# TESTING (XZ) ..."

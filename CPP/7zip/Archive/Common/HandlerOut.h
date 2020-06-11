@@ -22,6 +22,9 @@ public:
   COneMethodInfo _filterMethod;
   bool _autoFilter;
 
+
+  void SetGlobalLevelTo(COneMethodInfo &oneMethodInfo) const;
+
   void SetGlobalLevelAndThreads(COneMethodInfo &oneMethodInfo
       #ifndef _7ZIP_ST
       , UInt32 numThreads

@@ -37,6 +37,12 @@ public:
     return WriteToRealStreamEvent.CreateIfNotCreated(sync);
   }
 
+  HRes CreateEvents()
+  {
+    RINOK(StopWritingEvent.CreateIfNotCreated());
+    return WriteToRealStreamEvent.CreateIfNotCreated();
+  }
+  
   void SetOutStream(IOutStream *outStream)
   {
     OutStream = outStream;

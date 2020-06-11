@@ -256,7 +256,7 @@ void CItem::Link_to_Prop(unsigned linkType, NWindows::NCOM::CPropVariant &prop) 
 
   UString unicode;
   if (ConvertUTF8ToUnicode(s, unicode))
-    prop = NItemName::GetOSName(unicode);
+    prop = NItemName::GetOsPath(unicode);
 }
 
 bool CItem::GetAltStreamName(AString &name) const
@@ -1537,7 +1537,7 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
         }
       }
       
-      NItemName::ConvertToOSName2(unicodeName);
+      NItemName::ReplaceToOsSlashes_Remove_TailSlash(unicodeName);
       prop = unicodeName;
 
       break;

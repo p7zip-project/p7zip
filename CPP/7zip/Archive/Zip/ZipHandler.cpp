@@ -274,7 +274,7 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
     {
       UString res;
       item.GetUnicodeString(res, item.Name, false, _forceCodePage, _specifiedCodePage);
-      NItemName::ConvertToOSName2(res);
+      NItemName::ReplaceToOsSlashes_Remove_TailSlash(res);
       prop = res;
       break;
     }

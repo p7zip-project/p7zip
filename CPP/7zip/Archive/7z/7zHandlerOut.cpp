@@ -382,7 +382,8 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
           return E_INVALIDARG;
         else
         {
-          name = NItemName::MakeLegalName(prop.bstrVal);
+          name = prop.bstrVal;
+          NItemName::ReplaceSlashes_OsToUnix(name);
         }
       }
       {

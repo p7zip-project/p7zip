@@ -13,7 +13,7 @@ UString MyFormatMessage(DWORD errorCode)
   const char * txt = 0;
   AString msg;
 
-  switch(errorCode) {
+  switch(HRESULT(errorCode)) {
     case ERROR_NO_MORE_FILES   : txt = "No more files"; break ;
     case E_NOTIMPL             : txt = "E_NOTIMPL"; break ;
     case E_NOINTERFACE         : txt = "E_NOINTERFACE"; break ;
@@ -22,7 +22,7 @@ UString MyFormatMessage(DWORD errorCode)
     case STG_E_INVALIDFUNCTION : txt = "STG_E_INVALIDFUNCTION"; break ;
     case E_OUTOFMEMORY         : txt = "E_OUTOFMEMORY"; break ;
     case E_INVALIDARG          : txt = "E_INVALIDARG"; break ;
-    case ERROR_DIRECTORY          : txt = "Error Directory"; break ;
+    case ERROR_DIRECTORY       : txt = "Error Directory"; break ;
     default:
       txt = strerror(errorCode);
   }
@@ -43,7 +43,7 @@ bool MyFormatMessage(DWORD messageID, CSysString &message)
   const char * txt = 0;
   AString msg;
 
-  switch(messageID) {
+  switch(HRESULT(messageID)) {
     case ERROR_NO_MORE_FILES   : txt = "No more files"; break ;
     case E_NOTIMPL             : txt = "E_NOTIMPL"; break ;
     case E_NOINTERFACE         : txt = "E_NOINTERFACE"; break ;

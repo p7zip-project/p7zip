@@ -31,6 +31,9 @@ inline const char* MyStringGetNextCharPointer(const char *p) throw()
 }
 */
 
+#define MY_STRING_NEW_char(_size_) MY_STRING_NEW(char, _size_)
+#define MY_STRING_NEW_wchar_t(_size_) MY_STRING_NEW(wchar_t, _size_)
+
 int FindCharPosInString(const char *s, char c) throw()
 {
   for (const char *p = s;; p++)
@@ -1036,6 +1039,16 @@ UString::UString(const wchar_t *s)
   wmemcpy(_chars, s, len + 1);
 }
 
+UString::UString(const char *s)
+{
+  unsigned len = MyStringLen(s);
+  SetStartLen(len);
+  wchar_t *chars = _chars;
+  for (unsigned i = 0; i < len; i++)
+    chars[i] = (unsigned char)s[i];
+  chars[len] = 0;
+}
+
 UString::UString(const UString &s)
 {
   SetStartLen(s._len);
@@ -1104,6 +1117,24 @@ void UString::SetFromBstr(BSTR s)
     wmemcpy(_chars, s, len + 1);
 }
 
+UString &UString::operator=(const char *s)
+{
+  unsigned len = MyStringLen(s);
+  if (len > _limit)
+  {
+    wchar_t *newBuf = MY_STRING_NEW_wchar_t(len + 1);
+    MY_STRING_DELETE(_chars);
+    _chars = newBuf;
+    _limit = len;
+  }
+  wchar_t *chars = _chars;
+  for (unsigned i = 0; i < len; i++)
+    chars[i] = (unsigned char)s[i];
+  chars[len] = 0;
+  _len = len;
+  return *this;
+}
+
 void UString::Add_Space() { operator+=(L' '); }
 void UString::Add_Space_if_NotEmpty() { if (!IsEmpty()) Add_Space(); }
 
@@ -1132,6 +1163,18 @@ UString &UString::operator+=(const UString &s)
   Grow(s._len);
   wmemcpy(_chars + _len, s._chars, s._len + 1);
   _len += s._len;
+  return *this;
+}
+
+UString &UString::operator+=(const char *s)
+{
+  unsigned len = MyStringLen(s);
+  Grow(len);
+  wchar_t *chars = _chars + _len;
+  for (unsigned i = 0; i < len; i++)
+    chars[i] = (unsigned char)s[i];
+  chars[len] = 0;
+  _len += len;
   return *this;
 }
 
@@ -1176,6 +1219,14 @@ void UString::AddAscii(const char *s)
     chars[i] = (unsigned char)s[i];
   chars[len] = 0;
   _len += len;
+}
+
+
+void UString::Add_UInt32(UInt32 v)
+{
+  char sz[16];
+  ConvertUInt32ToString(v, sz);
+  (*this) += sz;
 }
 
 

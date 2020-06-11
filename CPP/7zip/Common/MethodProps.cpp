@@ -157,6 +157,14 @@ void CProps::AddProp32(PROPID propid, UInt32 level)
   prop.Value = (UInt32)level;
 }
 
+void CProps::AddPropBool(PROPID propid, bool val)
+{
+  CProp &prop = Props.AddNew();
+  prop.IsOptional = true;
+  prop.Id = propid;
+  prop.Value = val;
+}
+
 class CCoderProps
 {
   PROPID *_propIDs;

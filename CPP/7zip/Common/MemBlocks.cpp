@@ -76,6 +76,31 @@ HRes CMemBlockManagerMt::AllocateSpaceAlways(NWindows::NSynchronization::CSynchr
   }
 }
 
+// HRes CMemBlockManagerMt::AllocateSpace(size_t numBlocks, size_t numNoLockBlocks)
+// {
+//   if (numNoLockBlocks > numBlocks)
+//     return E_INVALIDARG;
+//   if (!CMemBlockManager::AllocateSpace(numBlocks))
+//     return E_OUTOFMEMORY;
+//   size_t numLockBlocks = numBlocks - numNoLockBlocks;
+//   Semaphore.Close();
+//   return Semaphore.Create((LONG)numLockBlocks, (LONG)numLockBlocks);
+// }
+
+// HRes CMemBlockManagerMt::AllocateSpaceAlways(size_t desiredNumberOfBlocks, size_t numNoLockBlocks)
+// {
+//   if (numNoLockBlocks > desiredNumberOfBlocks)
+//     return E_INVALIDARG;
+//   for (;;)
+//   {
+//     if (AllocateSpace(desiredNumberOfBlocks, numNoLockBlocks) == 0)
+//       return 0;
+//     if (desiredNumberOfBlocks == numNoLockBlocks)
+//       return E_OUTOFMEMORY;
+//     desiredNumberOfBlocks = numNoLockBlocks + ((desiredNumberOfBlocks - numNoLockBlocks) >> 1);
+//   }
+// }
+
 void CMemBlockManagerMt::FreeSpace()
 {
   Semaphore.Close();

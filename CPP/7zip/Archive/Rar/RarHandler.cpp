@@ -974,7 +974,7 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
         u = mainItem->GetName();
       u += item.GetName();
       */
-      prop = (const wchar_t *)NItemName::WinNameToOSName(item.GetName());
+      prop = (const wchar_t *)NItemName::WinPathToOsPath(item.GetName());
       break;
     }
     case kpidIsDir: prop = item.IsDir(); break;

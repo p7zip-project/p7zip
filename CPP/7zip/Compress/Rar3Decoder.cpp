@@ -44,15 +44,17 @@ static const UInt32 kVmCodeSizeMax = 1 << 16;
 
 extern "C" {
 
+#define GET_RangeDecoder CRangeDecoder *p = CONTAINER_FROM_VTBL_CLS(pp, CRangeDecoder, s);
+
 static UInt32 Range_GetThreshold(const IPpmd7_RangeDec *pp, UInt32 total)
 {
-  CRangeDecoder *p = (CRangeDecoder *)pp;
+  GET_RangeDecoder;
   return p->Code / (p->Range /= total);
 }
 
 static void Range_Decode(const IPpmd7_RangeDec *pp, UInt32 start, UInt32 size)
 {
-  CRangeDecoder *p = (CRangeDecoder *)pp;
+  GET_RangeDecoder;
   start *= p->Range;
   p->Low += start;
   p->Code -= start;
@@ -62,7 +64,7 @@ static void Range_Decode(const IPpmd7_RangeDec *pp, UInt32 start, UInt32 size)
 
 static UInt32 Range_DecodeBit(const IPpmd7_RangeDec *pp, UInt32 size0)
 {
-  CRangeDecoder *p = (CRangeDecoder *)pp;
+  GET_RangeDecoder;
   if (p->Code / (p->Range >>= 14) < size0)
   {
     Range_Decode(&p->s, 0, size0);
@@ -77,7 +79,7 @@ static UInt32 Range_DecodeBit(const IPpmd7_RangeDec *pp, UInt32 size0)
 
 }
 
-CRangeDecoder::CRangeDecoder()
+CRangeDecoder::CRangeDecoder() throw()
 {
   s.GetThreshold = Range_GetThreshold;
   s.Decode = Range_Decode;
@@ -143,7 +145,8 @@ void CDecoder::ExecuteFilter(int tempFilterIndex, NVm::CBlockRef &outBlockRef)
   CFilter *filter = _filters[tempFilter->FilterIndex];
   if (!filter->IsSupported)
     _unsupportedFilter = true;
-  _vm.Execute(filter, tempFilter, outBlockRef, filter->GlobalData);
+  if (!_vm.Execute(filter, tempFilter, outBlockRef, filter->GlobalData))
+    _unsupportedFilter = true;
   delete tempFilter;
   _tempFilters[tempFilterIndex] = 0;
 }
@@ -546,6 +549,7 @@ HRESULT CDecoder::ReadTables(bool &keepDecompressing)
     return InitPPM();
   }
 
+  TablesRead = false;
   TablesOK = false;
 
   _lzMode = true;
@@ -600,7 +604,7 @@ HRESULT CDecoder::ReadTables(bool &keepDecompressing)
         if (i == 0)
           return S_FALSE;
         for (; num > 0 && i < kTablesSizesSum; num--, i++)
-          newLevels[i] = newLevels[i - 1];
+          newLevels[i] = newLevels[(size_t)i - 1];
       }
       else
       {
@@ -645,16 +649,15 @@ public:
 
 HRESULT CDecoder::ReadEndOfBlock(bool &keepDecompressing)
 {
-  if (ReadBits(1) != 0)
+  if (ReadBits(1) == 0)
   {
-    // old file
-    TablesRead = false;
-    return ReadTables(keepDecompressing);
+    // new file
+    keepDecompressing = false;
+    TablesRead = (ReadBits(1) == 0);
+    return S_OK;
   }
-  // new file
-  keepDecompressing = false;
-  TablesRead = (ReadBits(1) == 0);
-  return S_OK;
+  TablesRead = false;
+  return ReadTables(keepDecompressing);
 }
 
 UInt32 kDistStart[kDistTableSize];

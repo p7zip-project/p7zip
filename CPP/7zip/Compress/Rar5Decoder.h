@@ -8,6 +8,7 @@
 #include "../../../C/Alloc.h"
 #include "../../../C/CpuArch.h"
 
+#include "../../Common/MyBuffer2.h"
 #include "../../Common/MyBuffer.h"
 #include "../../Common/MyCom.h"
 #include "../../Common/MyException.h"
@@ -20,35 +21,35 @@
 namespace NCompress {
 namespace NRar5 {
 
-class CMidBuffer
-{
-  Byte *_data;
-  size_t _size;
+// class CMidBuffer
+// {
+//   Byte *_data;
+//   size_t _size;
 
-  CLASS_NO_COPY(CMidBuffer)
+//   CLASS_NO_COPY(CMidBuffer)
 
-public:
-  CMidBuffer(): _data(NULL), _size(0) {};
-  ~CMidBuffer() { ::MidFree(_data); }
+// public:
+//   CMidBuffer(): _data(NULL), _size(0) {};
+//   ~CMidBuffer() { ::MidFree(_data); }
 
-  bool IsAllocated() const { return _data != NULL; }
-  operator       Byte *()       { return _data; }
-  operator const Byte *() const { return _data; }
-  size_t Size() const { return _size; }
+//   bool IsAllocated() const { return _data != NULL; }
+//   operator       Byte *()       { return _data; }
+//   operator const Byte *() const { return _data; }
+//   size_t Size() const { return _size; }
 
-  void AllocAtLeast(size_t size)
-  {
-    if (size > _size)
-    {
-      const size_t kMinSize = (1 << 16);
-      if (size < kMinSize)
-        size = kMinSize;
-      ::MidFree(_data);
-      _data = (Byte *)::MidAlloc(size);
-      _size = size;
-    }
-  }
-};
+//   void AllocAtLeast(size_t size)
+//   {
+//     if (size > _size)
+//     {
+//       const size_t kMinSize = (1 << 16);
+//       if (size < kMinSize)
+//         size = kMinSize;
+//       ::MidFree(_data);
+//       _data = (Byte *)::MidAlloc(size);
+//       _size = size;
+//     }
+//   }
+// };
 
 /*
 struct CInBufferException: public CSystemException

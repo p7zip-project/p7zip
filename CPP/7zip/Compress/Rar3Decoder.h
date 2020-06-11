@@ -130,7 +130,7 @@ public:
     }
   }
 
-  CRangeDecoder();
+  CRangeDecoder() throw();
 };
 
 struct CFilter: public NVm::CProgram

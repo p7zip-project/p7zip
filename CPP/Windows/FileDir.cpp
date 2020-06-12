@@ -421,6 +421,28 @@ bool SetFileAttrib(CFSTR fileName, DWORD fileAttributes,CObjectVector<CDelayedSy
   return true;
 }
 
+bool SetTarFileSymLink(CFSTR fileName, CObjectVector<CDelayedSymLink> *delayedSymLinks)
+{
+  if (!fileName) {
+    SetLastError(ERROR_PATH_NOT_FOUND);
+    TRACEN((printf("SetFileAttrib(NULL,SymLink) : false-1\n")))
+    return false;
+  }
+#ifdef _UNICODE
+  AString name = nameWindowToUnix2(fileName);
+#else
+  const char * name = nameWindowToUnix(fileName);
+#endif
+  if (delayedSymLinks) {
+    delayedSymLinks->Add(CDelayedSymLink(name));
+  } else if ( convert_to_symlink(name) != 0) {
+    TRACEN((printf("SetFileAttrib(%s,SymLink) : false-3\n",(const char *)name)))
+    return false;
+  }
+
+  return true;
+}
+
 bool RemoveDir(CFSTR path)
 {
   if (!path || !*path) {

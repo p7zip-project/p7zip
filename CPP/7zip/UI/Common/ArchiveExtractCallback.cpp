@@ -1520,6 +1520,14 @@ STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 opRes)
   COM_TRY_END
 }
 
+bool CArchiveExtractCallback::SetTarFileSymLinkAttrib()
+{
+  if (!SetTarFileSymLink(_diskFilePath, &_delayedSymLinks))
+    return E_FAIL;
+
+  return S_OK;
+}
+
 STDMETHODIMP CArchiveExtractCallback::ReportExtractResult(UInt32 indexType, UInt32 index, Int32 opRes)
 {
   if (_folderArchiveExtractCallback2)

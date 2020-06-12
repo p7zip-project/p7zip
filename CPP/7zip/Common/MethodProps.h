@@ -12,7 +12,7 @@
 
 #include "../ICoder.h"
 
-bool StringToBool(const UString &s, bool &res);
+bool StringToBool(const wchar_t *s, bool &res);
 HRESULT PROPVARIANT_to_bool(const PROPVARIANT &prop, bool &dest);
 unsigned ParseStringToUInt32(const UString &srcString, UInt32 &number);
 HRESULT ParsePropToUInt32(const UString &name, const PROPVARIANT &prop, UInt32 &resValue);
@@ -41,7 +41,7 @@ struct CProps
     return false;
   }
 
-  void AddProp32(PROPID propid, UInt32 level);
+  void AddProp32(PROPID propid, UInt32 val);
 
   void AddPropBool(PROPID propid, bool val);
 
@@ -201,7 +201,8 @@ public:
     {
       fixedNumber = true;
       if (numThreads < 1) return 1;
-      if (numThreads > 64) return 64;
+      const unsigned kNumBZip2ThreadsMax = 64;
+      if (numThreads > kNumBZip2ThreadsMax) return kNumBZip2ThreadsMax;
       return numThreads;
     }
     return 1;

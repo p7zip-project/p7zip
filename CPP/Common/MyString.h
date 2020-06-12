@@ -179,6 +179,7 @@ bool IsString1PrefixedByString2(const wchar_t *s1, const wchar_t *s2) throw();
 bool IsString1PrefixedByString2_NoCase_Ascii(const wchar_t *u, const char *a) throw();
 bool IsString1PrefixedByString2_NoCase(const wchar_t *s1, const wchar_t *s2) throw();
 
+#define MyStringCompare(s1, s2) wcscmp(s1, s2)
 int MyStringCompareNoCase(const wchar_t *s1, const wchar_t *s2) throw();
 // int MyStringCompareNoCase_N(const wchar_t *s1, const wchar_t *s2, unsigned num) throw();
 

@@ -27,7 +27,8 @@ public:
   ~CDynLimBuf() { MyFree(_chars); }
 
   size_t Len() const { return _pos; }
-  void Empty() { _pos = 0; }
+  bool IsError() const { return _error; }
+  void Empty() { _pos = 0; _error = false; }
 
   operator const Byte *() const { return _chars; }
   // const char *Ptr() const { return _chars; }

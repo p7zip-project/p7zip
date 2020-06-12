@@ -67,9 +67,9 @@ void ConvertUInt32ToHex(UInt32 val, char *s) throw()
   s[i] = 0;
   do
   {
-    unsigned t = (unsigned)((val & 0xF));
+    unsigned t = (unsigned)(val & 0xF);
     val >>= 4;
-    s[--i] = (char)((t < 10) ? ('0' + t) : ('A' + (t - 10)));
+    s[--i] = GET_HEX_CHAR(t);
   }
   while (i);
 }
@@ -87,9 +87,9 @@ void ConvertUInt64ToHex(UInt64 val, char *s) throw()
   s[i] = 0;
   do
   {
-    unsigned t = (unsigned)((val & 0xF));
+    unsigned t = (unsigned)(val & 0xF);
     val >>= 4;
-    s[--i] = (char)((t < 10) ? ('0' + t) : ('A' + (t - 10)));
+    s[--i] = GET_HEX_CHAR(t);
   }
   while (i);
 }
@@ -101,7 +101,7 @@ void ConvertUInt32ToHex8Digits(UInt32 val, char *s) throw()
   {
     unsigned t = val & 0xF;
     val >>= 4;
-    s[i] = (char)(((t < 10) ? ('0' + t) : ('A' + (t - 10))));
+    s[i] = GET_HEX_CHAR(t);
   }
 }
 

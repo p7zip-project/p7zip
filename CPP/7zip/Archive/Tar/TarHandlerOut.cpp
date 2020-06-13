@@ -35,7 +35,7 @@ HRESULT GetPropString(IArchiveUpdateCallback *callback, UInt32 index, PROPID pro
   {
     UString s = prop.bstrVal;
     if (convertSlash)
-      s = NItemName::MakeLegalName(s);
+      NItemName::ReplaceSlashes_OsToUnix(s);
 
     if (codePage == CP_UTF8)
     {
@@ -75,7 +75,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
 {
   COM_TRY_BEGIN
 
-  if ((_stream && (_error != k_ErrorType_OK /* || _isSparse */)) || _seqStream)
+  if ((_stream && (_error != k_ErrorType_OK || _warning /* || _isSparse */)) || _seqStream)
     return E_NOTIMPL;
   CObjectVector<CUpdateItem> updateItems;
   UINT codePage = (_forceCodePage ? _specifiedCodePage : _openCodePage);
@@ -123,6 +123,8 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
           return E_INVALIDARG;
         else
           ui.Mode = prop.ulVal;
+        // FIXME : we can clear high file type bits to be more compatible with tars created by GNU TAR.
+        // ui.Mode &= ~(UInt32)MY_LIN_S_IFMT;
       }
 
       {

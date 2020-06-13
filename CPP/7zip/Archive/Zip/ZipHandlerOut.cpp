@@ -153,7 +153,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
         FileTimeToDosTime(localFileTime, ui.Time);
       }
 
-      name = NItemName::MakeLegalName(name);
+      NItemName::ReplaceSlashes_OsToUnix(name);
       bool needSlash = ui.IsDir;
       const wchar_t kSlash = L'/';
       if (!name.IsEmpty())

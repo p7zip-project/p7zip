@@ -4,6 +4,9 @@
 #define __7Z_METHOD_PROPS_H
 
 #include "../../Common/MyString.h"
+#include "../../Common/Defs.h"
+
+#include "../../Windows/Defs.h"
 
 #include "../../Windows/PropVariant.h"
 
@@ -39,6 +42,8 @@ struct CProps
   }
 
   void AddProp32(PROPID propid, UInt32 level);
+
+  void AddPropBool(PROPID propid, bool val);
 
   void AddProp_Ascii(PROPID propid, const char *s)
   {
@@ -99,6 +104,18 @@ public:
     return level <= 5 ? (1 << (level * 2 + 14)) : (level == 6 ? (1 << 25) : (1 << 26));
   }
 
+  bool Get_Lzma_Eos() const
+  {
+    int i = FindProp(NCoderPropID::kEndMarker);
+    if (i >= 0)
+    {
+      const NWindows::NCOM::CPropVariant &val = Props[i].Value;
+      if (val.vt == VT_BOOL)
+        return VARIANT_BOOLToBool(val.boolVal);
+    }
+    return false;
+  }
+
   bool Are_Lzma_Model_Props_Defined() const
   {
     if (FindProp(NCoderPropID::kPosStateBits) >= 0) return true;
@@ -117,6 +134,63 @@ public:
       return numThreads < 2 ? 1 : 2;
     }
     return Get_Lzma_Algo() == 0 ? 1 : 2;
+  }
+
+  UInt32 Get_Lzma_NumThreads() const
+  {
+    if (Get_Lzma_Algo() == 0)
+      return 1;
+    int numThreads = Get_NumThreads();
+    if (numThreads >= 0)
+      return numThreads < 2 ? 1 : 2;
+    return 2;
+  }
+
+  int Get_Xz_NumThreads(UInt32 &lzmaThreads) const
+  {
+    lzmaThreads = 1;
+    int numThreads = Get_NumThreads();
+    if (numThreads >= 0 && numThreads <= 1)
+      return 1;
+    if (Get_Lzma_Algo() != 0)
+      lzmaThreads = 2;
+    return numThreads;
+  }
+
+  UInt64 GetProp_BlockSize(PROPID id) const
+  {
+    int i = FindProp(id);
+    if (i >= 0)
+    {
+      const NWindows::NCOM::CPropVariant &val = Props[i].Value;
+      if (val.vt == VT_UI4) { return val.ulVal; }
+      if (val.vt == VT_UI8) { return val.uhVal.QuadPart; }
+    }
+    return 0;
+  }
+
+  UInt64 Get_Xz_BlockSize() const
+  {
+    {
+      UInt64 blockSize1 = GetProp_BlockSize(NCoderPropID::kBlockSize);
+      UInt64 blockSize2 = GetProp_BlockSize(NCoderPropID::kBlockSize2);
+      UInt64 minSize = MyMin(blockSize1, blockSize2);
+      if (minSize != 0)
+        return minSize;
+      UInt64 maxSize = MyMax(blockSize1, blockSize2);
+      if (maxSize != 0)
+        return maxSize;
+    }
+    const UInt32 kMinSize = (UInt32)1 << 20;
+    const UInt32 kMaxSize = (UInt32)1 << 28;
+    UInt32 dictSize = Get_Lzma_DicSize();
+    UInt64 blockSize = (UInt64)dictSize << 2;
+    if (blockSize < kMinSize) blockSize = kMinSize;
+    if (blockSize > kMaxSize) blockSize = kMaxSize;
+    if (blockSize < dictSize) blockSize = dictSize;
+    blockSize += (kMinSize - 1);
+    blockSize &= ~(UInt64)(kMinSize - 1);
+    return blockSize;
   }
 
   UInt32 Get_BZip2_NumThreads(bool &fixedNumber) const
@@ -170,6 +244,12 @@ public:
     AddProp32(NCoderPropID::kNumThreads, numThreads);
   }
 
+  void AddProp_EndMarker_if_NotFound(bool eos)
+  {
+    if (FindProp(NCoderPropID::kEndMarker) < 0)
+      AddPropBool(NCoderPropID::kEndMarker, eos);
+  }
+  
   HRESULT ParseParamsFromString(const UString &srcString);
   HRESULT ParseParamsFromPROPVARIANT(const UString &realName, const PROPVARIANT &value);
 };

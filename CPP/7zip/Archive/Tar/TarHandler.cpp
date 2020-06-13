@@ -72,22 +72,28 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
       break;
     }
 
+    case kpidWarningFlags:
+    {
+      if (_warning)
+        prop = kpv_ErrorFlags_HeadersError;
+      break;
+    }
+
     case kpidCodePage:
     {
+      char sz[16];
       const char *name = NULL;
       switch (_openCodePage)
       {
         case CP_OEMCP: name = "OEM"; break;
-        case CP_UTF8: name = "UTF-8";  break;
+        case CP_UTF8: name = "UTF-8"; break;
       }
-      if (name != NULL)
-        prop = name;
-      else
+      if (!name)
       {
-        char sz[16];
         ConvertUInt32ToString(_openCodePage, sz);
-        prop = sz;
-      };
+        name = sz;
+      }
+      prop = name;
       break;
     }
   }
@@ -98,7 +104,13 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
 HRESULT CHandler::ReadItem2(ISequentialInStream *stream, bool &filled, CItemEx &item)
 {
   item.HeaderPos = _phySize;
-  RINOK(ReadItem(stream, filled, item, _error));
+  EErrorType error;
+  HRESULT res = ReadItem(stream, filled, item, error);
+  if (error == k_ErrorType_Warning)
+    _warning = true;
+  else if (error != k_ErrorType_OK)
+    _error = error;
+  RINOK(res);
   if (filled)
   {
     /*
@@ -233,6 +245,7 @@ STDMETHODIMP CHandler::OpenSeq(ISequentialInStream *stream)
 STDMETHODIMP CHandler::Close()
 {
   _isArc = false;
+  _warning = false;
   _error = k_ErrorType_OK;
 
   _phySizeDefined = false;
@@ -302,7 +315,7 @@ void CHandler::TarStringToUnicode(const AString &s, NWindows::NCOM::CPropVariant
   else
     MultiByteToUnicodeString2(dest, s, _curCodePage);
   if (toOs)
-    NItemName::ConvertToOSName2(dest);
+    NItemName::ReplaceToOsSlashes_Remove_TailSlash(dest);
   prop = dest;
 }
 
@@ -339,7 +352,7 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
           prop = ft;
       }
       break;
-    case kpidPosixAttrib: prop = item->Mode; break;
+    case kpidPosixAttrib: prop = item->Get_Combined_Mode(); break;
     case kpidUser:  TarStringToUnicode(item->User, prop); break;
     case kpidGroup: TarStringToUnicode(item->Group, prop); break;
     case kpidSymLink:  if (item->LinkFlag == NFileHeader::NLinkFlag::kSymLink  && !item->LinkName.IsEmpty()) TarStringToUnicode(item->LinkName, prop); break;

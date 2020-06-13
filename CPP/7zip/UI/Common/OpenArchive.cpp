@@ -1482,6 +1482,12 @@ public:
   }
 };
 
+bool CExtractCallback_To_OpenCallback::SetTarFileSymLinkAttrib()
+{
+  /* DO NOTHING */
+  return S_OK;
+}
+
 STDMETHODIMP CExtractCallback_To_OpenCallback::SetTotal(UInt64 /* size */)
 {
   return S_OK;

@@ -175,6 +175,7 @@ SetOperationResult()
   STDMETHOD(GetStream)(UInt32 index, ISequentialOutStream **outStream, Int32 askExtractMode) x; \
   STDMETHOD(PrepareOperation)(Int32 askExtractMode) x; \
   STDMETHOD(SetOperationResult)(Int32 opRes) x; \
+  virtual bool SetTarFileSymLinkAttrib() x; \
 
 ARCHIVE_INTERFACE_SUB(IArchiveExtractCallback, IProgress, 0x20)
 {

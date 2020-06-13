@@ -23,6 +23,9 @@ bool GetSystemDir(FString &path);
 
 bool SetDirTime(CFSTR path, const FILETIME *cTime, const FILETIME *aTime, const FILETIME *mTime);
 bool SetFileAttrib(CFSTR path, DWORD attrib, CObjectVector<CDelayedSymLink> *delayedSymLinks = 0);
+
+bool SetTarFileSymLink(CFSTR fileName, CObjectVector<CDelayedSymLink> *delayedSymLinks);
+
 bool MyMoveFile(CFSTR existFileName, CFSTR newFileName);
 
 #ifndef UNDER_CE

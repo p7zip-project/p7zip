@@ -8,7 +8,7 @@ This is the place for the active development of p7zip to include major modern co
 |---------------|
 | ![ubuntu-badge]  |
 
-[ubuntu-link]: https://github.com/2273816832/test_github_action/actions?query=workflow%3AUbuntu "UbuntuAction"
+[ubuntu-link]: https://github.com/szcnick/p7zip/actions?query=workflow%3AUbuntu "UbuntuAction"
 [ubuntu-badge]: https://github.com/2273816832/test_github_action/workflows/Ubuntu/badge.svg "Ubuntu"
 
 ## Codec overview

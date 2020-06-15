@@ -154,22 +154,10 @@ HRESULT CEncoder::CreateMixerCoder(
 
     CCreatedCoder cod;
     
-    // RINOK(CreateCoder(
-    //     EXTERNAL_CODECS_LOC_VARS
-    //     methodFull.Id, true, cod));
-
-    if (methodFull.CodecIndex >= 0)
-    {
-      RINOK(CreateCoder_Index(
-        EXTERNAL_CODECS_LOC_VARS
-        methodFull.CodecIndex, true, cod));
-    }
-    else
-    {
-      RINOK(CreateCoder_Id(
+    RINOK(CreateCoder(
         EXTERNAL_CODECS_LOC_VARS
         methodFull.Id, true, cod));
-    }
+
     if (cod.NumStreams != methodFull.NumStreams)
       return E_FAIL;
     if (!cod.Coder && !cod.Coder2)
@@ -345,7 +333,7 @@ HRESULT CEncoder::Encode(
   }
 
   for (i = 0; i < numMethods; i++)
-    _mixer->SetCoderInfo(i, NULL, NULL);
+    _mixer->SetCoderInfo(i, NULL, NULL, false);
 
 
   /* inStreamSize can be used by BCJ2 to set optimal range of conversion.
@@ -382,6 +370,17 @@ HRESULT CEncoder::Encode(
       resetInitVector->ResetInitVector();
     }
 
+    {
+      CMyComPtr<ICompressSetCoderPropertiesOpt> optProps;
+      coder->QueryInterface(IID_ICompressSetCoderPropertiesOpt, (void **)&optProps);
+      if (optProps)
+      {
+        PROPID propID = NCoderPropID::kExpectedDataSize;
+        NWindows::NCOM::CPropVariant prop = (UInt64)unpackSize;
+        RINOK(optProps->SetCoderPropertiesOpt(&propID, &prop, 1));
+      }
+    }
+
     CMyComPtr<ICompressWriteCoderProperties> writeCoderProperties;
     coder->QueryInterface(IID_ICompressWriteCoderProperties, (void **)&writeCoderProperties);
 
@@ -392,7 +391,7 @@ HRESULT CEncoder::Encode(
       CDynBufSeqOutStream *outStreamSpec = new CDynBufSeqOutStream;
       CMyComPtr<ISequentialOutStream> dynOutStream(outStreamSpec);
       outStreamSpec->Init();
-      writeCoderProperties->WriteCoderProperties(dynOutStream);
+      RINOK(writeCoderProperties->WriteCoderProperties(dynOutStream));
       outStreamSpec->CopyToBuffer(props);
     }
     else
@@ -441,10 +440,12 @@ HRESULT CEncoder::Encode(
   for (i = 1; i < _bindInfo.PackStreams.Size(); i++)
     outStreamPointers.Add(tempBuffers[i - 1]);
 
+  bool dataAfterEnd_Error;
+
   RINOK(_mixer->Code(
       &inStreamPointer,
       &outStreamPointers.Front(),
-      mtProgress ? (ICompressProgressInfo *)mtProgress : compressProgress));
+      mtProgress ? (ICompressProgressInfo *)mtProgress : compressProgress, dataAfterEnd_Error));
   
   if (_bindInfo.PackStreams.Size() != 0)
     packSizes.Add(outStreamSizeCountSpec->GetSize());

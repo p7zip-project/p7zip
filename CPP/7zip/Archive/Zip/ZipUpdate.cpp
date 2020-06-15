@@ -42,32 +42,38 @@ static const Byte kHostOS =
 static const Byte kMadeByHostOS = kHostOS;
 static const Byte kExtractHostOS = kHostOS;
 
-static const Byte kMethodForDirectory = NFileHeader::NCompressionMethod::kStored;
+static const Byte kMethodForDirectory = NFileHeader::NCompressionMethod::kStore;
 
-static HRESULT CopyBlockToArchive(ISequentialInStream *inStream, UInt64 size,
-    COutArchive &outArchive, ICompressProgressInfo *progress)
+
+static void AddAesExtra(CItem &item, Byte aesKeyMode, UInt16 method)
 {
-  CMyComPtr<ISequentialOutStream> outStream;
-  outArchive.CreateStreamForCopying(&outStream);
-  return NCompress::CopyStream_ExactSize(inStream, outStream, size, progress);
+  CWzAesExtra wzAesField;
+  wzAesField.Strength = aesKeyMode;
+  wzAesField.Method = method;
+  item.Method = NFileHeader::NCompressionMethod::kWzAES;
+  item.Crc = 0;
+  CExtraSubBlock sb;
+  wzAesField.SetSubBlock(sb);
+  item.LocalExtra.SubBlocks.Add(sb);
+  item.CentralExtra.SubBlocks.Add(sb);
 }
 
+
 static void SetFileHeader(
-    COutArchive &archive,
     const CCompressionMethodMode &options,
     const CUpdateItem &ui,
-    // bool isSeqMode,
+    bool useDescriptor,
     CItemOut &item)
 {
   item.Size = ui.Size;
-  bool isDir;
+  bool isDir = ui.IsDir;
 
   item.ClearFlags();
 
   if (ui.NewProps)
   {
-    isDir = ui.IsDir;
     item.Name = ui.Name;
+    item.Comment = ui.Comment;
     item.SetUtf8(ui.IsUtf8);
     item.ExternalAttrib = ui.Attrib;
     item.Time = ui.Time;
@@ -76,10 +82,11 @@ static void SetFileHeader(
     item.Ntfs_CTime = ui.Ntfs_CTime;
     item.NtfsTimeIsDefined = ui.NtfsTimeIsDefined;
   }
+  /*
   else
     isDir = item.IsDir();
+  */
 
-  item.LocalHeaderPos = archive.GetCurPos();
   item.MadeByVersion.HostOS = kMadeByHostOS;
   item.MadeByVersion.Version = NFileHeader::NCompressionMethod::kMadeByProgramVersion;
   
@@ -87,7 +94,7 @@ static void SetFileHeader(
 
   item.InternalAttrib = 0; // test it
   item.SetEncrypted(!isDir && options.PasswordIsDefined);
-  // item.SetDescriptorMode(isSeqMode);
+  item.SetDescriptorMode(useDescriptor);
 
   if (isDir)
   {
@@ -97,14 +104,32 @@ static void SetFileHeader(
     item.Size = 0;
     item.Crc = 0;
   }
+
+  item.LocalExtra.Clear();
+  item.CentralExtra.Clear();
+
+  if (isDir)
+  {
+    item.ExtractVersion.Version = NFileHeader::NCompressionMethod::kExtractVersion_Dir;
+    item.Method = kMethodForDirectory;
+    item.PackSize = 0;
+    item.Size = 0;
+    item.Crc = 0;
+  }
+  else if (options.IsRealAesMode())
+    AddAesExtra(item, options.AesKeyMode, (Byte)(options.MethodSequence.IsEmpty() ? 8 : options.MethodSequence[0]));
 }
 
+
+// we call SetItemInfoFromCompressingResult() after SetFileHeader()
 
 static void SetItemInfoFromCompressingResult(const CCompressingResult &compressingResult,
     bool isAesMode, Byte aesKeyMode, CItem &item)
 {
   item.ExtractVersion.Version = compressingResult.ExtractVersion;
   item.Method = compressingResult.Method;
+  if (compressingResult.Method == NFileHeader::NCompressionMethod::kLZMA && compressingResult.LzmaEos)
+    item.Flags |= NFileHeader::NFlags::kLzmaEOS;
   item.Crc = compressingResult.CRC;
   item.Size = compressingResult.UnpackSize;
   item.PackSize = compressingResult.PackSize;
@@ -113,17 +138,7 @@ static void SetItemInfoFromCompressingResult(const CCompressingResult &compressi
   item.CentralExtra.Clear();
 
   if (isAesMode)
-  {
-    CWzAesExtra wzAesField;
-    wzAesField.Strength = aesKeyMode;
-    wzAesField.Method = compressingResult.Method;
-    item.Method = NFileHeader::NCompressionMethod::kWzAES;
-    item.Crc = 0;
-    CExtraSubBlock sb;
-    wzAesField.SetSubBlock(sb);
-    item.LocalExtra.SubBlocks.Add(sb);
-    item.CentralExtra.SubBlocks.Add(sb);
-  }
+    AddAesExtra(item, aesKeyMode, compressingResult.Method);
 }
 
 
@@ -151,16 +166,22 @@ struct CThreadInfo
   HRESULT Result;
   CCompressingResult CompressingResult;
 
+  bool InSeqMode;
+  bool OutSeqMode;
   bool IsFree;
   UInt32 UpdateIndex;
   UInt32 FileTime;
+  UInt64 ExpectedDataSize;
 
   CThreadInfo(const CCompressionMethodMode &options):
       ExitThread(false),
       ProgressSpec(0),
       OutStreamSpec(0),
       Coder(options),
-      FileTime(0)
+      InSeqMode(false),
+      OutSeqMode(false),
+      FileTime(0),
+      ExpectedDataSize((UInt64)(Int64)-1)
   {}
   
   HRESULT CreateEvents(CSynchro *sync)
@@ -193,7 +214,9 @@ void CThreadInfo::WaitAndCode()
     
     Result = Coder.Compress(
         EXTERNAL_CODECS_LOC_VARS
-        InStream, OutStream, FileTime, Progress, CompressingResult);
+        InStream, OutStream,
+        InSeqMode, OutSeqMode, FileTime, ExpectedDataSize,
+        Progress, CompressingResult);
     
     if (Result == S_OK && Progress)
       Result = Progress->SetRatioInfo(&CompressingResult.UnpackSize, &CompressingResult.PackSize);
@@ -220,10 +243,13 @@ public:
 
 struct CMemBlocks2: public CMemLockBlocks
 {
-  CCompressingResult CompressingResult;
-  bool Defined;
   bool Skip;
-  CMemBlocks2(): Defined(false), Skip(false) {}
+  bool InSeqMode;
+  bool PreDescriptorMode;
+  bool Finished;
+  CCompressingResult CompressingResult;
+  
+  CMemBlocks2(): Skip(false), InSeqMode(false), PreDescriptorMode(false), Finished(false) {}
 };
 
 class CMemRefs
@@ -342,6 +368,8 @@ static HRESULT UpdateItemOldData(
         NUpdateNotifyOp::kReplicate))
   }
 
+  UInt64 rangeSize;
+
   if (ui.NewProps)
   {
     if (item.HasDescriptor())
@@ -349,14 +377,11 @@ static HRESULT UpdateItemOldData(
     
     // use old name size.
     
-    CMyComPtr<ISequentialInStream> packStream;
-    RINOK(inArchive->GetItemStream(itemEx, true, packStream));
-    if (!packStream)
-      return E_NOTIMPL;
-
     // we keep ExternalAttrib and some another properties from old archive
     // item.ExternalAttrib = ui.Attrib;
 
+    // if we don't change Comment, we keep Comment from OldProperties
+    item.Comment = ui.Comment;
     item.Name = ui.Name;
     item.SetUtf8(ui.IsUtf8);
     item.Time = ui.Time;
@@ -367,46 +392,37 @@ static HRESULT UpdateItemOldData(
 
     item.CentralExtra.RemoveUnknownSubBlocks();
     item.LocalExtra.RemoveUnknownSubBlocks();
-    item.LocalHeaderPos = archive.GetCurPos();
 
-    archive.PrepareWriteCompressedData2(item.Name.Len(), item.Size, item.PackSize, item.LocalExtra.HasWzAes());
     archive.WriteLocalHeader(item);
-
-    RINOK(CopyBlockToArchive(packStream, itemEx.PackSize, archive, progress));
-
-    complexity += itemEx.PackSize;
+    rangeSize = item.GetPackSizeWithDescriptor();
   }
   else
   {
-    CMyComPtr<ISequentialInStream> packStream;
-    RINOK(inArchive->GetItemStream(itemEx, false, packStream));
-    if (!packStream)
-      return E_NOTIMPL;
-    
-    // set new header position
     item.LocalHeaderPos = archive.GetCurPos();
-    
-    const UInt64 rangeSize = itemEx.GetLocalFullSize();
-    
-    RINOK(CopyBlockToArchive(packStream, rangeSize, archive, progress));
-
-    complexity += rangeSize;
-    archive.MoveCurPos(rangeSize);
+    rangeSize = itemEx.GetLocalFullSize();
   }
 
-  return S_OK;
+  CMyComPtr<ISequentialInStream> packStream;
+
+  RINOK(inArchive->GetItemStream(itemEx, ui.NewProps, packStream));
+  if (!packStream)
+    return E_NOTIMPL;
+
+  complexity += rangeSize;
+
+  CMyComPtr<ISequentialOutStream> outStream;
+  archive.CreateStreamForCopying(outStream);
+  HRESULT res = NCompress::CopyStream_ExactSize(packStream, outStream, rangeSize, progress);
+  archive.MoveCurPos(rangeSize);
+  return res;
 }
 
 
 static void WriteDirHeader(COutArchive &archive, const CCompressionMethodMode *options,
     const CUpdateItem &ui, CItemOut &item)
 {
-  SetFileHeader(archive, *options, ui, item);
-  archive.PrepareWriteCompressedData(item.Name.Len(), ui.Size,
-      // options->IsRealAesMode()
-      false // fixed 9.31
-      );
-  archive.WriteLocalHeader_And_SeekToNextFile(item);
+  SetFileHeader(*options, ui, false, item);
+  archive.WriteLocalHeader(item);
 }
 
 
@@ -464,7 +480,7 @@ static HRESULT Update2St(
     CInArchive *inArchive,
     const CObjectVector<CItemEx> &inputItems,
     CObjectVector<CUpdateItem> &updateItems,
-    const CCompressionMethodMode *options,
+    const CCompressionMethodMode *options, bool outSeqMode,
     const CByteBuffer *comment,
     IArchiveUpdateCallback *updateCallback,
     UInt64 &totalComplexity,
@@ -490,6 +506,8 @@ static HRESULT Update2St(
 
     if (!ui.NewProps || !ui.NewData)
     {
+      // Note: for (ui.NewProps && !ui.NewData) it copies Props from old archive,
+      // But we will rewrite all important properties later. But we can keep some properties like Comment
       itemEx = inputItems[ui.IndexInArc];
       if (inArchive->ReadLocalItemAfterCdItemFull(itemEx) != S_OK)
         return E_NOTIMPL;
@@ -498,7 +516,8 @@ static HRESULT Update2St(
 
     if (ui.NewData)
     {
-      bool isDir = ((ui.NewProps) ? ui.IsDir : item.IsDir());
+      // bool isDir = ((ui.NewProps) ? ui.IsDir : item.IsDir());
+      bool isDir = ui.IsDir;
       if (isDir)
       {
         WriteDirHeader(archive, options, ui, item);
@@ -517,41 +536,49 @@ static HRESULT Update2St(
         if (!fileInStream)
           return E_INVALIDARG;
 
-        // bool isSeqMode = false;
-        /*
+        bool inSeqMode = false;
+        if (!inSeqMode)
         {
           CMyComPtr<IInStream> inStream2;
           fileInStream->QueryInterface(IID_IInStream, (void **)&inStream2);
-          isSeqMode = (inStream2 == NULL);
+          inSeqMode = (inStream2 == NULL);
         }
-        */
+        // seqMode = true; // to test seqMode
 
         UpdatePropsFromStream(ui, fileInStream, updateCallback, totalComplexity);
-        SetFileHeader(archive, *options, ui, item);
+
+        CCompressingResult compressingResult;
+        
+        RINOK(compressor.Set_Pre_CompressionResult(
+            inSeqMode, outSeqMode,
+            ui.Size,
+            compressingResult));
+
+        SetFileHeader(*options, ui, compressingResult.DescriptorMode, item);
 
         // file Size can be 64-bit !!!
-        archive.PrepareWriteCompressedData(item.Name.Len(), ui.Size, options->IsRealAesMode());
-        CCompressingResult compressingResult;
+
+        SetItemInfoFromCompressingResult(compressingResult, options->IsRealAesMode(), options->AesKeyMode, item);
+
+        archive.WriteLocalHeader(item);
+
         CMyComPtr<IOutStream> outStream;
-        archive.CreateStreamForCompressing(&outStream);
+        archive.CreateStreamForCompressing(outStream);
         
         RINOK(compressor.Compress(
             EXTERNAL_CODECS_LOC_VARS
             fileInStream, outStream,
-            ui.Time,
+            inSeqMode, outSeqMode,
+            ui.Time, ui.Size,
             progress, compressingResult));
         
-        if (compressingResult.FileTimeWasUsed)
-        {
-          /*
-          if (!item.HasDescriptor())
-            return E_FAIL;
-          */
-          item.SetDescriptorMode(true);
-        }
+        if (item.HasDescriptor() != compressingResult.DescriptorMode)
+          return E_FAIL;
 
         SetItemInfoFromCompressingResult(compressingResult, options->IsRealAesMode(), options->AesKeyMode, item);
-        archive.WriteLocalHeader_And_SeekToNextFile(item);
+
+        archive.WriteLocalHeader_Replace(item);
+
         RINOK(updateCallback->SetOperationResult(NArchive::NUpdate::NOperationResult::kOK));
         unpackSizeTotal += item.Size;
         packSizeTotal += item.PackSize;
@@ -561,7 +588,9 @@ static HRESULT Update2St(
     {
       UInt64 complexity = 0;
       lps->SendRatio = false;
+
       RINOK(UpdateItemOldData(archive, inArchive, itemEx, ui, item, progress, opCallback, complexity));
+
       lps->SendRatio = true;
       lps->ProgressOffset += complexity;
     }
@@ -584,13 +613,14 @@ static HRESULT Update2(
     CInArchive *inArchive,
     const CObjectVector<CItemEx> &inputItems,
     CObjectVector<CUpdateItem> &updateItems,
-    const CCompressionMethodMode *options,
+    const CCompressionMethodMode &options, bool outSeqMode,
     const CByteBuffer *comment,
     IArchiveUpdateCallback *updateCallback)
 {
   CMyComPtr<IArchiveUpdateCallbackFile> opCallback;
   updateCallback->QueryInterface(IID_IArchiveUpdateCallbackFile, (void **)&opCallback);
 
+  bool unknownComplexity = false;
   UInt64 complexity = 0;
   UInt64 numFilesToCompress = 0;
   UInt64 numBytesToCompress = 0;
@@ -602,7 +632,10 @@ static HRESULT Update2(
     const CUpdateItem &ui = updateItems[i];
     if (ui.NewData)
     {
-      complexity += ui.Size;
+      if (ui.Size == (UInt64)(Int64)-1)
+        unknownComplexity = true;
+      else
+        complexity += ui.Size;
       numBytesToCompress += ui.Size;
       numFilesToCompress++;
       /*
@@ -625,21 +658,49 @@ static HRESULT Update2(
   if (comment)
     complexity += comment->Size();
   complexity++; // end of central
-  updateCallback->SetTotal(complexity);
+  
+  if (!unknownComplexity)
+    updateCallback->SetTotal(complexity);
 
   UInt64 totalComplexity = complexity;
 
-  CAddCommon compressor(*options);
+  CCompressionMethodMode options2 = options;
+
+  if (options2._methods.IsEmpty())
+  {
+    // we need method item, if default method was used
+    options2._methods.AddNew();
+  }
+
+  CAddCommon compressor(options2);
   
   complexity = 0;
   
-  CCompressionMethodMode options2;
-  if (options != 0)
-    options2 = *options;
+  const Byte method = options.MethodSequence.Front();
+
+  COneMethodInfo *oneMethodMain = NULL;
+  if (!options2._methods.IsEmpty())
+    oneMethodMain = &options2._methods[0];
+
+  {
+    FOR_VECTOR (mi, options2._methods)
+    {
+      options2.SetGlobalLevelTo(options2._methods[mi]);
+    }
+  }
+
+  if (oneMethodMain)
+  {
+    // appnote recommends to use EOS marker for LZMA.
+    if (method == NFileHeader::NCompressionMethod::kLZMA)
+      oneMethodMain->AddProp_EndMarker_if_NotFound(true);
+  }
+
 
   #ifndef _7ZIP_ST
 
-  UInt32 numThreads = options->NumThreads;
+  UInt32 numThreads = options._numThreads;
+
   const UInt32 kNumMaxThreads = 64;
   if (numThreads > kNumMaxThreads)
     numThreads = kNumMaxThreads;
@@ -648,70 +709,102 @@ static HRESULT Update2(
   if (numThreads < 1)
     numThreads = 1;
 
-  
   const size_t kMemPerThread = (1 << 25);
   const size_t kBlockSize = 1 << 16;
 
-  bool mtMode = ((options != 0) && (numThreads > 1));
+  bool mtMode = (numThreads > 1);
 
   if (numFilesToCompress <= 1)
     mtMode = false;
 
-  Byte method = options->MethodSequence.Front();
-
   if (!mtMode)
   {
-    if (options2.MethodInfo.FindProp(NCoderPropID::kNumThreads) < 0)
+    FOR_VECTOR (mi, options2._methods)
     {
-      // fixed for 9.31. bzip2 default is just one thread.
-      if (options2.NumThreadsWasChanged || method == NFileHeader::NCompressionMethod::kBZip2)
-        options2.MethodInfo.AddProp_NumThreads(numThreads);
+      COneMethodInfo &onem = options2._methods[mi];
+
+      if (onem.FindProp(NCoderPropID::kNumThreads) < 0)
+      {
+        // fixed for 9.31. bzip2 default is just one thread.
+        onem.AddProp_NumThreads(numThreads);
+      }
     }
   }
   else
   {
-    if (method == NFileHeader::NCompressionMethod::kStored && !options->PasswordIsDefined)
+    if (method == NFileHeader::NCompressionMethod::kStore && !options.PasswordIsDefined)
       numThreads = 1;
+    
+    if (oneMethodMain)
+    {
+
     if (method == NFileHeader::NCompressionMethod::kBZip2)
     {
       bool fixedNumber;
-      UInt32 numBZip2Threads = options2.MethodInfo.Get_BZip2_NumThreads(fixedNumber);
+      UInt32 numBZip2Threads = oneMethodMain->Get_BZip2_NumThreads(fixedNumber);
       if (!fixedNumber)
       {
-        UInt64 averageSize = numBytesToCompress / numFilesToCompress;
-        UInt32 blockSize = options2.MethodInfo.Get_BZip2_BlockSize();
-        UInt64 averageNumberOfBlocks = averageSize / blockSize + 1;
-        numBZip2Threads = 32;
-        if (averageNumberOfBlocks < numBZip2Threads)
+        const UInt64 averageSize = numBytesToCompress / numFilesToCompress;
+        const UInt32 blockSize = oneMethodMain->Get_BZip2_BlockSize();
+        const UInt64 averageNumberOfBlocks = averageSize / blockSize + 1;
+        numBZip2Threads = 64;
+        if (numBZip2Threads > averageNumberOfBlocks)
           numBZip2Threads = (UInt32)averageNumberOfBlocks;
-        options2.MethodInfo.AddProp_NumThreads(numBZip2Threads);
+        if (numBZip2Threads > numThreads)
+          numBZip2Threads = numThreads;
+        oneMethodMain->AddProp_NumThreads(numBZip2Threads);
       }
       numThreads /= numBZip2Threads;
     }
-    if (method == NFileHeader::NCompressionMethod::kLZMA)
+    else if (method == NFileHeader::NCompressionMethod::kXz)
     {
-      bool fixedNumber;
+      UInt32 numLzmaThreads = 1;
+      int numXzThreads = oneMethodMain->Get_Xz_NumThreads(numLzmaThreads);
+      if (numXzThreads < 0)
+      {
+        const UInt64 averageSize = numBytesToCompress / numFilesToCompress;
+        const UInt64 blockSize = oneMethodMain->Get_Xz_BlockSize();
+        UInt64 averageNumberOfBlocks = 1;
+        if (blockSize != (UInt64)(Int64)-1)
+          averageNumberOfBlocks = averageSize / blockSize + 1;
+        UInt32 t = 256;
+        if (t > averageNumberOfBlocks)
+          t = (UInt32)averageNumberOfBlocks;
+        t *= numLzmaThreads;
+        if (t > numThreads)
+          t = numThreads;
+        oneMethodMain->AddProp_NumThreads(t);
+        numXzThreads = t;
+      }
+      numThreads /= (unsigned)numXzThreads;
+    }
+    else if (method == NFileHeader::NCompressionMethod::kLZMA)
+    {
       // we suppose that default LZMA is 2 thread. So we don't change it
-      UInt32 numLZMAThreads = options2.MethodInfo.Get_Lzma_NumThreads(fixedNumber);
+      UInt32 numLZMAThreads = oneMethodMain->Get_Lzma_NumThreads();
       numThreads /= numLZMAThreads;
     }
+    }
+
     if (numThreads > numFilesToCompress)
       numThreads = (UInt32)numFilesToCompress;
     if (numThreads <= 1)
       mtMode = false;
   }
 
+  // mtMode = true; // to test mtMode for seqMode
+
   if (!mtMode)
   #endif
     return Update2St(
         EXTERNAL_CODECS_LOC_VARS
         archive, inArchive,
-        inputItems, updateItems, &options2, comment, updateCallback, totalComplexity, opCallback);
+        inputItems, updateItems, &options2, outSeqMode, comment, updateCallback, totalComplexity, opCallback);
 
 
   #ifndef _7ZIP_ST
 
-  // Warning : before memManager, threads and compressingCompletedEvents
+// Warning : before memManager, threads and compressingCompletedEvents
   // in order to have a "good" order for the destructor
   NWindows::NSynchronization::CSynchro synchroForCompressingCompletedEvents;
   synchroForCompressingCompletedEvents.Create();
@@ -735,7 +828,7 @@ static HRESULT Update2(
   CUIntVector threadIndices;  // list threads in order of updateItems
 
   {
-    RINOK(memManager.AllocateSpaceAlways(&synchroForOutStreamSpec,(size_t)numThreads * (kMemPerThread / kBlockSize)));
+    RINOK(memManager.AllocateSpaceAlways(&synchroForOutStreamSpec, (size_t)numThreads * (kMemPerThread / kBlockSize)));
     for (i = 0; i < updateItems.Size(); i++)
       refs.Refs.Add(CMemBlocks2());
 
@@ -756,7 +849,10 @@ static HRESULT Update2(
       threadInfo.ProgressSpec = new CMtCompressProgress();
       threadInfo.Progress = threadInfo.ProgressSpec;
       threadInfo.ProgressSpec->Init(&mtCompressProgressMixer, (int)i);
-      threadInfo.FileTime = 0; // fix it !
+      threadInfo.InSeqMode = false;
+      threadInfo.OutSeqMode = false;
+      threadInfo.FileTime = 0;
+      threadInfo.ExpectedDataSize = (UInt64)(Int64)-1;
       RINOK(threadInfo.CreateThread());
     }
   }
@@ -765,10 +861,15 @@ static HRESULT Update2(
   unsigned itemIndex = 0;
   int lastRealStreamItemIndex = -1;
 
+  
   while (itemIndex < updateItems.Size())
   {
     if (threadIndices.Size() < numThreads && mtItemIndex < updateItems.Size())
     {
+      // we start ahead the threads for compressing
+      // also we set refs.Refs[itemIndex].SeqMode that is used later
+      // don't move that code block
+      
       CUpdateItem &ui = updateItems[mtItemIndex++];
       if (!ui.NewData)
         continue;
@@ -786,12 +887,16 @@ static HRESULT Update2(
         if (inArchive->ReadLocalItemAfterCdItemFull(itemEx) != S_OK)
           return E_NOTIMPL;
         (CItem &)item = itemEx;
-        if (item.IsDir())
+        if (item.IsDir() != ui.IsDir)
+          return E_NOTIMPL;
+        if (ui.IsDir)
           continue;
       }
       
       CMyComPtr<ISequentialInStream> fileInStream;
       
+      CMemBlocks2 &memRef2 = refs.Refs[mtItemIndex - 1];
+
       {
         NWindows::NSynchronization::CCriticalSectionLock lock(mtProgressMixerSpec->Mixer2->CriticalSection);
         HRESULT res = updateCallback->GetStream(ui.IndexInClient, &fileInStream);
@@ -801,7 +906,7 @@ static HRESULT Update2(
           complexity += kLocalHeaderSize;
           mtProgressMixerSpec->Mixer2->SetProgressOffset(complexity);
           RINOK(updateCallback->SetOperationResult(NArchive::NUpdate::NOperationResult::kOK));
-          refs.Refs[mtItemIndex - 1].Skip = true;
+          memRef2.Skip = true;
           continue;
         }
         RINOK(res);
@@ -811,13 +916,28 @@ static HRESULT Update2(
         RINOK(updateCallback->SetOperationResult(NArchive::NUpdate::NOperationResult::kOK));
       }
 
-      for (UInt32 k = 0; k < numThreads; k++)
+      UInt32 k;
+      for (k = 0; k < numThreads; k++)
+        if (threads.Threads[k].IsFree)
+          break;
+
+      if (k == numThreads)
+        return E_FAIL;
       {
-        CThreadInfo &threadInfo = threads.Threads[k];
-        if (threadInfo.IsFree)
         {
+          CThreadInfo &threadInfo = threads.Threads[k];
           threadInfo.IsFree = false;
           threadInfo.InStream = fileInStream;
+
+          bool inSeqMode = false;
+
+          if (!inSeqMode)
+          {
+            CMyComPtr<IInStream> inStream2;
+            fileInStream->QueryInterface(IID_IInStream, (void **)&inStream2);
+            inSeqMode = (inStream2 == NULL);
+          }
+          memRef2.InSeqMode = inSeqMode;
 
           // !!!!! we must release ref before sending event
           // BUG was here in v4.43 and v4.44. It could change ref counter in two threads in same time
@@ -825,12 +945,17 @@ static HRESULT Update2(
 
           threadInfo.OutStreamSpec->Init();
           threadInfo.ProgressSpec->Reinit();
-          threadInfo.CompressEvent.Set();
+          
           threadInfo.UpdateIndex = mtItemIndex - 1;
-
+          threadInfo.InSeqMode = inSeqMode;
+          threadInfo.OutSeqMode = outSeqMode;
+          threadInfo.FileTime = ui.Time; // FileTime is used for ZipCrypto only in seqMode
+          threadInfo.ExpectedDataSize = ui.Size;
+          
+          threadInfo.CompressEvent.Set();
+          
           compressingCompletedEvents.Add(threadInfo.CompressionCompletedEvent);
           threadIndices.Add(k);
-          break;
         }
       }
  
@@ -858,47 +983,71 @@ static HRESULT Update2(
 
     if (ui.NewData)
     {
-      bool isDir = ((ui.NewProps) ? ui.IsDir : item.IsDir());
+      // bool isDir = ((ui.NewProps) ? ui.IsDir : item.IsDir());
+      bool isDir = ui.IsDir;
       
       if (isDir)
       {
-        WriteDirHeader(archive, options, ui, item);
+        WriteDirHeader(archive, &options, ui, item);
       }
       else
       {
-        if (lastRealStreamItemIndex < (int)itemIndex)
-        {
-          lastRealStreamItemIndex = itemIndex;
-          SetFileHeader(archive, *options, ui, item);
-          // file Size can be 64-bit !!!
-          archive.PrepareWriteCompressedData(item.Name.Len(), ui.Size, options->IsRealAesMode());
-        }
-
         CMemBlocks2 &memRef = refs.Refs[itemIndex];
         
-        if (memRef.Defined)
+        if (memRef.Finished)
         {
-          CMyComPtr<IOutStream> outStream;
-          archive.CreateStreamForCompressing(&outStream);
-          memRef.WriteToStream(memManager.GetBlockSize(), outStream);
-          SetFileHeader(archive, *options, ui, item);
+          if (lastRealStreamItemIndex < (int)itemIndex)
+            lastRealStreamItemIndex = itemIndex;
+
+          SetFileHeader(options, ui, memRef.CompressingResult.DescriptorMode, item);
+
           // the BUG was fixed in 9.26:
           // SetItemInfoFromCompressingResult must be after SetFileHeader
           // to write correct Size.
+
           SetItemInfoFromCompressingResult(memRef.CompressingResult,
-              options->IsRealAesMode(), options->AesKeyMode, item);
-          archive.WriteLocalHeader_And_SeekToNextFile(item);
+              options.IsRealAesMode(), options.AesKeyMode, item);
+          archive.WriteLocalHeader(item);
           // RINOK(updateCallback->SetOperationResult(NArchive::NUpdate::NOperationResult::kOK));
+          CMyComPtr<ISequentialOutStream> outStream;
+          archive.CreateStreamForCopying(outStream);
+          memRef.WriteToStream(memManager.GetBlockSize(), outStream);
+          archive.MoveCurPos(item.PackSize);
           memRef.FreeOpt(&memManager);
         }
         else
         {
+          // current file was not finished
+
+          if (lastRealStreamItemIndex < (int)itemIndex)
+          {
+            // LocalHeader was not written for current itemIndex still
+
+            lastRealStreamItemIndex = itemIndex;
+
+            // thread was started before for that item already, and memRef.SeqMode was set
+
+            CCompressingResult compressingResult;
+            RINOK(compressor.Set_Pre_CompressionResult(
+                memRef.InSeqMode, outSeqMode,
+                ui.Size,
+                compressingResult));
+
+            memRef.PreDescriptorMode = compressingResult.DescriptorMode;
+            SetFileHeader(options, ui, compressingResult.DescriptorMode, item);
+
+            SetItemInfoFromCompressingResult(compressingResult, options.IsRealAesMode(), options.AesKeyMode, item);
+
+            // file Size can be 64-bit !!!
+            archive.WriteLocalHeader(item);
+          }
+
           {
             CThreadInfo &thread = threads.Threads[threadIndices.Front()];
             if (!thread.OutStreamSpec->WasUnlockEventSent())
             {
               CMyComPtr<IOutStream> outStream;
-              archive.CreateStreamForCompressing(&outStream);
+              archive.CreateStreamForCompressing(outStream);
               thread.OutStreamSpec->SetOutStream(outStream);
               thread.OutStreamSpec->SetRealStreamMode();
             }
@@ -912,7 +1061,7 @@ static HRESULT Update2(
             DWORD lastError = GetLastError();
             return lastError != 0 ? lastError : E_FAIL;
           }
-#endif
+#endif        
           unsigned t = (unsigned)(result - WAIT_OBJECT_0);
           if (t >= compressingCompletedEvents.Size())
             return E_FAIL;
@@ -926,19 +1075,29 @@ static HRESULT Update2(
           
           if (t == 0)
           {
+            // if thread for current file was finished.
+            if (threadInfo.UpdateIndex != itemIndex)
+              return E_FAIL;
+
+            if (memRef.PreDescriptorMode != threadInfo.CompressingResult.DescriptorMode)
+              return E_FAIL;
+
             RINOK(threadInfo.OutStreamSpec->WriteToRealStream());
             threadInfo.OutStreamSpec->ReleaseOutStream();
-            SetFileHeader(archive, *options, ui, item);
+            SetFileHeader(options, ui, threadInfo.CompressingResult.DescriptorMode, item);
             SetItemInfoFromCompressingResult(threadInfo.CompressingResult,
-                options->IsRealAesMode(), options->AesKeyMode, item);
-            archive.WriteLocalHeader_And_SeekToNextFile(item);
+                options.IsRealAesMode(), options.AesKeyMode, item);
+
+            archive.WriteLocalHeader_Replace(item);
           }
           else
           {
+            // it's not current file. So we must store information in array
             CMemBlocks2 &memRef2 = refs.Refs[threadInfo.UpdateIndex];
             threadInfo.OutStreamSpec->DetachData(memRef2);
             memRef2.CompressingResult = threadInfo.CompressingResult;
-            memRef2.Defined = true;
+            // memRef2.SeqMode = threadInfo.SeqMode; // it was set before
+            memRef2.Finished = true;
             continue;
           }
         }
@@ -971,6 +1130,7 @@ class CCacheOutStream:
   public CMyUnknownImp
 {
   CMyComPtr<IOutStream> _stream;
+  CMyComPtr<ISequentialOutStream> _seqStream;
   Byte *_cache;
   UInt64 _virtPos;
   UInt64 _virtSize;
@@ -986,10 +1146,10 @@ class CCacheOutStream:
   }
   HRESULT FlushCache();
 public:
-  CCacheOutStream(): _cache(0) {}
+  CCacheOutStream(): _cache(NULL) {}
   ~CCacheOutStream();
   bool Allocate();
-  HRESULT Init(IOutStream *stream);
+  HRESULT Init(ISequentialOutStream *seqStream, IOutStream *stream);
   
   MY_UNKNOWN_IMP
 
@@ -1005,13 +1165,19 @@ bool CCacheOutStream::Allocate()
   return (_cache != NULL);
 }
 
-HRESULT CCacheOutStream::Init(IOutStream *stream)
+HRESULT CCacheOutStream::Init(ISequentialOutStream *seqStream, IOutStream *stream)
 {
-  _virtPos = _phyPos = 0;
+  _virtPos = 0;
+  _phyPos = 0;
+  _virtSize = 0;
+  _seqStream = seqStream;
   _stream = stream;
-  RINOK(_stream->Seek(0, STREAM_SEEK_CUR, &_virtPos));
-  RINOK(_stream->Seek(0, STREAM_SEEK_END, &_virtSize));
-  RINOK(_stream->Seek(_virtPos, STREAM_SEEK_SET, &_virtPos));
+  if (_stream)
+  {
+    RINOK(_stream->Seek(0, STREAM_SEEK_CUR, &_virtPos));
+    RINOK(_stream->Seek(0, STREAM_SEEK_END, &_virtSize));
+    RINOK(_stream->Seek(_virtPos, STREAM_SEEK_SET, &_virtPos));
+  }
   _phyPos = _virtPos;
   _phySize = _virtSize;
   _cachedPos = 0;
@@ -1025,12 +1191,14 @@ HRESULT CCacheOutStream::MyWrite(size_t size)
   {
     if (_phyPos != _cachedPos)
     {
+      if (!_stream)
+        return E_FAIL;
       RINOK(_stream->Seek(_cachedPos, STREAM_SEEK_SET, &_phyPos));
     }
     size_t pos = (size_t)_cachedPos & kCacheMask;
     size_t curSize = MyMin(kCacheSize - pos, _cachedSize);
     curSize = MyMin(curSize, size);
-    RINOK(WriteStream(_stream, _cache + pos, curSize));
+    RINOK(WriteStream(_seqStream, _cache + pos, curSize));
     _phyPos += curSize;
     if (_phySize < _phyPos)
       _phySize = _phyPos;
@@ -1049,10 +1217,13 @@ HRESULT CCacheOutStream::FlushCache()
 CCacheOutStream::~CCacheOutStream()
 {
   FlushCache();
-  if (_virtSize != _phySize)
-    _stream->SetSize(_virtSize);
-  if (_virtPos != _phyPos)
-    _stream->Seek(_virtPos, STREAM_SEEK_SET, NULL);
+  if (_stream)
+  {
+    if (_virtSize != _phySize)
+      _stream->SetSize(_virtSize);
+    if (_virtPos != _phyPos)
+      _stream->Seek(_virtPos, STREAM_SEEK_SET, NULL);
+  }
   ::MidFree(_cache);
 }
 
@@ -1161,6 +1332,8 @@ STDMETHODIMP CCacheOutStream::SetSize(UInt64 newSize)
   _virtSize = newSize;
   if (newSize < _phySize)
   {
+    if (!_stream)
+      return E_NOTIMPL;
     RINOK(_stream->SetSize(newSize));
     _phySize = newSize;
   }
@@ -1181,7 +1354,7 @@ HRESULT Update(
     CObjectVector<CUpdateItem> &updateItems,
     ISequentialOutStream *seqOutStream,
     CInArchive *inArchive, bool removeSfx,
-    CCompressionMethodMode *compressionMethodMode,
+    const CCompressionMethodMode &compressionMethodMode,
     IArchiveUpdateCallback *updateCallback)
 {
   if (inArchive)
@@ -1192,11 +1365,14 @@ HRESULT Update(
 
 
   CMyComPtr<IOutStream> outStream;
+  bool outSeqMode;
   {
     CMyComPtr<IOutStream> outStreamReal;
     seqOutStream->QueryInterface(IID_IOutStream, (void **)&outStreamReal);
     if (!outStreamReal)
-      return E_NOTIMPL;
+    {
+      // return E_NOTIMPL;
+    }
 
     if (inArchive)
     {
@@ -1204,7 +1380,7 @@ HRESULT Update(
       {
         IInStream *baseStream = inArchive->GetBaseStream();
         RINOK(baseStream->Seek(0, STREAM_SEEK_SET, NULL));
-        RINOK(NCompress::CopyStream_ExactSize(baseStream, outStreamReal, inArchive->ArcInfo.Base, NULL));
+        RINOK(NCompress::CopyStream_ExactSize(baseStream, seqOutStream, inArchive->ArcInfo.Base, NULL));
       }
     }
 
@@ -1212,7 +1388,8 @@ HRESULT Update(
     outStream = cacheStream;
     if (!cacheStream->Allocate())
       return E_OUTOFMEMORY;
-    RINOK(cacheStream->Init(outStreamReal));
+    RINOK(cacheStream->Init(seqOutStream, outStreamReal));
+    outSeqMode = (outStreamReal == NULL);
   }
 
   COutArchive outArchive;
@@ -1234,7 +1411,7 @@ HRESULT Update(
       EXTERNAL_CODECS_LOC_VARS
       outArchive, inArchive,
       inputItems, updateItems,
-      compressionMethodMode,
+      compressionMethodMode, outSeqMode,
       inArchive ? &inArchive->ArcInfo.Comment : NULL,
       updateCallback);
 }

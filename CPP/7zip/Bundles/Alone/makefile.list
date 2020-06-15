@@ -205,6 +205,7 @@ SRCS=\
   ../../../../CPP/Windows/FileName.cpp \
   ../../../../CPP/Windows/PropVariant.cpp \
   ../../../../CPP/Windows/PropVariantConv.cpp \
+  ../../../../CPP/Windows/PropVariantUtils.cpp \
   ../../../../CPP/Windows/Synchronization.cpp \
   ../../../../CPP/Windows/System.cpp \
   ../../../../CPP/Windows/TimeUtils.cpp \
@@ -871,6 +872,8 @@ PropVariant.o : ../../../../CPP/Windows/PropVariant.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Windows/PropVariant.cpp
 PropVariantConv.o : ../../../../CPP/Windows/PropVariantConv.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Windows/PropVariantConv.cpp
+PropVariantUtils.o : ../../../../CPP/Windows/PropVariantUtils.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/Windows/PropVariantUtils.cpp
 Synchronization.o : ../../../../CPP/Windows/Synchronization.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Windows/Synchronization.cpp
 System.o : ../../../../CPP/Windows/System.cpp
@@ -1097,6 +1100,7 @@ OBJS=\
  FileName.o \
  PropVariant.o \
  PropVariantConv.o \
+ PropVariantUtils.o \
  Synchronization.o \
  System.o \
  TimeUtils.o \

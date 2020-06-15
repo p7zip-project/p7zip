@@ -27,20 +27,12 @@ void CMultiMethodProps::SetGlobalLevelTo(COneMethodInfo &oneMethodInfo) const
     SetMethodProp32(oneMethodInfo, NCoderPropID::kLevel, (UInt32)level);
 }
 
-void CMultiMethodProps::SetGlobalLevelAndThreads(COneMethodInfo &oneMethodInfo
-    #ifndef _7ZIP_ST
-    , UInt32 numThreads
-    #endif
-    )
+#ifndef _7ZIP_ST
+void CMultiMethodProps::SetMethodThreadsTo(COneMethodInfo &oneMethodInfo, UInt32 numThreads)
 {
-  UInt32 level = _level;
-  if (level != (UInt32)(Int32)-1)
-    SetMethodProp32(oneMethodInfo, NCoderPropID::kLevel, (UInt32)level);
-  
-  #ifndef _7ZIP_ST
   SetMethodProp32(oneMethodInfo, NCoderPropID::kNumThreads, numThreads);
-  #endif
 }
+#endif
 
 void CMultiMethodProps::Init()
 {
@@ -80,7 +72,7 @@ HRESULT CMultiMethodProps::SetProperty(const wchar_t *nameSpec, const PROPVARIAN
     return S_OK;
   }
   
-  if (name.IsEqualTo("crc"))
+  if (name.IsPrefixedBy_Ascii_NoCase("crc"))
   {
     name.Delete(0, 3);
     _crcSize = 4;

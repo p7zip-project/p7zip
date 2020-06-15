@@ -4,9 +4,7 @@
 This is the place for the active development of p7zip to include major modern codecs such as LZ4 and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
 
 # status
-| [Ubuntu][ubuntu-link]|
-|---------------|
-| [![ubuntu-badge]][ubuntu-link]
+[![ubuntu-badge]][ubuntu-link]
 
 [ubuntu-link]: https://github.com/szcnick/p7zip/actions?query=workflow%3AUbuntu "UbuntuAction"
 [ubuntu-badge]: https://github.com/szcnick/p7zip/workflows/Ubuntu/badge.svg "Ubuntu"

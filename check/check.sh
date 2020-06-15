@@ -357,7 +357,7 @@ chmod -R 777 ${REP} 2> /dev/null
 rm -fr   ${REP}
 
 echo ""
-echo "========"
+echo "==========="
 echo "ALL SUCCESS"
-echo "========"
+echo "==========="
 echo ""

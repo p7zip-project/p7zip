@@ -470,6 +470,7 @@ HRESULT CHandler::Extract(const UInt32 *indices, UInt32 numItems,
       if (item->IsSymLink())
       {
         RINOK(WriteStream(outStreamSpec, (const char *)item->LinkName, item->LinkName.Len()));
+        RINOK(extractCallback->SetTarFileSymLinkAttrib());
       }
       else
       {

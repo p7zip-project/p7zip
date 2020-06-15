@@ -60,6 +60,7 @@ public:
 
   void Init() throw();
 
+  MY_FORCE_INLINE
   bool ReadByte(Byte &b)
   {
     if (_buf >= _bufLim)
@@ -68,6 +69,7 @@ public:
     return true;
   }
   
+  MY_FORCE_INLINE
   Byte ReadByte()
   {
     if (_buf >= _bufLim)

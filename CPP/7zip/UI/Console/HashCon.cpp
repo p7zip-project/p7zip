@@ -7,9 +7,9 @@
 #include "ConsoleClose.h"
 #include "HashCon.h"
 
-static const wchar_t *kEmptyFileAlias = L"[Content]";
+static const wchar_t * const kEmptyFileAlias = L"[Content]";
 
-static const char *kScanningMessage = "Scanning";
+static const char * const kScanningMessage = "Scanning";
 
 static HRESULT CheckBreak2()
 {
@@ -283,7 +283,7 @@ HRESULT CHashCallbackConsole::SetOperationResult(UInt64 fileSize, const CHashBun
   return CheckBreak2();
 }
 
-static const char *k_DigestTitles[] =
+static const char * const k_DigestTitles[] =
 {
     " : "
   , " for data:              "

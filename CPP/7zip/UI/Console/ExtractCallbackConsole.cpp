@@ -32,7 +32,7 @@ static HRESULT CheckBreak2()
   return NConsoleClose::TestBreakSignal() ? E_ABORT : S_OK;
 }
 
-static const char *kError = "ERROR: ";
+static const char * const kError = "ERROR: ";
 
 
 void CExtractScanConsole::StartScanning()
@@ -138,33 +138,33 @@ static NSynchronization::CCriticalSection g_CriticalSection;
 #endif
 
 
-static const char *kTestString    =  "T";
-static const char *kExtractString =  "-";
-static const char *kSkipString    =  ".";
+static const char * const kTestString    =  "T";
+static const char * const kExtractString =  "-";
+static const char * const kSkipString    =  ".";
 
 // static const char *kCantAutoRename = "can not create file with auto name\n";
 // static const char *kCantRenameFile = "can not rename existing file\n";
 // static const char *kCantDeleteOutputFile = "can not delete output file ";
 
-static const char *kMemoryExceptionMessage = "Can't allocate required memory!";
+static const char * const kMemoryExceptionMessage = "Can't allocate required memory!";
 
-static const char *kExtracting = "Extracting archive: ";
-static const char *kTesting = "Testing archive: ";
+static const char * const kExtracting = "Extracting archive: ";
+static const char * const kTesting = "Testing archive: ";
 
-static const char *kEverythingIsOk = "Everything is Ok";
-static const char *kNoFiles = "No files to process";
+static const char * const kEverythingIsOk = "Everything is Ok";
+static const char * const kNoFiles = "No files to process";
 
-static const char *kUnsupportedMethod = "Unsupported Method";
-static const char *kCrcFailed = "CRC Failed";
-static const char *kCrcFailedEncrypted = "CRC Failed in encrypted file. Wrong password?";
-static const char *kDataError = "Data Error";
-static const char *kDataErrorEncrypted = "Data Error in encrypted file. Wrong password?";
-static const char *kUnavailableData = "Unavailable data";
-static const char *kUnexpectedEnd = "Unexpected end of data";
-static const char *kDataAfterEnd = "There are some data after the end of the payload data";
-static const char *kIsNotArc = "Is not archive";
-static const char *kHeadersError = "Headers Error";
-static const char *kWrongPassword = "Wrong password";
+static const char * const kUnsupportedMethod = "Unsupported Method";
+static const char * const kCrcFailed = "CRC Failed";
+static const char * const kCrcFailedEncrypted = "CRC Failed in encrypted file. Wrong password?";
+static const char * const kDataError = "Data Error";
+static const char * const kDataErrorEncrypted = "Data Error in encrypted file. Wrong password?";
+static const char * const kUnavailableData = "Unavailable data";
+static const char * const kUnexpectedEnd = "Unexpected end of data";
+static const char * const kDataAfterEnd = "There are some data after the end of the payload data";
+static const char * const kIsNotArc = "Is not archive";
+static const char * const kHeadersError = "Headers Error";
+static const char * const kWrongPassword = "Wrong password";
 
 static const char * const k_ErrorFlagsMessages[] =
 {
@@ -206,7 +206,7 @@ STDMETHODIMP CExtractCallbackConsole::SetCompleted(const UInt64 *completeValue)
   return CheckBreak2();
 }
 
-static const char *kTab = "  ";
+static const char * const kTab = "  ";
 
 static void PrintFileInfo(CStdOutStream *_so, const wchar_t *path, const FILETIME *ft, const UInt64 *size)
 {

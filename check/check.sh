@@ -39,6 +39,8 @@ sure ${P7ZIP} t ../test/7za433_7zip_lzma.7z
 sure ${P7ZIP} t -pqwerty ../test/7za433_7zip_lzma_crypto.7z
 sure ${P7ZIP} t ../test/7za433_7zip_ppmd.7z
 sure ${P7ZIP} t ../test/7za433_7zip_bzip2.7z
+sure ${P7ZIP} t ../test/7za433_rar.rar
+sure ${P7ZIP} t ../test/7za433_rar4.rar
 
 echo ""
 echo "# EXTRACTING ..."
@@ -67,6 +69,12 @@ sure diff -r 7za433_ref 7za433_7zip_ppmd_bcj2
 
 sure ${P7ZIP} x ../test/7za433_7zip_bzip2.7z
 sure diff -r 7za433_ref 7za433_7zip_bzip2
+
+sure ${P7ZIP} x ../test/7za433_rar.rar -y
+sure diff -r 7za433_ref 7za433_rar
+
+sure ${P7ZIP} x ../test/7za433_rar4.rar -y
+sure diff -r 7za433_ref 7za433_rar4
 
 sure ${P7ZIP} x ../test/7za433_7zip_lzma2.7z
 sure diff -r 7za433_ref 7za433_7zip_lzma2

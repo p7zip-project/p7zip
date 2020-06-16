@@ -1,5 +1,6 @@
 name: Ubuntu
 on: 
+  pull_request:
   push:
     paths-ignore:
       - 'README.md'

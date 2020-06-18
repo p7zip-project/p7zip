@@ -1520,7 +1520,7 @@ STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 opRes)
   COM_TRY_END
 }
 
-bool CArchiveExtractCallback::SetTarFileSymLinkAttrib()
+bool CArchiveExtractCallback::SetFileSymLinkAttrib()
 {
   if (!SetTarFileSymLink(_diskFilePath, &_delayedSymLinks))
     return E_FAIL;

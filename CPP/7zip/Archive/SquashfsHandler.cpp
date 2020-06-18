@@ -2168,6 +2168,15 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
     {
       CMyComPtr<ISequentialInStream> inSeqStream;
       HRESULT hres = GetStream(index, &inSeqStream);
+
+      {
+        const CItem &item = _items[index];
+        const CNode &node = _nodes[item.Node];
+        if (node.IsLink()){
+          extractCallback->SetFileSymLinkAttrib();
+        }
+      }
+
       if (hres == S_FALSE || !inSeqStream)
       {
         if (hres == E_OUTOFMEMORY)

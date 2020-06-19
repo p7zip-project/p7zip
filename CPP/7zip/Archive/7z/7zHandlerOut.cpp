@@ -612,7 +612,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
   options.Method = &methodMode;
   options.HeaderMethod = (_compressHeaders || encryptHeaders) ? &headerMethod : NULL;
   options.UseFilters = (level != 0 && _autoFilter && !methodMode.Filter_was_Inserted);
-  options.MaxFilter = (level >= 8);
+  // options.MaxFilter = (level >= 8);
   options.AnalysisLevel = GetAnalysisLevel();
 
   options.HeaderOptions.CompressMainHeader = compressMainHeader;

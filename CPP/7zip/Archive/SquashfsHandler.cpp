@@ -1192,8 +1192,8 @@ HRESULT CHandler::Decompress(ISequentialOutStream *outStream, Byte *outBuf, bool
     if (inSize != _zstdDecoderSpec->GetInputProcessedSize())
       return S_FALSE;
   }
-  else if (method == kMethod_LZMA)
-  {
+  else if (method == kMethod_LZMA)  // lzma
+  { 
     if (!_lzmaDecoder)
     {
       _lzmaDecoderSpec = new NCompress::NLzma::CDecoder();

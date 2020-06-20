@@ -30,7 +30,7 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
 |7z-7z|lz4-12|77788386|3548 ms|56.97|409|494.18|2.72|
 |7z-7z|flzma2-9|48676481|12619 ms|16.02|3877|52.13|4.35|
 
-### install CLI
+### Install CLI
 #### (Currently only supports CLI, if you want to do GUI please contact us)
 1. git clone https://github.com/szcnick/p7zip.git
 2. cd p7zip && make 7z . (OR make 7za)
@@ -38,7 +38,7 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
 
 The output should look like this:
 ```
-7-Zip (a) [64] 17.02 : Copyright (c) 1999-2016 Igor Pavlov 
+7-Zip (a) [64] 17.02 : Copyright (c) 1999-2020 Igor Pavlov 
 p7zip Version 17.02 (locale=zh_CN.UTF-8,Utf16=on,HugeFiles=on,64 bits,12 CPUs x64)
  
 Formats:
@@ -102,7 +102,7 @@ Hashers:
 
 ## License and redistribution
 
-- the same as the Mainline [p7-Zip], which means GNU LGPL
+- the same as the Mainline [7-Zip], which means GNU LGPL
 
 ## Links
 
@@ -118,7 +118,7 @@ Hashers:
 ## Working Plan
  - [check here](https://github.com/szcnick/p7zip/tree/dev/DOC)
 
-[p7-Zip]:https://www.7-zip.org/
+[7-Zip]:https://www.7-zip.org/
 [LZ4]:https://github.com/lz4/lz4/
 [Zstandard]:https://github.com/facebook/zstd/
 [Fast LZMA2]:https://github.com/conor42/fast-lzma2

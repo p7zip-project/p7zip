@@ -151,9 +151,9 @@
 	</tr>
 	<tr>
 	    <td rowspan="5">根据 7zip 版本对 p7zip进行版本对齐维护</td>
-	    <td style="table-layout:fixed" width="200" >17.02:新增NewHandler.h / NewHandler.cpp重新定义了new(),针对老版本的_MSC_VER < 1900,修改了C/7zTypes.h中变量名，一些造成崩溃的BUG修复</td>
+	    <td style="table-layout:fixed" width="200" >17.01:新增NewHandler.h / NewHandler.cpp重新定义了new(),针对老版本的_MSC_VER < 1900,修改了C/7zTypes.h中变量名，一些造成崩溃的BUG修复</td>
 	    <td rowspan="5">根据紧迫度和难度分步迭代优化</td>
-	    <td>计划中</td>
+	    <td>完成</td>
 	</tr>
 	<tr>
 	    <td style="table-layout:fixed" width="200" >18.03：汇编优化的LZMA 解压缩函数，在数据块独立时，支持对LZMA2/xz的多线程打包</td>

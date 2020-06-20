@@ -1,6 +1,33 @@
+Version 17.02
+=============
+
+  - p7zip 17.02 is more like 7zip 17.01(only 7za and 7z),The difference from 7zip 17.01 
+    and older version p7zip is the following description
+  - Supports Fast lzma2 1.0.1 compression method
+  - Update Zstd method to 1.4.5
+  - Add zstd method parameters in 7z format
+    ZSTD parameters NEW name:
+         strategy -> strat
+         fast -> fast
+         long -> long
+         WindowLog -> wlog
+         HashLog -> hlog
+         ChainLog -> clog
+         SearchLog -> slog
+         MinMatch -> slen
+         TargetLen -> tlen
+         OverlapLog -> ovlog
+         LdmHashLog -> ldmhlog
+         LdmSearchLength -> ldmslen
+         LdmBucketSizeLog -> ldmblog
+         LdmHashRateLog -> ldmhevery
+  - Fix symlink files contained inside tar and squashfs as regular file
+  - Add lz4 and Zstd decompress method to squashfs
+
 Version 17.01
 =============
 
+  - Fix BUG CVE-2018-10115
   - Fix BUG CVE-2018-5996
   - Fix BUG CVE-2017-17969
   - Fix BUG CVE-2016-9296

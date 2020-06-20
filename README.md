@@ -4,12 +4,10 @@
 This is the place for the active development of p7zip to include major modern codecs such as LZ4 and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
 
 # status
-| [Ubuntu][ubuntu-link]|
-|---------------|
-| ![ubuntu-badge]  |
+[![ubuntu-badge]][ubuntu-link]
 
-[ubuntu-link]: https://github.com/2273816832/test_github_action/actions?query=workflow%3AUbuntu "UbuntuAction"
-[ubuntu-badge]: https://github.com/2273816832/test_github_action/workflows/Ubuntu/badge.svg "Ubuntu"
+[ubuntu-link]: https://github.com/szcnick/p7zip/actions?query=workflow%3AUbuntu "UbuntuL"
+[ubuntu-badge]: https://github.com/szcnick/p7zip/workflows/Ubuntu/badge.svg "UbuntuB"
 
 ## Codec overview
 1. [Zstandard] v1.4.5 is a real-time compression algorithm, providing high compression ratios. It offers a very wide range of compression / speed trade-off, while being backed by a very fast decoder.
@@ -32,7 +30,7 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
 |7z-7z|lz4-12|77788386|3548 ms|56.97|409|494.18|2.72|
 |7z-7z|flzma2-9|48676481|12619 ms|16.02|3877|52.13|4.35|
 
-### install CLI
+### Install CLI
 #### (Currently only supports CLI, if you want to do GUI please contact us)
 1. git clone https://github.com/szcnick/p7zip.git
 2. cd p7zip && make 7z . (OR make 7za)
@@ -40,8 +38,8 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
 
 The output should look like this:
 ```
-7-Zip (a) [64] 17.01 : Copyright (c) 1999-2016 Igor Pavlov 
-p7zip Version 17.01 (locale=zh_CN.UTF-8,Utf16=on,HugeFiles=on,64 bits,12 CPUs x64)
+7-Zip (a) [64] 17.02 : Copyright (c) 1999-2020 Igor Pavlov 
+p7zip Version 17.02 (locale=zh_CN.UTF-8,Utf16=on,HugeFiles=on,64 bits,12 CPUs x64)
  
 Formats:
 ...
@@ -104,7 +102,7 @@ Hashers:
 
 ## License and redistribution
 
-- the same as the Mainline [p7-Zip], which means GNU LGPL
+- the same as the Mainline [7-Zip], which means GNU LGPL
 
 ## Links
 
@@ -112,7 +110,7 @@ Hashers:
 
 ## Version Information
 
-- p7zip Version 17.01
+- p7zip Version 17.02
   - [LZ4] Version 1.9.2
   - [Zstandard] Version 1.4.5
   - [Fast LZMA2] Version v1.0.1
@@ -120,7 +118,7 @@ Hashers:
 ## Working Plan
  - [check here](https://github.com/szcnick/p7zip/tree/dev/DOC)
 
-[p7-Zip]:https://www.7-zip.org/
+[7-Zip]:https://www.7-zip.org/
 [LZ4]:https://github.com/lz4/lz4/
 [Zstandard]:https://github.com/facebook/zstd/
 [Fast LZMA2]:https://github.com/conor42/fast-lzma2

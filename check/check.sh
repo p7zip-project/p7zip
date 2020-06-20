@@ -39,6 +39,8 @@ sure ${P7ZIP} t ../test/7za433_7zip_lzma.7z
 sure ${P7ZIP} t -pqwerty ../test/7za433_7zip_lzma_crypto.7z
 sure ${P7ZIP} t ../test/7za433_7zip_ppmd.7z
 sure ${P7ZIP} t ../test/7za433_7zip_bzip2.7z
+sure ${P7ZIP} t ../test/7za433_rar.rar
+sure ${P7ZIP} t ../test/7za433_rar4.rar
 
 echo ""
 echo "# EXTRACTING ..."
@@ -67,6 +69,12 @@ sure diff -r 7za433_ref 7za433_7zip_ppmd_bcj2
 
 sure ${P7ZIP} x ../test/7za433_7zip_bzip2.7z
 sure diff -r 7za433_ref 7za433_7zip_bzip2
+
+sure ${P7ZIP} x ../test/7za433_rar.rar -y
+sure diff -r 7za433_ref 7za433_rar
+
+sure ${P7ZIP} x ../test/7za433_rar4.rar -y
+sure diff -r 7za433_ref 7za433_rar4
 
 sure ${P7ZIP} x ../test/7za433_7zip_lzma2.7z
 sure diff -r 7za433_ref 7za433_7zip_lzma2
@@ -111,6 +119,8 @@ sure ${P7ZIP} a -t7z 7za433_7zip_Copy.7z 7za433_7zip_lzma -m0=Copy
 sure ${P7ZIP} a -t7z 7za433_7zip_zstd.7z 7za433_7zip_lzma -m0=zstd -mx=22 # mx=level
 
 sure ${P7ZIP} a -t7z 7za433_7zip_lz4.7z 7za433_7zip_lzma -m0=lz4 -mmt=on # mmt=multithreading mode
+
+sure ${P7ZIP} a -t7z 7za433_7zip_flzma2.7z 7za433_7zip_lzma -m0=flzma2 -mmt=on # mmt=multithreading mode
 
 sure ${P7ZIP} a -t7z 7za433_7zip_lzma3.7z 7za433_7zip_lzma -m0=LZMA -mf=BCJ # mf=FilterID
 
@@ -219,6 +229,10 @@ sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 
 sure ${P7ZIP} x 7za433_7zip_lz4.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_flzma2.7z
 sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 
@@ -357,7 +371,7 @@ chmod -R 777 ${REP} 2> /dev/null
 rm -fr   ${REP}
 
 echo ""
-echo "========"
+echo "==========="
 echo "ALL SUCCESS"
-echo "========"
+echo "==========="
 echo ""

@@ -1,5 +1,6 @@
 name: Ubuntu
 on: 
+  pull_request:
   push:
     paths-ignore:
       - 'README.md'
@@ -42,6 +43,6 @@ jobs:
       - name: check
         run: |
              cd ./check
-             bash check.sh `pwd`/../bin/7za
+             bash check.sh `pwd`/../bin/7z
              cd ..
 

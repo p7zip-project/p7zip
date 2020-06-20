@@ -1482,7 +1482,7 @@ public:
   }
 };
 
-bool CExtractCallback_To_OpenCallback::SetTarFileSymLinkAttrib()
+bool CExtractCallback_To_OpenCallback::SetFileSymLinkAttrib()
 {
   /* DO NOTHING */
   return S_OK;

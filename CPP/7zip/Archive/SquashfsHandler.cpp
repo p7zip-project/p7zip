@@ -6,11 +6,13 @@
 #include "../../../C/Alloc.h"
 #include "../../../C/CpuArch.h"
 #include "../../../C/Xz.h"
+#include "../../../C/lz4/lz4.h"
 
 #include "../../Common/ComTry.h"
 #include "../../Common/MyLinux.h"
 #include "../../Common/IntToString.h"
 #include "../../Common/StringConvert.h"
+#include "../../Common/UTFConvert.h"
 
 #include "../../Windows/PropVariantUtils.h"
 #include "../../Windows/TimeUtils.h"
@@ -25,6 +27,7 @@
 #include "../Compress/CopyCoder.h"
 #include "../Compress/ZlibDecoder.h"
 #include "../Compress/LzmaDecoder.h"
+#include "../Compress/ZstdDecoder.h"
 
 namespace NArchive {
 namespace NSquashfs {
@@ -59,19 +62,24 @@ UInt64 Get64b(const Byte *p, bool be) { return be ? GetBe64(p) : GetUi64(p); }
 static const UInt32 kSignature32_LE = 0x73717368;
 static const UInt32 kSignature32_BE = 0x68737173;
 static const UInt32 kSignature32_LZ = 0x71736873;
+static const UInt32 kSignature32_B2 = 0x73687371;
 
 #define kMethod_ZLIB 1
 #define kMethod_LZMA 2
 #define kMethod_LZO  3
 #define kMethod_XZ   4
+#define kMethod_LZ4  5
+#define kMethod_ZSTD 6
 
 static const char * const k_Methods[] =
 {
-    "Unknown"
+    "0"
   , "ZLIB"
   , "LZMA"
   , "LZO"
   , "XZ"
+  , "LZ4"
+  , "ZSTD"
 };
 
 static const UInt32 kMetadataBlockSizeLog = 13;
@@ -109,16 +117,16 @@ enum
   kFlag_EXPORT
 };
 
-static const CUInt32PCharPair k_Flags[] =
+static const char * const k_Flags[] =
 {
-  { kFlag_UNC_INODES, "UNCOMPRESSED_INODES" },
-  { kFlag_UNC_DATA, "UNCOMPRESSED_DATA" },
-  { kFlag_CHECK, "CHECK" },
-  { kFlag_UNC_FRAGS, "UNCOMPRESSED_FRAGMENTS" },
-  { kFlag_NO_FRAGS, "NO_FRAGMENTS" },
-  { kFlag_ALWAYS_FRAG, "ALWAYS_FRAGMENTS" },
-  { kFlag_DUPLICATE, "DUPLICATES_REMOVED" },
-  { kFlag_EXPORT, "EXPORTABLE" }
+    "UNCOMPRESSED_INODES"
+  , "UNCOMPRESSED_DATA"
+  , "CHECK"
+  , "UNCOMPRESSED_FRAGMENTS"
+  , "NO_FRAGMENTS"
+  , "ALWAYS_FRAGMENTS"
+  , "DUPLICATES_REMOVED"
+  , "EXPORTABLE"
 };
 
 static const UInt32 kNotCompressedBit16 = (1 << 15);
@@ -224,6 +232,7 @@ struct CHeader
       case kSignature32_LE: break;
       case kSignature32_BE: be = true; break;
       case kSignature32_LZ: SeveralMethods = true; break;
+      case kSignature32_B2: SeveralMethods = true; be = true; break;
       default: return false;
     }
     GET_32 (4, NumInodes);
@@ -841,6 +850,8 @@ class CHandler:
   CHeader _h;
   bool _noPropsLZMA;
   bool _needCheckLzma;
+  
+  UInt32 _openCodePage;
 
   CMyComPtr<IInStream> _stream;
   UInt64 _sizeCalculated;
@@ -868,6 +879,9 @@ class CHandler:
   NCompress::NZlib::CDecoder *_zlibDecoderSpec;
   CMyComPtr<ICompressCoder> _zlibDecoder;
   
+  NCompress::NZSTD::CDecoder *_zstdDecoderSpec;
+  CMyComPtr<ICompressCoder> _zstdDecoder;
+
   CXzUnpacker _xz;
 
   CByteBuffer _inputBuffer;
@@ -944,7 +958,8 @@ static const Byte kArcProps[] =
   kpidClusterSize,
   kpidBigEndian,
   kpidCTime,
-  kpidCharacts
+  kpidCharacts,
+  kpidCodePage
   // kpidNumBlocks
 };
 
@@ -959,7 +974,7 @@ static HRESULT LzoDecode(Byte *dest, SizeT *destLen, const Byte *src, SizeT *src
   *srcLen = 0;
   const Byte *destStart = dest;
   const Byte *srcStart = src;
-  unsigned mode = 2;
+  unsigned mode = 0;
 
   {
     if (srcRem == 0)
@@ -970,7 +985,7 @@ static HRESULT LzoDecode(Byte *dest, SizeT *destLen, const Byte *src, SizeT *src
       src++;
       srcRem--;
       b -= 17;
-      mode = (b < 4 ? 0 : 1);
+      mode = (b < 4 ? 1 : 4);
       if (b > srcRem || b > destRem)
         return S_FALSE;
       srcRem -= b;
@@ -988,6 +1003,7 @@ static HRESULT LzoDecode(Byte *dest, SizeT *destLen, const Byte *src, SizeT *src
     UInt32 b = *src++;
     srcRem--;
     UInt32 len, back;
+    
     if (b >= 64)
     {
       srcRem--;
@@ -996,7 +1012,7 @@ static HRESULT LzoDecode(Byte *dest, SizeT *destLen, const Byte *src, SizeT *src
     }
     else if (b < 16)
     {
-      if (mode == 2)
+      if (mode == 0)
       {
         if (b == 0)
         {
@@ -1013,21 +1029,23 @@ static HRESULT LzoDecode(Byte *dest, SizeT *destLen, const Byte *src, SizeT *src
             }
           }
         }
+      
         b += 3;
         if (b > srcRem || b > destRem)
           return S_FALSE;
         srcRem -= b;
         destRem -= b;
-        mode = 1;
+        mode = 4;
         do
           *dest++ = *src++;
         while (--b);
         continue;
       }
+      
       srcRem--;
       back = (b >> 2) + (*src++ << 2);
       len = 2;
-      if (mode == 1)
+      if (mode == 4)
       {
         back += (1 << 11);
         len = 3;
@@ -1038,6 +1056,7 @@ static HRESULT LzoDecode(Byte *dest, SizeT *destLen, const Byte *src, SizeT *src
       UInt32 bOld = b;
       b = (b < 32 ? 7 : 31);
       len = bOld & b;
+      
       if (len == 0)
       {
         for (len = b;; len += 255)
@@ -1053,6 +1072,7 @@ static HRESULT LzoDecode(Byte *dest, SizeT *destLen, const Byte *src, SizeT *src
           }
         }
       }
+      
       len += 2;
       if (srcRem < 2)
         return S_FALSE;
@@ -1062,38 +1082,39 @@ static HRESULT LzoDecode(Byte *dest, SizeT *destLen, const Byte *src, SizeT *src
       srcRem -= 2;
       if (bOld < 32)
       {
+        back += ((bOld & 8) << 11);
         if (back == 0)
         {
           *destLen = dest - destStart;
           *srcLen = src - srcStart;
           return S_OK;
         }
-        back += ((bOld & 8) << 11) + (1 << 14) - 1;
+        back += (1 << 14) - 1;
       }
     }
+    
     back++;
     if (len > destRem || (size_t)(dest - destStart) < back)
       return S_FALSE;
     destRem -= len;
     Byte *destTemp = dest - back;
     dest += len;
+    
     do
     {
       *(destTemp + back) = *destTemp;
       destTemp++;
     }
     while (--len);
+    
     b &= 3;
+    mode = b;
     if (b == 0)
-    {
-      mode = 2;
       continue;
-    }
     if (b > srcRem || b > destRem)
       return S_FALSE;
     srcRem -= b;
     destRem -= b;
-    mode = 0;
     *dest++ = *src++;
     if (b > 1)
     {
@@ -1103,6 +1124,22 @@ static HRESULT LzoDecode(Byte *dest, SizeT *destLen, const Byte *src, SizeT *src
     }
   }
 }
+
+static HRESULT Lz4Decode(Byte *dest, SizeT *destLen, const Byte *src, SizeT *srcLen)
+{
+  const char *Src = (const char *)src;
+  char *Dst = (char *)dest;
+  int compressedSize = (int)*srcLen;
+  int dstCapacity = (int)*destLen;
+  // int LZ4_decompress_safe (const char* src, char* dst, int compressedSize, int dstCapacity);
+  int rv = LZ4_decompress_safe(Src, Dst, compressedSize, dstCapacity);
+  if (rv == 0)
+    return S_FALSE;
+
+  *destLen = rv;
+  return S_OK;
+}
+
 
 HRESULT CHandler::Decompress(ISequentialOutStream *outStream, Byte *outBuf, bool *outBufWasWritten, UInt32 *outBufWasWrittenSize, UInt32 inSize, UInt32 outSizeMax)
 {
@@ -1144,8 +1181,19 @@ HRESULT CHandler::Decompress(ISequentialOutStream *outStream, Byte *outBuf, bool
     if (inSize != _zlibDecoderSpec->GetInputProcessedSize())
       return S_FALSE;
   }
-  else if (method == kMethod_LZMA)
+  else if (method == kMethod_ZSTD)
   {
+    if (!_zstdDecoder)
+    {
+      _zstdDecoderSpec = new NCompress::NZSTD::CDecoder();
+      _zstdDecoder = _zstdDecoderSpec;
+    }
+    RINOK(_zstdDecoder->Code(_limitedInStream, outStream, NULL, NULL, NULL));
+    if (inSize != _zstdDecoderSpec->GetInputProcessedSize())
+      return S_FALSE;
+  }
+  else if (method == kMethod_LZMA)  // lzma
+  { 
     if (!_lzmaDecoder)
     {
       _lzmaDecoderSpec = new NCompress::NLzma::CDecoder();
@@ -1193,6 +1241,10 @@ HRESULT CHandler::Decompress(ISequentialOutStream *outStream, Byte *outBuf, bool
     if (method == kMethod_LZO)
     {
       RINOK(LzoDecode(dest, &destLen, _inputBuffer, &srcLen));
+    }
+    else if (method == kMethod_LZ4)
+    {
+      RINOK(Lz4Decode(dest, &destLen, _inputBuffer, &srcLen));
     }
     else
     {
@@ -1327,6 +1379,8 @@ HRESULT CHandler::OpenDir(int parent, UInt32 startBlock, UInt32 offset, unsigned
     return S_FALSE;
   rem = fileSize;
 
+  AString tempString;
+
   CRecordVector<CTempItem> tempItems;
   while (rem != 0)
   {
@@ -1392,7 +1446,7 @@ HRESULT CHandler::OpenDir(int parent, UInt32 startBlock, UInt32 offset, unsigned
       }
       
       CItem item;
-      item.Ptr = (UInt32)(p - _dirs.Data);
+      item.Ptr = (UInt32)(p - (const Byte *)_dirs.Data);
 
       UInt32 size;
       if (_h.IsOldVersion())
@@ -1426,6 +1480,14 @@ HRESULT CHandler::OpenDir(int parent, UInt32 startBlock, UInt32 offset, unsigned
       size++;
       if (rem < size)
         return S_FALSE;
+
+      if (_openCodePage == CP_UTF8)
+      {
+        tempString.SetFrom_CalcLen((const char *)p, size);
+        if (!CheckUTF8(tempString))
+          _openCodePage = CP_OEMCP;
+      }
+
       p += size;
       rem -= size;
       item.Parent = parent;
@@ -1474,6 +1536,8 @@ HRESULT CHandler::Open2(IInStream *inStream)
       case kMethod_LZMA:
       case kMethod_LZO:
       case kMethod_XZ:
+      case kMethod_LZ4:
+      case kMethod_ZSTD:
         break;
       default:
         return E_NOTIMPL;
@@ -1700,6 +1764,7 @@ STDMETHODIMP CHandler::Open(IInStream *stream, const UInt64 *, IArchiveOpenCallb
 
 STDMETHODIMP CHandler::Close()
 {
+  _openCodePage = CP_UTF8;
   _sizeCalculated = 0;
 
   _limitedInStreamSpec->ReleaseStream();
@@ -1823,6 +1888,7 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
   {
     case kpidMethod:
     {
+      char sz[16];
       const char *s;
       if (_noPropsLZMA)
         s = "LZMA Spec";
@@ -1830,25 +1896,27 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
         s = "LZMA ZLIB";
       else
       {
-        s = k_Methods[0];
+        s = NULL;
         if (_h.Method < ARRAY_SIZE(k_Methods))
           s = k_Methods[_h.Method];
+        if (!s)
+        {
+          ConvertUInt32ToString(_h.Method, sz);
+          s = sz;
+        }
       }
       prop = s;
       break;
     }
     case kpidFileSystem:
     {
-      AString res = "SquashFS";
+      AString res ("SquashFS");
       if (_h.SeveralMethods)
         res += "-LZMA";
       res.Add_Space();
-      char s[16];
-      ConvertUInt32ToString(_h.Major, s);
-      res += s;
+      res.Add_UInt32(_h.Major);
       res += '.';
-      ConvertUInt32ToString(_h.Minor, s);
-      res += s;
+      res.Add_UInt32(_h.Minor);
       prop = res;
       break;
     }
@@ -1869,6 +1937,24 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
       if (_sizeCalculated >= _h.InodeTable)
         prop = _sizeCalculated - _h.InodeTable;
       break;
+
+    case kpidCodePage:
+    {
+      char sz[16];
+      const char *name = NULL;
+      switch (_openCodePage)
+      {
+        case CP_OEMCP: name = "OEM"; break;
+        case CP_UTF8: name = "UTF-8"; break;
+      }
+      if (!name)
+      {
+        ConvertUInt32ToString(_openCodePage, sz);
+        name = sz;
+      }
+      prop = name;
+      break;
+    }
   }
   prop.Detach(value);
   return S_OK;
@@ -1886,7 +1972,17 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
 
   switch (propID)
   {
-    case kpidPath: prop = MultiByteToUnicodeString(GetPath(index), CP_OEMCP); break;
+    case kpidPath:
+    {
+      AString path (GetPath(index));
+      UString s;
+      if (_openCodePage == CP_UTF8)
+        ConvertUTF8ToUnicode(path, s);
+      else
+        MultiByteToUnicodeString2(s, path, _openCodePage);
+      prop = s;
+      break;
+    }
     case kpidIsDir: prop = isDir; break;
     // case kpidOffset: if (!node.IsLink()) prop = (UInt64)node.StartBlock; break;
     case kpidSize: if (!isDir) prop = node.GetSize(); break;
@@ -2114,6 +2210,15 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
     {
       CMyComPtr<ISequentialInStream> inSeqStream;
       HRESULT hres = GetStream(index, &inSeqStream);
+
+      {
+        const CItem &item = _items[index];
+        const CNode &node = _nodes[item.Node];
+        if (node.IsLink()){
+          extractCallback->SetFileSymLinkAttrib();
+        }
+      }
+
       if (hres == S_FALSE || !inSeqStream)
       {
         if (hres == E_OUTOFMEMORY)
@@ -2206,7 +2311,8 @@ STDMETHODIMP CHandler::GetStream(UInt32 index, ISequentialInStream **stream)
 static const Byte k_Signature[] = {
     4, 'h', 's', 'q', 's',
     4, 's', 'q', 's', 'h',
-    4, 's', 'h', 's', 'q' };
+    4, 's', 'h', 's', 'q',
+    4, 'q', 's', 'h', 's' };
 
 REGISTER_ARC_I(
   "SquashFS", "squashfs", 0, 0xD2,

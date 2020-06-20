@@ -75,7 +75,7 @@ extern const CCodecInfo *g_Codecs[];
 extern unsigned g_NumHashers;
 extern const CHasherInfo *g_Hashers[];
 
-static const char *kCopyrightString = "\n7-Zip"
+static const char * const kCopyrightString = "\n7-Zip"
 #ifndef EXTERNAL_CODECS
 #ifdef PROG_VARIANT_R
 " (r)"
@@ -92,7 +92,7 @@ static const char *kCopyrightString = "\n7-Zip"
 
 " " MY_VERSION_COPYRIGHT_DATE "\n";
 
-static const char *kHelpString =
+static const char * const kHelpString =
     "Usage: 7z"
 #ifndef EXTERNAL_CODECS
 #ifdef PROG_VARIANT_R
@@ -102,7 +102,6 @@ static const char *kHelpString =
 #endif
 #endif
     " <command> [<switches>...] <archive_name> [<file_names>...]\n"
-    "       [<@listfiles...>]\n"
     "\n"
     "<Commands>\n"
     "  a : Add files to archive\n"
@@ -119,6 +118,7 @@ static const char *kHelpString =
     "\n"
     "<Switches>\n"
     "  -- : Stop switches parsing\n"
+    "  @listfile : set path to listfile that contains file names\n"
     "  -ai[r[-|0]]{@listfile|!wildcard} : Include archives\n"
     "  -ax[r[-|0]]{@listfile|!wildcard} : eXclude archives\n"
     "  -ao{a|s|t|u} : set Overwrite mode\n"
@@ -130,6 +130,7 @@ static const char *kHelpString =
     "  -i[r[-|0]]{@listfile|!wildcard} : Include filenames\n"
     "  -m{Parameters} : set compression Method\n"
     "    -mmt[N] : set number of CPU threads\n"
+    "    -mx[N] : set compression level: -mx1 (fastest) ... -mx9 (ultra)\n"
     "  -o{Directory} : set Output directory\n"
     #ifndef _NO_CRYPTO
     "  -p{Password} : set Password\n"
@@ -168,11 +169,11 @@ static const char *kHelpString =
 // ---------------------------
 // exception messages
 
-static const char *kEverythingIsOk = "Everything is Ok";
-static const char *kUserErrorMessage = "Incorrect command line";
-static const char *kNoFormats = "7-Zip cannot find the code that works with archives.";
-static const char *kUnsupportedArcTypeMessage = "Unsupported archive type";
-// static const char *kUnsupportedUpdateArcType = "Can't create archive for that type";
+static const char * const kEverythingIsOk = "Everything is Ok";
+static const char * const kUserErrorMessage = "Incorrect command line";
+static const char * const kNoFormats = "7-Zip cannot find the code that works with archives.";
+static const char * const kUnsupportedArcTypeMessage = "Unsupported archive type";
+// static const char * const kUnsupportedUpdateArcType = "Can't create archive for that type";
 
 static CFSTR kDefaultSfxModule = FTEXT("7zCon.sfx");
 
@@ -650,7 +651,7 @@ int Main2(
 
     so << endl << "Formats:" << endl;
     
-    const char *kArcFlags = "KSNFMGOPBELH";
+    const char * const kArcFlags = "KSNFMGOPBELH";
     const unsigned kNumArcFlags = (unsigned)strlen(kArcFlags);
     
     for (i = 0; i < codecs->Formats.Size(); i++)

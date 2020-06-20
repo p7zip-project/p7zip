@@ -23,15 +23,15 @@ static NSynchronization::CCriticalSection g_CriticalSection;
 #define MT_LOCK
 #endif
 
-static const wchar_t *kEmptyFileAlias = L"[Content]";
+static const wchar_t * const kEmptyFileAlias = L"[Content]";
 
-static const char *kOpenArchiveMessage = "Open archive: ";
-static const char *kCreatingArchiveMessage = "Creating archive: ";
-static const char *kUpdatingArchiveMessage = "Updating archive: ";
-static const char *kScanningMessage = "Scanning the drive:";
+static const char * const kOpenArchiveMessage = "Open archive: ";
+static const char * const kCreatingArchiveMessage = "Creating archive: ";
+static const char * const kUpdatingArchiveMessage = "Updating archive: ";
+static const char * const kScanningMessage = "Scanning the drive:";
 
-static const char *kError = "ERROR: ";
-static const char *kWarning = "WARNING: ";
+static const char * const kError = "ERROR: ";
+static const char * const kWarning = "WARNING: ";
 
 static HRESULT CheckBreak2()
 {
@@ -259,7 +259,7 @@ HRESULT CUpdateCallbackConsole::FinishScanning(const CDirItemsStat &st)
   return S_OK;
 }
 
-static const char *k_StdOut_ArcName = "StdOut";
+static const char * const k_StdOut_ArcName = "StdOut";
 
 HRESULT CUpdateCallbackConsole::StartOpenArchive(const wchar_t *name)
 {

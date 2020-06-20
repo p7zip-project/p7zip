@@ -56,9 +56,9 @@ using namespace NWindows;
 namespace NArchive {
 namespace Ntfs {
 
-static const wchar_t *kVirtualFolder_System = L"[SYSTEM]";
-static const wchar_t *kVirtualFolder_Lost_Normal = L"[LOST]";
-static const wchar_t *kVirtualFolder_Lost_Deleted = L"[UNKNOWN]";
+static const wchar_t * const kVirtualFolder_System = L"[SYSTEM]";
+static const wchar_t * const kVirtualFolder_Lost_Normal = L"[LOST]";
+static const wchar_t * const kVirtualFolder_Lost_Deleted = L"[UNKNOWN]";
 
 static const unsigned kNumSysRecs = 16;
 
@@ -341,15 +341,19 @@ bool CVolInfo::Parse(const Byte *p, unsigned size)
 struct CAttr
 {
   UInt32 Type;
+
+  Byte NonResident;
+
+  // Non-Resident
+  Byte CompressionUnit;
+
   // UInt32 Len;
   UString2 Name;
   // UInt16 Flags;
   // UInt16 Instance;
   CByteBuffer Data;
-  Byte NonResident;
 
   // Non-Resident
-  Byte CompressionUnit;
   UInt64 LowVcn;
   UInt64 HighVcn;
   UInt64 AllocatedSize;
@@ -394,7 +398,7 @@ static int CompareAttr(void *const *elem1, void *const *elem2, void *)
     return 1;
   else
   {
-    RINOZ(wcscmp(a1.Name.GetRawPtr(), a2.Name.GetRawPtr()));
+    RINOZ(a1.Name.Compare(a2.Name.GetRawPtr()));
   }
   return MyCompare(a1.LowVcn, a2.LowVcn);
 }
@@ -408,15 +412,16 @@ UInt32 CAttr::Parse(const Byte *p, unsigned size)
     return 8; // required size is 4, but attributes are 8 bytes aligned. So we return 8
   if (size < 0x18)
     return 0;
+
   PRF(printf(" T=%2X", Type));
   
-  UInt32 len = Get32(p + 0x04);
+  UInt32 len = Get32(p + 4);
   PRF(printf(" L=%3d", len));
   if (len > size)
     return 0;
   if ((len & 7) != 0)
     return 0;
-  NonResident = p[0x08];
+  NonResident = p[8];
   {
     unsigned nameLen = p[9];
     UInt32 nameOffset = Get16(p + 0x0A);
@@ -437,6 +442,7 @@ UInt32 CAttr::Parse(const Byte *p, unsigned size)
 
   UInt32 dataSize;
   UInt32 offs;
+  
   if (NonResident)
   {
     if (len < 0x40)
@@ -472,16 +478,19 @@ UInt32 CAttr::Parse(const Byte *p, unsigned size)
   {
     if (len < 0x18)
       return 0;
-    PRF(printf(" RES"));
-    dataSize = Get32(p + 0x10);
-    PRF(printf(" dataSize=%3d", dataSize));
-    offs = Get16(p + 0x14);
+    G32(p + 0x10, dataSize);
+    G16(p + 0x14, offs);
     // G16(p + 0x16, ResidentFlags);
+    PRF(printf(" RES"));
+    PRF(printf(" dataSize=%3d", dataSize));
     // PRF(printf(" ResFlags=%4X", ResidentFlags));
   }
+  
   if (offs > len || dataSize > len || len - dataSize < offs)
     return 0;
+  
   Data.CopyFrom(p + offs, dataSize);
+  
   #ifdef SHOW_DEBUG_INFO
   PRF(printf("  : "));
   for (unsigned i = 0; i < Data.Size(); i++)
@@ -489,8 +498,10 @@ UInt32 CAttr::Parse(const Byte *p, unsigned size)
     PRF(printf(" %02X", (unsigned)Data[i]));
   }
   #endif
+  
   return len;
 }
+
 
 bool CAttr::ParseExtents(CRecordVector<CExtent> &extents, UInt64 numClustersMax, unsigned compressionUnit) const
 {
@@ -498,7 +509,8 @@ bool CAttr::ParseExtents(CRecordVector<CExtent> &extents, UInt64 numClustersMax,
   unsigned size = (unsigned)Data.Size();
   UInt64 vcn = LowVcn;
   UInt64 lcn = 0;
-  UInt64 highVcn1 = HighVcn + 1;
+  const UInt64 highVcn1 = HighVcn + 1;
+  
   if (LowVcn != extents.Back().Virt || highVcn1 > (UInt64)1 << 63)
     return false;
 
@@ -528,15 +540,30 @@ bool CAttr::ParseExtents(CRecordVector<CExtent> &extents, UInt64 numClustersMax,
     if ((highVcn1 - vcn) < vSize)
       return false;
 
+    CExtent e;
+    e.Virt = vcn;
+    vcn += vSize;
+
     num = (b >> 4) & 0xF;
     if (num > 8 || num > size)
       return false;
-    CExtent e;
-    e.Virt = vcn;
+    
     if (num == 0)
     {
+      // Sparse
+      
+      /* if Unit is compressed, it can have many Elements for each compressed Unit:
+         and last Element for unit MUST be without LCN.
+           Element 0: numCompressedClusters2, LCN_0
+           Element 1: numCompressedClusters2, LCN_1
+           ...
+           Last Element : (16 - total_clusters_in_previous_elements), no LCN
+      */
+      
+      // sparse is not allowed for (compressionUnit == 0) ? Why ?
       if (compressionUnit == 0)
         return false;
+
       e.Phy = kEmptyExtent;
     }
     else
@@ -553,9 +580,10 @@ bool CAttr::ParseExtents(CRecordVector<CExtent> &extents, UInt64 numClustersMax,
         return false;
       e.Phy = lcn;
     }
+    
     extents.Add(e);
-    vcn += vSize;
   }
+
   CExtent e;
   e.Phy = kEmptyExtent;
   e.Virt = vcn;
@@ -563,10 +591,11 @@ bool CAttr::ParseExtents(CRecordVector<CExtent> &extents, UInt64 numClustersMax,
   return (highVcn1 == vcn);
 }
 
+
 static const UInt64 kEmptyTag = (UInt64)(Int64)-1;
 
 static const unsigned kNumCacheChunksLog = 1;
-static const size_t kNumCacheChunks = (1 << kNumCacheChunksLog);
+static const size_t kNumCacheChunks = (size_t)1 << kNumCacheChunksLog;
 
 class CInStream:
   public IInStream,
@@ -734,24 +763,27 @@ STDMETHODIMP CInStream::Read(void *data, UInt32 size, UInt32 *processedSize)
 
   while (_curRem == 0)
   {
-    UInt64 cacheTag = _virtPos >> _chunkSizeLog;
-    UInt32 cacheIndex = (UInt32)cacheTag & (kNumCacheChunks - 1);
+    const UInt64 cacheTag = _virtPos >> _chunkSizeLog;
+    const size_t cacheIndex = (size_t)cacheTag & (kNumCacheChunks - 1);
+    
     if (_tags[cacheIndex] == cacheTag)
     {
-      UInt32 chunkSize = (UInt32)1 << _chunkSizeLog;
-      UInt32 offset = (UInt32)_virtPos & (chunkSize - 1);
-      UInt32 cur = MyMin(chunkSize - offset, size);
+      const size_t chunkSize = (size_t)1 << _chunkSizeLog;
+      const size_t offset = (size_t)_virtPos & (chunkSize - 1);
+      size_t cur = chunkSize - offset;
+      if (cur > size)
+        cur = size;
       memcpy(data, _outBuf + (cacheIndex << _chunkSizeLog) + offset, cur);
-      *processedSize = cur;
+      *processedSize = (UInt32)cur;
       _virtPos += cur;
       return S_OK;
     }
 
     PRF2(printf("\nVirtPos = %6d", _virtPos));
     
-    UInt32 comprUnitSize = (UInt32)1 << CompressionUnit;
-    UInt64 virtBlock = _virtPos >> BlockSizeLog;
-    UInt64 virtBlock2 = virtBlock & ~((UInt64)comprUnitSize - 1);
+    const UInt32 comprUnitSize = (UInt32)1 << CompressionUnit;
+    const UInt64 virtBlock = _virtPos >> BlockSizeLog;
+    const UInt64 virtBlock2 = virtBlock & ~((UInt64)comprUnitSize - 1);
     
     unsigned left = 0, right = Extents.Size();
     for (;;)
@@ -766,7 +798,7 @@ STDMETHODIMP CInStream::Read(void *data, UInt32 size, UInt32 *processedSize)
     }
     
     bool isCompressed = false;
-    UInt64 virtBlock2End = virtBlock2 + comprUnitSize;
+    const UInt64 virtBlock2End = virtBlock2 + comprUnitSize;
     if (CompressionUnit != 0)
       for (unsigned i = left; i < Extents.Size(); i++)
       {
@@ -802,7 +834,9 @@ STDMETHODIMP CInStream::Read(void *data, UInt32 size, UInt32 *processedSize)
       _curRem = next - _virtPos;
       break;
     }
+    
     bool thereArePhy = false;
+    
     for (unsigned i2 = left; i2 < Extents.Size(); i2++)
     {
       const CExtent &e = Extents[i2];
@@ -814,6 +848,7 @@ STDMETHODIMP CInStream::Read(void *data, UInt32 size, UInt32 *processedSize)
         break;
       }
     }
+    
     if (!thereArePhy)
     {
       _curRem = (Extents[i + 1].Virt << BlockSizeLog) - _virtPos;
@@ -823,6 +858,7 @@ STDMETHODIMP CInStream::Read(void *data, UInt32 size, UInt32 *processedSize)
     
     size_t offs = 0;
     UInt64 curVirt = virtBlock2;
+    
     for (i = left; i < Extents.Size(); i++)
     {
       const CExtent &e = Extents[i];
@@ -845,6 +881,7 @@ STDMETHODIMP CInStream::Read(void *data, UInt32 size, UInt32 *processedSize)
       _physPos += compressed;
       offs += compressed;
     }
+    
     size_t destLenMax = GetCuSize();
     size_t destLen = destLenMax;
     const UInt64 rem = Size - (virtBlock2 << BlockSizeLog);
@@ -863,6 +900,7 @@ STDMETHODIMP CInStream::Read(void *data, UInt32 size, UInt32 *processedSize)
         return S_FALSE;
     }
   }
+  
   if (size > _curRem)
     size = (UInt32)_curRem;
   HRESULT res = S_OK;
@@ -912,6 +950,12 @@ static HRESULT DataParseExtents(unsigned clusterSizeLog, const CObjectVector<CAt
   }
   
   const CAttr &attr0 = attrs[attrIndex];
+
+  /*
+  if (attrs[attrIndexLim - 1].HighVcn + 1 != (attr0.AllocatedSize >> clusterSizeLog))
+  {
+  }
+  */
 
   if (attr0.AllocatedSize < attr0.Size ||
       (attrs[attrIndexLim - 1].HighVcn + 1) != (attr0.AllocatedSize >> clusterSizeLog) ||
@@ -2157,7 +2201,7 @@ STDMETHODIMP CHandler::GetRawProp(UInt32 index, PROPID propID, const void **data
       return S_OK;
     const CItem &item = Items[index];
     const CMftRec &rec = Recs[item.RecIndex];
-    if (rec.SiAttr.SecurityId >= 0)
+    if (rec.SiAttr.SecurityId > 0)
     {
       UInt64 offset;
       UInt32 size;
@@ -2169,6 +2213,7 @@ STDMETHODIMP CHandler::GetRawProp(UInt32 index, PROPID propID, const void **data
       }
     }
   }
+  
   return S_OK;
 }
 
@@ -2339,7 +2384,7 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
     }
     case kpidFileSystem:
     {
-      AString s = "NTFS";
+      AString s ("NTFS");
       FOR_VECTOR (i, VolAttrs)
       {
         const CAttr &attr = VolAttrs[i];
@@ -2349,12 +2394,9 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
           if (attr.ParseVolInfo(vi))
           {
             s.Add_Space();
-            char temp[16];
-            ConvertUInt32ToString(vi.MajorVer, temp);
-            s += temp;
+            s.Add_UInt32(vi.MajorVer);
             s += '.';
-            ConvertUInt32ToString(vi.MinorVer, temp);
-            s += temp;
+            s.Add_UInt32(vi.MinorVer);
           }
           break;
         }
@@ -2721,18 +2763,14 @@ STDMETHODIMP CHandler::SetProperties(const wchar_t * const *names, const PROPVAR
 
   for (UInt32 i = 0; i < numProps; i++)
   {
-    UString name = names[i];
-    name.MakeLower_Ascii();
-    if (name.IsEmpty())
-      return E_INVALIDARG;
-
+    const wchar_t *name = names[i];
     const PROPVARIANT &prop = values[i];
 
-    if (name.IsEqualTo("ld"))
+    if (StringsAreEqualNoCase_Ascii(name, "ld"))
     {
       RINOK(PROPVARIANT_to_bool(prop, _showDeletedFiles));
     }
-    else if (name.IsEqualTo("ls"))
+    else if (StringsAreEqualNoCase_Ascii(name, "ls"))
     {
       RINOK(PROPVARIANT_to_bool(prop, _showSystemFiles));
     }

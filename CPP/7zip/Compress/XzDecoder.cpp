@@ -96,7 +96,7 @@ HRESULT CDecoder::Decode(ISequentialInStream *seqInStream, ISequentialOutStream 
     ECoderFinishMode finishMode = CODER_FINISH_ANY;
 
     /*
-    // 17.01 : the code was disabled:
+    // 17.02 : the code was disabled:
     if (inSize == 0)
       finishMode = CODER_FINISH_END;
     */

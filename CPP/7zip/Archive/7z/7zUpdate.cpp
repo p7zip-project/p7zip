@@ -21,10 +21,6 @@
 #include "7zOut.h"
 #include "7zUpdate.h"
 
-#ifndef WIN32
-#include "Windows/FileIO.h"
-#endif
-
 namespace NArchive {
 namespace N7z {
 
@@ -42,7 +38,7 @@ struct CFilterMode
   {
     if (Id == k_IA64)
       Delta = 16;
-    else if (Id == k_ARM || Id == k_PPC || Id == k_PPC)
+    else if (Id == k_ARM || Id == k_PPC || Id == k_SPARC)
       Delta = 4;
     else if (Id == k_ARMT)
       Delta = 2;
@@ -562,7 +558,7 @@ static int CompareEmptyItems(const unsigned *p1, const unsigned *p2, void *param
 }
 
 static const char *g_Exts =
-  " 7z xz lzma ace arc arj bz tbz bz2 tbz2 cab deb gz tgz ha lha lzh lzo lzx pak rar rpm sit zoo"
+  " 7z xz lzma ace arc arj bz tbz bz2 tbz2 cab deb gz tgz ha lha lz4 tlz4 lzh lzo lzx pak rar rpm sit zoo zst"
   " zip jar ear war msi"
   " 3gp avi mov mpeg mpg mpe wmv"
   " aac ape fla flac la mp3 m4a mp4 ofr ogg pac ra rm rka shn swa tta wv wma wav"
@@ -783,7 +779,7 @@ struct CSolidGroup
   CRecordVector<CFolderRepack> folderRefs;
 };
 
-static const char *g_ExeExts[] =
+static const char * const g_ExeExts[] =
 {
     "dll"
   , "exe"
@@ -799,41 +795,6 @@ static bool IsExeExt(const wchar_t *ext)
       return true;
   return false;
 }
-
-#ifndef _WIN32
-static bool IsExeFile(const CUpdateItem &ui)
-{
-  int dotPos = ui.Name.ReverseFind(L'.');
-  if (dotPos >= 0)
-     if (IsExeExt(ui.Name.Ptr(dotPos + 1)) ) return true;
-
-  if (ui.Attrib & FILE_ATTRIBUTE_UNIX_EXTENSION) {
-    unsigned short st_mode =  ui.Attrib >> 16;
-    if ((st_mode & 00111) && (ui.Size >= 2048))
-    {
-      // file has the execution flag and it's big enought
-      // try to find if the file is a script
-      NWindows::NFile::NIO::CInFile file;
-      if (file.Open(ui.Name))
-      {
-        char buffer[2048];
-        UINT32 processedSize;
-        if (file.Read(buffer,sizeof(buffer),processedSize))
-        {
-          for(UInt32 i = 0; i < processedSize ; i++)
-          {
-            if (buffer[i] == 0) 
-	    {
-              return true; // this file is not a text (ascii, utf8, ...) !
-	    }
-          }
-       }
-     }
-   }
-  } 
-  return false;
-}
-#endif
 
 struct CAnalysis
 {
@@ -893,11 +854,7 @@ HRESULT CAnalysis::GetFilterGroup(UInt32 index, const CUpdateItem &ui, CFilterMo
         }
       }
 
-#ifdef _WIN32
       if (IsExeExt(ext))
-#else
-      if (IsExeFile(ui))
-#endif
       {
         needReadFile = true;
         #ifdef _WIN32
@@ -1131,24 +1088,31 @@ static HRESULT MakeExeMethod(CCompressionMethodMode &mode,
 }
 
 
-static void FromUpdateItemToFileItem(const CUpdateItem &ui,
-    CFileItem &file, CFileItem2 &file2)
+static void UpdateItem_To_FileItem2(const CUpdateItem &ui, CFileItem2 &file2)
 {
-  if (ui.AttribDefined)
-    file.SetAttrib(ui.Attrib);
-  
+  file2.Attrib = ui.Attrib;  file2.AttribDefined = ui.AttribDefined;
   file2.CTime = ui.CTime;  file2.CTimeDefined = ui.CTimeDefined;
   file2.ATime = ui.ATime;  file2.ATimeDefined = ui.ATimeDefined;
   file2.MTime = ui.MTime;  file2.MTimeDefined = ui.MTimeDefined;
   file2.IsAnti = ui.IsAnti;
   // file2.IsAux = false;
   file2.StartPosDefined = false;
+  // file2.StartPos = 0;
+}
+
+
+static void UpdateItem_To_FileItem(const CUpdateItem &ui,
+    CFileItem &file, CFileItem2 &file2)
+{
+  UpdateItem_To_FileItem2(ui, file2);
 
   file.Size = ui.Size;
   file.IsDir = ui.IsDir;
   file.HasStream = ui.HasStream();
   // file.IsAltStream = ui.IsAltStream;
 }
+
+
 
 class CRepackInStreamWithSizes:
   public ISequentialInStream,
@@ -1480,6 +1444,7 @@ public:
 
   #ifndef _7ZIP_ST
   
+  bool dataAfterEnd_Error;
   HRESULT Result;
   CMyComPtr<IInStream> InStream;
 
@@ -1522,7 +1487,9 @@ void CThreadDecoder::Execute()
       bool passwordIsDefined = false;
       UString password;
     #endif
-    
+ 
+    dataAfterEnd_Error = false;
+      
     Result = Decoder.Decode(
       EXTERNAL_CODECS_LOC_VARS
       InStream,
@@ -1534,12 +1501,15 @@ void CThreadDecoder::Execute()
       
       Fos,
       NULL, // compressProgress
+
       NULL  // *inStreamMainRes
+      , dataAfterEnd_Error
 
       _7Z_DECODER_CRYPRO_VARS
       #ifndef _7ZIP_ST
         , MtMode, NumThreads
       #endif
+
       );
   }
   catch(...)
@@ -1584,6 +1554,7 @@ static void GetFile(const CDatabase &inDb, unsigned index, CFileItem &file, CFil
   file2.ATimeDefined = inDb.ATime.GetItem(index, file2.ATime);
   file2.MTimeDefined = inDb.MTime.GetItem(index, file2.MTime);
   file2.StartPosDefined = inDb.StartPos.GetItem(index, file2.StartPos);
+  file2.AttribDefined = inDb.Attrib.GetItem(index, file2.Attrib);
   file2.IsAnti = inDb.IsItemAnti(index);
   // file2.IsAux = inDb.IsItemAux(index);
 }
@@ -1880,7 +1851,7 @@ HRESULT Update(
         continue;
       secureID = ui.SecureIndex;
       if (ui.NewProps)
-        FromUpdateItemToFileItem(ui, file, file2);
+        UpdateItem_To_FileItem(ui, file, file2);
       else
         GetFile(*db, ui.IndexInArchive, file, file2);
     }
@@ -1930,7 +1901,8 @@ HRESULT Update(
       UString name;
       if (ui.NewProps)
       {
-        FromUpdateItemToFileItem(ui, file, file2);
+        UpdateItem_To_FileItem(ui, file, file2);
+        file.CrcDefined = false;
         name = ui.Name;
       }
       else
@@ -1994,7 +1966,7 @@ HRESULT Update(
       method.Password.Empty();
     }
 
-    CEncoder encoder(method);     // 生成对应算法的 encoder 对象
+    CEncoder encoder(method);
 
     // ---------- Repack and copy old solid blocks ----------
 
@@ -2150,6 +2122,8 @@ HRESULT Update(
               #endif
               
               CMyComPtr<ISequentialInStream> decodedStream;
+              bool dataAfterEnd_Error = false;
+
               HRESULT res = threadDecoder.Decoder.Decode(
                   EXTERNAL_CODECS_LOC_VARS
                   inStream,
@@ -2160,13 +2134,16 @@ HRESULT Update(
                 
                   NULL, // *outStream
                   NULL, // *compressProgress
+
                   &decodedStream
+                  , dataAfterEnd_Error
                 
                   _7Z_DECODER_CRYPRO_VARS
                   #ifndef _7ZIP_ST
                     , false // mtMode
                     , 1 // numThreads
                   #endif
+
                 );
           
               RINOK(res);
@@ -2194,6 +2171,7 @@ HRESULT Update(
             #endif
           }
 
+          curUnpackSize = sizeToEncode;
 
           HRESULT encodeRes = encoder.Encode(
               EXTERNAL_CODECS_LOC_VARS
@@ -2218,16 +2196,19 @@ HRESULT Update(
             
             HRESULT decodeRes = threadDecoder.Result;
             // if (res == k_My_HRESULT_CRC_ERROR)
-            if (decodeRes == S_FALSE)
+            if (decodeRes == S_FALSE || threadDecoder.dataAfterEnd_Error)
             {
               if (extractCallback)
               {
                 RINOK(extractCallback->ReportExtractResult(
                     NEventIndexType::kInArcIndex, db->FolderStartFileIndex[folderIndex],
                     // NEventIndexType::kBlockIndex, (UInt32)folderIndex,
-                    NExtract::NOperationResult::kDataError));
+                    (decodeRes != S_OK ?
+                      NExtract::NOperationResult::kDataError :
+                      NExtract::NOperationResult::kDataAfterEnd)));
               }
-              return E_FAIL;
+              if (decodeRes != S_OK)
+                return E_FAIL;
             }
             RINOK(decodeRes);
             if (encodeRes == S_OK)
@@ -2267,12 +2248,7 @@ HRESULT Update(
       CNum indexInFolder = 0;
       for (CNum fi = db->FolderStartFileIndex[folderIndex]; indexInFolder < numUnpackStreams; fi++)
       {
-        CFileItem file;
-        CFileItem2 file2;
-        GetFile(*db, fi, file, file2);
-        UString name;
-        db->GetPath(fi, name);
-        if (file.HasStream)
+        if (db->Files[fi].HasStream)
         {
           indexInFolder++;
           int updateIndex = fileIndexToUpdateIndexMap[fi];
@@ -2281,17 +2257,21 @@ HRESULT Update(
             const CUpdateItem &ui = updateItems[updateIndex];
             if (ui.NewData)
               continue;
+
+            UString name;
+            CFileItem file;
+            CFileItem2 file2;
+            GetFile(*db, fi, file, file2);
+
             if (ui.NewProps)
             {
-              CFileItem uf;
-              FromUpdateItemToFileItem(ui, uf, file2);
-              uf.Size = file.Size;
-              uf.Crc = file.Crc;
-              uf.CrcDefined = file.CrcDefined;
-              uf.HasStream = file.HasStream;
-              file = uf;
+              UpdateItem_To_FileItem2(ui, file2);
+              file.IsDir = ui.IsDir;
               name = ui.Name;
             }
+            else
+              db->GetPath(fi, name);
+
             /*
             file.Parent = ui.ParentFolderIndex;
             if (ui.TreeFolderIndex >= 0)
@@ -2335,7 +2315,7 @@ HRESULT Update(
       const CUpdateItem &ui = updateItems[index];
       CFileItem file;
       if (ui.NewProps)
-        FromUpdateItemToFileItem(ui, file);
+        UpdateItem_To_FileItem(ui, file);
       else
         file = db.Files[ui.IndexInArchive];
       if (file.IsAnti || file.IsDir)
@@ -2380,6 +2360,8 @@ HRESULT Update(
       
       unsigned startPackIndex = newDatabase.PackSizes.Size();
       UInt64 curFolderUnpackSize = totalSize;
+      // curFolderUnpackSize = (UInt64)(Int64)-1;
+      
       RINOK(encoder.Encode(
           EXTERNAL_CODECS_LOC_VARS
           solidInStream,
@@ -2410,7 +2392,7 @@ HRESULT Update(
         UString name;
         if (ui.NewProps)
         {
-          FromUpdateItemToFileItem(ui, file, file2);
+          UpdateItem_To_FileItem(ui, file, file2);
           name = ui.Name;
         }
         else
@@ -2429,7 +2411,7 @@ HRESULT Update(
         {
           skippedSize += ui.Size;
           continue;
-          // file.Name.AddAscii(".locked");
+          // file.Name += ".locked";
         }
 
         file.Crc = inStreamSpec->CRCs[subIndex];

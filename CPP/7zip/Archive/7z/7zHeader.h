@@ -119,9 +119,11 @@ const UInt32 k_ARM   = 0x3030501;
 const UInt32 k_ARMT  = 0x3030701;
 const UInt32 k_SPARC = 0x3030805;
 
+const UInt32 k_ZSTD  = 0x4F71001;
+const UInt32 k_LZ4   = 0x4F71001;
+
 const UInt32 k_AES   = 0x6F10701;
 
-const UInt32 k_ZSTD  = 0x4F71101;
 
 static inline bool IsFilterMethod(UInt64 m)
 {

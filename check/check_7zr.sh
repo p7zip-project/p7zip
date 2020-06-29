@@ -106,7 +106,7 @@ rm -fr   ${REP}
 
 
 echo ""
-echo "========"
-echo "ALL DONE"
-echo "========"
+echo "==========="
+echo "ALL SUCCESS"
+echo "==========="
 echo ""

@@ -98,7 +98,7 @@ clean_full:clean
 	chmod +x install.sh check/*.sh
 
 test: 7za sfx
-	cd check ; TOOLS="${TOOLS}" ./check.sh "`pwd`/../bin/7za"
+	cd check ; TOOLS="${TOOLS}" ./check_7za.sh "`pwd`/../bin/7za"
 
 test_7z: 7z sfx
 	cd check ; TOOLS="${TOOLS}" ./check.sh "`pwd`/../bin/7z"

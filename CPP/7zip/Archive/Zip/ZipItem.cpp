@@ -1,6 +1,6 @@
 // Archive/ZipItem.cpp
 
-#ifndef _WIN32
+#if (!defined _WIN32) && (!defined __CYGWIN__)
 #include <iconv.h>
 #include <locale.h>
 #endif
@@ -355,7 +355,7 @@ void CItem::GetUnicodeString(UString &res, const AString &s, bool isComment, boo
     #endif
   }
   
-  #ifndef _WIN32
+  #if (!defined _WIN32) && (!defined __CYGWIN__)
   // Convert OEM char set to UTF-8 if needed
   // Use system locale to select code page
 

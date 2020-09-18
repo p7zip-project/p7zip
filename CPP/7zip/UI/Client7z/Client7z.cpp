@@ -208,7 +208,7 @@ public:
   STDMETHOD(GetStream)(UInt32 index, ISequentialOutStream **outStream, Int32 askExtractMode);
   STDMETHOD(PrepareOperation)(Int32 askExtractMode);
   STDMETHOD(SetOperationResult)(Int32 resultEOperationResult);
-
+  virtual bool SetFileSymLinkAttrib();
   // ICryptoGetTextPassword
   STDMETHOD(CryptoGetTextPassword)(BSTR *aPassword);
 
@@ -243,6 +243,12 @@ public:
 
   CArchiveExtractCallback() : PasswordIsDefined(false) {}
 };
+
+bool CArchiveExtractCallback::SetFileSymLinkAttrib()
+{
+  /* Do nothing */
+  return S_OK;
+}
 
 void CArchiveExtractCallback::Init(IInArchive *archiveHandler, const FString &directoryPath)
 {

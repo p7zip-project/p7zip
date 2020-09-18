@@ -130,6 +130,7 @@ SRCS=\
   ../../../../CPP/Common/StringToInt.cpp \
   ../../../../CPP/Common/UTFConvert.cpp \
   ../../../../CPP/Common/Wildcard.cpp \
+  ../../../../CPP/Common/XzCrc64Init.cpp \
   ../../../../CPP/Common/XzCrc64Reg.cpp \
   ../../../../CPP/Windows/ErrorMsg.cpp \
   ../../../../CPP/Windows/FileDir.cpp \
@@ -487,6 +488,8 @@ UTFConvert.o : ../../../../CPP/Common/UTFConvert.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/UTFConvert.cpp
 Wildcard.o : ../../../../CPP/Common/Wildcard.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/Wildcard.cpp
+XzCrc64Init.o : ../../../../CPP/Common/XzCrc64Init.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/XzCrc64Init.cpp
 XzCrc64Reg.o : ../../../../CPP/Common/XzCrc64Reg.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/XzCrc64Reg.cpp
 ErrorMsg.o : ../../../../CPP/Windows/ErrorMsg.cpp
@@ -653,6 +656,7 @@ OBJS=\
  StringToInt.o \
  UTFConvert.o \
  Wildcard.o \
+ XzCrc64Init.o \
  XzCrc64Reg.o \
  ErrorMsg.o \
  FileDir.o \

@@ -11,7 +11,7 @@
 
 #include <errno.h>
 
-#if defined(__linux__) 
+#if defined(__linux__) && defined(__GLIBC__)
 #define PTHREAD_MUTEX_ERRORCHECK PTHREAD_MUTEX_ERRORCHECK_NP
 #endif
 

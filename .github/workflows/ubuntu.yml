@@ -1,4 +1,4 @@
-name: Ubuntu
+name: BUILD
 on: 
   push:
     paths-ignore:
@@ -6,8 +6,8 @@ on:
       - 'LICENSE'
       - 'README'
 jobs:
-  build:
-    name: build
+  ubuntu:
+    name: ubuntu-build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1    
@@ -44,4 +44,41 @@ jobs:
              cd ./check
              bash check.sh `pwd`/../bin/7z
              cd ..
+  macos:
+    name: macos-build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v1    
+      - name: build 7za & test
+        run: |
+             make 7za
+             cd ./bin
+             7za a ta.7z ../CPP
+             7za x ta.7z
+             echo "compare file"
+             diff -r ../CPP ./CPP
+             echo "delete tmp file"
+             rm -rf ./ta.7z ./CPP
+             cd ..
+             
+      - name: build 7z & test
+        run: |
+             make 7z
+             cd ./bin
+             7z a t.7z ../CPP
+             7z x t.7z
+             echo "compare file"
+             diff -r ../CPP ./CPP
+             echo "delete tmp file"
+             rm -rf ./t.7z ./CPP
+             cd ..
 
+      - name: build sfx
+        run: |
+             make sfx
+
+      - name: check
+        run: |
+             cd ./check
+             bash check.sh `pwd`/../bin/7z
+             cd ..

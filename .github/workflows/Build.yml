@@ -76,10 +76,9 @@ jobs:
       - name: build sfx
         run: |
              make sfx
-             make install
 
-      - name: check
-        run: |
-             cd ./check
-             bash check.sh 7z
-             cd ..
+      #- name: check
+      #  run: |
+      #       cd ./check
+      #       bash check.sh `pwd`/../bin/7z
+      #       cd ..

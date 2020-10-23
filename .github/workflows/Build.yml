@@ -76,6 +76,7 @@ jobs:
       - name: build sfx
         run: |
              make sfx
+             make install
 
       - name: check
         run: |

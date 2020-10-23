@@ -81,5 +81,5 @@ jobs:
       - name: check
         run: |
              cd ./check
-             bash check.sh ../../bin/7z
+             bash check.sh 7z
              cd ..

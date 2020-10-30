@@ -224,3 +224,4 @@ jobs:
              # bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
+

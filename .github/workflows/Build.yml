@@ -15,8 +15,8 @@ jobs:
         run: |
              make 7za
              cd ./bin
-             7za a ta.7z ../CPP
-             7za x ta.7z
+             ./7za a ta.7z ../CPP
+             ./7za x ta.7z
              echo "compare file"
              diff -r ../CPP ./CPP
              echo "delete tmp file"
@@ -27,8 +27,8 @@ jobs:
         run: |
              make 7zr
              cd ./bin
-             7zr a tr.7z ../CPP
-             7zr x tr.7z
+             ./7zr a tr.7z ../CPP
+             ./7zr x tr.7z
              echo "compare file"
              diff -r ../CPP ./CPP
              echo "delete tmp file"
@@ -39,8 +39,8 @@ jobs:
         run: |
              make 7z
              cd ./bin
-             7z a t.7z ../CPP
-             7z x t.7z
+             ./7z a t.7z ../CPP
+             ./7z x t.7z
              echo "compare file"
              diff -r ../CPP ./CPP
              echo "delete tmp file"
@@ -68,8 +68,8 @@ jobs:
              cp makefile.macosx_gcc_64bits makefile.machine
              make 7za
              cd ./bin
-             7za a ta.7z ../CPP
-             7za x ta.7z
+             ./7za a ta.7z ../CPP
+             ./7za x ta.7z
              echo "compare file"
              diff -r ../CPP ./CPP
              echo "delete tmp file"
@@ -80,8 +80,8 @@ jobs:
         run: |
              make 7zr
              cd ./bin
-             7zr a tr.7z ../CPP
-             7zr x tr.7z
+             ./7zr a tr.7z ../CPP
+             ./7zr x tr.7z
              echo "compare file"
              diff -r ../CPP ./CPP
              echo "delete tmp file"
@@ -92,8 +92,8 @@ jobs:
         run: |
              make 7z
              cd ./bin
-             7z a t.7z ../CPP
-             7z x t.7z
+             ./7z a t.7z ../CPP
+             ./7z x t.7z
              echo "compare file"
              diff -r ../CPP ./CPP
              echo "delete tmp file"
@@ -120,10 +120,7 @@ jobs:
       - name: cmake build 7z_ & test
         run: |
              cd ./CPP/7zip/CMAKE/
-             if [[ -e "./build" && -d "./build" ]]
-             then
              rm -rf ./build
-             fi
              mkdir build
              cd build
              cmake ..
@@ -164,6 +161,7 @@ jobs:
       - name: check
         run: |
              cd ./check
+             # 7z_ not support decompress rar format, Missing 7zCon.sfx to run check_7za.sh
              # bash ./check.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7z_
              # bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
@@ -176,10 +174,7 @@ jobs:
       - name: cmake build 7z_ & test
         run: |
              cd ./CPP/7zip/CMAKE/
-             if [[ -e "./build" && -d "./build" ]]
-             then
              rm -rf ./build
-             fi
              mkdir build
              cd build
              cmake ..
@@ -220,8 +215,7 @@ jobs:
       - name: check
         run: |
              cd ./check
+             # 7z_ not support decompress rar format, Missing 7zCon.sfx to run check_7za.sh
              # bash ./check.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7z_
              # bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
-             bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
-

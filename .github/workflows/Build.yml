@@ -123,7 +123,7 @@ jobs:
              rm -rf ./build
              mkdir build
              cd build
-             cmake ../CPP/7zip/CMAKE/
+             cmake ..
              make 7z_
              make 7z
              cd ./bin

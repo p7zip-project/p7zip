@@ -126,6 +126,8 @@ jobs:
              cmake ..
              make 7z_
              make 7z
+             make Rar
+             make 7zCon.sfx
              cd ./bin
              ./7z_ a t_.7z ../../../Archive
              ./7z_ x t_.7z
@@ -161,9 +163,8 @@ jobs:
       - name: check
         run: |
              cd ./check
-             # 7z_ not support decompress rar format and sfx to run check_7za.sh and check.sh
-             # bash ./check.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7z_
-             # bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
+             bash ./check.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7z_
+             bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
 
   macos-cmake:
@@ -180,6 +181,8 @@ jobs:
              cmake ..
              make 7z_
              make 7z
+             make Rar
+             make 7zCon.sfx
              cd ./bin
              ./7z_ a t_.7z ../../../Archive
              ./7z_ x t_.7z
@@ -215,7 +218,6 @@ jobs:
       - name: check
         run: |
              cd ./check
-             # 7z_ not support decompress rar format and sfx to run check_7za.sh and check.sh
-             # bash ./check.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7z_
-             # bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
+             bash ./check.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7z_
+             bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr

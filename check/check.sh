@@ -160,6 +160,12 @@ sure ${P7ZIP} a -ttar 7za433_7zip_lzma.tar 7za433_7zip_lzma
 
 sure ${P7ZIP} a -txz 7za433_7zip_lzma.tar.xz 7za433_7zip_lzma.tar
 
+sure ${P7ZIP} a -txz -mcrc0 7za433_7zip_lzma_CRCNone.tar.xz 7za433_7zip_lzma.tar
+
+sure ${P7ZIP} a -txz -mcrc4 7za433_7zip_lzma_CRC32.tar.xz 7za433_7zip_lzma.tar
+
+sure ${P7ZIP} a -txz -mcrc8 7za433_7zip_lzma_CRC64.tar.xz 7za433_7zip_lzma.tar
+
 sure ${P7ZIP} a -tgzip 7za433_7zip_lzma.tar.gz 7za433_7zip_lzma.tar
 
 sure ${P7ZIP} a -tbzip2 7za433_7zip_lzma.tar.bz2 7za433_7zip_lzma.tar
@@ -306,6 +312,24 @@ sure rm -rf 7za433_7zip_lzma
 
 sure ${P7ZIP} x 7za433_7zip_lzma.tar.xz -y
 sure ${P7ZIP} x 7za433_7zip_lzma.tar
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma.tar
+
+sure ${P7ZIP} x 7za433_7zip_lzma_CRCNone.tar.xz -y
+sure ${P7ZIP} x 7za433_7zip_lzma_CRCNone.tar
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma.tar
+
+sure ${P7ZIP} x 7za433_7zip_lzma_CRC32.tar.xz -y
+sure ${P7ZIP} x 7za433_7zip_lzma_CRC32.tar
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma.tar
+
+sure ${P7ZIP} x 7za433_7zip_lzma_CRC64.tar.xz -y
+sure ${P7ZIP} x 7za433_7zip_lzma_CRC64.tar
 sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma.tar

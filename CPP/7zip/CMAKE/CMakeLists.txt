@@ -21,7 +21,7 @@ ENDIF(WIN32 OR CMAKE_USE_PTHREADS_INIT)
 
 add_definitions(-DENV_HAVE_GCCVISIBILITYPATCH)
 
-SET(CMAKE_CXX_FLAGS "-fvisibility=hidden -fvisibility-inlines-hidden")
+SET(CMAKE_CXX_FLAGS "-fvisibility=hidden -fvisibility-inlines-hidden -std=gnu++11")
 
 add_subdirectory(7za)
 

@@ -123,7 +123,7 @@ jobs:
              rm -rf ./build
              mkdir build
              cd build
-             cmake ..
+             cmake ../CPP/7zip/CMAKE/
              make 7z_
              make 7z
              cd ./bin
@@ -161,7 +161,7 @@ jobs:
       - name: check
         run: |
              cd ./check
-             # 7z_ not support decompress rar format, Missing 7zCon.sfx to run check_7za.sh
+             # 7z_ not support decompress rar format and sfx to run check_7za.sh and check.sh
              # bash ./check.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7z_
              # bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
@@ -215,7 +215,7 @@ jobs:
       - name: check
         run: |
              cd ./check
-             # 7z_ not support decompress rar format, Missing 7zCon.sfx to run check_7za.sh
+             # 7z_ not support decompress rar format and sfx to run check_7za.sh and check.sh
              # bash ./check.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7z_
              # bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr

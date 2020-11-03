@@ -31,6 +31,10 @@ add_subdirectory(7zr)
 
 add_subdirectory(Format7zFree  bin)
 
+add_subdirectory(Rar  bin/Codecs)
+
+add_subdirectory(SFXCon)
+
 find_package(wxWidgets COMPONENTS core base adv)
 
 if(wxWidgets_FOUND)

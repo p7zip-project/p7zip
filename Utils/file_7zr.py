@@ -26,6 +26,17 @@ files_c=[
  'C/XzDec.c',
  'C/XzEnc.c',
  'C/XzIn.c',
+ 'C/fast-lzma2/dict_buffer.c',
+ 'C/fast-lzma2/fl2_common.c',
+ 'C/fast-lzma2/fl2_compress.c',
+ 'C/fast-lzma2/fl2_pool.c',
+ 'C/fast-lzma2/fl2_threading.c',
+ 'C/fast-lzma2/lzma2_enc.c',
+ 'C/fast-lzma2/radix_bitpack.c',
+ 'C/fast-lzma2/radix_mf.c',
+ 'C/fast-lzma2/radix_struct.c',
+ 'C/fast-lzma2/range_enc.c',
+ 'C/fast-lzma2/util.c'
 ]
 
 files_cpp=[
@@ -89,6 +100,9 @@ files_cpp=[
  'CPP/7zip/Compress/LzmaDecoder.cpp',
  'CPP/7zip/Compress/LzmaEncoder.cpp',
  'CPP/7zip/Compress/LzmaRegister.cpp',
+ 'CPP/7zip/Compress/FastLzma2Register.cpp',
+ 'CPP/7zip/Compress/XzDecoder.cpp',
+ 'CPP/7zip/Compress/XzEncoder.cpp',
  'CPP/7zip/UI/Common/ArchiveCommandLine.cpp',
  'CPP/7zip/UI/Common/ArchiveExtractCallback.cpp',
  'CPP/7zip/UI/Common/ArchiveOpenCallback.cpp',
@@ -137,6 +151,7 @@ files_cpp=[
  'CPP/Common/UTFConvert.cpp',
  'CPP/Common/Wildcard.cpp',
  'CPP/Common/XzCrc64Reg.cpp',
+ 'CPP/Common/XzCrc64Init.cpp',
  'CPP/Windows/ErrorMsg.cpp',
  'CPP/Windows/FileDir.cpp',
  'CPP/Windows/FileFind.cpp',

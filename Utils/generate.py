@@ -293,7 +293,7 @@ project_7za=Structure(name="7za",name2="7za",
 	type=TYPE_EXE,
 	need_AES=True,
 	includedirs=includedirs_7za,
-	defines=[ "_FILE_OFFSET_BITS=64", "_LARGEFILE_SOURCE", "_REENTRANT", "ENV_UNIX", "BREAK_HANDLER", "UNICODE", "_UNICODE", "UNIX_USE_WIN_FILE" ],
+	defines=[ "_FILE_OFFSET_BITS=64", "_LARGEFILE_SOURCE", "_REENTRANT", "ENV_UNIX", "BREAK_HANDLER", "UNICODE", "_UNICODE", "UNIX_USE_WIN_FILE", "ZSTD_MULTITHREAD", "NO_XXHASH", "FL2_7ZIP_BUILD" ],
 	files_c=file_7za.files_c,
 	files_cpp=file_7za.files_cpp,
 	cmake_end='''
@@ -341,7 +341,7 @@ project_7zr=Structure(name="7zr",name2="7zr",
 	type=TYPE_EXE,
 	need_AES=True,
 	includedirs=includedirs_7za,
-	defines=[ "_FILE_OFFSET_BITS=64", "_LARGEFILE_SOURCE", "_REENTRANT", "ENV_UNIX", "_NO_CRYPTO", "BREAK_HANDLER", "UNICODE", "_UNICODE", "UNIX_USE_WIN_FILE" ],
+	defines=[ "_FILE_OFFSET_BITS=64", "_LARGEFILE_SOURCE", "_REENTRANT", "ENV_UNIX", "_NO_CRYPTO", "BREAK_HANDLER", "UNICODE", "_UNICODE", "UNIX_USE_WIN_FILE", "NO_XXHASH", "FL2_7ZIP_BUILD" ],
 	files_c=file_7zr.files_c,
 	files_cpp=file_7zr.files_cpp,
 	cmake_end='''
@@ -393,6 +393,8 @@ project_7zCon_sfx=Structure(name="7zCon.sfx",name2="7zCon.sfx",
 	files_c=file_7zCon_sfx.files_c,
 	files_cpp=file_7zCon_sfx.files_cpp,
 	cmake_end='''
+
+SET_TARGET_PROPERTIES(7zCon.sfx PROPERTIES SUFFIX "")
 
 IF(APPLE)
    TARGET_LINK_LIBRARIES(7zCon.sfx ${COREFOUNDATION_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
@@ -448,6 +450,8 @@ project_Codecs_Rar=Structure(name="Rar",name2="Rar",
 	files_c=file_Codecs_Rar_so.files_c,
 	files_cpp=file_Codecs_Rar_so.files_cpp,
 	cmake_end='''
+    
+SET_TARGET_PROPERTIES(Rar PROPERTIES PREFIX "")
 
 find_library(DL_LIB dl)
 
@@ -585,7 +589,7 @@ project_Format7zFree=Structure(name="7z",name2="7z",
 	type=TYPE_DLL,
 	need_AES=True,
 	includedirs=includedirs_7za,
-	defines=[ "EXTERNAL_CODECS", "_FILE_OFFSET_BITS=64", "_LARGEFILE_SOURCE", "_REENTRANT", "ENV_UNIX", "BREAK_HANDLER", "UNICODE", "_UNICODE", "UNIX_USE_WIN_FILE" ],
+	defines=[ "EXTERNAL_CODECS", "_FILE_OFFSET_BITS=64", "_LARGEFILE_SOURCE", "_REENTRANT", "ENV_UNIX", "BREAK_HANDLER", "UNICODE", "_UNICODE", "UNIX_USE_WIN_FILE", "ZSTD_MULTITHREAD", "NO_XXHASH", "FL2_7ZIP_BUILD" ],
 	files_c=file_7z_so.files_c,
 	files_cpp=file_7z_so.files_cpp,
 	cmake_end='''
@@ -787,6 +791,8 @@ generate_cmake('../CPP/7zip/CMAKE/7zG/CMakeLists.txt',project_7zG)
 generate_cmake('../CPP/7zip/CMAKE/7zFM/CMakeLists.txt',project_7zFM)
 generate_cmake('../CPP/7zip/CMAKE/7zr/CMakeLists.txt',project_7zr)
 generate_cmake('../CPP/7zip/CMAKE/Format7zFree/CMakeLists.txt',project_Format7zFree)
+generate_cmake('../CPP/7zip/CMAKE/Rar/CMakeLists.txt',project_Codecs_Rar)
+generate_cmake('../CPP/7zip/CMAKE/SFXCon/CMakeLists.txt',project_7zCon_sfx)
 
 
 generate_android_mk('../CPP/ANDROID/7za/jni/Android.mk',project_7za)

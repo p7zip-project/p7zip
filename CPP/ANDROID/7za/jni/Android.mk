@@ -89,6 +89,8 @@ LOCAL_SRC_FILES := \
   ../../../../CPP/7zip/Archive/Zip/ZipOut.cpp \
   ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp \
   ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp \
+  ../../../../CPP/7zip/Archive/Lz4Handler.cpp \
+  ../../../../CPP/7zip/Archive/ZstdHandler.cpp \
   ../../../../CPP/7zip/Common/CWrappers.cpp \
   ../../../../CPP/7zip/Common/CreateCoder.cpp \
   ../../../../CPP/7zip/Common/FilePathAutoRename.cpp \
@@ -147,6 +149,15 @@ LOCAL_SRC_FILES := \
   ../../../../CPP/7zip/Compress/QuantumDecoder.cpp \
   ../../../../CPP/7zip/Compress/ShrinkDecoder.cpp \
   ../../../../CPP/7zip/Compress/ZDecoder.cpp \
+  ../../../../CPP/7zip/Compress/FastLzma2Register.cpp \
+  ../../../../CPP/7zip/Compress/Lz4Decoder.cpp \
+  ../../../../CPP/7zip/Compress/Lz4Encoder.cpp \
+  ../../../../CPP/7zip/Compress/Lz4Register.cpp \
+  ../../../../CPP/7zip/Compress/XzDecoder.cpp \
+  ../../../../CPP/7zip/Compress/XzEncoder.cpp \
+  ../../../../CPP/7zip/Compress/ZstdDecoder.cpp \
+  ../../../../CPP/7zip/Compress/ZstdEncoder.cpp \
+  ../../../../CPP/7zip/Compress/ZstdRegister.cpp \
   ../../../../CPP/7zip/Crypto/7zAes.cpp \
   ../../../../CPP/7zip/Crypto/7zAesRegister.cpp \
   ../../../../CPP/7zip/Crypto/HmacSha1.cpp \
@@ -205,6 +216,7 @@ LOCAL_SRC_FILES := \
   ../../../../CPP/Common/UTFConvert.cpp \
   ../../../../CPP/Common/Wildcard.cpp \
   ../../../../CPP/Common/XzCrc64Reg.cpp \
+  ../../../../CPP/Common/XzCrc64Init.cpp \
   ../../../../CPP/Windows/ErrorMsg.cpp \
   ../../../../CPP/Windows/FileDir.cpp \
   ../../../../CPP/Windows/FileFind.cpp \
@@ -215,6 +227,7 @@ LOCAL_SRC_FILES := \
   ../../../../CPP/Windows/Synchronization.cpp \
   ../../../../CPP/Windows/System.cpp \
   ../../../../CPP/Windows/TimeUtils.cpp \
+  ../../../../CPP/Windows/PropVariantUtils.cpp \
   ../../../../CPP/myWindows/myAddExeFlag.cpp \
   ../../../../CPP/myWindows/mySplitCommandLine.cpp \
   ../../../../CPP/myWindows/wine_date_and_time.cpp \
@@ -255,6 +268,56 @@ LOCAL_SRC_FILES := \
   ../../../../C/XzDec.c \
   ../../../../C/XzEnc.c \
   ../../../../C/XzIn.c \
+  ../../../../C/fast-lzma2/dict_buffer.c \
+  ../../../../C/fast-lzma2/fl2_common.c \
+  ../../../../C/fast-lzma2/fl2_compress.c \
+  ../../../../C/fast-lzma2/fl2_pool.c \
+  ../../../../C/fast-lzma2/fl2_threading.c \
+  ../../../../C/fast-lzma2/lzma2_enc.c \
+  ../../../../C/fast-lzma2/radix_bitpack.c \
+  ../../../../C/fast-lzma2/radix_mf.c \
+  ../../../../C/fast-lzma2/radix_struct.c \
+  ../../../../C/fast-lzma2/range_enc.c \
+  ../../../../C/fast-lzma2/util.c \
+  ../../../../C/lz4/lz4.c \
+  ../../../../C/lz4/lz4frame.c \
+  ../../../../C/lz4/lz4hc.c \
+  ../../../../C/zstd/debug.c \
+  ../../../../C/zstd/entropy_common.c \
+  ../../../../C/zstd/error_private.c \
+  ../../../../C/zstd/fse_compress.c \
+  ../../../../C/zstd/fse_decompress.c \
+  ../../../../C/zstd/hist.c \
+  ../../../../C/zstd/huf_compress.c \
+  ../../../../C/zstd/huf_decompress.c \
+  ../../../../C/zstd/pool.c \
+  ../../../../C/zstd/threading.c \
+  ../../../../C/zstd/xxhash.c \
+  ../../../../C/zstd/zstd_common.c \
+  ../../../../C/zstd/zstd_compress.c \
+  ../../../../C/zstd/zstd_compress_literals.c \
+  ../../../../C/zstd/zstd_compress_sequences.c \
+  ../../../../C/zstd/zstd_compress_superblock.c \
+  ../../../../C/zstd/zstd_ddict.c \
+  ../../../../C/zstd/zstd_decompress.c \
+  ../../../../C/zstd/zstd_decompress_block.c \
+  ../../../../C/zstd/zstd_double_fast.c \
+  ../../../../C/zstd/zstd_fast.c \
+  ../../../../C/zstd/zstd_lazy.c \
+  ../../../../C/zstd/zstd_ldm.c \
+  ../../../../C/zstd/zstd_opt.c \
+  ../../../../C/zstd/zstd_v01.c \
+  ../../../../C/zstd/zstd_v02.c \
+  ../../../../C/zstd/zstd_v03.c \
+  ../../../../C/zstd/zstd_v04.c \
+  ../../../../C/zstd/zstd_v05.c \
+  ../../../../C/zstd/zstd_v06.c \
+  ../../../../C/zstd/zstd_v07.c \
+  ../../../../C/zstd/zstdmt_compress.c \
+  ../../../../C/zstdmt/lz4-mt_common.c \
+  ../../../../C/zstdmt/lz4-mt_compress.c \
+  ../../../../C/zstdmt/lz4-mt_decompress.c \
+  ../../../../C/zstdmt/zstd-mt_threading.c \
 
 # Needed since ANDROID 5, these programs run on android-16 (Android 4.1+)
 LOCAL_CFLAGS += -fPIE

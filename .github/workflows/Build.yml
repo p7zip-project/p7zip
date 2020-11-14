@@ -5,6 +5,12 @@ on:
       - 'README.md'
       - 'LICENSE'
       - 'README'
+  
+  pull_request:
+    paths-ignore:
+      - 'README.md'
+      - 'LICENSE'
+      - 'README'
 jobs:
   ubuntu:
     name: ubuntu-build

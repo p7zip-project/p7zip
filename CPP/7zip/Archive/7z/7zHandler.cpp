@@ -450,6 +450,24 @@ HRESULT CHandler::SetMethodToProp(CNum folderIndex, PROPVARIANT *prop) const
           GetStringForSizeValue(dest, GetUi32(props + 1));
         }
       }
+      else if (id == k_BROTLI)
+      {
+        name = "Brotli";
+        if (propsSize == 3)
+        {
+          char *dest = s;
+          *dest++ = 'v';
+          ConvertUInt32ToString(props[0], dest);
+          dest += MyStringLen(dest);
+          *dest++ = '.';
+          ConvertUInt32ToString(props[1], dest);
+          dest += MyStringLen(dest);
+          *dest++ = ',';
+          *dest++ = 'l';
+          ConvertUInt32ToString(props[2], dest);
+          dest += MyStringLen(dest);
+        }
+      }
       else if (id == k_LZ4)
       {
         name = "LZ4";

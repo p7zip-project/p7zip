@@ -145,10 +145,10 @@ HRESULT CDecoder::CodeSpec(ISequentialInStream * inStream,
       if (zOut.pos) {
         RINOK(WriteStream(outStream, _dstBuf, zOut.pos));
         _processedOut += zOut.pos;
-        if (progress)
-        {
-          RINOK(progress->SetRatioInfo(&_processedIn, &_processedOut));
-        }
+        
+      }
+      if (progress) {
+        RINOK(progress->SetRatioInfo(&_processedIn, &_processedOut));
       }
 
       /* finished with buffer */

@@ -225,7 +225,8 @@ STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream,
   ZSTD_outBuffer outBuff;
   ZSTD_inBuffer inBuff;
   size_t err, srcSize;
-
+  _processedIn = 0;
+  _processedOut = 0;
   if (!_ctx) {
     _ctx = ZSTD_createCCtx();
     if (!_ctx)
@@ -369,12 +370,10 @@ STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream,
       /* write output */
       if (outBuff.pos) {
         RINOK(WriteStream(outStream, _dstBuf, outBuff.pos));
-        // WaitForSingleObject(_hMutex, INFINITE);
         _processedOut += outBuff.pos;
-        if (progress != NULL)  
-          RINOK(progress->SetRatioInfo(&_processedIn, &_processedOut)); 
-        // ReleaseMutex(_hMutex);
       }
+      if (progress != NULL)  
+        RINOK(progress->SetRatioInfo(&_processedIn, &_processedOut)); 
 
       /* done */
       if (ZSTD_todo == ZSTD_e_end && err == 0)

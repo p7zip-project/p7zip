@@ -61,6 +61,7 @@ SRCS=\
   ../../../../CPP/7zip/Archive/CpioHandler.cpp \
   ../../../../CPP/7zip/Archive/CramfsHandler.cpp \
   ../../../../CPP/7zip/Archive/DeflateProps.cpp \
+  ../../../../CPP/7zip/Archive/DmgHandler.cpp \
   ../../../../CPP/7zip/Archive/DllExports2.cpp \
   ../../../../CPP/7zip/Archive/DmgHandler.cpp \
   ../../../../CPP/7zip/Archive/ElfHandler.cpp \
@@ -168,6 +169,7 @@ SRCS=\
   ../../../../CPP/7zip/Compress/DeltaFilter.cpp \
   ../../../../CPP/7zip/Compress/ImplodeDecoder.cpp \
   ../../../../CPP/7zip/Compress/ImplodeHuffmanDecoder.cpp \
+  ../../../../CPP/7zip/Compress/LzfseDecoder.cpp \
   ../../../../CPP/7zip/Compress/LzOutWindow.cpp \
   ../../../../CPP/7zip/Compress/LzhDecoder.cpp \
   ../../../../CPP/7zip/Compress/Lzma2Decoder.cpp \
@@ -727,10 +729,10 @@ CramfsHandler.o : ../../../../CPP/7zip/Archive/CramfsHandler.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/CramfsHandler.cpp
 DeflateProps.o : ../../../../CPP/7zip/Archive/DeflateProps.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/DeflateProps.cpp
-DllExports2.o : ../../../../CPP/7zip/Archive/DllExports2.cpp
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/DllExports2.cpp
 DmgHandler.o : ../../../../CPP/7zip/Archive/DmgHandler.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/DmgHandler.cpp
+DllExports2.o : ../../../../CPP/7zip/Archive/DllExports2.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/DllExports2.cpp
 ElfHandler.o : ../../../../CPP/7zip/Archive/ElfHandler.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/ElfHandler.cpp
 ExtHandler.o : ../../../../CPP/7zip/Archive/ExtHandler.cpp
@@ -946,6 +948,8 @@ ImplodeDecoder.o : ../../../../CPP/7zip/Compress/ImplodeDecoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ImplodeDecoder.cpp
 ImplodeHuffmanDecoder.o : ../../../../CPP/7zip/Compress/ImplodeHuffmanDecoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ImplodeHuffmanDecoder.cpp
+LzfseDecoder.o : ../../../../CPP/7zip/Compress/LzfseDecoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LzfseDecoder.cpp 
 LzOutWindow.o : ../../../../CPP/7zip/Compress/LzOutWindow.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LzOutWindow.cpp
 LzhDecoder.o : ../../../../CPP/7zip/Compress/LzhDecoder.cpp
@@ -1192,8 +1196,8 @@ OBJS=\
  CpioHandler.o \
  CramfsHandler.o \
  DeflateProps.o \
- DllExports2.o \
  DmgHandler.o \
+ DllExports2.o \
  ElfHandler.o \
  ExtHandler.o \
  FatHandler.o \
@@ -1297,6 +1301,7 @@ OBJS=\
  DeltaFilter.o \
  ImplodeDecoder.o \
  ImplodeHuffmanDecoder.o \
+ LzfseDecoder.o \
  LzOutWindow.o \
  LzhDecoder.o \
  Lzma2Decoder.o \

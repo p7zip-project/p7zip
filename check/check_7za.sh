@@ -85,6 +85,14 @@ sure ${P7ZIP} a -mx=9 -m0=ppmd:mem=64m:o=32 7za433_7zip_ppmd.7z 7za433_7zip_ppmd
 
 sure ${P7ZIP} a -m0=bzip2 7za433_7zip_bzip2.7z 7za433_7zip_bzip2
 
+sure ${P7ZIP} a -t7z 7za433_7zip_zstd.7z 7za433_7zip_lzma -m0=zstd -mx=22 # mx=level
+
+sure ${P7ZIP} a -m0=lz4 7za433_7zip_lz4.7z 7za433_7zip_lzma
+
+sure ${P7ZIP} a -m0=lz5 7za433_7zip_lz5.7z 7za433_7zip_lzma
+
+sure ${P7ZIP} a -m0=brotli 7za433_7zip_brotli.7z 7za433_7zip_lzma
+
 echo ""
 echo "# EXTRACTING (PASS 2) ..."
 echo "#########################"
@@ -93,9 +101,27 @@ sure rm -fr 7za433_7zip_bzip2 7za433_7zip_lzma 7za433_7zip_lzma_crypto 7za433_7z
 
 sure ${P7ZIP} x 7za433_tar.tar
 sure diff -r 7za433_ref 7za433_tar
+sure rm -rf 7za433_tar
 
 sure ${P7ZIP} x 7za433_7zip_lzma.7z
 sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_zstd.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lz4.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lz5.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_brotli.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
 
 sure rm -fr 7za433_7zip_lzma
 # FIXME - only for 7zG

@@ -193,6 +193,9 @@ LOCAL_SRC_FILES := \
   ../../../../CPP/7zip/Compress/Lz4Decoder.cpp \
   ../../../../CPP/7zip/Compress/Lz4Encoder.cpp \
   ../../../../CPP/7zip/Compress/Lz4Register.cpp \
+  ../../../../CPP/7zip/Compress/Lz5Decoder.cpp \
+  ../../../../CPP/7zip/Compress/Lz5Encoder.cpp \
+  ../../../../CPP/7zip/Compress/Lz5Register.cpp \
   ../../../../CPP/7zip/Compress/XzDecoder.cpp \
   ../../../../CPP/7zip/Compress/XzEncoder.cpp \
   ../../../../CPP/7zip/Compress/ZstdDecoder.cpp \
@@ -296,6 +299,9 @@ LOCAL_SRC_FILES := \
   ../../../../C/lz4/lz4.c \
   ../../../../C/lz4/lz4frame.c \
   ../../../../C/lz4/lz4hc.c \
+  ../../../../C/lz5/lz5.c \
+  ../../../../C/lz5/lz5frame.c \
+  ../../../../C/lz5/lz5hc.c \
   ../../../../C/zstd/debug.c \
   ../../../../C/zstd/entropy_common.c \
   ../../../../C/zstd/error_private.c \
@@ -331,6 +337,9 @@ LOCAL_SRC_FILES := \
   ../../../../C/zstdmt/lz4-mt_common.c \
   ../../../../C/zstdmt/lz4-mt_compress.c \
   ../../../../C/zstdmt/lz4-mt_decompress.c \
+  ../../../../C/zstdmt/lz5-mt_common.c \
+  ../../../../C/zstdmt/lz5-mt_compress.c \
+  ../../../../C/zstdmt/lz5-mt_decompress.c \
   ../../../../C/zstdmt/zstd-mt_threading.c \
   ../../../../C/zstdmt/brotli-mt_common.c \
   ../../../../C/zstdmt/brotli-mt_compress.c \

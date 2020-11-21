@@ -120,6 +120,10 @@ sure ${P7ZIP} a -t7z 7za433_7zip_zstd.7z 7za433_7zip_lzma -m0=zstd -mx=22 # mx=l
 
 sure ${P7ZIP} a -t7z 7za433_7zip_lz4.7z 7za433_7zip_lzma -m0=lz4 -mmt=on # mmt=multithreading mode
 
+sure ${P7ZIP} a -t7z 7za433_7zip_lz5.7z 7za433_7zip_lzma -m0=lz5 -mmt=on # mmt=multithreading mode
+
+sure ${P7ZIP} a -t7z 7za433_7zip_brotli.7z 7za433_7zip_lzma -m0=brotli -mmt=on # mmt=multithreading mode
+
 sure ${P7ZIP} a -t7z 7za433_7zip_flzma2.7z 7za433_7zip_lzma -m0=flzma2 -mmt=on # mmt=multithreading mode
 
 sure ${P7ZIP} a -t7z 7za433_7zip_lzma3.7z 7za433_7zip_lzma -m0=LZMA -mf=BCJ # mf=FilterID
@@ -235,6 +239,14 @@ sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 
 sure ${P7ZIP} x 7za433_7zip_lz4.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lz5.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_brotli.7z
 sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 

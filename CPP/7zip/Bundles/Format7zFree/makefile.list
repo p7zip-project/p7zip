@@ -198,6 +198,9 @@ SRCS=\
   ../../../../CPP/7zip/Compress/Lz4Decoder.cpp \
   ../../../../CPP/7zip/Compress/Lz4Encoder.cpp \
   ../../../../CPP/7zip/Compress/Lz4Register.cpp \
+  ../../../../CPP/7zip/Compress/Lz5Decoder.cpp \
+  ../../../../CPP/7zip/Compress/Lz5Encoder.cpp \
+  ../../../../CPP/7zip/Compress/Lz5Register.cpp \
   ../../../../CPP/7zip/Compress/XzDecoder.cpp \
   ../../../../CPP/7zip/Compress/XzEncoder.cpp \
   ../../../../CPP/7zip/Crypto/7zAes.cpp \
@@ -318,9 +321,15 @@ SRCS_C=\
   ../../../../C/lz4/lz4.c \
   ../../../../C/lz4/lz4frame.c \
   ../../../../C/lz4/lz4hc.c \
+  ../../../../C/lz5/lz5.c \
+  ../../../../C/lz5/lz5frame.c \
+  ../../../../C/lz5/lz5hc.c \
   ../../../../C/zstdmt/lz4-mt_common.c \
   ../../../../C/zstdmt/lz4-mt_compress.c \
   ../../../../C/zstdmt/lz4-mt_decompress.c \
+  ../../../../C/zstdmt/lz5-mt_common.c \
+  ../../../../C/zstdmt/lz5-mt_compress.c \
+  ../../../../C/zstdmt/lz5-mt_decompress.c \
   ../../../../C/zstdmt/zstd-mt_threading.c \
   ../../../../C/zstdmt/brotli-mt_common.c \
   ../../../../C/zstdmt/brotli-mt_compress.c \
@@ -584,6 +593,14 @@ lz4frame.o : ../../../../C/lz4/lz4frame.c
 lz4hc.o : ../../../../C/lz4/lz4hc.c 
 	$(CC) $(CFLAGS) ../../../../C/lz4/lz4hc.c 
 
+# lz5 compile 
+lz5.o : ../../../../C/lz5/lz5.c 
+	$(CC) $(CFLAGS) ../../../../C/lz5/lz5.c
+lz5frame.o : ../../../../C/lz5/lz5frame.c 
+	$(CC) $(CFLAGS) ../../../../C/lz5/lz5frame.c
+lz5hc.o : ../../../../C/lz5/lz5hc.c 
+	$(CC) $(CFLAGS) ../../../../C/lz5/lz5hc.c 
+
 # mt compile 
 lz4-mt_common.o : ../../../../C/zstdmt/lz4-mt_common.c 
 	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz4-mt_common.c 
@@ -591,6 +608,12 @@ lz4-mt_compress.o : ../../../../C/zstdmt/lz4-mt_compress.c
 	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz4-mt_compress.c 
 lz4-mt_decompress.o : ../../../../C/zstdmt/lz4-mt_decompress.c
 	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz4-mt_decompress.c 
+lz5-mt_common.o : ../../../../C/zstdmt/lz5-mt_common.c 
+	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz5-mt_common.c 
+lz5-mt_compress.o : ../../../../C/zstdmt/lz5-mt_compress.c 
+	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz5-mt_compress.c 
+lz5-mt_decompress.o : ../../../../C/zstdmt/lz5-mt_decompress.c
+	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz5-mt_decompress.c
 zstd-mt_threading.o : ../../../../C/zstdmt/zstd-mt_threading.c
 	$(CC) $(CFLAGS)  ../../../../C/zstdmt/zstd-mt_threading.c 
 brotli-mt_common.o : ../../../../C/zstdmt/brotli-mt_common.c 
@@ -981,6 +1004,14 @@ Lz4Encoder.o : ../../../../CPP/7zip/Compress/Lz4Encoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Encoder.cpp 
 Lz4Register.o : ../../../../CPP/7zip/Compress/Lz4Register.cpp 
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Register.cpp 
+
+# lz5 register compile
+Lz5Decoder.o : ../../../../CPP/7zip/Compress/Lz5Decoder.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz5Decoder.cpp 
+Lz5Encoder.o : ../../../../CPP/7zip/Compress/Lz5Encoder.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz5Encoder.cpp 
+Lz5Register.o : ../../../../CPP/7zip/Compress/Lz5Register.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz5Register.cpp 
 
 # brotli register compile
 BrotliDecoder.o : ../../../../CPP/7zip/Compress/BrotliDecoder.cpp 
@@ -1424,4 +1455,13 @@ OBJS=\
  brotli-mt_decompress.o \
  BrotliDecoder.o \
  BrotliEncoder.o \
- BrotliRegister.o
+ BrotliRegister.o \
+ Lz5Decoder.o \
+ Lz5Encoder.o \
+ Lz5Register.o \
+ lz5.o \
+ lz5frame.o \
+ lz5hc.o \
+ lz5-mt_common.o \
+ lz5-mt_compress.o \
+ lz5-mt_decompress.o

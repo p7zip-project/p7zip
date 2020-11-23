@@ -15,8 +15,15 @@ This is the place for the active development of p7zip to include major modern co
 
 2. [LZ4] v1.9.3 is lossless compression algorithm, providing compression speed at 400 MB/s per core (0.16 Bytes/cycle). It features an extremely fast decoder, with speed in multiple GB/s per core (0.71 Bytes/cycle). A high compression derivative, called LZ4_HC, is available, trading customizable CPU time for compression ratio.
    - Levels: 1..12
+
 3. [Fast LZMA2] v1.0.1 is a LZMA2 compression algorithm, 20% to 100% faster than normal LZMA2 at levels 5 and above, but with a slightly lower compression ratio. It uses a parallel buffered radix matchfinder and some optimizations from Zstandard. The codec uses much less additional memory per thread than standard LZMA2.
    - Levels: 1..9
+
+4. [Brotli] v1.0.9 is a generic-purpose lossless compression algorithm that compresses data using a combination of a modern variant of the LZ77 algorithm, Huffman coding and 2nd order context modeling, with a compression ratio comparable to the best currently available general-purpose compression methods. It is similar in speed with deflate but offers more dense compression.
+   - Levels: 0..11
+
+5. [LZ5] v1.5 is a modification of LZ4 which gives a better ratio at cost of slower compression and decompression.
+   - Levels: 1..15
    
 ## Benchmark
 We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(total size 211938580 Byte) for packaging. 
@@ -88,7 +95,7 @@ Hashers:
 
 ### Usage (codec plugin)
 
-- compression and decompression for [LZ4] and [Zstandard] within the p7-Zip container format
+- compression and decompression for [LZ4] [Fast LZMA2] [Brotli] [LZ5] and [Zstandard] within the p7-Zip container format
 - you can only create `.7z` files, the files like `.lz4` and `.zst` are not covered by the plugins
 - when compressing binaries (*.exe, *.dll), you have to explicitly disable the bcj2 filter via `-m0=bcj`.
 - so the usage should look like this:
@@ -114,6 +121,8 @@ Hashers:
   - [LZ4] Version 1.9.2
   - [Zstandard] Version 1.4.5
   - [Fast LZMA2] Version v1.0.1
+  - [Brotli] Version v1.0.9
+  - [LZ5] Version v1.5
   
 ## Working Plan
  - [check here](https://github.com/szcnick/p7zip/tree/dev/DOC)
@@ -122,3 +131,5 @@ Hashers:
 [LZ4]:https://github.com/lz4/lz4/
 [Zstandard]:https://github.com/facebook/zstd/
 [Fast LZMA2]:https://github.com/conor42/fast-lzma2
+[Brotli]:https://github.com/google/brotli/
+[LZ5]:https://github.com/inikep/lz5/

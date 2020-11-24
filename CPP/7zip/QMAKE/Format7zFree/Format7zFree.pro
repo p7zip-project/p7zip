@@ -263,6 +263,7 @@ SOURCES +=  \
   ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp \
   ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp \
   ../../../../CPP/7zip/Archive/Lz4Handler.cpp \
+  ../../../../CPP/7zip/Archive/Lz5Handler.cpp \
   ../../../../CPP/7zip/Archive/ZstdHandler.cpp \
   ../../../../CPP/7zip/Common/CWrappers.cpp \
   ../../../../CPP/7zip/Common/CreateCoder.cpp \
@@ -306,6 +307,7 @@ SOURCES +=  \
   ../../../../CPP/7zip/Compress/DeltaFilter.cpp \
   ../../../../CPP/7zip/Compress/ImplodeDecoder.cpp \
   ../../../../CPP/7zip/Compress/ImplodeHuffmanDecoder.cpp \
+  ../../../../CPP/7zip/Compress/LzfseDecoder.cpp \
   ../../../../CPP/7zip/Compress/LzOutWindow.cpp \
   ../../../../CPP/7zip/Compress/LzhDecoder.cpp \
   ../../../../CPP/7zip/Compress/Lzma2Decoder.cpp \

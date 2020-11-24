@@ -1,7 +1,7 @@
 
 # A new p7zip fork with additional codecs and improvements (forked from https://sourceforge.net/projects/p7zip/).
 
-This is the place for the active development of p7zip to include major modern codecs such as LZ4 and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
+This is the place for the active development of p7zip to include major modern codecs such as Brotli, Fast LZMA2, LZ4, LZ5 and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
 
 # status
 [![ubuntu-badge]][ubuntu-link]

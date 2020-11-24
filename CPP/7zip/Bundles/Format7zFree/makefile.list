@@ -127,6 +127,7 @@ SRCS=\
   ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp \
   ../../../../CPP/7zip/Archive/ZstdHandler.cpp \
   ../../../../CPP/7zip/Archive/Lz4Handler.cpp \
+  ../../../../CPP/7zip/Archive/Lz5Handler.cpp \
   ../../../../CPP/7zip/Common/CWrappers.cpp \
   ../../../../CPP/7zip/Common/CreateCoder.cpp \
   ../../../../CPP/7zip/Common/FilterCoder.cpp \
@@ -864,6 +865,10 @@ ZstdHandler.o : ../../../../CPP/7zip/Archive/ZstdHandler.cpp
 Lz4Handler.o : ../../../../CPP/7zip/Archive/Lz4Handler.cpp 
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Lz4Handler.cpp 
 
+# Lz5 ARC
+Lz5Handler.o : ../../../../CPP/7zip/Archive/Lz5Handler.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Lz5Handler.cpp 
+
 CWrappers.o : ../../../../CPP/7zip/Common/CWrappers.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Common/CWrappers.cpp
 CreateCoder.o : ../../../../CPP/7zip/Common/CreateCoder.cpp
@@ -1413,6 +1418,7 @@ OBJS=\
  Lz4Encoder.o \
  Lz4Register.o \
  Lz4Handler.o \
+ Lz5Handler.o \
  XzDecoder.o \
  XzEncoder.o \
  dict_buffer.o \

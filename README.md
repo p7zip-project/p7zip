@@ -1,7 +1,7 @@
 
 # A new p7zip fork with additional codecs and improvements (forked from https://sourceforge.net/projects/p7zip/).
 
-This is the place for the active development of p7zip to include major modern codecs such as Brotli, Fast LZMA2, LZ4, LZ5 and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
+This is the place for the active development of p7zip to include major modern codecs such as Brotli, Fast LZMA2, LZ4, LZ5, Lizard and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
 
 # status
 [![ubuntu-badge]][ubuntu-link]
@@ -24,6 +24,12 @@ This is the place for the active development of p7zip to include major modern co
 
 5. [LZ5] v1.5 is a modification of LZ4 which gives a better ratio at cost of slower compression and decompression.
    - Levels: 1..15
+
+6. [Lizard] v1.0 is an efficient compressor with very fast decompression. It achieves compression ratio that is comparable to zip/zlib and zstd/brotli (at low and medium compression levels) at decompression speed of 1000 MB/s and faster.
+   - Levels 10..19 (fastLZ4) are designed to give about 10% better decompression speed than LZ4
+   - Levels 20..29 (LIZv1) are designed to give better ratio than LZ4 keeping 75% decompression speed
+   - Levels 30..39 (fastLZ4 + Huffman) adds Huffman coding to fastLZ4
+   - Levels 40..49 (LIZv1 + Huffman) give the best ratio, comparable to zlib and low levels of zstd/brotli, but with a faster decompression speed
    
 ## Benchmark
 We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(total size 211938580 Byte) for packaging. 
@@ -95,7 +101,7 @@ Hashers:
 
 ### Usage (codec plugin)
 
-- compression and decompression for [LZ4] [Fast LZMA2] [Brotli] [LZ5] and [Zstandard] within the p7-Zip container format
+- compression and decompression for [LZ4] [Fast LZMA2] [Brotli] [LZ5] [Lizard] and [Zstandard] within the p7-Zip container format
 - you can only create `.7z` files, the files like `.lz4` and `.zst` are not covered by the plugins
 - when compressing binaries (*.exe, *.dll), you have to explicitly disable the bcj2 filter via `-m0=bcj`.
 - so the usage should look like this:
@@ -123,6 +129,7 @@ Hashers:
   - [Fast LZMA2] Version v1.0.1
   - [Brotli] Version v1.0.9
   - [LZ5] Version v1.5
+  - [Lizard] Version 1.0
   
 ## Working Plan
  - [check here](https://github.com/szcnick/p7zip/tree/dev/DOC)
@@ -133,3 +140,4 @@ Hashers:
 [Fast LZMA2]:https://github.com/conor42/fast-lzma2
 [Brotli]:https://github.com/google/brotli/
 [LZ5]:https://github.com/inikep/lz5/
+[Lizard]:https://github.com/inikep/lizard/

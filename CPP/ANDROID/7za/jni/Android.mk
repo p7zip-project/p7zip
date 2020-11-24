@@ -89,6 +89,7 @@ LOCAL_SRC_FILES := \
   ../../../../CPP/7zip/Archive/Zip/ZipOut.cpp \
   ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp \
   ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp \
+  ../../../../CPP/7zip/Archive/LizardHandler.cpp \
   ../../../../CPP/7zip/Archive/Lz4Handler.cpp \
   ../../../../CPP/7zip/Archive/Lz5Handler.cpp \
   ../../../../CPP/7zip/Archive/ZstdHandler.cpp \
@@ -151,6 +152,9 @@ LOCAL_SRC_FILES := \
   ../../../../CPP/7zip/Compress/ShrinkDecoder.cpp \
   ../../../../CPP/7zip/Compress/ZDecoder.cpp \
   ../../../../CPP/7zip/Compress/FastLzma2Register.cpp \
+  ../../../../CPP/7zip/Compress/LizardDecoder.cpp \
+  ../../../../CPP/7zip/Compress/LizardEncoder.cpp \
+  ../../../../CPP/7zip/Compress/LizardRegister.cpp \
   ../../../../CPP/7zip/Compress/Lz4Decoder.cpp \
   ../../../../CPP/7zip/Compress/Lz4Encoder.cpp \
   ../../../../CPP/7zip/Compress/Lz4Register.cpp \
@@ -286,6 +290,9 @@ LOCAL_SRC_FILES := \
   ../../../../C/fast-lzma2/radix_struct.c \
   ../../../../C/fast-lzma2/range_enc.c \
   ../../../../C/fast-lzma2/util.c \
+  ../../../../C/lizard/lizard_compress.c \
+  ../../../../C/lizard/lizard_decompress.c \
+  ../../../../C/lizard/lizard_frame.c \
   ../../../../C/lz4/lz4.c \
   ../../../../C/lz4/lz4frame.c \
   ../../../../C/lz4/lz4hc.c \
@@ -324,6 +331,9 @@ LOCAL_SRC_FILES := \
   ../../../../C/zstd/zstd_v06.c \
   ../../../../C/zstd/zstd_v07.c \
   ../../../../C/zstd/zstdmt_compress.c \
+  ../../../../C/zstdmt/lizard-mt_common.c \
+  ../../../../C/zstdmt/lizard-mt_compress.c \
+  ../../../../C/zstdmt/lizard-mt_decompress.c \
   ../../../../C/zstdmt/lz4-mt_common.c \
   ../../../../C/zstdmt/lz4-mt_compress.c \
   ../../../../C/zstdmt/lz4-mt_decompress.c \

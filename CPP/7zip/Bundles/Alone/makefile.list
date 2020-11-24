@@ -72,6 +72,7 @@ SRCS=\
   ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp \
   ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp \
   ../../../../CPP/7zip/Archive/ZstdHandler.cpp \
+  ../../../../CPP/7zip/Archive/LizardHandler.cpp \
   ../../../../CPP/7zip/Archive/Lz4Handler.cpp \
   ../../../../CPP/7zip/Archive/Lz5Handler.cpp \
   ../../../../CPP/7zip/Common/CWrappers.cpp \
@@ -139,6 +140,9 @@ SRCS=\
   ../../../../CPP/7zip/Compress/BrotliDecoder.cpp \
   ../../../../CPP/7zip/Compress/BrotliEncoder.cpp \
   ../../../../CPP/7zip/Compress/BrotliRegister.cpp \
+  ../../../../CPP/7zip/Compress/LizardDecoder.cpp \
+  ../../../../CPP/7zip/Compress/LizardEncoder.cpp \
+  ../../../../CPP/7zip/Compress/LizardRegister.cpp \
   ../../../../CPP/7zip/Compress/Lz4Decoder.cpp \
   ../../../../CPP/7zip/Compress/Lz4Encoder.cpp \
   ../../../../CPP/7zip/Compress/Lz4Register.cpp \
@@ -291,12 +295,18 @@ SRCS_C=\
   ../../../../C/zstd/zstd_v06.c \
   ../../../../C/zstd/zstd_v07.c \
   ../../../../C/zstd/zstdmt_compress.c \
+  ../../../../C/lizard/lizard_compress.c \
+  ../../../../C/lizard/lizard_decompress.c \
+  ../../../../C/lizard/lizard_frame.c \
   ../../../../C/lz4/lz4.c \
   ../../../../C/lz4/lz4frame.c \
   ../../../../C/lz4/lz4hc.c \
   ../../../../C/lz5/lz5.c \
   ../../../../C/lz5/lz5frame.c \
   ../../../../C/lz5/lz5hc.c \
+  ../../../../C/zstdmt/lizard-mt_common.c \
+  ../../../../C/zstdmt/lizard-mt_compress.c \
+  ../../../../C/zstdmt/lizard-mt_decompress.c \
   ../../../../C/zstdmt/lz4-mt_common.c \
   ../../../../C/zstdmt/lz4-mt_compress.c \
   ../../../../C/zstdmt/lz4-mt_decompress.c \
@@ -554,6 +564,14 @@ br_transform.o : ../../../../C/brotli/br_transform.c
 br_utf8_util.o : ../../../../C/brotli/br_utf8_util.c 
 	$(CC) $(CFLAGS) ../../../../C/brotli/br_utf8_util.c 
 
+# lizard compile
+lizard_compress.o : ../../../../C/lizard/lizard_compress.c
+	$(CC) $(CFLAGS) ../../../../C/lizard/lizard_compress.c
+lizard_decompress.o : ../../../../C/lizard/lizard_decompress.c
+	$(CC) $(CFLAGS) ../../../../C/lizard/lizard_decompress.c
+lizard_frame.o : ../../../../C/lizard/lizard_frame.c
+	$(CC) $(CFLAGS) ../../../../C/lizard/lizard_frame.c
+
 # lz4 compile 
 lz4.o : ../../../../C/lz4/lz4.c 
 	$(CC) $(CFLAGS) ../../../../C/lz4/lz4.c
@@ -571,6 +589,12 @@ lz5hc.o : ../../../../C/lz5/lz5hc.c
 	$(CC) $(CFLAGS) ../../../../C/lz5/lz5hc.c 
 
 # mt compile 
+lizard-mt_common.o : ../../../../C/zstdmt/lizard-mt_common.c 
+	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lizard-mt_common.c 
+lizard-mt_compress.o : ../../../../C/zstdmt/lizard-mt_compress.c 
+	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lizard-mt_compress.c 
+lizard-mt_decompress.o : ../../../../C/zstdmt/lizard-mt_decompress.c
+	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lizard-mt_decompress.c 
 lz4-mt_common.o : ../../../../C/zstdmt/lz4-mt_common.c 
 	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz4-mt_common.c 
 lz4-mt_compress.o : ../../../../C/zstdmt/lz4-mt_compress.c 
@@ -723,6 +747,10 @@ ZipUpdate.o : ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp
 ZstdHandler.o : ../../../../CPP/7zip/Archive/ZstdHandler.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/ZstdHandler.cpp
 
+# Lizard ARC
+LizardHandler.o : ../../../../CPP/7zip/Archive/LizardHandler.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/LizardHandler.cpp
+
 # Lz4 ARC
 Lz4Handler.o : ../../../../CPP/7zip/Archive/Lz4Handler.cpp 
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Lz4Handler.cpp 
@@ -857,6 +885,14 @@ ZstdEncoder.o : ../../../../CPP/7zip/Compress/ZstdEncoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZstdEncoder.cpp 
 ZstdRegister.o : ../../../../CPP/7zip/Compress/ZstdRegister.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZstdRegister.cpp
+
+# Lizard register compile
+LizardDecoder.o : ../../../../CPP/7zip/Compress/LizardDecoder.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LizardDecoder.cpp 
+LizardEncoder.o : ../../../../CPP/7zip/Compress/LizardEncoder.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LizardEncoder.cpp 
+LizardRegister.o : ../../../../CPP/7zip/Compress/LizardRegister.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LizardRegister.cpp
 
 # lz4 register compile
 Lz4Decoder.o : ../../../../CPP/7zip/Compress/Lz4Decoder.cpp 
@@ -1361,6 +1397,15 @@ OBJS=\
  lz5hc.o \
  lz5-mt_common.o \
  lz5-mt_compress.o \
- lz5-mt_decompress.o
-
+ lz5-mt_decompress.o \
+ LizardHandler.o \
+ LizardDecoder.o \
+ LizardEncoder.o \
+ LizardRegister.o \
+ lizard_compress.o \
+ lizard_decompress.o \
+ lizard_frame.o \
+ lizard-mt_common.o \
+ lizard-mt_compress.o \
+ lizard-mt_decompress.o
  

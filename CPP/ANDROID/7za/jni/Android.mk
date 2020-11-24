@@ -90,6 +90,7 @@ LOCAL_SRC_FILES := \
   ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp \
   ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp \
   ../../../../CPP/7zip/Archive/Lz4Handler.cpp \
+  ../../../../CPP/7zip/Archive/Lz5Handler.cpp \
   ../../../../CPP/7zip/Archive/ZstdHandler.cpp \
   ../../../../CPP/7zip/Common/CWrappers.cpp \
   ../../../../CPP/7zip/Common/CreateCoder.cpp \

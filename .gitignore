@@ -2,3 +2,4 @@
 bin/
 CPP/7zip/CMAKE/build
 *.pyc
+__pycache__/

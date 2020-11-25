@@ -93,6 +93,8 @@ sure ${P7ZIP} a -m0=lz5 7za433_7zip_lz5.7z 7za433_7zip_lzma
 
 sure ${P7ZIP} a -m0=brotli 7za433_7zip_brotli.7z 7za433_7zip_lzma
 
+sure ${P7ZIP} a -m0=lizard 7za433_7zip_lizard.7z 7za433_7zip_lzma
+
 echo ""
 echo "# EXTRACTING (PASS 2) ..."
 echo "#########################"
@@ -120,6 +122,10 @@ sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 
 sure ${P7ZIP} x 7za433_7zip_brotli.7z
+sure diff -r 7za433_ref 7za433_7zip_lzma
+sure rm -rf 7za433_7zip_lzma
+
+sure ${P7ZIP} x 7za433_7zip_lizard.7z
 sure diff -r 7za433_ref 7za433_7zip_lzma
 sure rm -rf 7za433_7zip_lzma
 

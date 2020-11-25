@@ -1,15 +1,7 @@
 name: BUILD
-on: 
-  push:
-    paths-ignore:
-      - 'README.md'
-      - 'LICENSE'
-      - 'README'
-  pull_request:
-    paths-ignore:
-      - 'README.md'
-      - 'LICENSE'
-      - 'README'
+
+on: [push, pull_request]
+
 jobs:
   ubuntu:
     name: ubuntu-build

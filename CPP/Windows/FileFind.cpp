@@ -304,9 +304,26 @@ bool CFindFile::FindFirst(CFSTR cfWildcard, CFileInfo &fi, bool ignoreLink)
     return false;
   }
  
-  my_windows_split_path(nameWindowToUnix(wildcard),_directory,_pattern);
-  
+  const char * path = nameWindowToUnix(wildcard);
+  my_windows_split_path(path,_directory,_pattern);
+
   TRACEN((printf("CFindFile::FindFirst : %s (dirname=%s,pattern=%s)\n",wildcard,(const char *)_directory,(const char *)_pattern)))
+
+  // check if pattern contains * or ? to see if we can skip the pattern checking
+  bool hasNoWildcards = (_pattern.Find('*') == -1 && _pattern.Find('?') == -1);
+  if (hasNoWildcards) {
+      bool fileExists = ( access( path, F_OK ) != -1 );
+
+      if (fileExists) {
+        int retf = fillin_CFileInfo(fi,(const char *)_directory,(const char *)_pattern,ignoreLink);
+        if (retf == 0) {
+            return true;
+        }
+      }
+      // fileExists = false or fillin_CFileInfo failed
+      SetLastError( ERROR_PATH_NOT_FOUND );
+      return false;
+  }
 
   _dirp = ::opendir((const char *)_directory);
   TRACEN((printf("CFindFile::FindFirst : opendir=%p\n",_dirp)))

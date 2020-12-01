@@ -242,6 +242,13 @@ SRCS=\
   ../../../../CPP/Common/Wildcard.cpp \
   ../../../../CPP/Common/XzCrc64Init.cpp \
   ../../../../CPP/Common/XzCrc64Reg.cpp \
+  ../../../../CPP/Common/Md2Reg.cpp \
+  ../../../../CPP/Common/Md4Reg.cpp \
+  ../../../../CPP/Common/Md5Reg.cpp \
+  ../../../../CPP/Common/Sha384Reg.cpp \
+  ../../../../CPP/Common/Sha512Reg.cpp \
+  ../../../../CPP/Common/XXH32Reg.cpp \
+  ../../../../CPP/Common/XXH64Reg.cpp \
   ../../../../CPP/Windows/FileDir.cpp \
   ../../../../CPP/Windows/FileFind.cpp \
   ../../../../CPP/Windows/FileIO.cpp \
@@ -387,6 +394,10 @@ SRCS_C=\
   ../../../../C/brotli/br_static_dict.c \
   ../../../../C/brotli/br_transform.c \
   ../../../../C/brotli/br_utf8_util.c \
+  ../../../../C/hashes/md2.c \
+  ../../../../C/hashes/md4.c \
+  ../../../../C/hashes/md5.c \
+  ../../../../C/hashes/sha512.c \
 
 StdAfx.h.gch : ../../../myWindows/StdAfx.h
 	rm -f StdAfx.h.gch
@@ -597,6 +608,16 @@ br_transform.o : ../../../../C/brotli/br_transform.c
 	$(CC) $(CFLAGS) ../../../../C/brotli/br_transform.c 
 br_utf8_util.o : ../../../../C/brotli/br_utf8_util.c 
 	$(CC) $(CFLAGS) ../../../../C/brotli/br_utf8_util.c 
+
+#hash compile
+md2.o : ../../../../C/hashes/md2.c
+	$(CC) $(CFLAGS) ../../../../C/hashes/md2.c
+md4.o : ../../../../C/hashes/md4.c
+	$(CC) $(CFLAGS) ../../../../C/hashes/md4.c
+md5.o : ../../../../C/hashes/md5.c
+	$(CC) $(CFLAGS) ../../../../C/hashes/md5.c
+sha512.o : ../../../../C/hashes/sha512.c
+	$(CC) $(CFLAGS) ../../../../C/hashes/sha512.c
 
 # lizard compile
 lizard_compress.o : ../../../../C/lizard/lizard_compress.c
@@ -1136,6 +1157,20 @@ XzCrc64Init.o : ../../../../CPP/Common/XzCrc64Init.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/XzCrc64Init.cpp
 XzCrc64Reg.o : ../../../../CPP/Common/XzCrc64Reg.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/XzCrc64Reg.cpp
+Md2Reg.o : ../../../../CPP/Common/Md2Reg.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/Md2Reg.cpp
+Md4Reg.o : ../../../../CPP/Common/Md4Reg.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/Md4Reg.cpp
+Md5Reg.o : ../../../../CPP/Common/Md5Reg.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/Md5Reg.cpp
+Sha384Reg.o : ../../../../CPP/Common/Sha384Reg.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/Sha384Reg.cpp
+Sha512Reg.o : ../../../../CPP/Common/Sha512Reg.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/Sha512Reg.cpp
+XXH32Reg.o : ../../../../CPP/Common/XXH32Reg.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/XXH32Reg.cpp
+XXH64Reg.o : ../../../../CPP/Common/XXH64Reg.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/XXH64Reg.cpp
 FileDir.o : ../../../../CPP/Windows/FileDir.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Windows/FileDir.cpp
 FileFind.o : ../../../../CPP/Windows/FileFind.cpp
@@ -1521,4 +1556,15 @@ OBJS=\
  lizard_frame.o \
  lizard-mt_common.o \
  lizard-mt_compress.o \
- lizard-mt_decompress.o
+ lizard-mt_decompress.o \
+ Md2Reg.o \
+ Md4Reg.o \
+ Md5Reg.o \
+ Sha384Reg.o \
+ Sha512Reg.o \
+ XXH32Reg.o \
+ XXH64Reg.o \
+ md2.o \
+ md4.o \
+ md5.o \
+ sha512.o

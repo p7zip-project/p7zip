@@ -133,6 +133,10 @@ files_c=[
  'C/brotli/br_static_dict.c',
  'C/brotli/br_transform.c',
  'C/brotli/br_utf8_util.c',
+ 'C/hashes/md2.c',
+ 'C/hashes/md4.c',
+ 'C/hashes/md5.c',
+ 'C/hashes/sha512.c',
 ]
 
 files_cpp=[
@@ -356,6 +360,13 @@ files_cpp=[
  'CPP/Common/Wildcard.cpp',
  'CPP/Common/XzCrc64Reg.cpp',
  'CPP/Common/XzCrc64Init.cpp',
+ 'CPP/Common/Md2Reg.cpp',
+ 'CPP/Common/Md4Reg.cpp',
+ 'CPP/Common/Md5Reg.cpp',
+ 'CPP/Common/Sha384Reg.cpp',
+ 'CPP/Common/Sha512Reg.cpp',
+ 'CPP/Common/XXH32Reg.cpp',
+ 'CPP/Common/XXH64Reg.cpp',
  'CPP/Windows/FileDir.cpp',
  'CPP/Windows/FileFind.cpp',
  'CPP/Windows/FileIO.cpp',

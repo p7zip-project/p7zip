@@ -55,8 +55,9 @@ jobs:
              bash check_7za.sh `pwd`/../bin/7za
              bash check_7zr.sh `pwd`/../bin/7zr
              cd ..
-             ./bin/7za a linux-p7zip.7z ./bin/* -y
-             ls linux-p7zip.7z
+             ls -l ./bin
+             ./bin/7za a linux-p7zip.7z ./bin/* -t7z -y
+             ./bin/7z a linux-p7zip.zip ./bin/* -tzip -y
 
   macos:
     name: macos-build
@@ -111,8 +112,9 @@ jobs:
              bash check_7za.sh `pwd`/../bin/7za
              bash check_7zr.sh `pwd`/../bin/7zr
              cd ..
-             ./bin/7za a macos-p7zip.7z ./bin/* -y
-             ls macos-p7zip.7z
+             ls -l ./bin
+             ./bin/7za a macos-p7zip.7z ./bin/* -t7z -y
+             ./bin/7z a macos-p7zip.zip ./bin/* -tzip -y
 
   ubuntu-cmake:
     name: ubuntu-cmake-build
@@ -169,8 +171,9 @@ jobs:
              bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
              cd ..
-             ./CPP/7zip/CMAKE/build/bin/7za a linux-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/* -y
-             ls linux-compatibly-p7zip.7z
+             ls -l ./CPP/7zip/CMAKE/build/bin/
+             ./CPP/7zip/CMAKE/build/bin/7za a linux-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* -t7z -y
+             ./CPP/7zip/CMAKE/build/bin/7z a linux-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* -tzip -y
 
   macos-cmake:
     name: macos-cmake-build
@@ -227,5 +230,6 @@ jobs:
              bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
              cd ..
-             ./CPP/7zip/CMAKE/build/bin/7za a macos-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/* -y
-             ls macos-compatibly-p7zip.7z
+             ls -l ./CPP/7zip/CMAKE/build/bin/
+             ./CPP/7zip/CMAKE/build/bin/7za a macos-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* -t7z -y
+             ./CPP/7zip/CMAKE/build/bin/7z a macos-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* -tzip -y

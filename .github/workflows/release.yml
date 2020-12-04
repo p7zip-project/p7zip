@@ -58,15 +58,17 @@ jobs:
              bash check_7za.sh `pwd`/../bin/7za
              bash check_7zr.sh `pwd`/../bin/7zr
              cd ..
-             ./bin/7za a linux-p7zip.7z ./bin/* -y
+             ./bin/7za a linux-p7zip.7z ./bin/* -t7z -y
+             ./bin/7z a linux-p7zip.zip ./bin/* -tzip -y
       - name: Upload the Linux binary artifacts
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: linux-p7zip.7z
+          file: linux-p7zip.*
           asset_name: linux-p7zip
           tag: ${{ github.ref }}
           overwrite: true
+          file_glob: true
           body: "This is linux binary release using make"
 
   macos:
@@ -122,15 +124,17 @@ jobs:
              bash check_7za.sh `pwd`/../bin/7za
              bash check_7zr.sh `pwd`/../bin/7zr
              cd ..
-             ./bin/7za a macos-p7zip.7z ./bin/* -y
+             ./bin/7za a macos-p7zip.7z ./bin/* -t7z -y
+             ./bin/7z a macos-p7zip.zip ./bin/* -tzip -y
       - name: Upload the macOS binary artifacts
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: macos-p7zip.7z
+          file: macos-p7zip.*
           asset_name: macos-p7zip
           tag: ${{ github.ref }}
           overwrite: true
+          file_glob: true
           body: "This is macos binary release using make"
 
   ubuntu-cmake:
@@ -188,15 +192,17 @@ jobs:
              bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
              cd ..
-             ./CPP/7zip/CMAKE/build/bin/7za a linux-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/* -y
+             ./CPP/7zip/CMAKE/build/bin/7za a linux-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* -t7z -y
+             ./CPP/7zip/CMAKE/build/bin/7z a linux-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* -tzip -y
       - name: Upload the cmake Linux binary artifacts
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: linux-compatibly-p7zip.7z
+          file: linux-compatibly-p7zip.*
           asset_name: linux-compatibly-p7zip
           tag: ${{ github.ref }}
           overwrite: true
+          file_glob: true
           body: "This is linux binary release using cmake"
 
   macos-cmake:
@@ -254,13 +260,15 @@ jobs:
              bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
              cd ..
-             ./CPP/7zip/CMAKE/build/bin/7za a macos-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/* -y
+             ./CPP/7zip/CMAKE/build/bin/7za a macos-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* -t7z -y
+             ./CPP/7zip/CMAKE/build/bin/7z a macos-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* -tzip -y
       - name: Upload the cmake macOS binary artifacts
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: macos-compatibly-p7zip.7z
+          file: macos-compatibly-p7zip.*
           asset_name: macos-compatibly-p7zip
           tag: ${{ github.ref }}
           overwrite: true
+          file_glob: true
           body: "This is macos binary release using cmake"

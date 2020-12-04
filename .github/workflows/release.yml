@@ -1,10 +1,13 @@
-name: BUILD
+name: Publish
 
-on: [push, pull_request]
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
   ubuntu:
-    name: ubuntu-build
+    name: ubuntu-binary
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -56,10 +59,18 @@ jobs:
              bash check_7zr.sh `pwd`/../bin/7zr
              cd ..
              ./bin/7za a linux-p7zip.7z ./bin/* -y
-             ls linux-p7zip.7z
+      - name: Upload the Linux binary artifacts
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: linux-p7zip.7z
+          asset_name: linux-p7zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          body: "This is linux binary release using make"
 
   macos:
-    name: macos-build
+    name: macos-binary
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -112,10 +123,18 @@ jobs:
              bash check_7zr.sh `pwd`/../bin/7zr
              cd ..
              ./bin/7za a macos-p7zip.7z ./bin/* -y
-             ls macos-p7zip.7z
+      - name: Upload the macOS binary artifacts
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: macos-p7zip.7z
+          asset_name: macos-p7zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          body: "This is macos binary release using make"
 
   ubuntu-cmake:
-    name: ubuntu-cmake-build
+    name: ubuntu-cmake-binary
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -170,10 +189,18 @@ jobs:
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
              cd ..
              ./CPP/7zip/CMAKE/build/bin/7za a linux-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/* -y
-             ls linux-compatibly-p7zip.7z
+      - name: Upload the cmake Linux binary artifacts
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: linux-compatibly-p7zip.7z
+          asset_name: linux-compatibly-p7zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          body: "This is linux binary release using cmake"
 
   macos-cmake:
-    name: macos-cmake-build
+    name: macos-cmake-binary
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -228,4 +255,12 @@ jobs:
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
              cd ..
              ./CPP/7zip/CMAKE/build/bin/7za a macos-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/* -y
-             ls macos-compatibly-p7zip.7z
+      - name: Upload the cmake macOS binary artifacts
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: macos-compatibly-p7zip.7z
+          asset_name: macos-compatibly-p7zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          body: "This is macos binary release using cmake"

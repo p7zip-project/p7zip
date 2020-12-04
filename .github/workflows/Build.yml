@@ -7,7 +7,7 @@ jobs:
     name: ubuntu-build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1    
+      - uses: actions/checkout@v2
       - name: build 7za & test
         run: |
              make 7za
@@ -31,7 +31,7 @@ jobs:
              echo "delete tmp file"
              rm -rf ./tr.7z ./CPP
              cd ..
-             
+
       - name: build 7z & test
         run: |
              make 7z
@@ -55,11 +55,20 @@ jobs:
              bash check_7za.sh `pwd`/../bin/7za
              bash check_7zr.sh `pwd`/../bin/7zr
              cd ..
+      - name: Upload the Linux binary artifacts
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: bin/*
+          asset_name: linux-p7zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
   macos:
     name: macos-build
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v1    
+      - uses: actions/checkout@v2
       - name: build 7za & test
         run: |
              cp makefile.macosx_gcc_64bits makefile.machine
@@ -84,7 +93,7 @@ jobs:
              echo "delete tmp file"
              rm -rf ./tr.7z ./CPP
              cd ..
-             
+
       - name: build 7z & test
         run: |
              make 7z
@@ -108,12 +117,21 @@ jobs:
              bash check_7za.sh `pwd`/../bin/7za
              bash check_7zr.sh `pwd`/../bin/7zr
              cd ..
+      - name: Upload the macOS binary artifacts
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: bin/*
+          asset_name: macos-p7zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
 
   ubuntu-cmake:
     name: ubuntu-cmake-build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: cmake build 7z_ & test
         run: |
              cd ./CPP/7zip/CMAKE/
@@ -132,7 +150,7 @@ jobs:
              diff -r ../../../Archive ./Archive
              echo "delte tmp file"
              rm -rf t_.7z Archive
-      
+
       - name: cmake build 7za & test
         run: |
              cd ./CPP/7zip/CMAKE/build/
@@ -144,7 +162,7 @@ jobs:
              diff -r ../../../Archive ./Archive
              echo "delete tmp file"
              rm -rf ta.7z Archive
-             
+
       - name: cmake build 7zr & test
         run: |
              cd ./CPP/7zip/CMAKE/build/
@@ -163,12 +181,21 @@ jobs:
              bash ./check.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7z_
              bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
+      - name: Upload the cmake Linux binary artifacts
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: bin/*
+          asset_name: linux-compatibly-p7zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
 
   macos-cmake:
     name: macos-cmake-build
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: cmake build 7z_ & test
         run: |
              cd ./CPP/7zip/CMAKE/
@@ -187,7 +214,7 @@ jobs:
              diff -r ../../../Archive ./Archive
              echo "delte tmp file"
              rm -rf t_.7z Archive
-      
+
       - name: cmake build 7za & test
         run: |
              cd ./CPP/7zip/CMAKE/build/
@@ -199,7 +226,7 @@ jobs:
              diff -r ../../../Archive ./Archive
              echo "delete tmp file"
              rm -rf ta.7z Archive
-             
+
       - name: cmake build 7zr & test
         run: |
              cd ./CPP/7zip/CMAKE/build/
@@ -218,3 +245,12 @@ jobs:
              bash ./check.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7z_
              bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
+      - name: Upload the cmake macOS binary artifacts
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: bin/*
+          asset_name: macos-compatibly-p7zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true

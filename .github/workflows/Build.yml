@@ -64,6 +64,7 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
+
   macos:
     name: macos-build
     runs-on: macos-latest

@@ -7,7 +7,7 @@ jobs:
     name: ubuntu-build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v1
       - name: build 7za & test
         run: |
              make 7za
@@ -55,15 +55,11 @@ jobs:
              bash check_7za.sh `pwd`/../bin/7za
              bash check_7zr.sh `pwd`/../bin/7zr
              cd ..
-             ls -l ./bin
-             ./bin/7za a linux-p7zip.7z ./bin/* -t7z -y
-             ./bin/7z a linux-p7zip.zip ./bin/* -tzip -y
-
   macos:
     name: macos-build
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v1
       - name: build 7za & test
         run: |
              cp makefile.macosx_gcc_64bits makefile.machine
@@ -112,15 +108,12 @@ jobs:
              bash check_7za.sh `pwd`/../bin/7za
              bash check_7zr.sh `pwd`/../bin/7zr
              cd ..
-             ls -l ./bin
-             ./bin/7za a macos-p7zip.7z ./bin/* -t7z -y
-             ./bin/7z a macos-p7zip.zip ./bin/* -tzip -y
 
   ubuntu-cmake:
     name: ubuntu-cmake-build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v1
       - name: cmake build 7z_ & test
         run: |
              cd ./CPP/7zip/CMAKE/
@@ -170,20 +163,12 @@ jobs:
              bash ./check.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7z_
              bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
-             cd ..
-             ls -l ./CPP/7zip/CMAKE/build/bin/
-             rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/CMakeFiles
-             rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/Makefile
-             rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/cmake_install.cmake
-             ls -l ./CPP/7zip/CMAKE/build/bin/Codecs
-             ./CPP/7zip/CMAKE/build/bin/7za a linux-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -t7z -y
-             ./CPP/7zip/CMAKE/build/bin/7z_ a linux-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -tzip -y
 
   macos-cmake:
     name: macos-cmake-build
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v1
       - name: cmake build 7z_ & test
         run: |
              cd ./CPP/7zip/CMAKE/
@@ -233,11 +218,3 @@ jobs:
              bash ./check.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7z_
              bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
-             cd ..
-             ls -l ./CPP/7zip/CMAKE/build/bin/
-             rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/CMakeFiles
-             rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/Makefile
-             rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/cmake_install.cmake
-             ls -l ./CPP/7zip/CMAKE/build/bin/Codecs
-             ./CPP/7zip/CMAKE/build/bin/7za a macos-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -t7z -y
-             ./CPP/7zip/CMAKE/build/bin/7z_ a macos-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -tzip -y

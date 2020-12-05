@@ -1,7 +1,7 @@
-name: Publish
+name: Release
 
 on:
-  push:
+  release:
     tags:
       - '*'
 
@@ -195,14 +195,14 @@ jobs:
              rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/CMakeFiles
              rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/Makefile
              rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/cmake_install.cmake
-             ./CPP/7zip/CMAKE/build/bin/7za a linux-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -t7z -y
-             ./CPP/7zip/CMAKE/build/bin/7z_ a linux-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -tzip -y
+             ./CPP/7zip/CMAKE/build/bin/7za a linux-cmake-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -t7z -y
+             ./CPP/7zip/CMAKE/build/bin/7z_ a linux-cmake-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -tzip -y
       - name: Upload the cmake Linux binary artifacts
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: linux-compatibly-p7zip.*
-          asset_name: linux-compatibly-p7zip
+          file: linux-cmake-p7zip.*
+          asset_name: linux-cmake-p7zip
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
@@ -266,14 +266,14 @@ jobs:
              rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/CMakeFiles
              rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/Makefile
              rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/cmake_install.cmake
-             ./CPP/7zip/CMAKE/build/bin/7za a macos-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -t7z -y
-             ./CPP/7zip/CMAKE/build/bin/7z_ a macos-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -tzip -y
+             ./CPP/7zip/CMAKE/build/bin/7za a macos-cmake-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -t7z -y
+             ./CPP/7zip/CMAKE/build/bin/7z_ a macos-cmake-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -tzip -y
       - name: Upload the cmake macOS binary artifacts
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: macos-compatibly-p7zip.*
-          asset_name: macos-compatibly-p7zip
+          file: macos-cmake-p7zip.*
+          asset_name: macos-cmake-p7zip
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true

@@ -192,8 +192,8 @@ jobs:
              bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
              cd ..
-             ./CPP/7zip/CMAKE/build/bin/7za a linux-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* -t7z -y
-             ./CPP/7zip/CMAKE/build/bin/7z a linux-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* -tzip -y
+             ./CPP/7zip/CMAKE/build/bin/7za a linux-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -t7z -y
+             ./CPP/7zip/CMAKE/build/bin/7z_ a linux-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -tzip -y
       - name: Upload the cmake Linux binary artifacts
         uses: svenstaro/upload-release-action@v2
         with:
@@ -260,8 +260,8 @@ jobs:
              bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
              cd ..
-             ./CPP/7zip/CMAKE/build/bin/7za a macos-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* -t7z -y
-             ./CPP/7zip/CMAKE/build/bin/7z a macos-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* -tzip -y
+             ./CPP/7zip/CMAKE/build/bin/7za a macos-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -t7z -y
+             ./CPP/7zip/CMAKE/build/bin/7z_ a macos-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -tzip -y
       - name: Upload the cmake macOS binary artifacts
         uses: svenstaro/upload-release-action@v2
         with:

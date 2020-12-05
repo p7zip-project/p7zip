@@ -192,6 +192,9 @@ jobs:
              bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
              cd ..
+             rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/CMakeFiles
+             rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/Makefile
+             rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/cmake_install.cmake
              ./CPP/7zip/CMAKE/build/bin/7za a linux-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -t7z -y
              ./CPP/7zip/CMAKE/build/bin/7z_ a linux-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -tzip -y
       - name: Upload the cmake Linux binary artifacts
@@ -260,6 +263,9 @@ jobs:
              bash ./check_7za.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7za
              bash ./check_7zr.sh `pwd`/../CPP/7zip/CMAKE/build/bin/7zr
              cd ..
+             rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/CMakeFiles
+             rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/Makefile
+             rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/cmake_install.cmake
              ./CPP/7zip/CMAKE/build/bin/7za a macos-compatibly-p7zip.7z ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -t7z -y
              ./CPP/7zip/CMAKE/build/bin/7z_ a macos-compatibly-p7zip.zip ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -tzip -y
       - name: Upload the cmake macOS binary artifacts

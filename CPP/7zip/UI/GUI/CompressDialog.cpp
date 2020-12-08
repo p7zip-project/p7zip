@@ -143,7 +143,8 @@ static const EMethodID g_ZipMethods[] =
   kDeflate64,
   kBZip2,
   kLZMA,
-  kPPMdZip
+  kPPMdZip,
+  kZSTD
 };
 
 static const EMethodID g_GZipMethods[] =

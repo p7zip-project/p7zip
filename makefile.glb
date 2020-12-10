@@ -1,7 +1,7 @@
 
 RM=rm -f
 
-CFLAGS=-c -I. \
+CFLAGS=-c -std=gnu11 -I.\
 -I../../../../C \
 -I../../../../CPP/myWindows \
 -I../../../../CPP/include_windows \

@@ -57,7 +57,10 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
    cmake ..
    make 
 ```
-4. ./bin/7z i 
+4. Test
+```
+   ./bin/7z i 
+```
 
 The output should look like this:
 ```

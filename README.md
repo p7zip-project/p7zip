@@ -29,15 +29,20 @@ This is the place for the active development of p7zip to include major modern co
    
 ## Benchmark
 We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(total size 211938580 Byte) for packaging. 
-   CPU frequency：2.20GHz
+   CPU frequency：2.60GHz
 |format|method|encode_size(Byte)|encode_time(ms)|encode_speed(M/s)|decode_time(ms)|decode_speed(M/s)|compression_ratio|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-|7z-zip|deflaut-9|64727443|59170 ms|3.33|1649|122.57|3.27|
-|7z-7z|lzma-9|48752521|80680 ms|2.51|3780|53.47|4.35|
-|7z-7z|lzma2-9|48749147|81106 ms|2.50|3742|54.01|4.35|
-|7z-7z|zstd-22|52739879|134245 ms|1.51|893|226.34|4.02|
-|7z-7z|lz4-12|77788386|3548 ms|56.97|409|494.18|2.72|
-|7z-7z|flzma2-9|48676481|12619 ms|16.02|3877|52.13|4.35|
+|zip|deflate-9|64727209|70997|2.85|2025|99.81|3.27|
+|zip|lzma-9|48793408|48894|4.13|4146|48.75|4.34|
+|zip|zstd-22|52750614|53338|3.79|1204|167.87|4.02|
+|7z|zstd-22|52366421|174491|1.16|1157|174.69|4.05|
+|7z|flzma2-9|48344259|16481|12.26|4321|46.78|4.38|
+|7z|lzma-9|48409482|102592|1.97|4232|47.76|4.38|
+|7z|lzma2-9|48407260|103302|1.96|4266|47.38|4.38|
+|7z|brotli-11|50406673|137781|1.47|662|305.32|4.2|
+|7z|lz4-12|77407750|4619|43.76|529|382.08|2.74|
+|7z|lz5-15|81074845|59050|3.42|568|355.85|2.61|
+|7z|lizard-49|62392395|29757|6.79|568|355.85|3.4|
 
 ### Install CLI
 #### (Currently only supports CLI, if you want to do GUI please contact us)

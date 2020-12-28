@@ -6,11 +6,11 @@ This is the place for the active development of p7zip to include major modern co
 # status
 [![ubuntu-badge]][ubuntu-link]
 
-[ubuntu-link]: https://github.com/szcnick/p7zip/actions?query=workflow%3AUbuntu "UbuntuL"
-[ubuntu-badge]: https://github.com/szcnick/p7zip/workflows/Ubuntu/badge.svg "UbuntuB"
+[ubuntu-link]: https://github.com/jinfeihan57/p7zip/actions?query=workflow%3AUbuntu "UbuntuL"
+[ubuntu-badge]: https://github.com/jinfeihan57/p7zip/workflows/Ubuntu/badge.svg "UbuntuB"
 
 ## Codec overview
-1. [Zstandard] v1.4.5 is a real-time compression algorithm, providing high compression ratios. It offers a very wide range of compression / speed trade-off, while being backed by a very fast decoder.
+1. [Zstandard] v1.4.8 is a real-time compression algorithm, providing high compression ratios. It offers a very wide range of compression / speed trade-off, while being backed by a very fast decoder.
    - Levels: 1..19
 
 2. [LZ4] v1.9.3 is lossless compression algorithm, providing compression speed at 400 MB/s per core (0.16 Bytes/cycle). It features an extremely fast decoder, with speed in multiple GB/s per core (0.71 Bytes/cycle). A high compression derivative, called LZ4_HC, is available, trading customizable CPU time for compression ratio.
@@ -51,9 +51,9 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
 
 The output should look like this:
 ```
-7-Zip (a) [64] 17.02 : Copyright (c) 1999-2020 Igor Pavlov 
-p7zip Version 17.02 (locale=zh_CN.UTF-8,Utf16=on,HugeFiles=on,64 bits,12 CPUs x64)
- 
+7-Zip (a) [64] 17.03 : Copyright (c) 1999-2020 Igor Pavlov 
+p7zip Version 17.03 (locale=zh_CN.UTF-8,Utf16=on,HugeFiles=on,64 bits,12 CPUs x64)
+
 Formats:
 ...
  0 CK            xz       xz txz (.tar) FD 7 z X Z 00
@@ -123,16 +123,16 @@ Hashers:
 
 ## Version Information
 
-- p7zip Version 17.02
-  - [LZ4] Version 1.9.2
-  - [Zstandard] Version 1.4.5
+- p7zip Version 17.03
+  - [LZ4] Version 1.9.3
+  - [Zstandard] Version 1.4.8
   - [Fast LZMA2] Version v1.0.1
   - [Brotli] Version v1.0.9
   - [LZ5] Version v1.5
   - [Lizard] Version 1.0
   
 ## Working Plan
- - [check here](https://github.com/szcnick/p7zip/tree/dev/DOC)
+ - [check here]()
 
 [7-Zip]:https://www.7-zip.org/
 [LZ4]:https://github.com/lz4/lz4/

@@ -1,3 +1,28 @@
+Version 17.03
+=============
+
+  - add zstd to zip
+  - add hash algorithm
+    - XXHASH32
+    - XXHASH64
+    - MD2
+    - MD4
+    - MD5
+    - sha384
+    - sha512
+  - add Lzfse to dmg 
+  - add lz5 to 7z
+  - add lizard to 7z
+  - update lz4 to v1.9.3
+  - add brotli to 7z
+  - update cmake build
+  - fix xz crc64 error
+  - use system local to select OEM code
+  - add rpm install
+  - fix lzma2 and flzma22 call the same algorithm
+  - add 7zr build
+  - fix tar format link file compress and decompress
+
 Version 17.02
 =============
 

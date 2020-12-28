@@ -52,7 +52,7 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
 ```
 2. Using makefile directly:
 ```
-   cd p7zip && make 7z . (OR make 7za OR make 7zr OR make sfx)
+   cd p7zip && make 7z (OR make 7za OR make 7zr OR make sfx)
 ```
 3. OR Using cmake directly:
 ```

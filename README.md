@@ -46,18 +46,21 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
 
 ### Install CLI
 #### (Currently only supports CLI, if you want to do GUI please contact us)
-1. git clone https://github.com/jinfeihan57/p7zip.git
-2. Using makefile directly：
+1. Download src:
+```
+   git clone https://github.com/jinfeihan57/p7zip.git
+```
+2. Using makefile directly:
 ```
    cd p7zip && make 7z . (OR make 7za OR make 7zr OR make sfx)
 ```
-3. Using cmake directly：
+3. OR Using cmake directly:
 ```
    cd p7zip/CPP/7Zip/CMAKE/ && make build && cd build
    cmake ..
    make 
 ```
-4. Test
+4. Test:
 ```
    ./bin/7z i 
 ```
@@ -77,6 +80,7 @@ Formats:
 ...
 
 Codecs:
+...
  0 4ED  303011B BCJ2
  0  ED  3030103 BCJ
  0  ED  3030205 PPC
@@ -103,13 +107,16 @@ Codecs:
  0  ED  6F10701 7zAES
  0  ED  6F00181 AES256CBC
  1 3ED  4F712FF RawSplitter
+...
 
 Hashers:
+...
  0    4        1 CRC32
  0   20      201 SHA1
  0   32        A SHA256
  0    8        4 CRC64
  0   32      202 BLAKE2sp
+...
 ```
 
 ### Usage (codec plugin)

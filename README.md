@@ -8,7 +8,7 @@ This is the place for the active development of p7zip to include major modern co
 
 [ubuntu-link]: https://github.com/jinfeihan57/p7zip/actions?query=workflow%3AUbuntu "UbuntuL"
 [ubuntu-badge]: https://github.com/jinfeihan57/p7zip/workflows/BUILD/badge.svg "Ubuntu"
-
+![BUILD](https://github.com/jinfeihan57/p7zip/workflows/BUILD/badge.svg)
 ## Codec overview
 1. [Zstandard] v1.4.8 is a real-time compression algorithm, providing high compression ratios. It offers a very wide range of compression / speed trade-off, while being backed by a very fast decoder.
    - Levels: 1..19

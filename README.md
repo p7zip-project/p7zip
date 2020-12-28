@@ -48,11 +48,15 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
 #### (Currently only supports CLI, if you want to do GUI please contact us)
 1. git clone https://github.com/jinfeihan57/p7zip.git
 2. Using makefile directly：
+```
    cd p7zip && make 7z . (OR make 7za OR make 7zr OR make sfx)
+```
 3. Using cmake directly：
-   cd CPP/7Zip/CMAKE/ && make build && cd build
+```
+   cd p7zip/CPP/7Zip/CMAKE/ && make build && cd build
    cmake ..
    make 
+```
 4. ./bin/7z i 
 
 The output should look like this:

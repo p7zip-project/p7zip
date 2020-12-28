@@ -5,16 +5,19 @@
 OPTFLAGS=-O2 -s
 #OPTFLAGS=-O0 -ggdb
 
-ALLFLAGS=${OPTFLAGS} -pipe \
+ALLFLAGS=${OPTFLAGS} -pipe -fstack-protector-all\
     	-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
 	-DNDEBUG -D_REENTRANT -DENV_UNIX \
 	-D_7ZIP_LARGE_PAGES \
-	$(LOCAL_FLAGS)
+	$(LOCAL_FLAGS) \
+	-Wl,-z,relro,-z,now,-z,noexecstack
 
 CXX=g++
 CC=gcc
+CC_EXE=-fPIE
 CC_SHARED=-fPIC
 LINK_SHARED=-fPIC -shared
+LINK_EXE=-pie
 
 LOCAL_LIBS=-lpthread
 LOCAL_LIBS_DLL=$(LOCAL_LIBS) -ldl

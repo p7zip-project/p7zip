@@ -27,10 +27,7 @@ function getsize()
 	then
 		for file in `ls $1`
 		do
-			if [ -f $1"/"$file ]
-			then
-				getsize $1"/"$file
-			fi
+			getsize $1"/"$file
 		done
 	elif [ -f $1 ]
 	then
@@ -177,7 +174,7 @@ do
 		decodespeed=`awk 'BEGIN{printf "%0.2f", "'$originfilesize'"/"'$decodesec'"/1024/1024}'`
 		
 		#计算压缩率
-		compressratio=`awk 'BEGIN{printf "%.2f","'$originfilesize'"/"'$encodefilesize'"}'`
+		compressratio=`awk 'BEGIN{printf "%0.2f","'$originfilesize'"/"'$encodefilesize'"}'`
 		
 		#输出结果到文件
 		echo $format$tab$codec-$maxlevel$tab$encodefilesize$tab$encodems$tab$encodespeed$tab$decodems$tab$decodespeed$tab$compressratio >> $outputfilename

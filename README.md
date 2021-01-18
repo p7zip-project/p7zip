@@ -56,7 +56,7 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
 ```
 3. OR Using cmake directly:
 ```
-   cd p7zip/CPP/7Zip/CMAKE/ && mkdir build && cd build
+   cd p7zip/CPP/7zip/CMAKE/ && mkdir build && cd build
    cmake ..
    make 
 ```

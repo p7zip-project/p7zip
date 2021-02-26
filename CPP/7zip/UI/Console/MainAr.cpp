@@ -100,7 +100,12 @@ int MY_CDECL main
     }
     if (g_ErrStream)
     {
+#ifdef __linux__
+      FlushStreams();
+      *g_ErrStream << "\n\n" << "System ERROR:" << errno << endl; // 输出系统错误码，方便解析错误类型
+#else
       PrintError("System ERROR:");
+#endif
       *g_ErrStream << NError::MyFormatMessage(systemError.ErrorCode) << endl;
     }
     return (NExitCode::kFatalError);

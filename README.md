@@ -4,7 +4,7 @@
 This is the place for the active development of p7zip to include major modern codecs such as Brotli, Fast LZMA2, LZ4, LZ5, Lizard and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
 
 # status Ubuntu && mac
-[![Linux](https://github.com/jinfeihan57/p7zip/workflows/linux/badge.svg)](https://github.com/jinfeihan57/p7zip/actions?query=workflow%3Alinux)[![macOS](https://github.com/jinfeihan57/p7zip/workflows/macos/badge.svg)](https://github.com/jinfeihan57/p7zip/actions?query=workflow%3Amacos)
+[![linux](https://github.com/jinfeihan57/p7zip/actions/workflows/linux-%20build.yml/badge.svg)](https://github.com/jinfeihan57/p7zip/actions/workflows/linux-%20build.yml)[![macos](https://github.com/jinfeihan57/p7zip/actions/workflows/macos-build.yml/badge.svg)](https://github.com/jinfeihan57/p7zip/actions/workflows/macos-build.yml)
 
 ## Codec overview
 1. [Zstandard] v1.4.8 is a real-time compression algorithm, providing high compression ratios. It offers a very wide range of compression / speed trade-off, while being backed by a very fast decoder.

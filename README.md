@@ -4,7 +4,8 @@
 This is the place for the active development of p7zip to include major modern codecs such as Brotli, Fast LZMA2, LZ4, LZ5, Lizard and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
 
 # status Ubuntu && mac
-![BUILD](https://github.com/jinfeihan57/p7zip/workflows/BUILD/badge.svg)
+[![Linux](https://github.com/jinfeihan57/p7zip/workflows/linux/badge.svg)](https://github.com/jinfeihan57/p7zip/actions?query=workflow%3Alinux)[![macOS](https://github.com/jinfeihan57/p7zip/workflows/macos/badge.svg)](https://github.com/jinfeihan57/p7zip/actions?query=workflow%3Amacos)
+
 ## Codec overview
 1. [Zstandard] v1.4.8 is a real-time compression algorithm, providing high compression ratios. It offers a very wide range of compression / speed trade-off, while being backed by a very fast decoder.
    - Levels: 1..19
@@ -26,9 +27,9 @@ This is the place for the active development of p7zip to include major modern co
    - Levels 20..29 (LIZv1) are designed to give better ratio than LZ4 keeping 75% decompression speed
    - Levels 30..39 (fastLZ4 + Huffman) adds Huffman coding to fastLZ4
    - Levels 40..49 (LIZv1 + Huffman) give the best ratio, comparable to zlib and low levels of zstd/brotli, but with a faster decompression speed
-   
+
 ## Benchmark
-We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(total size 211938580 Byte) for packaging. 
+We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(total size 211938580 Byte) for packaging.
    CPU frequency：2.60GHz
 |format|method|encode_size(Byte)|encode_time(ms)|encode_speed(M/s)|decode_time(ms)|decode_speed(M/s)|compression_ratio|
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
@@ -58,16 +59,16 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
 ```
    cd p7zip/CPP/7zip/CMAKE/ && mkdir build && cd build
    cmake ..
-   make 
+   make
 ```
 4. Test:
 ```
-   ./bin/7z i 
+   ./bin/7z i
 ```
 
 The output should look like this:
 ```
-7-Zip (a) [64] 17.03 : Copyright (c) 1999-2020 Igor Pavlov 
+7-Zip (a) [64] 17.03 : Copyright (c) 1999-2020 Igor Pavlov
 p7zip Version 17.03 (locale=zh_CN.UTF-8,Utf16=on,HugeFiles=on,64 bits,12 CPUs x64)
 
 Formats:
@@ -150,7 +151,7 @@ Hashers:
   - [Brotli] Version v1.0.9
   - [LZ5] Version v1.5
   - [Lizard] Version 1.0
-  
+
 ## Working Plan
  - [check here]()
 

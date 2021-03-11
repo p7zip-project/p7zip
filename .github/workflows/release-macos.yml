@@ -72,8 +72,6 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ format('{0}-{1}-p7zip.*', steps.runner.outputs.platform, steps.runner.outputs.arch) }}
           asset_name: ${{ format('{0}-{1}-p7zip', steps.runner.outputs.platform, steps.runner.outputs.arch) }}
-          file: macos-p7zip.*
-          asset_name: macos-p7zip
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true

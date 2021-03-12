@@ -61,17 +61,17 @@ jobs:
              cd ..
       - name: Get runner environment variables
         id: runner
-        uses: msansoni/runner-environment-action@v1
+        uses: techno-express/action-environment-info@v1
       - name: Create 7z & Zip binary archive from build
         run: |
-             ./bin/7za a ${{ format('{0}-{1}-p7zip.7z', steps.runner.outputs.platform, steps.runner.outputs.arch) }} ./bin/* -t7z -y
-             ./bin/7z a ${{ format('{0}-{1}-p7zip.zip', steps.runner.outputs.platform, steps.runner.outputs.arch) }} ./bin/* -tzip -y
+             ./bin/7za a ${{ format('macos-{0}-p7zip.7z', steps.runner.outputs.release) }} ./bin/* -t7z -y
+             ./bin/7z a ${{ format('macos-{0}-p7zip.zip', steps.runner.outputs.release) }} ./bin/* -tzip -y
       - name: Upload the macOS binary artifacts
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ format('{0}-{1}-p7zip.*', steps.runner.outputs.platform, steps.runner.outputs.arch) }}
-          asset_name: ${{ format('{0}-{1}-p7zip', steps.runner.outputs.platform, steps.runner.outputs.arch) }}
+          file: ${{ format('macos-{0}-p7zip.*', steps.runner.outputs.release) }}
+          asset_name: ${{ format('macos-{0}-p7zip', steps.runner.outputs.release) }}
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
@@ -134,20 +134,20 @@ jobs:
              cd ..
       - name: Get runner environment variables
         id: runner
-        uses: msansoni/runner-environment-action@v1
+        uses: techno-express/action-environment-info@v1
       - name: Create 7z & Zip binary archive from build
         run: |
              rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/CMakeFiles
              rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/Makefile
              rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/cmake_install.cmake
-             ./CPP/7zip/CMAKE/build/bin/7za a ${{ format('{0}-{1}-cmake-p7zip.7z', steps.runner.outputs.platform, steps.runner.outputs.arch) }} ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -t7z -y
-             ./CPP/7zip/CMAKE/build/bin/7z_ a ${{ format('{0}-{1}-cmake-p7zip.zip', steps.runner.outputs.platform, steps.runner.outputs.arch) }} ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -tzip -y
+             ./CPP/7zip/CMAKE/build/bin/7za a ${{ format('macos-{0}-cmake-p7zip.7z', steps.runner.outputs.release) }} ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -t7z -y
+             ./CPP/7zip/CMAKE/build/bin/7z_ a ${{ format('macos-{0}-cmake-p7zip.zip', steps.runner.outputs.release) }} ./CPP/7zip/CMAKE/build/bin/7z* ./CPP/7zip/CMAKE/build/bin/Codecs -tzip -y
       - name: Upload the cmake macOS binary artifacts
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ format('{0}-{1}-cmake-p7zip.*', steps.runner.outputs.platform, steps.runner.outputs.arch) }}
-          asset_name: ${{ format('{0}-{1}-cmake-p7zip', steps.runner.outputs.platform, steps.runner.outputs.arch) }}
+          file: ${{ format('macos-{0}-cmake-p7zip.*', steps.runner.outputs.release) }}
+          asset_name: ${{ format('macos-{0}-cmake-p7zip', steps.runner.outputs.release) }}
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true

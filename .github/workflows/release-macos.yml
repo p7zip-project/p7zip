@@ -61,7 +61,7 @@ jobs:
              cd ..
       - name: Get runner environment variables
         id: runner
-        uses: techno-express/action-environment-info@v1
+        uses: techno-express/action-environment-info@1
       - name: Create 7z & Zip binary archive from build
         run: |
              ./bin/7za a ${{ format('macos-{0}-p7zip.7z', steps.runner.outputs.release) }} ./bin/* -t7z -y
@@ -134,7 +134,7 @@ jobs:
              cd ..
       - name: Get runner environment variables
         id: runner
-        uses: techno-express/action-environment-info@v1
+        uses: techno-express/action-environment-info@1
       - name: Create 7z & Zip binary archive from build
         run: |
              rm -rf ./CPP/7zip/CMAKE/build/bin/Codecs/CMakeFiles

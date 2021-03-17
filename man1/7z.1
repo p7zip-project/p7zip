@@ -82,7 +82,7 @@ Write data to StdOut (eg: % echo foo | 7z a dummy \-tgzip \-si \-so > /dev/null)
 Sets technical mode for l (list) command
 .TP
 .B \-t{Type}
-Type of archive (7z, zip, gzip, bzip2 or tar. 7z format is default)
+Type of archive (7z, zip, gzip, bzip2, lzip or tar. 7z format is default)
 .TP
 .B \-v{Size}[b|k|m|g]
 Create volumes
@@ -165,7 +165,7 @@ add all files from directory "dir1" to SFX archive archive.exe (Remark : SFX arc
 7z a \-mhe=on \-pmy_password archive.7z a_directory
 add all files from directory "a_directory" to the archive "archive.7z" (with data and header archive encryption on)
 .SH "SEE ALSO"
-7za(1), 7zr(1), bzip2(1), gzip(1), zip(1)
+7za(1), 7zr(1), bzip2(1), gzip(1), lzip(1), zip(1)
 .PP
 .SH "HTML Documentation"
 {DEST_SHARE_DOC}/MANUAL/index.htm

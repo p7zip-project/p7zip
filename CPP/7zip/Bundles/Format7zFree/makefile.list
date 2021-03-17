@@ -127,6 +127,7 @@ SRCS=\
   ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp \
   ../../../../CPP/7zip/Archive/ZstdHandler.cpp \
   ../../../../CPP/7zip/Archive/LizardHandler.cpp \
+  ../../../../CPP/7zip/Archive/LzHandler.cpp \
   ../../../../CPP/7zip/Archive/Lz4Handler.cpp \
   ../../../../CPP/7zip/Archive/Lz5Handler.cpp \
   ../../../../CPP/7zip/Common/CWrappers.cpp \
@@ -910,6 +911,10 @@ ZstdHandler.o : ../../../../CPP/7zip/Archive/ZstdHandler.cpp
 LizardHandler.o : ../../../../CPP/7zip/Archive/LizardHandler.cpp 
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/LizardHandler.cpp
 
+# lzip
+LzHandler.o : ../../../../CPP/7zip/Archive/LzHandler.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/LzHandler.cpp 
+
 # Lz4 ARC
 Lz4Handler.o : ../../../../CPP/7zip/Archive/Lz4Handler.cpp 
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Lz4Handler.cpp 
@@ -1488,6 +1493,7 @@ OBJS=\
  Lz4Decoder.o \
  Lz4Encoder.o \
  Lz4Register.o \
+ LzHandler.o \
  Lz4Handler.o \
  Lz5Handler.o \
  XzDecoder.o \

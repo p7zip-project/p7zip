@@ -85,7 +85,7 @@ sure ${P7ZIP} a -mx=9 -m0=ppmd:mem=64m:o=32 7za433_7zip_ppmd.7z 7za433_7zip_ppmd
 
 sure ${P7ZIP} a -m0=bzip2 7za433_7zip_bzip2.7z 7za433_7zip_bzip2
 
-sure ${P7ZIP} a -t7z 7za433_7zip_zstd.7z 7za433_7zip_lzma -m0=zstd -mx=22 # mx=level
+sure ${P7ZIP} a -t7z 7za433_7zip_zstd.7z 7za433_7zip_lzma -m0=zstd -mx=20 # mx=level
 
 sure ${P7ZIP} a -m0=lz4 7za433_7zip_lz4.7z 7za433_7zip_lzma
 

@@ -98,19 +98,19 @@ clean_full:clean
 	chmod +x install.sh check/*.sh
 
 test: 7za sfx
-	cd check ; TOOLS="${TOOLS}" ./check_7za.sh "`pwd`/../bin/7za"
+	cd check ; TOOLS="${TOOLS}" sh ./check_7za.sh "`pwd`/../bin/7za"
 
 test_7z: 7z sfx
-	cd check ; TOOLS="${TOOLS}" ./check.sh "`pwd`/../bin/7z"
+	cd check ; TOOLS="${TOOLS}" sh ./check.sh "`pwd`/../bin/7z"
 
 test_7zr: 7zr sfx
-	cd check ; TOOLS="${TOOLS}" ./check_7zr.sh "`pwd`/../bin/7zr"
+	cd check ; TOOLS="${TOOLS}" sh ./check_7zr.sh "`pwd`/../bin/7zr"
 
 test_7zG: 7zG sfx
-	cd check ; TOOLS="${TOOLS}" ./check.sh "`pwd`/../bin/7zG"
+	cd check ; TOOLS="${TOOLS}" sh ./check.sh "`pwd`/../bin/7zG"
 
 test_Client7z: Client7z
-	cd check ; TOOLS="${TOOLS}" ./check_Client7z.sh "`pwd`/../bin/Client7z"
+	cd check ; TOOLS="${TOOLS}" sh ./check_Client7z.sh "`pwd`/../bin/Client7z"
 
 install:
 	./install.sh $(DEST_BIN) $(DEST_SHARE) $(DEST_MAN) $(DEST_SHARE_DOC) $(DEST_DIR)

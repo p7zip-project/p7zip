@@ -142,6 +142,44 @@
 		<dict>
 			<key>CFBundleTypeExtensions</key>
 			<array>
+				<string>lz</string>
+				<string>LZ</string>
+				<string>lzip</string>
+				<string>LZIP</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>/System/Library/CoreServices/Archive Utility.app/Contents/Resources/bah-lz.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>LZip</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>tlz</string>
+				<string>TLZ</string>
+				<string>tlzip</string>
+				<string>TLZIP</string>
+			</array>
+			<key>CFBundleTypeIconFile</key>
+			<string>/System/Library/CoreServices/Archive Utility.app/Contents/Resources/bah-tlz.icns</string>
+			<key>CFBundleTypeName</key>
+			<string>TLZip</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSTypeIsPackage</key>
+			<false/>
+			<key>NSPersistentStoreTypeKey</key>
+			<string>XML</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
 				<string>tar</string>
 				<string>TAR</string>
 			</array>

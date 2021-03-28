@@ -42,6 +42,7 @@ SRCS=\
   ../../../../CPP/7zip/Archive/Common/MultiStream.cpp \
   ../../../../CPP/7zip/Archive/Common/OutStreamWithCRC.cpp \
   ../../../../CPP/7zip/Archive/Common/ParseProperties.cpp \
+  ../../../../CPP/7zip/Archive/LzHandler.cpp \
   ../../../../CPP/7zip/Archive/LzmaHandler.cpp \
   ../../../../CPP/7zip/Archive/SplitHandler.cpp \
   ../../../../CPP/7zip/Archive/XzHandler.cpp \
@@ -309,6 +310,8 @@ OutStreamWithCRC.o : ../../../../CPP/7zip/Archive/Common/OutStreamWithCRC.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Common/OutStreamWithCRC.cpp
 ParseProperties.o : ../../../../CPP/7zip/Archive/Common/ParseProperties.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Common/ParseProperties.cpp
+LzHandler.o : ../../../../CPP/7zip/Archive/LzHandler.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/LzHandler.cpp 
 LzmaHandler.o : ../../../../CPP/7zip/Archive/LzmaHandler.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/LzmaHandler.cpp
 SplitHandler.o : ../../../../CPP/7zip/Archive/SplitHandler.cpp
@@ -568,6 +571,7 @@ OBJS=\
  MultiStream.o \
  OutStreamWithCRC.o \
  ParseProperties.o \
+ LzHandler.o \
  LzmaHandler.o \
  SplitHandler.o \
  XzHandler.o \

@@ -20,7 +20,7 @@
 
 <DL>
   <DT>{archive_type}</DT>
-    <DD> Specifies the type of archive. It can be: *, #, 7z, xz, split, zip, gzip, bzip2, tar, ....
+    <DD> Specifies the type of archive. It can be: *, #, 7z, xz, split, zip, gzip, bzip2, lzip, tar, ....
     </DD>
 
   <DT>*:r</DT>
@@ -65,7 +65,7 @@ archive without compression (for example, MBR in VHD), 7-Zip can open both
 levels in one step. If you want to open/extract just top 
 level archive, use <SPAN class="filename">-t*</SPAN> switch.</P>
 
-<P>Note: xz, gzip and bzip2 formats support only one file per archive.
+<P>Note: xz, gzip, bzip2 and lzip formats support only one file per archive.
 If you want to compress more than one file to these formats,
 create a tar archive at first, and then compress it with your selected format.</P>
 

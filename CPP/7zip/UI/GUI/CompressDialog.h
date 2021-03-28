@@ -183,7 +183,7 @@ public:
   CUIntVector ArcIndices; // can not be empty, must contain Info.FormatIndex, if Info.FormatIndex >= 0
 
   NCompressDialog::CInfo Info;
-  UString OriginalFileName; // for bzip2, gzip2
+  UString OriginalFileName; // for bzip2, gzip2, lzip
   bool CurrentDirWasChanged;
 
   INT_PTR Create(HWND wndParent = 0)

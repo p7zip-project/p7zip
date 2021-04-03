@@ -4,7 +4,7 @@ Release:        0
 Summary:        7-zip file compression program
 License:        LGPL-2.1-or-later
 Group:          Productivity/Archiving/Compression
-URL:            https://github.com/szcnick/p7zip
+URL:            https://github.com/jinfeihan57/p7zip
 
 %define PREFIX /usr/local
 %define templist %{_tempplace}/tmp_list

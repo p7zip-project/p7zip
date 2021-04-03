@@ -343,6 +343,7 @@ LOCAL_SRC_FILES := \
   ../../../../C/zstd/zstd_lazy.c \
   ../../../../C/zstd/zstd_ldm.c \
   ../../../../C/zstd/zstd_opt.c \
+  ../../../../C/zstd/zstd_trace.c \
   ../../../../C/zstd/zstd_v01.c \
   ../../../../C/zstd/zstd_v02.c \
   ../../../../C/zstd/zstd_v03.c \

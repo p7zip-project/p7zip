@@ -344,6 +344,7 @@ SRCS_C=\
   ../../../../C/zstd/zstd_lazy.c \
   ../../../../C/zstd/zstd_ldm.c \
   ../../../../C/zstd/zstd_opt.c \
+  ../../../../C/zstd/zstd_trace.c \
   ../../../../C/zstd/zstd_v01.c \
   ../../../../C/zstd/zstd_v02.c \
   ../../../../C/zstd/zstd_v03.c \
@@ -568,6 +569,8 @@ zstd_ldm.o : ../../../../C/zstd/zstd_ldm.c
 	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_ldm.c
 zstd_opt.o : ../../../../C/zstd/zstd_opt.c
 	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_opt.c
+zstd_trace.o : ../../../../C/zstd/zstd_trace.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_trace.c
 zstd_v01.o : ../../../../C/zstd/zstd_v01.c
 	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v01.c
 zstd_v02.o : ../../../../C/zstd/zstd_v02.c
@@ -1237,6 +1240,7 @@ OBJS=\
  zstd_lazy.o \
  zstd_ldm.o \
  zstd_opt.o \
+ zstd_trace.o \
  zstd_v01.o \
  zstd_v02.o \
  zstd_v03.o \

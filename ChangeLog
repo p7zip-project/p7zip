@@ -1,3 +1,9 @@
+Version 17.04
+=============
+
+- add lzip decompress
+- update zstd 1.4.9
+
 Version 17.03
 =============
 

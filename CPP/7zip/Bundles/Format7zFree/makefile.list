@@ -61,7 +61,6 @@ SRCS=\
   ../../../../CPP/7zip/Archive/CpioHandler.cpp \
   ../../../../CPP/7zip/Archive/CramfsHandler.cpp \
   ../../../../CPP/7zip/Archive/DeflateProps.cpp \
-  ../../../../CPP/7zip/Archive/DmgHandler.cpp \
   ../../../../CPP/7zip/Archive/DllExports2.cpp \
   ../../../../CPP/7zip/Archive/DmgHandler.cpp \
   ../../../../CPP/7zip/Archive/ElfHandler.cpp \
@@ -125,11 +124,11 @@ SRCS=\
   ../../../../CPP/7zip/Archive/Zip/ZipOut.cpp \
   ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp \
   ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp \
-  ../../../../CPP/7zip/Archive/ZstdHandler.cpp \
   ../../../../CPP/7zip/Archive/LizardHandler.cpp \
   ../../../../CPP/7zip/Archive/LzHandler.cpp \
   ../../../../CPP/7zip/Archive/Lz4Handler.cpp \
   ../../../../CPP/7zip/Archive/Lz5Handler.cpp \
+  ../../../../CPP/7zip/Archive/ZstdHandler.cpp \
   ../../../../CPP/7zip/Common/CWrappers.cpp \
   ../../../../CPP/7zip/Common/CreateCoder.cpp \
   ../../../../CPP/7zip/Common/FilterCoder.cpp \
@@ -178,7 +177,6 @@ SRCS=\
   ../../../../CPP/7zip/Compress/Lzma2Decoder.cpp \
   ../../../../CPP/7zip/Compress/Lzma2Encoder.cpp \
   ../../../../CPP/7zip/Compress/Lzma2Register.cpp \
-  ../../../../CPP/7zip/Compress/FastLzma2Register.cpp \
   ../../../../CPP/7zip/Compress/LzmaDecoder.cpp \
   ../../../../CPP/7zip/Compress/LzmaEncoder.cpp \
   ../../../../CPP/7zip/Compress/LzmaRegister.cpp \
@@ -194,12 +192,7 @@ SRCS=\
   ../../../../CPP/7zip/Compress/XpressDecoder.cpp \
   ../../../../CPP/7zip/Compress/ZlibDecoder.cpp \
   ../../../../CPP/7zip/Compress/ZlibEncoder.cpp \
-  ../../../../CPP/7zip/Compress/ZstdDecoder.cpp \
-  ../../../../CPP/7zip/Compress/ZstdEncoder.cpp \
-  ../../../../CPP/7zip/Compress/ZstdRegister.cpp \
-  ../../../../CPP/7zip/Compress/BrotliDecoder.cpp \
-  ../../../../CPP/7zip/Compress/BrotliEncoder.cpp \
-  ../../../../CPP/7zip/Compress/BrotliRegister.cpp \
+  ../../../../CPP/7zip/Compress/FastLzma2Register.cpp \
   ../../../../CPP/7zip/Compress/LizardDecoder.cpp \
   ../../../../CPP/7zip/Compress/LizardEncoder.cpp \
   ../../../../CPP/7zip/Compress/LizardRegister.cpp \
@@ -211,6 +204,12 @@ SRCS=\
   ../../../../CPP/7zip/Compress/Lz5Register.cpp \
   ../../../../CPP/7zip/Compress/XzDecoder.cpp \
   ../../../../CPP/7zip/Compress/XzEncoder.cpp \
+  ../../../../CPP/7zip/Compress/ZstdDecoder.cpp \
+  ../../../../CPP/7zip/Compress/ZstdEncoder.cpp \
+  ../../../../CPP/7zip/Compress/ZstdRegister.cpp \
+  ../../../../CPP/7zip/Compress/BrotliDecoder.cpp \
+  ../../../../CPP/7zip/Compress/BrotliEncoder.cpp \
+  ../../../../CPP/7zip/Compress/BrotliRegister.cpp \
   ../../../../CPP/7zip/Crypto/7zAes.cpp \
   ../../../../CPP/7zip/Crypto/7zAesRegister.cpp \
   ../../../../CPP/7zip/Crypto/HmacSha1.cpp \
@@ -241,8 +240,8 @@ SRCS=\
   ../../../../CPP/Common/StringToInt.cpp \
   ../../../../CPP/Common/UTFConvert.cpp \
   ../../../../CPP/Common/Wildcard.cpp \
-  ../../../../CPP/Common/XzCrc64Init.cpp \
   ../../../../CPP/Common/XzCrc64Reg.cpp \
+  ../../../../CPP/Common/XzCrc64Init.cpp \
   ../../../../CPP/Common/Md2Reg.cpp \
   ../../../../CPP/Common/Md4Reg.cpp \
   ../../../../CPP/Common/Md5Reg.cpp \
@@ -301,6 +300,26 @@ SRCS_C=\
   ../../../../C/XzDec.c \
   ../../../../C/XzEnc.c \
   ../../../../C/XzIn.c \
+  ../../../../C/fast-lzma2/dict_buffer.c \
+  ../../../../C/fast-lzma2/fl2_common.c \
+  ../../../../C/fast-lzma2/fl2_compress.c \
+  ../../../../C/fast-lzma2/fl2_pool.c \
+  ../../../../C/fast-lzma2/fl2_threading.c \
+  ../../../../C/fast-lzma2/lzma2_enc.c \
+  ../../../../C/fast-lzma2/radix_bitpack.c \
+  ../../../../C/fast-lzma2/radix_mf.c \
+  ../../../../C/fast-lzma2/radix_struct.c \
+  ../../../../C/fast-lzma2/range_enc.c \
+  ../../../../C/fast-lzma2/util.c \
+  ../../../../C/lizard/lizard_compress.c \
+  ../../../../C/lizard/lizard_decompress.c \
+  ../../../../C/lizard/lizard_frame.c \
+  ../../../../C/lz4/lz4.c \
+  ../../../../C/lz4/lz4frame.c \
+  ../../../../C/lz4/lz4hc.c \
+  ../../../../C/lz5/lz5.c \
+  ../../../../C/lz5/lz5frame.c \
+  ../../../../C/lz5/lz5hc.c \
   ../../../../C/zstd/debug.c \
   ../../../../C/zstd/entropy_common.c \
   ../../../../C/zstd/error_private.c \
@@ -333,15 +352,6 @@ SRCS_C=\
   ../../../../C/zstd/zstd_v06.c \
   ../../../../C/zstd/zstd_v07.c \
   ../../../../C/zstd/zstdmt_compress.c \
-  ../../../../C/lizard/lizard_compress.c \
-  ../../../../C/lizard/lizard_decompress.c \
-  ../../../../C/lizard/lizard_frame.c \
-  ../../../../C/lz4/lz4.c \
-  ../../../../C/lz4/lz4frame.c \
-  ../../../../C/lz4/lz4hc.c \
-  ../../../../C/lz5/lz5.c \
-  ../../../../C/lz5/lz5frame.c \
-  ../../../../C/lz5/lz5hc.c \
   ../../../../C/zstdmt/lizard-mt_common.c \
   ../../../../C/zstdmt/lizard-mt_compress.c \
   ../../../../C/zstdmt/lizard-mt_decompress.c \
@@ -355,17 +365,6 @@ SRCS_C=\
   ../../../../C/zstdmt/brotli-mt_common.c \
   ../../../../C/zstdmt/brotli-mt_compress.c \
   ../../../../C/zstdmt/brotli-mt_decompress.c \
-  ../../../../C/fast-lzma2/dict_buffer.c \
-  ../../../../C/fast-lzma2/fl2_common.c \
-  ../../../../C/fast-lzma2/fl2_compress.c \
-  ../../../../C/fast-lzma2/fl2_pool.c \
-  ../../../../C/fast-lzma2/fl2_threading.c \
-  ../../../../C/fast-lzma2/lzma2_enc.c \
-  ../../../../C/fast-lzma2/radix_bitpack.c \
-  ../../../../C/fast-lzma2/radix_mf.c \
-  ../../../../C/fast-lzma2/radix_struct.c \
-  ../../../../C/fast-lzma2/range_enc.c \
-  ../../../../C/fast-lzma2/util.c \
   ../../../../C/brotli/br_backward_references.c \
   ../../../../C/brotli/br_backward_references_hq.c \
   ../../../../C/brotli/br_bit_cost.c \
@@ -403,8 +402,6 @@ SRCS_C=\
 StdAfx.h.gch : ../../../myWindows/StdAfx.h
 	rm -f StdAfx.h.gch
 	$(CXX) $(CXXFLAGS) ../../../myWindows/StdAfx.h -o StdAfx.h.gch
-
-# C compile
 7zBuf2.o : ../../../../C/7zBuf2.c
 	$(CC) $(CFLAGS) ../../../../C/7zBuf2.c
 7zCrc.o : ../../../../C/7zCrc.c
@@ -483,134 +480,194 @@ XzEnc.o : ../../../../C/XzEnc.c
 	$(CC) $(CFLAGS) ../../../../C/XzEnc.c
 XzIn.o : ../../../../C/XzIn.c
 	$(CC) $(CFLAGS) ../../../../C/XzIn.c
-
-# zstd compile 
-debug.o : ../../../../C/zstd/debug.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/debug.c 
-entropy_common.o : ../../../../C/zstd/entropy_common.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/entropy_common.c 
-error_private.o : ../../../../C/zstd/error_private.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/error_private.c 
-fse_compress.o : ../../../../C/zstd/fse_compress.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/fse_compress.c 
-fse_decompress.o : ../../../../C/zstd/fse_decompress.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/fse_decompress.c 
-hist.o : ../../../../C/zstd/hist.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/hist.c 
-huf_compress.o : ../../../../C/zstd/huf_compress.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/huf_compress.c 
-huf_decompress.o : ../../../../C/zstd/huf_decompress.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/huf_decompress.c 
-pool.o : ../../../../C/zstd/pool.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/pool.c 
-threading.o : ../../../../C/zstd/threading.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/threading.c 
-xxhash.o : ../../../../C/zstd/xxhash.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/xxhash.c 
-zstd_common.o : ../../../../C/zstd/zstd_common.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_common.c 
-zstd_compress.o : ../../../../C/zstd/zstd_compress.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_compress.c 
-zstd_compress_literals.o : ../../../../C/zstd/zstd_compress_literals.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_compress_literals.c 
-zstd_compress_sequences.o : ../../../../C/zstd/zstd_compress_sequences.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_compress_sequences.c 
+dict_buffer.o : ../../../../C/fast-lzma2/dict_buffer.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/dict_buffer.c
+fl2_common.o : ../../../../C/fast-lzma2/fl2_common.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/fl2_common.c
+fl2_compress.o : ../../../../C/fast-lzma2/fl2_compress.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/fl2_compress.c
+fl2_pool.o : ../../../../C/fast-lzma2/fl2_pool.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/fl2_pool.c
+fl2_threading.o : ../../../../C/fast-lzma2/fl2_threading.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/fl2_threading.c
+lzma2_enc.o : ../../../../C/fast-lzma2/lzma2_enc.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/lzma2_enc.c
+radix_bitpack.o : ../../../../C/fast-lzma2/radix_bitpack.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/radix_bitpack.c
+radix_mf.o : ../../../../C/fast-lzma2/radix_mf.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/radix_mf.c
+radix_struct.o : ../../../../C/fast-lzma2/radix_struct.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/radix_struct.c
+range_enc.o : ../../../../C/fast-lzma2/range_enc.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/range_enc.c
+util.o : ../../../../C/fast-lzma2/util.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/util.c
+lizard_compress.o : ../../../../C/lizard/lizard_compress.c
+	$(CC) $(CFLAGS) ../../../../C/lizard/lizard_compress.c
+lizard_decompress.o : ../../../../C/lizard/lizard_decompress.c
+	$(CC) $(CFLAGS) ../../../../C/lizard/lizard_decompress.c
+lizard_frame.o : ../../../../C/lizard/lizard_frame.c
+	$(CC) $(CFLAGS) ../../../../C/lizard/lizard_frame.c
+lz4.o : ../../../../C/lz4/lz4.c
+	$(CC) $(CFLAGS) ../../../../C/lz4/lz4.c
+lz4frame.o : ../../../../C/lz4/lz4frame.c
+	$(CC) $(CFLAGS) ../../../../C/lz4/lz4frame.c
+lz4hc.o : ../../../../C/lz4/lz4hc.c
+	$(CC) $(CFLAGS) ../../../../C/lz4/lz4hc.c
+lz5.o : ../../../../C/lz5/lz5.c
+	$(CC) $(CFLAGS) ../../../../C/lz5/lz5.c
+lz5frame.o : ../../../../C/lz5/lz5frame.c
+	$(CC) $(CFLAGS) ../../../../C/lz5/lz5frame.c
+lz5hc.o : ../../../../C/lz5/lz5hc.c
+	$(CC) $(CFLAGS) ../../../../C/lz5/lz5hc.c
+debug.o : ../../../../C/zstd/debug.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/debug.c
+entropy_common.o : ../../../../C/zstd/entropy_common.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/entropy_common.c
+error_private.o : ../../../../C/zstd/error_private.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/error_private.c
+fse_compress.o : ../../../../C/zstd/fse_compress.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/fse_compress.c
+fse_decompress.o : ../../../../C/zstd/fse_decompress.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/fse_decompress.c
+hist.o : ../../../../C/zstd/hist.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/hist.c
+huf_compress.o : ../../../../C/zstd/huf_compress.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/huf_compress.c
+huf_decompress.o : ../../../../C/zstd/huf_decompress.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/huf_decompress.c
+pool.o : ../../../../C/zstd/pool.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/pool.c
+threading.o : ../../../../C/zstd/threading.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/threading.c
+xxhash.o : ../../../../C/zstd/xxhash.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/xxhash.c
+zstd_common.o : ../../../../C/zstd/zstd_common.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_common.c
+zstd_compress.o : ../../../../C/zstd/zstd_compress.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_compress.c
+zstd_compress_literals.o : ../../../../C/zstd/zstd_compress_literals.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_compress_literals.c
+zstd_compress_sequences.o : ../../../../C/zstd/zstd_compress_sequences.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_compress_sequences.c
 zstd_compress_superblock.o : ../../../../C/zstd/zstd_compress_superblock.c
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_compress_superblock.c 
-zstd_ddict.o : ../../../../C/zstd/zstd_ddict.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_ddict.c 
-zstd_decompress.o : ../../../../C/zstd/zstd_decompress.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_decompress.c 
-zstd_decompress_block.o : ../../../../C/zstd/zstd_decompress_block.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_decompress_block.c 
-zstd_double_fast.o : ../../../../C/zstd/zstd_double_fast.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_double_fast.c 
-zstd_fast.o : ../../../../C/zstd/zstd_fast.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_fast.c 
-zstd_lazy.o : ../../../../C/zstd/zstd_lazy.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_lazy.c 
-zstd_ldm.o : ../../../../C/zstd/zstd_ldm.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_ldm.c 
-zstd_opt.o : ../../../../C/zstd/zstd_opt.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_opt.c 
-zstd_v01.o : ../../../../C/zstd/zstd_v01.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v01.c 
-zstd_v02.o : ../../../../C/zstd/zstd_v02.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v02.c 
-zstd_v03.o : ../../../../C/zstd/zstd_v03.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v03.c 
-zstd_v04.o : ../../../../C/zstd/zstd_v04.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v04.c 
-zstd_v05.o : ../../../../C/zstd/zstd_v05.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v05.c 
-zstd_v06.o : ../../../../C/zstd/zstd_v06.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v06.c 
-zstd_v07.o : ../../../../C/zstd/zstd_v07.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v07.c 
-zstdmt_compress.o : ../../../../C/zstd/zstdmt_compress.c 
-	$(CC) $(CFLAGS) ../../../../C/zstd/zstdmt_compress.c 
-
-# brotli compile 
-br_backward_references.o : ../../../../C/brotli/br_backward_references.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_backward_references.c 
-br_backward_references_hq.o : ../../../../C/brotli/br_backward_references_hq.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_backward_references_hq.c 
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_compress_superblock.c
+zstd_ddict.o : ../../../../C/zstd/zstd_ddict.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_ddict.c
+zstd_decompress.o : ../../../../C/zstd/zstd_decompress.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_decompress.c
+zstd_decompress_block.o : ../../../../C/zstd/zstd_decompress_block.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_decompress_block.c
+zstd_double_fast.o : ../../../../C/zstd/zstd_double_fast.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_double_fast.c
+zstd_fast.o : ../../../../C/zstd/zstd_fast.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_fast.c
+zstd_lazy.o : ../../../../C/zstd/zstd_lazy.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_lazy.c
+zstd_ldm.o : ../../../../C/zstd/zstd_ldm.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_ldm.c
+zstd_opt.o : ../../../../C/zstd/zstd_opt.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_opt.c
+zstd_v01.o : ../../../../C/zstd/zstd_v01.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v01.c
+zstd_v02.o : ../../../../C/zstd/zstd_v02.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v02.c
+zstd_v03.o : ../../../../C/zstd/zstd_v03.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v03.c
+zstd_v04.o : ../../../../C/zstd/zstd_v04.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v04.c
+zstd_v05.o : ../../../../C/zstd/zstd_v05.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v05.c
+zstd_v06.o : ../../../../C/zstd/zstd_v06.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v06.c
+zstd_v07.o : ../../../../C/zstd/zstd_v07.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstd_v07.c
+zstdmt_compress.o : ../../../../C/zstd/zstdmt_compress.c
+	$(CC) $(CFLAGS) ../../../../C/zstd/zstdmt_compress.c
+lizard-mt_common.o : ../../../../C/zstdmt/lizard-mt_common.c
+	$(CC) $(CFLAGS) ../../../../C/zstdmt/lizard-mt_common.c
+lizard-mt_compress.o : ../../../../C/zstdmt/lizard-mt_compress.c
+	$(CC) $(CFLAGS) ../../../../C/zstdmt/lizard-mt_compress.c
+lizard-mt_decompress.o : ../../../../C/zstdmt/lizard-mt_decompress.c
+	$(CC) $(CFLAGS) ../../../../C/zstdmt/lizard-mt_decompress.c
+lz4-mt_common.o : ../../../../C/zstdmt/lz4-mt_common.c
+	$(CC) $(CFLAGS) ../../../../C/zstdmt/lz4-mt_common.c
+lz4-mt_compress.o : ../../../../C/zstdmt/lz4-mt_compress.c
+	$(CC) $(CFLAGS) ../../../../C/zstdmt/lz4-mt_compress.c
+lz4-mt_decompress.o : ../../../../C/zstdmt/lz4-mt_decompress.c
+	$(CC) $(CFLAGS) ../../../../C/zstdmt/lz4-mt_decompress.c
+lz5-mt_common.o : ../../../../C/zstdmt/lz5-mt_common.c
+	$(CC) $(CFLAGS) ../../../../C/zstdmt/lz5-mt_common.c
+lz5-mt_compress.o : ../../../../C/zstdmt/lz5-mt_compress.c
+	$(CC) $(CFLAGS) ../../../../C/zstdmt/lz5-mt_compress.c
+lz5-mt_decompress.o : ../../../../C/zstdmt/lz5-mt_decompress.c
+	$(CC) $(CFLAGS) ../../../../C/zstdmt/lz5-mt_decompress.c
+zstd-mt_threading.o : ../../../../C/zstdmt/zstd-mt_threading.c
+	$(CC) $(CFLAGS) ../../../../C/zstdmt/zstd-mt_threading.c
+brotli-mt_common.o : ../../../../C/zstdmt/brotli-mt_common.c
+	$(CC) $(CFLAGS) ../../../../C/zstdmt/brotli-mt_common.c
+brotli-mt_compress.o : ../../../../C/zstdmt/brotli-mt_compress.c
+	$(CC) $(CFLAGS) ../../../../C/zstdmt/brotli-mt_compress.c
+brotli-mt_decompress.o : ../../../../C/zstdmt/brotli-mt_decompress.c
+	$(CC) $(CFLAGS) ../../../../C/zstdmt/brotli-mt_decompress.c
+br_backward_references.o : ../../../../C/brotli/br_backward_references.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_backward_references.c
+br_backward_references_hq.o : ../../../../C/brotli/br_backward_references_hq.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_backward_references_hq.c
 br_bit_cost.o : ../../../../C/brotli/br_bit_cost.c
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_bit_cost.c 
-br_bit_reader.o : ../../../../C/brotli/br_bit_reader.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_bit_reader.c 
-br_block_splitter.o : ../../../../C/brotli/br_block_splitter.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_block_splitter.c 
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_bit_cost.c
+br_bit_reader.o : ../../../../C/brotli/br_bit_reader.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_bit_reader.c
+br_block_splitter.o : ../../../../C/brotli/br_block_splitter.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_block_splitter.c
 br_brotli_bit_stream.o : ../../../../C/brotli/br_brotli_bit_stream.c
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_brotli_bit_stream.c 
-br_cluster.o : ../../../../C/brotli/br_cluster.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_cluster.c 
-br_command.o : ../../../../C/brotli/br_command.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_command.c 
-br_compress_fragment.o : ../../../../C/brotli/br_compress_fragment.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_compress_fragment.c 
-br_compress_fragment_two_pass.o : ../../../../C/brotli/br_compress_fragment_two_pass.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_compress_fragment_two_pass.c 
-br_constants.o : ../../../../C/brotli/br_constants.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_constants.c 
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_brotli_bit_stream.c
+br_cluster.o : ../../../../C/brotli/br_cluster.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_cluster.c
+br_command.o : ../../../../C/brotli/br_command.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_command.c
+br_compress_fragment.o : ../../../../C/brotli/br_compress_fragment.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_compress_fragment.c
+br_compress_fragment_two_pass.o : ../../../../C/brotli/br_compress_fragment_two_pass.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_compress_fragment_two_pass.c
+br_constants.o : ../../../../C/brotli/br_constants.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_constants.c
 br_context.o : ../../../../C/brotli/br_context.c
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_context.c 
-br_decode.o : ../../../../C/brotli/br_decode.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_decode.c 
-br_dictionary.o : ../../../../C/brotli/br_dictionary.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_dictionary.c 
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_context.c
+br_decode.o : ../../../../C/brotli/br_decode.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_decode.c
+br_dictionary.o : ../../../../C/brotli/br_dictionary.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_dictionary.c
 br_dictionary_hash.o : ../../../../C/brotli/br_dictionary_hash.c
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_dictionary_hash.c 
-br_encode.o : ../../../../C/brotli/br_encode.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_encode.c 
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_dictionary_hash.c
+br_encode.o : ../../../../C/brotli/br_encode.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_encode.c
 br_encoder_dict.o : ../../../../C/brotli/br_encoder_dict.c
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_encoder_dict.c 
-br_entropy_encode.o : ../../../../C/brotli/br_entropy_encode.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_entropy_encode.c 
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_encoder_dict.c
+br_entropy_encode.o : ../../../../C/brotli/br_entropy_encode.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_entropy_encode.c
 br_fast_log.o : ../../../../C/brotli/br_fast_log.c
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_fast_log.c 
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_fast_log.c
 br_histogram.o : ../../../../C/brotli/br_histogram.c
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_histogram.c 
-br_huffman.o : ../../../../C/brotli/br_huffman.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_huffman.c 
-br_literal_cost.o : ../../../../C/brotli/br_literal_cost.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_literal_cost.c 
-br_memory.o : ../../../../C/brotli/br_memory.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_memory.c 
-br_metablock.o : ../../../../C/brotli/br_metablock.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_metablock.c 
-br_platform.o : ../../../../C/brotli/br_platform.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_platform.c 
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_histogram.c
+br_huffman.o : ../../../../C/brotli/br_huffman.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_huffman.c
+br_literal_cost.o : ../../../../C/brotli/br_literal_cost.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_literal_cost.c
+br_memory.o : ../../../../C/brotli/br_memory.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_memory.c
+br_metablock.o : ../../../../C/brotli/br_metablock.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_metablock.c
+br_platform.o : ../../../../C/brotli/br_platform.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_platform.c
 br_state.o : ../../../../C/brotli/br_state.c
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_state.c 
-br_static_dict.o : ../../../../C/brotli/br_static_dict.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_static_dict.c 
-br_transform.o : ../../../../C/brotli/br_transform.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_transform.c 
-br_utf8_util.o : ../../../../C/brotli/br_utf8_util.c 
-	$(CC) $(CFLAGS) ../../../../C/brotli/br_utf8_util.c 
-
-#hash compile
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_state.c
+br_static_dict.o : ../../../../C/brotli/br_static_dict.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_static_dict.c
+br_transform.o : ../../../../C/brotli/br_transform.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_transform.c
+br_utf8_util.o : ../../../../C/brotli/br_utf8_util.c
+	$(CC) $(CFLAGS) ../../../../C/brotli/br_utf8_util.c
 md2.o : ../../../../C/hashes/md2.c
 	$(CC) $(CFLAGS) ../../../../C/hashes/md2.c
 md4.o : ../../../../C/hashes/md4.c
@@ -619,83 +676,6 @@ md5.o : ../../../../C/hashes/md5.c
 	$(CC) $(CFLAGS) ../../../../C/hashes/md5.c
 sha512.o : ../../../../C/hashes/sha512.c
 	$(CC) $(CFLAGS) ../../../../C/hashes/sha512.c
-
-# lizard compile
-lizard_compress.o : ../../../../C/lizard/lizard_compress.c
-	$(CC) $(CFLAGS) ../../../../C/lizard/lizard_compress.c
-lizard_decompress.o : ../../../../C/lizard/lizard_decompress.c
-	$(CC) $(CFLAGS) ../../../../C/lizard/lizard_decompress.c
-lizard_frame.o : ../../../../C/lizard/lizard_frame.c
-	$(CC) $(CFLAGS) ../../../../C/lizard/lizard_frame.c
-
-# lz4 compile 
-lz4.o : ../../../../C/lz4/lz4.c 
-	$(CC) $(CFLAGS) ../../../../C/lz4/lz4.c
-lz4frame.o : ../../../../C/lz4/lz4frame.c 
-	$(CC) $(CFLAGS) ../../../../C/lz4/lz4frame.c
-lz4hc.o : ../../../../C/lz4/lz4hc.c 
-	$(CC) $(CFLAGS) ../../../../C/lz4/lz4hc.c 
-
-# lz5 compile 
-lz5.o : ../../../../C/lz5/lz5.c 
-	$(CC) $(CFLAGS) ../../../../C/lz5/lz5.c
-lz5frame.o : ../../../../C/lz5/lz5frame.c 
-	$(CC) $(CFLAGS) ../../../../C/lz5/lz5frame.c
-lz5hc.o : ../../../../C/lz5/lz5hc.c 
-	$(CC) $(CFLAGS) ../../../../C/lz5/lz5hc.c 
-
-# mt compile 
-lizard-mt_common.o : ../../../../C/zstdmt/lizard-mt_common.c 
-	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lizard-mt_common.c 
-lizard-mt_compress.o : ../../../../C/zstdmt/lizard-mt_compress.c 
-	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lizard-mt_compress.c 
-lizard-mt_decompress.o : ../../../../C/zstdmt/lizard-mt_decompress.c
-	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lizard-mt_decompress.c 
-lz4-mt_common.o : ../../../../C/zstdmt/lz4-mt_common.c 
-	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz4-mt_common.c 
-lz4-mt_compress.o : ../../../../C/zstdmt/lz4-mt_compress.c 
-	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz4-mt_compress.c 
-lz4-mt_decompress.o : ../../../../C/zstdmt/lz4-mt_decompress.c
-	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz4-mt_decompress.c 
-lz5-mt_common.o : ../../../../C/zstdmt/lz5-mt_common.c 
-	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz5-mt_common.c 
-lz5-mt_compress.o : ../../../../C/zstdmt/lz5-mt_compress.c 
-	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz5-mt_compress.c 
-lz5-mt_decompress.o : ../../../../C/zstdmt/lz5-mt_decompress.c
-	$(CC) $(CFLAGS)  ../../../../C/zstdmt/lz5-mt_decompress.c
-zstd-mt_threading.o : ../../../../C/zstdmt/zstd-mt_threading.c
-	$(CC) $(CFLAGS)  ../../../../C/zstdmt/zstd-mt_threading.c 
-brotli-mt_common.o : ../../../../C/zstdmt/brotli-mt_common.c 
-	$(CC) $(CFLAGS)  ../../../../C/zstdmt/brotli-mt_common.c 
-brotli-mt_compress.o : ../../../../C/zstdmt/brotli-mt_compress.c 
-	$(CC) $(CFLAGS)  ../../../../C/zstdmt/brotli-mt_compress.c 
-brotli-mt_decompress.o : ../../../../C/zstdmt/brotli-mt_decompress.c
-	$(CC) $(CFLAGS)  ../../../../C/zstdmt/brotli-mt_decompress.c 
-
-# fast-lzma2 compile 
-dict_buffer.o : ../../../../C/fast-lzma2/dict_buffer.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/dict_buffer.c 
-fl2_common.o : ../../../../C/fast-lzma2/fl2_common.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/fl2_common.c 
-fl2_compress.o : ../../../../C/fast-lzma2/fl2_compress.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/fl2_compress.c 
-fl2_pool.o : ../../../../C/fast-lzma2/fl2_pool.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/fl2_pool.c 
-fl2_threading.o : ../../../../C/fast-lzma2/fl2_threading.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/fl2_threading.c 
-lzma2_enc.o : ../../../../C/fast-lzma2/lzma2_enc.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/lzma2_enc.c 
-radix_bitpack.o : ../../../../C/fast-lzma2/radix_bitpack.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/radix_bitpack.c 
-radix_mf.o : ../../../../C/fast-lzma2/radix_mf.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/radix_mf.c 
-radix_struct.o : ../../../../C/fast-lzma2/radix_struct.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/radix_struct.c 
-range_enc.o : ../../../../C/fast-lzma2/range_enc.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/range_enc.c 
-util.o : ../../../../C/fast-lzma2/util.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/util.c 
-# CXX compile
 7zCompressionMode.o : ../../../../CPP/7zip/Archive/7z/7zCompressionMode.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/7z/7zCompressionMode.cpp
 7zDecode.o : ../../../../CPP/7zip/Archive/7z/7zDecode.cpp
@@ -776,10 +756,10 @@ CramfsHandler.o : ../../../../CPP/7zip/Archive/CramfsHandler.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/CramfsHandler.cpp
 DeflateProps.o : ../../../../CPP/7zip/Archive/DeflateProps.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/DeflateProps.cpp
-DmgHandler.o : ../../../../CPP/7zip/Archive/DmgHandler.cpp
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/DmgHandler.cpp
 DllExports2.o : ../../../../CPP/7zip/Archive/DllExports2.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/DllExports2.cpp
+DmgHandler.o : ../../../../CPP/7zip/Archive/DmgHandler.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/DmgHandler.cpp
 ElfHandler.o : ../../../../CPP/7zip/Archive/ElfHandler.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/ElfHandler.cpp
 ExtHandler.o : ../../../../CPP/7zip/Archive/ExtHandler.cpp
@@ -902,27 +882,16 @@ ZipRegister.o : ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Zip/ZipRegister.cpp
 ZipUpdate.o : ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Zip/ZipUpdate.cpp
-
-# zstd ARC
-ZstdHandler.o : ../../../../CPP/7zip/Archive/ZstdHandler.cpp
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/ZstdHandler.cpp 
-
-# Lizard ARC
-LizardHandler.o : ../../../../CPP/7zip/Archive/LizardHandler.cpp 
+LizardHandler.o : ../../../../CPP/7zip/Archive/LizardHandler.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/LizardHandler.cpp
-
-# lzip
-LzHandler.o : ../../../../CPP/7zip/Archive/LzHandler.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/LzHandler.cpp 
-
-# Lz4 ARC
-Lz4Handler.o : ../../../../CPP/7zip/Archive/Lz4Handler.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Lz4Handler.cpp 
-
-# Lz5 ARC
-Lz5Handler.o : ../../../../CPP/7zip/Archive/Lz5Handler.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Lz5Handler.cpp 
-
+LzHandler.o : ../../../../CPP/7zip/Archive/LzHandler.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/LzHandler.cpp
+Lz4Handler.o : ../../../../CPP/7zip/Archive/Lz4Handler.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Lz4Handler.cpp
+Lz5Handler.o : ../../../../CPP/7zip/Archive/Lz5Handler.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Lz5Handler.cpp
+ZstdHandler.o : ../../../../CPP/7zip/Archive/ZstdHandler.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/ZstdHandler.cpp
 CWrappers.o : ../../../../CPP/7zip/Common/CWrappers.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Common/CWrappers.cpp
 CreateCoder.o : ../../../../CPP/7zip/Common/CreateCoder.cpp
@@ -1008,7 +977,7 @@ ImplodeDecoder.o : ../../../../CPP/7zip/Compress/ImplodeDecoder.cpp
 ImplodeHuffmanDecoder.o : ../../../../CPP/7zip/Compress/ImplodeHuffmanDecoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ImplodeHuffmanDecoder.cpp
 LzfseDecoder.o : ../../../../CPP/7zip/Compress/LzfseDecoder.cpp
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LzfseDecoder.cpp 
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LzfseDecoder.cpp
 LzOutWindow.o : ../../../../CPP/7zip/Compress/LzOutWindow.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LzOutWindow.cpp
 LzhDecoder.o : ../../../../CPP/7zip/Compress/LzhDecoder.cpp
@@ -1019,8 +988,6 @@ Lzma2Encoder.o : ../../../../CPP/7zip/Compress/Lzma2Encoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lzma2Encoder.cpp
 Lzma2Register.o : ../../../../CPP/7zip/Compress/Lzma2Register.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lzma2Register.cpp
-FastLzma2Register.o : ../../../../CPP/7zip/Compress/FastLzma2Register.cpp
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/FastLzma2Register.cpp
 LzmaDecoder.o : ../../../../CPP/7zip/Compress/LzmaDecoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LzmaDecoder.cpp
 LzmaEncoder.o : ../../../../CPP/7zip/Compress/LzmaEncoder.cpp
@@ -1051,53 +1018,42 @@ ZlibDecoder.o : ../../../../CPP/7zip/Compress/ZlibDecoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZlibDecoder.cpp
 ZlibEncoder.o : ../../../../CPP/7zip/Compress/ZlibEncoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZlibEncoder.cpp
-
-# zstd register compile
-ZstdDecoder.o : ../../../../CPP/7zip/Compress/ZstdDecoder.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZstdDecoder.cpp 
-ZstdEncoder.o : ../../../../CPP/7zip/Compress/ZstdEncoder.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZstdEncoder.cpp 
-ZstdRegister.o : ../../../../CPP/7zip/Compress/ZstdRegister.cpp
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZstdRegister.cpp
-
-# Lizard register compile
-LizardDecoder.o : ../../../../CPP/7zip/Compress/LizardDecoder.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LizardDecoder.cpp 
-LizardEncoder.o : ../../../../CPP/7zip/Compress/LizardEncoder.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LizardEncoder.cpp 
-LizardRegister.o : ../../../../CPP/7zip/Compress/LizardRegister.cpp 
+FastLzma2Register.o : ../../../../CPP/7zip/Compress/FastLzma2Register.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/FastLzma2Register.cpp
+LizardDecoder.o : ../../../../CPP/7zip/Compress/LizardDecoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LizardDecoder.cpp
+LizardEncoder.o : ../../../../CPP/7zip/Compress/LizardEncoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LizardEncoder.cpp
+LizardRegister.o : ../../../../CPP/7zip/Compress/LizardRegister.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LizardRegister.cpp
-
-# lz4 register compile
-Lz4Decoder.o : ../../../../CPP/7zip/Compress/Lz4Decoder.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Decoder.cpp 
-Lz4Encoder.o : ../../../../CPP/7zip/Compress/Lz4Encoder.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Encoder.cpp 
-Lz4Register.o : ../../../../CPP/7zip/Compress/Lz4Register.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Register.cpp 
-
-# lz5 register compile
-Lz5Decoder.o : ../../../../CPP/7zip/Compress/Lz5Decoder.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz5Decoder.cpp 
-Lz5Encoder.o : ../../../../CPP/7zip/Compress/Lz5Encoder.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz5Encoder.cpp 
-Lz5Register.o : ../../../../CPP/7zip/Compress/Lz5Register.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz5Register.cpp 
-
-# brotli register compile
-BrotliDecoder.o : ../../../../CPP/7zip/Compress/BrotliDecoder.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/BrotliDecoder.cpp 
-BrotliEncoder.o : ../../../../CPP/7zip/Compress/BrotliEncoder.cpp
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/BrotliEncoder.cpp 
-BrotliRegister.o : ../../../../CPP/7zip/Compress/BrotliRegister.cpp
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/BrotliRegister.cpp
-
-# Xz compile
+Lz4Decoder.o : ../../../../CPP/7zip/Compress/Lz4Decoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Decoder.cpp
+Lz4Encoder.o : ../../../../CPP/7zip/Compress/Lz4Encoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Encoder.cpp
+Lz4Register.o : ../../../../CPP/7zip/Compress/Lz4Register.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz4Register.cpp
+Lz5Decoder.o : ../../../../CPP/7zip/Compress/Lz5Decoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz5Decoder.cpp
+Lz5Encoder.o : ../../../../CPP/7zip/Compress/Lz5Encoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz5Encoder.cpp
+Lz5Register.o : ../../../../CPP/7zip/Compress/Lz5Register.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/Lz5Register.cpp
 XzDecoder.o : ../../../../CPP/7zip/Compress/XzDecoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/XzDecoder.cpp
 XzEncoder.o : ../../../../CPP/7zip/Compress/XzEncoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/XzEncoder.cpp
-
+ZstdDecoder.o : ../../../../CPP/7zip/Compress/ZstdDecoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZstdDecoder.cpp
+ZstdEncoder.o : ../../../../CPP/7zip/Compress/ZstdEncoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZstdEncoder.cpp
+ZstdRegister.o : ../../../../CPP/7zip/Compress/ZstdRegister.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/ZstdRegister.cpp
+BrotliDecoder.o : ../../../../CPP/7zip/Compress/BrotliDecoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/BrotliDecoder.cpp
+BrotliEncoder.o : ../../../../CPP/7zip/Compress/BrotliEncoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/BrotliEncoder.cpp
+BrotliRegister.o : ../../../../CPP/7zip/Compress/BrotliRegister.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/BrotliRegister.cpp
 7zAes.o : ../../../../CPP/7zip/Crypto/7zAes.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Crypto/7zAes.cpp
 7zAesRegister.o : ../../../../CPP/7zip/Crypto/7zAesRegister.cpp
@@ -1158,10 +1114,10 @@ UTFConvert.o : ../../../../CPP/Common/UTFConvert.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/UTFConvert.cpp
 Wildcard.o : ../../../../CPP/Common/Wildcard.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/Wildcard.cpp
-XzCrc64Init.o : ../../../../CPP/Common/XzCrc64Init.cpp
-	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/XzCrc64Init.cpp
 XzCrc64Reg.o : ../../../../CPP/Common/XzCrc64Reg.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/XzCrc64Reg.cpp
+XzCrc64Init.o : ../../../../CPP/Common/XzCrc64Init.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/XzCrc64Init.cpp
 Md2Reg.o : ../../../../CPP/Common/Md2Reg.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/Md2Reg.cpp
 Md4Reg.o : ../../../../CPP/Common/Md4Reg.cpp
@@ -1237,6 +1193,104 @@ OBJS=\
  XzDec.o \
  XzEnc.o \
  XzIn.o \
+ dict_buffer.o \
+ fl2_common.o \
+ fl2_compress.o \
+ fl2_pool.o \
+ fl2_threading.o \
+ lzma2_enc.o \
+ radix_bitpack.o \
+ radix_mf.o \
+ radix_struct.o \
+ range_enc.o \
+ util.o \
+ lizard_compress.o \
+ lizard_decompress.o \
+ lizard_frame.o \
+ lz4.o \
+ lz4frame.o \
+ lz4hc.o \
+ lz5.o \
+ lz5frame.o \
+ lz5hc.o \
+ debug.o \
+ entropy_common.o \
+ error_private.o \
+ fse_compress.o \
+ fse_decompress.o \
+ hist.o \
+ huf_compress.o \
+ huf_decompress.o \
+ pool.o \
+ threading.o \
+ xxhash.o \
+ zstd_common.o \
+ zstd_compress.o \
+ zstd_compress_literals.o \
+ zstd_compress_sequences.o \
+ zstd_compress_superblock.o \
+ zstd_ddict.o \
+ zstd_decompress.o \
+ zstd_decompress_block.o \
+ zstd_double_fast.o \
+ zstd_fast.o \
+ zstd_lazy.o \
+ zstd_ldm.o \
+ zstd_opt.o \
+ zstd_v01.o \
+ zstd_v02.o \
+ zstd_v03.o \
+ zstd_v04.o \
+ zstd_v05.o \
+ zstd_v06.o \
+ zstd_v07.o \
+ zstdmt_compress.o \
+ lizard-mt_common.o \
+ lizard-mt_compress.o \
+ lizard-mt_decompress.o \
+ lz4-mt_common.o \
+ lz4-mt_compress.o \
+ lz4-mt_decompress.o \
+ lz5-mt_common.o \
+ lz5-mt_compress.o \
+ lz5-mt_decompress.o \
+ zstd-mt_threading.o \
+ brotli-mt_common.o \
+ brotli-mt_compress.o \
+ brotli-mt_decompress.o \
+ br_backward_references.o \
+ br_backward_references_hq.o \
+ br_bit_cost.o \
+ br_bit_reader.o \
+ br_block_splitter.o \
+ br_brotli_bit_stream.o \
+ br_cluster.o \
+ br_command.o \
+ br_compress_fragment.o \
+ br_compress_fragment_two_pass.o \
+ br_constants.o \
+ br_context.o \
+ br_decode.o \
+ br_dictionary.o \
+ br_dictionary_hash.o \
+ br_encode.o \
+ br_encoder_dict.o \
+ br_entropy_encode.o \
+ br_fast_log.o \
+ br_histogram.o \
+ br_huffman.o \
+ br_literal_cost.o \
+ br_memory.o \
+ br_metablock.o \
+ br_platform.o \
+ br_state.o \
+ br_static_dict.o \
+ br_transform.o \
+ br_utf8_util.o \
+ md2.o \
+ md4.o \
+ md5.o \
+ sha512.o \
  7zCompressionMode.o \
  7zDecode.o \
  7zEncode.o \
@@ -1277,8 +1331,8 @@ OBJS=\
  CpioHandler.o \
  CramfsHandler.o \
  DeflateProps.o \
- DmgHandler.o \
  DllExports2.o \
+ DmgHandler.o \
  ElfHandler.o \
  ExtHandler.o \
  FatHandler.o \
@@ -1340,6 +1394,11 @@ OBJS=\
  ZipOut.o \
  ZipRegister.o \
  ZipUpdate.o \
+ LizardHandler.o \
+ LzHandler.o \
+ Lz4Handler.o \
+ Lz5Handler.o \
+ ZstdHandler.o \
  CWrappers.o \
  CreateCoder.o \
  FilterCoder.o \
@@ -1388,7 +1447,6 @@ OBJS=\
  Lzma2Decoder.o \
  Lzma2Encoder.o \
  Lzma2Register.o \
- FastLzma2Register.o \
  LzmaDecoder.o \
  LzmaEncoder.o \
  LzmaRegister.o \
@@ -1404,6 +1462,24 @@ OBJS=\
  XpressDecoder.o \
  ZlibDecoder.o \
  ZlibEncoder.o \
+ FastLzma2Register.o \
+ LizardDecoder.o \
+ LizardEncoder.o \
+ LizardRegister.o \
+ Lz4Decoder.o \
+ Lz4Encoder.o \
+ Lz4Register.o \
+ Lz5Decoder.o \
+ Lz5Encoder.o \
+ Lz5Register.o \
+ XzDecoder.o \
+ XzEncoder.o \
+ ZstdDecoder.o \
+ ZstdEncoder.o \
+ ZstdRegister.o \
+ BrotliDecoder.o \
+ BrotliEncoder.o \
+ BrotliRegister.o \
  7zAes.o \
  7zAesRegister.o \
  HmacSha1.o \
@@ -1434,8 +1510,15 @@ OBJS=\
  StringToInt.o \
  UTFConvert.o \
  Wildcard.o \
- XzCrc64Init.o \
  XzCrc64Reg.o \
+ XzCrc64Init.o \
+ Md2Reg.o \
+ Md4Reg.o \
+ Md5Reg.o \
+ Sha384Reg.o \
+ Sha512Reg.o \
+ XXH32Reg.o \
+ XXH64Reg.o \
  FileDir.o \
  FileFind.o \
  FileIO.o \
@@ -1447,130 +1530,4 @@ OBJS=\
  TimeUtils.o \
  wine_date_and_time.o \
  $(OBJ_AES) \
- debug.o \
- entropy_common.o \
- error_private.o \
- fse_compress.o \
- fse_decompress.o \
- hist.o \
- huf_compress.o \
- huf_decompress.o \
- pool.o \
- threading.o \
- xxhash.o \
- zstd_common.o \
- zstd_compress.o \
- zstd_compress_literals.o \
- zstd_compress_sequences.o \
- zstd_compress_superblock.o\
- zstd_ddict.o \
- zstd_decompress.o \
- zstd_decompress_block.o \
- zstd_double_fast.o \
- zstd_fast.o \
- zstd_lazy.o \
- zstd_ldm.o \
- zstd_opt.o \
- zstd_v01.o \
- zstd_v02.o \
- zstd_v03.o \
- zstd_v04.o \
- zstd_v05.o \
- zstd_v06.o \
- zstd_v07.o \
- zstdmt_compress.o \
- ZstdDecoder.o \
- ZstdEncoder.o \
- ZstdRegister.o \
- ZstdHandler.o \
- lz4.o \
- lz4frame.o \
- lz4hc.o \
- lz4-mt_common.o \
- lz4-mt_compress.o \
- lz4-mt_decompress.o \
- zstd-mt_threading.o \
- Lz4Decoder.o \
- Lz4Encoder.o \
- Lz4Register.o \
- LzHandler.o \
- Lz4Handler.o \
- Lz5Handler.o \
- XzDecoder.o \
- XzEncoder.o \
- dict_buffer.o \
- fl2_common.o \
- fl2_compress.o \
- fl2_pool.o \
- fl2_threading.o \
- lzma2_enc.o \
- radix_bitpack.o \
- radix_mf.o \
- radix_struct.o \
- range_enc.o \
- util.o \
- br_backward_references.o \
- br_backward_references_hq.o \
- br_bit_cost.o \
- br_bit_reader.o \
- br_block_splitter.o \
- br_brotli_bit_stream.o \
- br_cluster.o \
- br_command.o \
- br_compress_fragment.o \
- br_compress_fragment_two_pass.o \
- br_constants.o \
- br_context.o \
- br_decode.o \
- br_dictionary.o \
- br_dictionary_hash.o \
- br_encode.o \
- br_encoder_dict.o \
- br_entropy_encode.o \
- br_fast_log.o \
- br_histogram.o \
- br_huffman.o \
- br_literal_cost.o \
- br_memory.o \
- br_metablock.o \
- br_platform.o \
- br_state.o \
- br_static_dict.o \
- br_transform.o \
- br_utf8_util.o \
- brotli-mt_common.o \
- brotli-mt_compress.o \
- brotli-mt_decompress.o \
- BrotliDecoder.o \
- BrotliEncoder.o \
- BrotliRegister.o \
- Lz5Decoder.o \
- Lz5Encoder.o \
- Lz5Register.o \
- lz5.o \
- lz5frame.o \
- lz5hc.o \
- lz5-mt_common.o \
- lz5-mt_compress.o \
- lz5-mt_decompress.o \
- LizardHandler.o \
- LizardDecoder.o \
- LizardEncoder.o \
- LizardRegister.o \
- lizard_compress.o \
- lizard_decompress.o \
- lizard_frame.o \
- lizard-mt_common.o \
- lizard-mt_compress.o \
- lizard-mt_decompress.o \
- Md2Reg.o \
- Md4Reg.o \
- Md5Reg.o \
- Sha384Reg.o \
- Sha512Reg.o \
- XXH32Reg.o \
- XXH64Reg.o \
- md2.o \
- md4.o \
- md5.o \
- sha512.o
+

@@ -42,7 +42,6 @@ SRCS=\
   ../../../../CPP/7zip/Archive/Common/MultiStream.cpp \
   ../../../../CPP/7zip/Archive/Common/OutStreamWithCRC.cpp \
   ../../../../CPP/7zip/Archive/Common/ParseProperties.cpp \
-  ../../../../CPP/7zip/Archive/LzHandler.cpp \
   ../../../../CPP/7zip/Archive/LzmaHandler.cpp \
   ../../../../CPP/7zip/Archive/SplitHandler.cpp \
   ../../../../CPP/7zip/Archive/XzHandler.cpp \
@@ -131,8 +130,8 @@ SRCS=\
   ../../../../CPP/Common/StringToInt.cpp \
   ../../../../CPP/Common/UTFConvert.cpp \
   ../../../../CPP/Common/Wildcard.cpp \
-  ../../../../CPP/Common/XzCrc64Init.cpp \
   ../../../../CPP/Common/XzCrc64Reg.cpp \
+  ../../../../CPP/Common/XzCrc64Init.cpp \
   ../../../../CPP/Windows/ErrorMsg.cpp \
   ../../../../CPP/Windows/FileDir.cpp \
   ../../../../CPP/Windows/FileFind.cpp \
@@ -241,31 +240,28 @@ XzEnc.o : ../../../../C/XzEnc.c
 	$(CC) $(CFLAGS) ../../../../C/XzEnc.c
 XzIn.o : ../../../../C/XzIn.c
 	$(CC) $(CFLAGS) ../../../../C/XzIn.c
-
-# fast-lzma2 compile 
-dict_buffer.o : ../../../../C/fast-lzma2/dict_buffer.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/dict_buffer.c 
-fl2_common.o : ../../../../C/fast-lzma2/fl2_common.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/fl2_common.c 
-fl2_compress.o : ../../../../C/fast-lzma2/fl2_compress.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/fl2_compress.c 
-fl2_pool.o : ../../../../C/fast-lzma2/fl2_pool.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/fl2_pool.c 
-fl2_threading.o : ../../../../C/fast-lzma2/fl2_threading.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/fl2_threading.c 
-lzma2_enc.o : ../../../../C/fast-lzma2/lzma2_enc.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/lzma2_enc.c 
-radix_bitpack.o : ../../../../C/fast-lzma2/radix_bitpack.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/radix_bitpack.c 
-radix_mf.o : ../../../../C/fast-lzma2/radix_mf.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/radix_mf.c 
-radix_struct.o : ../../../../C/fast-lzma2/radix_struct.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/radix_struct.c 
-range_enc.o : ../../../../C/fast-lzma2/range_enc.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/range_enc.c 
-util.o : ../../../../C/fast-lzma2/util.c 
-	$(CC) $(CFLAGS) $(LIBS) ../../../../C/fast-lzma2/util.c
-
+dict_buffer.o : ../../../../C/fast-lzma2/dict_buffer.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/dict_buffer.c
+fl2_common.o : ../../../../C/fast-lzma2/fl2_common.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/fl2_common.c
+fl2_compress.o : ../../../../C/fast-lzma2/fl2_compress.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/fl2_compress.c
+fl2_pool.o : ../../../../C/fast-lzma2/fl2_pool.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/fl2_pool.c
+fl2_threading.o : ../../../../C/fast-lzma2/fl2_threading.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/fl2_threading.c
+lzma2_enc.o : ../../../../C/fast-lzma2/lzma2_enc.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/lzma2_enc.c
+radix_bitpack.o : ../../../../C/fast-lzma2/radix_bitpack.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/radix_bitpack.c
+radix_mf.o : ../../../../C/fast-lzma2/radix_mf.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/radix_mf.c
+radix_struct.o : ../../../../C/fast-lzma2/radix_struct.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/radix_struct.c
+range_enc.o : ../../../../C/fast-lzma2/range_enc.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/range_enc.c
+util.o : ../../../../C/fast-lzma2/util.c
+	$(CC) $(CFLAGS) ../../../../C/fast-lzma2/util.c
 7zCompressionMode.o : ../../../../CPP/7zip/Archive/7z/7zCompressionMode.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/7z/7zCompressionMode.cpp
 7zDecode.o : ../../../../CPP/7zip/Archive/7z/7zDecode.cpp
@@ -310,8 +306,6 @@ OutStreamWithCRC.o : ../../../../CPP/7zip/Archive/Common/OutStreamWithCRC.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Common/OutStreamWithCRC.cpp
 ParseProperties.o : ../../../../CPP/7zip/Archive/Common/ParseProperties.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/Common/ParseProperties.cpp
-LzHandler.o : ../../../../CPP/7zip/Archive/LzHandler.cpp 
-	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/LzHandler.cpp 
 LzmaHandler.o : ../../../../CPP/7zip/Archive/LzmaHandler.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Archive/LzmaHandler.cpp
 SplitHandler.o : ../../../../CPP/7zip/Archive/SplitHandler.cpp
@@ -388,15 +382,12 @@ LzmaEncoder.o : ../../../../CPP/7zip/Compress/LzmaEncoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LzmaEncoder.cpp
 LzmaRegister.o : ../../../../CPP/7zip/Compress/LzmaRegister.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/LzmaRegister.cpp
-
 FastLzma2Register.o : ../../../../CPP/7zip/Compress/FastLzma2Register.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/FastLzma2Register.cpp
-# Xz compile
 XzDecoder.o : ../../../../CPP/7zip/Compress/XzDecoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/XzDecoder.cpp
 XzEncoder.o : ../../../../CPP/7zip/Compress/XzEncoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/XzEncoder.cpp
-
 ArchiveCommandLine.o : ../../../../CPP/7zip/UI/Common/ArchiveCommandLine.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/UI/Common/ArchiveCommandLine.cpp
 ArchiveExtractCallback.o : ../../../../CPP/7zip/UI/Common/ArchiveExtractCallback.cpp
@@ -491,10 +482,10 @@ UTFConvert.o : ../../../../CPP/Common/UTFConvert.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/UTFConvert.cpp
 Wildcard.o : ../../../../CPP/Common/Wildcard.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/Wildcard.cpp
-XzCrc64Init.o : ../../../../CPP/Common/XzCrc64Init.cpp
-	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/XzCrc64Init.cpp
 XzCrc64Reg.o : ../../../../CPP/Common/XzCrc64Reg.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/XzCrc64Reg.cpp
+XzCrc64Init.o : ../../../../CPP/Common/XzCrc64Init.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/XzCrc64Init.cpp
 ErrorMsg.o : ../../../../CPP/Windows/ErrorMsg.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Windows/ErrorMsg.cpp
 FileDir.o : ../../../../CPP/Windows/FileDir.cpp
@@ -549,6 +540,17 @@ OBJS=\
  XzDec.o \
  XzEnc.o \
  XzIn.o \
+ dict_buffer.o \
+ fl2_common.o \
+ fl2_compress.o \
+ fl2_pool.o \
+ fl2_threading.o \
+ lzma2_enc.o \
+ radix_bitpack.o \
+ radix_mf.o \
+ radix_struct.o \
+ range_enc.o \
+ util.o \
  7zCompressionMode.o \
  7zDecode.o \
  7zEncode.o \
@@ -571,7 +573,6 @@ OBJS=\
  MultiStream.o \
  OutStreamWithCRC.o \
  ParseProperties.o \
- LzHandler.o \
  LzmaHandler.o \
  SplitHandler.o \
  XzHandler.o \
@@ -660,8 +661,8 @@ OBJS=\
  StringToInt.o \
  UTFConvert.o \
  Wildcard.o \
- XzCrc64Init.o \
  XzCrc64Reg.o \
+ XzCrc64Init.o \
  ErrorMsg.o \
  FileDir.o \
  FileFind.o \
@@ -676,15 +677,4 @@ OBJS=\
  mySplitCommandLine.o \
  wine_date_and_time.o \
  $(OBJ_AES) \
- dict_buffer.o \
- fl2_common.o \
- fl2_compress.o \
- fl2_pool.o \
- fl2_threading.o \
- lzma2_enc.o \
- radix_bitpack.o \
- radix_mf.o \
- radix_struct.o \
- range_enc.o \
- util.o 
 

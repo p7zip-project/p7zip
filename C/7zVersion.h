@@ -1,5 +1,5 @@
 #define MY_VER_MAJOR 17
-#define MY_VER_MINOR 03
+#define MY_VER_MINOR 04
 #define MY_VER_BUILD 0
 #define MY_VERSION_NUMBERS "17.04 beta"
 #define MY_VERSION "17.04"

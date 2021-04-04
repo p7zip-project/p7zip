@@ -164,6 +164,9 @@ sure ${P7ZIP} x ../test/7za.exe.lzma_eos
 sure diff 7za.exe 7za433_ref/bin/7za.exe
 sure rm -f 7za.exe
 
+sure ${P7ZIP} x ../test/7za.exe.lz
+sure diff 7za.exe 7za433_ref/bin/7za.exe
+sure rm -f 7za.exe
 
 echo ""
 echo "# TESTING (XZ) ..."

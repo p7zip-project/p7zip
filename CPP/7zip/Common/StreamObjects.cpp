@@ -157,6 +157,8 @@ STDMETHODIMP CDynBufSeqOutStream::Write(const void *data, UInt32 size, UInt32 *p
 
 STDMETHODIMP CBufPtrSeqOutStream::Write(const void *data, UInt32 size, UInt32 *processedSize)
 {
+  if(_buffer == nullptr || _size == _pos)
+    return E_FAIL;
   size_t rem = _size - _pos;
   if (rem > size)
     rem = (size_t)size;

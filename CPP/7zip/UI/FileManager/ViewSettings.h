@@ -23,13 +23,21 @@ struct CListViewInfo
   CRecordVector<CColumnInfo> Columns;
   PROPID SortID;
   bool Ascending;
+  bool IsLoaded;
 
   void Clear()
   {
     SortID = 0;
     Ascending = true;
+    IsLoaded = false;
     Columns.Clear();
   }
+
+  CListViewInfo():
+    SortID(0),
+    Ascending(true),
+    IsLoaded(false)
+    {}
 
   /*
   int FindColumnWithID(PROPID propID) const
@@ -58,7 +66,6 @@ struct CListViewInfo
 };
 
 
-#ifdef _WIN32
 struct CWindowInfo
 {
   RECT rect;
@@ -71,7 +78,6 @@ struct CWindowInfo
   void Save() const;
   void Read(bool &windowPosDefined, bool &panelInfoDefined);
 };
-#endif
 
 void SaveToolbarsMask(UInt32 toolbarMask);
 UInt32 ReadToolbarsMask();

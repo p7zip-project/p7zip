@@ -108,8 +108,9 @@ const UInt32 k_SWAP4 = 0x20304;
 const UInt32 k_LZMA  = 0x30101;
 const UInt32 k_PPMD  = 0x30401;
 
-const UInt32 k_Deflate = 0x40108;
-const UInt32 k_BZip2   = 0x40202;
+const UInt32 k_Deflate   = 0x40108;
+const UInt32 k_Deflate64 = 0x40109;
+const UInt32 k_BZip2     = 0x40202;
 
 const UInt32 k_BCJ   = 0x3030103;
 const UInt32 k_BCJ2  = 0x303011B;
@@ -118,12 +119,6 @@ const UInt32 k_IA64  = 0x3030401;
 const UInt32 k_ARM   = 0x3030501;
 const UInt32 k_ARMT  = 0x3030701;
 const UInt32 k_SPARC = 0x3030805;
-
-const UInt32 k_ZSTD  = 0x4F71101;
-const UInt32 k_BROTLI= 0x4F71102;
-const UInt32 k_LZ4   = 0x4F71104;
-const UInt32 k_LZ5   = 0x4F71105;
-const UInt32 k_LIZARD= 0x4F71106;
 
 const UInt32 k_AES   = 0x6F10701;
 

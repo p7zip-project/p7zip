@@ -1,18 +1,28 @@
 // MyWindows.h
 
-#ifndef __MYWINDOWS_H
-#define __MYWINDOWS_H
+#ifndef __MY_WINDOWS_H
+#define __MY_WINDOWS_H
 
 #ifdef _WIN32
 
-#include <windows.h>
+#include <Windows.h>
 
-#else
+#ifdef UNDER_CE
+  #undef VARIANT_TRUE
+  #define VARIANT_TRUE ((VARIANT_BOOL)-1)
+#endif
+
+#else // _WIN32
 
 #include <stddef.h> // for wchar_t
 #include <string.h>
+// #include <stdint.h> // for uintptr_t
 
 #include "MyGuidDef.h"
+
+// WINAPI is __stdcall in Windows-MSVC in windef.h
+#define WINAPI
+#define EXTERN_C MY_EXTERN_C
 
 typedef char CHAR;
 typedef unsigned char UCHAR;
@@ -27,40 +37,33 @@ typedef unsigned short USHORT;
 typedef unsigned short WORD;
 typedef short VARIANT_BOOL;
 
-typedef int INT;
-typedef Int32 INT32;
-typedef unsigned int UINT;
-typedef UInt32 UINT32;
-typedef INT32 LONG;   // LONG, ULONG and DWORD must be 32-bit
-typedef UINT32 ULONG;
+#define LOWORD(l) ((WORD)((DWORD_PTR)(l) & 0xffff))
+#define HIWORD(l) ((WORD)((DWORD_PTR)(l) >> 16))
 
-#undef DWORD
-typedef UINT32 DWORD;
+// MS uses long for BOOL, but long is 32-bit in MS. So we use int.
+// typedef long BOOL;
+typedef int BOOL;
+
+#ifndef FALSE
+  #define FALSE 0
+  #define TRUE 1
+#endif
+
+// typedef size_t ULONG_PTR;
+// typedef size_t DWORD_PTR;
+// typedef uintptr_t UINT_PTR;
+// typedef ptrdiff_t UINT_PTR;
 
 typedef Int64 LONGLONG;
 typedef UInt64 ULONGLONG;
 
-typedef struct LARGE_INTEGER { LONGLONG QuadPart; }LARGE_INTEGER;
-typedef struct _ULARGE_INTEGER { ULONGLONG QuadPart;} ULARGE_INTEGER;
+typedef struct _LARGE_INTEGER { LONGLONG QuadPart; } LARGE_INTEGER;
+typedef struct _ULARGE_INTEGER { ULONGLONG QuadPart; } ULARGE_INTEGER;
 
 typedef const CHAR *LPCSTR;
-
-typedef wchar_t WCHAR;
-
-#ifdef _UNICODE
-typedef WCHAR TCHAR;
-#define lstrcpy wcscpy
-#define lstrcat wcscat
-#define lstrlen wcslen
-#else
 typedef CHAR TCHAR;
-#define lstrcpy strcpy
-#define lstrcat strcat
-#define lstrlen strlen
-#endif
-#define _wcsicmp(str1,str2) MyStringCompareNoCase(str1,str2)
-
 typedef const TCHAR *LPCTSTR;
+typedef wchar_t WCHAR;
 typedef WCHAR OLECHAR;
 typedef const WCHAR *LPCWSTR;
 typedef OLECHAR *BSTR;
@@ -71,28 +74,35 @@ typedef struct _FILETIME
 {
   DWORD dwLowDateTime;
   DWORD dwHighDateTime;
-}FILETIME;
+} FILETIME;
 
 #define HRESULT LONG
-#define FAILED(Status) ((HRESULT)(Status)<0)
+#define SUCCEEDED(hr) ((HRESULT)(hr) >= 0)
+#define FAILED(hr)    ((HRESULT)(hr) < 0)
 typedef ULONG PROPID;
 typedef LONG SCODE;
 
+
 #define S_OK    ((HRESULT)0x00000000L)
 #define S_FALSE ((HRESULT)0x00000001L)
-#define E_NOTIMPL ((HRESULT)0x80004001L)
+#define E_NOTIMPL     ((HRESULT)0x80004001L)
 #define E_NOINTERFACE ((HRESULT)0x80004002L)
-#define E_ABORT ((HRESULT)0x80004004L)
-#define E_FAIL ((HRESULT)0x80004005L)
-#define STG_E_INVALIDFUNCTION ((HRESULT)0x80030001L)
-#define E_OUTOFMEMORY ((HRESULT)0x8007000EL)
-#define E_INVALIDARG ((HRESULT)0x80070057L)
+#define E_ABORT       ((HRESULT)0x80004004L)
+#define E_FAIL        ((HRESULT)0x80004005L)
+#define STG_E_INVALIDFUNCTION     ((HRESULT)0x80030001L)
+#define CLASS_E_CLASSNOTAVAILABLE ((HRESULT)0x80040111L)
+
 
 #ifdef _MSC_VER
 #define STDMETHODCALLTYPE __stdcall
+#define STDAPICALLTYPE    __stdcall
 #else
+// do we need __export here?
 #define STDMETHODCALLTYPE
+#define STDAPICALLTYPE
 #endif
+
+#define STDAPI  EXTERN_C HRESULT STDAPICALLTYPE
 
 #define STDMETHOD_(t, f) virtual t STDMETHODCALLTYPE f
 #define STDMETHOD(f) STDMETHOD_(HRESULT, f)
@@ -112,9 +122,8 @@ struct IUnknown
   STDMETHOD(QueryInterface) (REFIID iid, void **outObject) PURE;
   STDMETHOD_(ULONG, AddRef)() PURE;
   STDMETHOD_(ULONG, Release)() PURE;
-  #ifndef _WIN32
   virtual ~IUnknown() {}
-  #endif
+  // We use virtual ~IUnknown() here for binary compatibility with 7z.so from p7zip
 };
 
 typedef IUnknown *LPUNKNOWN;
@@ -159,8 +168,6 @@ typedef WORD PROPVAR_PAD1;
 typedef WORD PROPVAR_PAD2;
 typedef WORD PROPVAR_PAD3;
 
-#ifdef __cplusplus
-
 typedef struct tagPROPVARIANT
 {
   VARTYPE vt;
@@ -190,30 +197,35 @@ typedef PROPVARIANT tagVARIANT;
 typedef tagVARIANT VARIANT;
 typedef VARIANT VARIANTARG;
 
-#define MY_EXTERN_C extern "C"
-
 MY_EXTERN_C HRESULT VariantClear(VARIANTARG *prop);
-MY_EXTERN_C HRESULT VariantCopy(VARIANTARG *dest, VARIANTARG *src);
+MY_EXTERN_C HRESULT VariantCopy(VARIANTARG *dest, const VARIANTARG *src);
 
-#else
-
-#define MY_EXTERN_C extern
-
-
-#endif
+typedef struct tagSTATPROPSTG
+{
+  LPOLESTR lpwstrName;
+  PROPID propid;
+  VARTYPE vt;
+} STATPROPSTG;
 
 MY_EXTERN_C BSTR SysAllocStringByteLen(LPCSTR psz, UINT len);
-MY_EXTERN_C BSTR SysAllocStringLen(const OLECHAR*,UINT);
+MY_EXTERN_C BSTR SysAllocStringLen(const OLECHAR *sz, UINT len);
 MY_EXTERN_C BSTR SysAllocString(const OLECHAR *sz);
 MY_EXTERN_C void SysFreeString(BSTR bstr);
 MY_EXTERN_C UINT SysStringByteLen(BSTR bstr);
 MY_EXTERN_C UINT SysStringLen(BSTR bstr);
 
-/* MY_EXTERN_C DWORD GetLastError(); */
+MY_EXTERN_C DWORD GetLastError();
+MY_EXTERN_C void SetLastError(DWORD dwCode);
 MY_EXTERN_C LONG CompareFileTime(const FILETIME* ft1, const FILETIME* ft2);
+
+MY_EXTERN_C DWORD GetCurrentThreadId();
+MY_EXTERN_C DWORD GetCurrentProcessId();
+
+#define MAX_PATH 1024
 
 #define CP_ACP    0
 #define CP_OEMCP  1
+#define CP_UTF8   65001
 
 typedef enum tagSTREAM_SEEK
 {
@@ -222,5 +234,35 @@ typedef enum tagSTREAM_SEEK
   STREAM_SEEK_END = 2
 } STREAM_SEEK;
 
-#endif
+
+
+typedef struct _SYSTEMTIME
+{
+  WORD wYear;
+  WORD wMonth;
+  WORD wDayOfWeek;
+  WORD wDay;
+  WORD wHour;
+  WORD wMinute;
+  WORD wSecond;
+  WORD wMilliseconds;
+} SYSTEMTIME;
+
+BOOL WINAPI FileTimeToLocalFileTime(const FILETIME *fileTime, FILETIME *localFileTime);
+BOOL WINAPI LocalFileTimeToFileTime(const FILETIME *localFileTime, FILETIME *fileTime);
+BOOL WINAPI FileTimeToSystemTime(const FILETIME *fileTime, SYSTEMTIME *systemTime);
+// VOID WINAPI GetSystemTimeAsFileTime(FILETIME *systemTimeAsFileTime);
+
+DWORD GetTickCount();
+
+
+#define CREATE_NEW          1
+#define CREATE_ALWAYS       2
+#define OPEN_EXISTING       3
+#define OPEN_ALWAYS         4
+#define TRUNCATE_EXISTING   5
+
+
+#endif // _WIN32
+
 #endif

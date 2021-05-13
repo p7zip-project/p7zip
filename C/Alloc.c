@@ -1,26 +1,14 @@
 /* Alloc.c -- Memory allocation functions
-2015-02-21 : Igor Pavlov : Public domain */
+2020-10-29 : Igor Pavlov : Public domain */
 
 #include "Precomp.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
 #include <stdio.h>
-#include <stdlib.h>
 
-#ifdef _7ZIP_LARGE_PAGES
-#ifdef __linux__
-#ifndef _7ZIP_ST
-#include <pthread.h>
+#ifdef _WIN32
+#include <Windows.h>
 #endif
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <mntent.h>
-#endif
-#endif
+#include <stdlib.h>
 
 #include "Alloc.h"
 
@@ -28,261 +16,189 @@
 
 /* use _SZ_ALLOC_DEBUG to debug alloc/free operations */
 #ifdef _SZ_ALLOC_DEBUG
+
 #include <stdio.h>
 int g_allocCount = 0;
 int g_allocCountMid = 0;
 int g_allocCountBig = 0;
-#endif
 
-#ifdef _7ZIP_ASM
-// #include <emmintrin.h>
-extern int posix_memalign (void **, size_t, size_t);
-void *align_alloc(size_t size)
+
+#define CONVERT_INT_TO_STR(charType, tempSize) \
+  unsigned char temp[tempSize]; unsigned i = 0; \
+  while (val >= 10) { temp[i++] = (unsigned char)('0' + (unsigned)(val % 10)); val /= 10; } \
+  *s++ = (charType)('0' + (unsigned)val); \
+  while (i != 0) { i--; *s++ = temp[i]; } \
+  *s = 0;
+
+static void ConvertUInt64ToString(UInt64 val, char *s)
 {
-  // return _mm_malloc(size,16);
-  void * ptr = 0;
-
-  if (posix_memalign (&ptr, 16, size) == 0)
-    return ptr;
-  else
-    return NULL;
+  CONVERT_INT_TO_STR(char, 24);
 }
 
-void align_free(void * ptr)
+#define GET_HEX_CHAR(t) ((char)(((t < 10) ? ('0' + t) : ('A' + (t - 10)))))
+
+static void ConvertUInt64ToHex(UInt64 val, char *s)
 {
-  // _mm_free(ptr);
-  free(ptr);
+  UInt64 v = val;
+  unsigned i;
+  for (i = 1;; i++)
+  {
+    v >>= 4;
+    if (v == 0)
+      break;
+  }
+  s[i] = 0;
+  do
+  {
+    unsigned t = (unsigned)(val & 0xF);
+    val >>= 4;
+    s[--i] = GET_HEX_CHAR(t);
+  }
+  while (i);
+}
+
+#define DEBUG_OUT_STREAM stderr
+
+static void Print(const char *s)
+{
+  fputs(s, DEBUG_OUT_STREAM);
+}
+
+static void PrintAligned(const char *s, size_t align)
+{
+  size_t len = strlen(s);
+  for(;;)
+  {
+    fputc(' ', DEBUG_OUT_STREAM);
+    if (len >= align)
+      break;
+    ++len;
+  }
+  Print(s);
+}
+
+static void PrintLn()
+{
+  Print("\n");
+}
+
+static void PrintHex(UInt64 v, size_t align)
+{
+  char s[32];
+  ConvertUInt64ToHex(v, s);
+  PrintAligned(s, align);
+}
+
+static void PrintDec(UInt64 v, size_t align)
+{
+  char s[32];
+  ConvertUInt64ToString(v, s);
+  PrintAligned(s, align);
+}
+
+static void PrintAddr(void *p)
+{
+  PrintHex((UInt64)(size_t)(ptrdiff_t)p, 12);
 }
 
 
+#define PRINT_ALLOC(name, cnt, size, ptr) \
+    Print(name " "); \
+    PrintDec(cnt++, 10); \
+    PrintHex(size, 10); \
+    PrintAddr(ptr); \
+    PrintLn();
+ 
+#define PRINT_FREE(name, cnt, ptr) if (ptr) { \
+    Print(name " "); \
+    PrintDec(--cnt, 10); \
+    PrintAddr(ptr); \
+    PrintLn(); }
+ 
 #else
-void *align_alloc(size_t size)
-{
-    return malloc(size);
-}
 
-void align_free(void * ptr)
-{
-  free(ptr);
-}
+#define PRINT_ALLOC(name, cnt, size, ptr)
+#define PRINT_FREE(name, cnt, ptr)
+#define Print(s)
+#define PrintLn()
+#define PrintHex(v, align)
+#define PrintAddr(p)
 
 #endif
+
+
 
 void *MyAlloc(size_t size)
 {
   if (size == 0)
-    return 0;
+    return NULL;
+  PRINT_ALLOC("Alloc    ", g_allocCount, size, NULL);
   #ifdef _SZ_ALLOC_DEBUG
   {
-    void *p = align_alloc(size);
-    fprintf(stderr, "\nAlloc %10d bytes, count = %10d,  addr = %8X", size, g_allocCount++, (long long)p);
+    void *p = malloc(size);
+    // PRINT_ALLOC("Alloc    ", g_allocCount, size, p);
     return p;
   }
   #else
-  return align_alloc(size);
+  return malloc(size);
   #endif
 }
 
 void MyFree(void *address)
 {
-  #ifdef _SZ_ALLOC_DEBUG
-  if (address != 0)
-    fprintf(stderr, "\nFree; count = %10d,  addr = %8X", --g_allocCount, (long long)address);
-  #endif
-  align_free(address);
+  PRINT_FREE("Free    ", g_allocCount, address);
+  
+  free(address);
 }
 
-#ifndef _WIN32
-
-#ifdef _7ZIP_LARGE_PAGES
-
-#ifdef __linux__
-#define _7ZIP_MAX_HUGE_ALLOCS 64
-static void *g_HugePageAddr[_7ZIP_MAX_HUGE_ALLOCS] = { NULL };
-static size_t g_HugePageLen[_7ZIP_MAX_HUGE_ALLOCS];
-static char *g_HugetlbPath;
-#endif
-
-#endif
-
-#ifdef _7ZIP_LARGE_PAGES
-static void *VirtualAlloc(size_t size, int memLargePages)
-{
-  if (memLargePages)
-  {
-    #ifdef __linux__
-    /* huge pages support for Linux; added by Joachim Henke */
-    #ifndef _7ZIP_ST
-    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-    #endif
-    int i;
-
-    void * address = NULL;
-    #ifndef _7ZIP_ST
-    pthread_mutex_lock(&mutex);
-    #endif
-    for (i = 0; i < _7ZIP_MAX_HUGE_ALLOCS; ++i)
-    {
-      if (g_HugePageAddr[i] == NULL)
-      {
-        int fd, pathlen = strlen(g_HugetlbPath);
-        char tempname[pathlen+12];
-
-        memcpy(tempname, g_HugetlbPath, pathlen);
-        memcpy(tempname + pathlen, "/7z-XXXXXX", 11);
-        fd = mkstemp(tempname);
-        unlink(tempname);
-        if (fd < 0)
-        {
-          fprintf(stderr,"cant't open %s (%s)\n",tempname,strerror(errno));
-          break;
-        }
-        address = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-        close(fd);
-        if (address == MAP_FAILED)
-        {
-          address = NULL;
-          break;
-        }
-        g_HugePageLen[i] = size;
-        g_HugePageAddr[i] = address;
-// fprintf(stderr,"HUGE[%d]=%ld %p\n",i,(long)size,address);
-        break;
-      }
-    }
-    #ifndef _7ZIP_ST
-    pthread_mutex_unlock(&mutex);
-    #endif
-    return address;
-    #endif
-  }
-  return align_alloc(size);
-}
-#else
-static void *VirtualAlloc(size_t size, int memLargePages )
-{
-  return align_alloc(size);
-}
-#endif
-
-static int VirtualFree(void *address)
-{
-  #ifdef _7ZIP_LARGE_PAGES
-  #ifdef __linux__
-  int i;
-
-  for (i = 0; i < _7ZIP_MAX_HUGE_ALLOCS; ++i)
-  {
-    if (g_HugePageAddr[i] == address)
-    {
-      munmap(address, g_HugePageLen[i]);
-      g_HugePageAddr[i] = NULL;
-      return 1;
-    }
-  }
-  #endif
-  #endif
-  align_free(address);
-  return 1;
-}
-
-#endif
+#ifdef _WIN32
 
 void *MidAlloc(size_t size)
 {
   if (size == 0)
-    return 0;
-  #ifdef _SZ_ALLOC_DEBUG
-  fprintf(stderr, "\nAlloc_Mid %10d bytes;  count = %10d", size, g_allocCountMid++);
-  #endif
-  return VirtualAlloc(size, 0);
+    return NULL;
+  
+  PRINT_ALLOC("Alloc-Mid", g_allocCountMid, size, NULL);
+  
+  return VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_READWRITE);
 }
 
 void MidFree(void *address)
 {
-  #ifdef _SZ_ALLOC_DEBUG
-  if (address != 0)
-    fprintf(stderr, "\nFree_Mid; count = %10d", --g_allocCountMid);
-  #endif
-  if (address == 0)
+  PRINT_FREE("Free-Mid", g_allocCountMid, address);
+
+  if (!address)
     return;
-  VirtualFree(address);
+  VirtualFree(address, 0, MEM_RELEASE);
 }
 
 #ifdef _7ZIP_LARGE_PAGES
-size_t g_LargePageSize = 0;
-#ifdef _WIN32
-typedef SIZE_T (WINAPI *GetLargePageMinimumP)();
-#elif defined(__linux__)
-size_t largePageMinimum()
-{
-  size_t size;
 
-  g_HugetlbPath = getenv("HUGETLB_PATH");
-
-  if (g_HugetlbPath == NULL)
-  {
-    // not defined => try to find out the directory
-    static char dir_hugetlbfs[1024];
-    const char * filename = "/etc/mtab"; // mounted filesystems
-    FILE *fp;
-    struct mntent * info;
-
-    dir_hugetlbfs[0]=0;
-
-    fp = setmntent(filename,"r");
-    if (fp)
-    {
-      info = getmntent(fp);
-      while(info)
-      {
-/*
-        printf("%s:\n",info->mnt_fsname);
-        printf("  dir='%s'\n",info->mnt_dir);
-        printf("  type='%s'\n",info->mnt_type);
-*/
-
-        if (strcmp(info->mnt_type,"hugetlbfs") == 0)
-        {
-          strcpy(dir_hugetlbfs,info->mnt_dir);
-          break;
-        }
-
-        info = getmntent(fp);
-      }
-      endmntent(fp);
-    }
-
-    if (dir_hugetlbfs[0])
-    {
-      g_HugetlbPath = dir_hugetlbfs;
-      // fprintf(stderr," Found hugetlbfs = '%s'\n",g_HugetlbPath);
-    }
-  }
-  if (g_HugetlbPath == NULL || (size = pathconf(g_HugetlbPath, _PC_REC_MIN_XFER_SIZE)) <= getpagesize())
-    return 0;
-  return size;
-}
+#ifdef MEM_LARGE_PAGES
+  #define MY__MEM_LARGE_PAGES  MEM_LARGE_PAGES
 #else
-#define largePageMinimum() 0
+  #define MY__MEM_LARGE_PAGES  0x20000000
 #endif
-#endif
+
+extern
+SIZE_T g_LargePageSize;
+SIZE_T g_LargePageSize = 0;
+typedef SIZE_T (WINAPI *GetLargePageMinimumP)(VOID);
+
+#endif // _7ZIP_LARGE_PAGES
 
 void SetLargePageSize()
 {
   #ifdef _7ZIP_LARGE_PAGES
-  size_t size;
-  #ifdef _WIN32
+  SIZE_T size;
   GetLargePageMinimumP largePageMinimum = (GetLargePageMinimumP)
         GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "GetLargePageMinimum");
-  if (largePageMinimum == 0)
+  if (!largePageMinimum)
     return;
-  #endif
   size = largePageMinimum();
   if (size == 0 || (size & (size - 1)) != 0)
     return;
   g_LargePageSize = size;
-  // fprintf(stderr,"SetLargePageSize : %ld\n",(long)g_LargePageSize);
   #endif
 }
 
@@ -290,39 +206,258 @@ void SetLargePageSize()
 void *BigAlloc(size_t size)
 {
   if (size == 0)
-    return 0;
-  #ifdef _SZ_ALLOC_DEBUG
-  fprintf(stderr, "\nAlloc_Big %10d bytes;  count = %10d", size, g_allocCountBig++);
-  #endif
+    return NULL;
 
+  PRINT_ALLOC("Alloc-Big", g_allocCountBig, size, NULL);
+  
   #ifdef _7ZIP_LARGE_PAGES
-  if (g_LargePageSize != 0 && g_LargePageSize <= (1 << 30) && size >= (1 << 18))
   {
-    void *res = VirtualAlloc( (size + g_LargePageSize - 1) & (~(g_LargePageSize - 1)), 1);
-    if (res != 0)
-      return res;
+    SIZE_T ps = g_LargePageSize;
+    if (ps != 0 && ps <= (1 << 30) && size > (ps / 2))
+    {
+      size_t size2;
+      ps--;
+      size2 = (size + ps) & ~ps;
+      if (size2 >= size)
+      {
+        void *res = VirtualAlloc(NULL, size2, MEM_COMMIT | MY__MEM_LARGE_PAGES, PAGE_READWRITE);
+        if (res)
+          return res;
+      }
+    }
   }
   #endif
-  return VirtualAlloc(size, 0);
+
+  return VirtualAlloc(NULL, size, MEM_COMMIT, PAGE_READWRITE);
 }
 
 void BigFree(void *address)
 {
-  #ifdef _SZ_ALLOC_DEBUG
-  if (address != 0)
-    fprintf(stderr, "\nFree_Big; count = %10d", --g_allocCountBig);
-  #endif
-
-  if (address == 0)
+  PRINT_FREE("Free-Big", g_allocCountBig, address);
+  
+  if (!address)
     return;
-  VirtualFree(address);
+  VirtualFree(address, 0, MEM_RELEASE);
 }
+
+#endif
+
 
 static void *SzAlloc(ISzAllocPtr p, size_t size) { UNUSED_VAR(p); return MyAlloc(size); }
 static void SzFree(ISzAllocPtr p, void *address) { UNUSED_VAR(p); MyFree(address); }
-ISzAlloc g_Alloc = { SzAlloc, SzFree };
+const ISzAlloc g_Alloc = { SzAlloc, SzFree };
+
+static void *SzMidAlloc(ISzAllocPtr p, size_t size) { UNUSED_VAR(p); return MidAlloc(size); }
+static void SzMidFree(ISzAllocPtr p, void *address) { UNUSED_VAR(p); MidFree(address); }
+const ISzAlloc g_MidAlloc = { SzMidAlloc, SzMidFree };
 
 static void *SzBigAlloc(ISzAllocPtr p, size_t size) { UNUSED_VAR(p); return BigAlloc(size); }
 static void SzBigFree(ISzAllocPtr p, void *address) { UNUSED_VAR(p); BigFree(address); }
-ISzAlloc g_BigAlloc = { SzBigAlloc, SzBigFree };
+const ISzAlloc g_BigAlloc = { SzBigAlloc, SzBigFree };
 
+
+/*
+  uintptr_t : <stdint.h> C99 (optional)
+            : unsupported in VS6
+*/
+
+#ifdef _WIN32
+  typedef UINT_PTR UIntPtr;
+#else
+  /*
+  typedef uintptr_t UIntPtr;
+  */
+  typedef ptrdiff_t UIntPtr;
+#endif
+
+
+#define ADJUST_ALLOC_SIZE 0
+/*
+#define ADJUST_ALLOC_SIZE (sizeof(void *) - 1)
+*/
+/*
+  Use (ADJUST_ALLOC_SIZE = (sizeof(void *) - 1)), if
+     MyAlloc() can return address that is NOT multiple of sizeof(void *).
+*/
+
+
+/*
+#define MY_ALIGN_PTR_DOWN(p, align) ((void *)((char *)(p) - ((size_t)(UIntPtr)(p) & ((align) - 1))))
+*/
+#define MY_ALIGN_PTR_DOWN(p, align) ((void *)((((UIntPtr)(p)) & ~((UIntPtr)(align) - 1))))
+
+
+#if !defined(_WIN32) && defined(_POSIX_C_SOURCE) && (_POSIX_C_SOURCE >= 200112L)
+  #define USE_posix_memalign
+#endif
+
+#ifndef USE_posix_memalign
+#define MY_ALIGN_PTR_UP_PLUS(p, align) MY_ALIGN_PTR_DOWN(((char *)(p) + (align) + ADJUST_ALLOC_SIZE), align)
+#endif
+
+/*
+  This posix_memalign() is for test purposes only.
+  We also need special Free() function instead of free(),
+  if this posix_memalign() is used.
+*/
+
+/*
+static int posix_memalign(void **ptr, size_t align, size_t size)
+{
+  size_t newSize = size + align;
+  void *p;
+  void *pAligned;
+  *ptr = NULL;
+  if (newSize < size)
+    return 12; // ENOMEM
+  p = MyAlloc(newSize);
+  if (!p)
+    return 12; // ENOMEM
+  pAligned = MY_ALIGN_PTR_UP_PLUS(p, align);
+  ((void **)pAligned)[-1] = p;
+  *ptr = pAligned;
+  return 0;
+}
+*/
+
+/*
+  ALLOC_ALIGN_SIZE >= sizeof(void *)
+  ALLOC_ALIGN_SIZE >= cache_line_size
+*/
+
+#define ALLOC_ALIGN_SIZE ((size_t)1 << 7)
+
+static void *SzAlignedAlloc(ISzAllocPtr pp, size_t size)
+{
+  #ifndef USE_posix_memalign
+  
+  void *p;
+  void *pAligned;
+  size_t newSize;
+  UNUSED_VAR(pp);
+
+  /* also we can allocate additional dummy ALLOC_ALIGN_SIZE bytes after aligned
+     block to prevent cache line sharing with another allocated blocks */
+
+  newSize = size + ALLOC_ALIGN_SIZE * 1 + ADJUST_ALLOC_SIZE;
+  if (newSize < size)
+    return NULL;
+
+  p = MyAlloc(newSize);
+  
+  if (!p)
+    return NULL;
+  pAligned = MY_ALIGN_PTR_UP_PLUS(p, ALLOC_ALIGN_SIZE);
+
+  Print(" size="); PrintHex(size, 8);
+  Print(" a_size="); PrintHex(newSize, 8);
+  Print(" ptr="); PrintAddr(p);
+  Print(" a_ptr="); PrintAddr(pAligned);
+  PrintLn();
+
+  ((void **)pAligned)[-1] = p;
+
+  return pAligned;
+
+  #else
+
+  void *p;
+  UNUSED_VAR(pp);
+  if (posix_memalign(&p, ALLOC_ALIGN_SIZE, size))
+    return NULL;
+
+  Print(" posix_memalign="); PrintAddr(p);
+  PrintLn();
+
+  return p;
+
+  #endif
+}
+
+
+static void SzAlignedFree(ISzAllocPtr pp, void *address)
+{
+  UNUSED_VAR(pp);
+  #ifndef USE_posix_memalign
+  if (address)
+    MyFree(((void **)address)[-1]);
+  #else
+  free(address);
+  #endif
+}
+
+
+const ISzAlloc g_AlignedAlloc = { SzAlignedAlloc, SzAlignedFree };
+
+
+
+#define MY_ALIGN_PTR_DOWN_1(p) MY_ALIGN_PTR_DOWN(p, sizeof(void *))
+
+/* we align ptr to support cases where CAlignOffsetAlloc::offset is not multiply of sizeof(void *) */
+#define REAL_BLOCK_PTR_VAR(p) ((void **)MY_ALIGN_PTR_DOWN_1(p))[-1]
+/*
+#define REAL_BLOCK_PTR_VAR(p) ((void **)(p))[-1]
+*/
+
+static void *AlignOffsetAlloc_Alloc(ISzAllocPtr pp, size_t size)
+{
+  CAlignOffsetAlloc *p = CONTAINER_FROM_VTBL(pp, CAlignOffsetAlloc, vt);
+  void *adr;
+  void *pAligned;
+  size_t newSize;
+  size_t extra;
+  size_t alignSize = (size_t)1 << p->numAlignBits;
+
+  if (alignSize < sizeof(void *))
+    alignSize = sizeof(void *);
+  
+  if (p->offset >= alignSize)
+    return NULL;
+
+  /* also we can allocate additional dummy ALLOC_ALIGN_SIZE bytes after aligned
+     block to prevent cache line sharing with another allocated blocks */
+  extra = p->offset & (sizeof(void *) - 1);
+  newSize = size + alignSize + extra + ADJUST_ALLOC_SIZE;
+  if (newSize < size)
+    return NULL;
+
+  adr = ISzAlloc_Alloc(p->baseAlloc, newSize);
+  
+  if (!adr)
+    return NULL;
+
+  pAligned = (char *)MY_ALIGN_PTR_DOWN((char *)adr +
+      alignSize - p->offset + extra + ADJUST_ALLOC_SIZE, alignSize) + p->offset;
+
+  PrintLn();
+  Print("- Aligned: ");
+  Print(" size="); PrintHex(size, 8);
+  Print(" a_size="); PrintHex(newSize, 8);
+  Print(" ptr="); PrintAddr(adr);
+  Print(" a_ptr="); PrintAddr(pAligned);
+  PrintLn();
+
+  REAL_BLOCK_PTR_VAR(pAligned) = adr;
+
+  return pAligned;
+}
+
+
+static void AlignOffsetAlloc_Free(ISzAllocPtr pp, void *address)
+{
+  if (address)
+  {
+    CAlignOffsetAlloc *p = CONTAINER_FROM_VTBL(pp, CAlignOffsetAlloc, vt);
+    PrintLn();
+    Print("- Aligned Free: ");
+    PrintLn();
+    ISzAlloc_Free(p->baseAlloc, REAL_BLOCK_PTR_VAR(address));
+  }
+}
+
+
+void AlignOffsetAlloc_CreateVTable(CAlignOffsetAlloc *p)
+{
+  p->vt.Alloc = AlignOffsetAlloc_Alloc;
+  p->vt.Free = AlignOffsetAlloc_Free;
+}

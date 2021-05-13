@@ -2,6 +2,8 @@
 
 #include "StdAfx.h"
 
+#include "../../../../C/CpuArch.h"
+
 #include "../../../Common/MyWindows.h"
 
 #include "../../../Common/MyInitGuid.h"
@@ -11,10 +13,10 @@
 
 #ifdef _WIN32
 #include "../../../Windows/DLL.h"
-#include "../../../Windows/FileDir.h"
 #else
-#include "myPrivate.h"
+#include "../../../Common/StringConvert.h"
 #endif
+#include "../../../Windows/FileDir.h"
 #include "../../../Windows/FileName.h"
 
 #include "../../UI/Common/ExitCode.h"
@@ -26,9 +28,11 @@
 
 #include "../../MyVersion.h"
 
+#include "../../../../C/DllSecur.h"
+
 using namespace NWindows;
 using namespace NFile;
-// FIXME using namespace NDir;
+using namespace NDir;
 using namespace NCommandLineParser;
 
 #ifdef _WIN32
@@ -37,8 +41,8 @@ HINSTANCE g_hInstance = 0;
 int g_CodePage = -1;
 extern CStdOutStream *g_StdStream;
 
-static const char *kCopyrightString =
-"\n7-Zip SFX " MY_VERSION_COPYRIGHT_DATE "\n";
+static const char * const kCopyrightString =
+"\n7-Zip SFX " MY_VERSION_CPU " : " MY_COPYRIGHT_DATE "\n";
 
 static const int kNumSwitches = 6;
 
@@ -65,7 +69,6 @@ enum EEnum
 }
 /*
 static const char kRecursedIDChar = 'R';
-static const wchar_t *kRecursedPostCharSet = L"0-";
 
 namespace NRecursedPostCharIndex {
   enum EEnum
@@ -81,14 +84,20 @@ static const char kImmediateNameID = '!';
 static const char kSomeCludePostStringMinSize = 2; // at least <@|!><N>ame must be
 static const char kSomeCludeAfterRecursedPostStringMinSize = 2; // at least <@|!><N>ame must be
 */
+
+#define SWFRM_3(t, mu, mi) t, mu, mi, NULL
+#define SWFRM_1(t)     SWFRM_3(t, false, 0)
+#define SWFRM_SIMPLE   SWFRM_1(NSwitchType::kSimple)
+#define SWFRM_STRING_SINGL(mi) SWFRM_3(NSwitchType::kString, false, mi)
+
 static const CSwitchForm kSwitchForms[kNumSwitches] =
 {
-  { "?",  NSwitchType::kSimple },
-  { "H",  NSwitchType::kSimple },
-  { "BD", NSwitchType::kSimple },
-  { "Y",  NSwitchType::kSimple },
-  { "P",  NSwitchType::kString, false, 1 },
-  { "O",  NSwitchType::kString, false, 1 },
+  { "?",  SWFRM_SIMPLE },
+  { "H",  SWFRM_SIMPLE },
+  { "BD", SWFRM_SIMPLE },
+  { "Y",  SWFRM_SIMPLE },
+  { "P",  SWFRM_STRING_SINGL(1) },
+  { "O",  SWFRM_STRING_SINGL(1) },
 };
 
 static const int kNumCommandForms = 3;
@@ -101,11 +110,10 @@ static const NRecursedType::EEnum kCommandRecursedDefault[kNumCommandForms] =
 // static const bool kTestExtractRecursedDefault = true;
 // static const bool kAddRecursedDefault = false;
 
-static const wchar_t *kUniversalWildcard = L"*";
-static const int kCommandIndex = 0;
+static const char * const kUniversalWildcard = "*";
 
-static const char *kHelpString =
-    "\nUsage: 7zSFX [<command>] [<switches>...]\n"
+static const char * const kHelpString =
+    "\nUsage: 7zSFX [<command>] [<switches>...] [<file_name>...]\n"
     "\n"
     "<Commands>\n"
     // "  l: List contents of archive\n"
@@ -121,16 +129,16 @@ static const char *kHelpString =
 // ---------------------------
 // exception messages
 
-static const char *kUserErrorMessage  = "Incorrect command line"; // NExitCode::kUserError
-// static const char *kIncorrectListFile = "Incorrect wildcard in listfile";
-static const char *kIncorrectWildcardInCommandLine  = "Incorrect wildcard in command line";
+static const char * const kUserErrorMessage  = "Incorrect command line"; // NExitCode::kUserError
+// static const char * const kIncorrectListFile = "Incorrect wildcard in listfile";
+static const char * const kIncorrectWildcardInCommandLine  = "Incorrect wildcard in command line";
 
 // static const CSysString kFileIsNotArchiveMessageBefore = "File \"";
 // static const CSysString kFileIsNotArchiveMessageAfter = "\" is not archive";
 
-// static const char *kProcessArchiveMessage = " archive: ";
+// static const char * const kProcessArchiveMessage = " archive: ";
 
-static const char *kCantFindSFX = " cannot find sfx";
+static const char * const kCantFindSFX = " cannot find sfx";
 
 namespace NCommandType
 {
@@ -151,7 +159,7 @@ struct CArchiveCommand
   NRecursedType::EEnum DefaultRecursedType() const;
 };
 
-bool ParseArchiveCommand(const UString &commandString, CArchiveCommand &command)
+static bool ParseArchiveCommand(const UString &commandString, CArchiveCommand &command)
 {
   UString s = commandString;
   s.MakeLower_Ascii();
@@ -171,17 +179,19 @@ NRecursedType::EEnum CArchiveCommand::DefaultRecursedType() const
   return kCommandRecursedDefault[CommandType];
 }
 
-void PrintHelp(void)
+static void PrintHelp(void)
 {
   g_StdOut << kHelpString;
 }
 
+MY_ATTR_NORETURN
 static void ShowMessageAndThrowException(const char *message, NExitCode::EEnum code)
 {
   g_StdOut << message << endl;
   throw code;
 }
 
+MY_ATTR_NORETURN
 static void PrintHelpAndExit() // yyy
 {
   PrintHelp();
@@ -217,23 +227,16 @@ static bool AddNameToCensor(NWildcard::CCensor &wildcardCensor,
   return true;
 }
 
-void AddCommandLineWildcardToCensor(NWildcard::CCensor &wildcardCensor,
+static void AddCommandLineWildcardToCensor(NWildcard::CCensor &wildcardCensor,
     const UString &name, bool include, NRecursedType::EEnum type)
 {
   if (!AddNameToCensor(wildcardCensor, name, include, type))
     ShowMessageAndThrowException(kIncorrectWildcardInCommandLine, NExitCode::kUserError);
 }
 
-void AddToCensorFromNonSwitchesStrings(NWildcard::CCensor &wildcardCensor,
-    const UStringVector & /* nonSwitchStrings */, NRecursedType::EEnum type,
-    bool /* thereAreSwitchIncludeWildcards */)
-{
-  AddCommandLineWildcardToCensor(wildcardCensor, kUniversalWildcard, true, type);
-}
 
-
-#if 0 // #ifndef _WIN32
-static void GetArguments(int numArgs, const char *args[], UStringVector &parts)
+#ifndef _WIN32
+static void GetArguments(int numArgs, char *args[], UStringVector &parts)
 {
   parts.Clear();
   for (int i = 0; i < numArgs; i++)
@@ -244,24 +247,38 @@ static void GetArguments(int numArgs, const char *args[], UStringVector &parts)
 }
 #endif
 
+
+int Main2(
+  #ifndef _WIN32
+  int numArgs, char *args[]
+  #endif
+);
 int Main2(
   #ifndef _WIN32
   int numArgs, char *args[]
   #endif
 )
 {
+  #ifdef _WIN32
+  // do we need load Security DLLs for console program?
+  LoadSecurityDlls();
+  #endif
+
   #if defined(_WIN32) && !defined(UNDER_CE)
   SetFileApisToOEM();
   #endif
   
+  #ifdef ENV_HAVE_LOCALE
+  MY_SetLocale();
+  #endif
+
   g_StdOut << kCopyrightString;
 
   UStringVector commandStrings;
   #ifdef _WIN32
   NCommandLineParser::SplitCommandLine(GetCommandLineW(), commandStrings);
   #else
-  // GetArguments(numArgs, args, commandStrings);
-  mySplitCommandLine(numArgs,args,commandStrings);
+  GetArguments(numArgs, args, commandStrings);
   #endif
 
   #ifdef _WIN32
@@ -278,19 +295,30 @@ int Main2(
   }
 
   #else
-  // After mySplitCommandLine
-  showP7zipInfo(&g_StdOut);
 
-  UString arcPath = commandStrings.Front();
+  if (commandStrings.IsEmpty())
+    return NExitCode::kFatalError;
+
+  const FString arcPath = us2fs(commandStrings.Front());
 
   #endif
 
-  commandStrings.Delete(0);
+  #ifndef UNDER_CE
+  if (commandStrings.Size() > 0)
+    commandStrings.Delete(0);
+  #endif
 
-  NCommandLineParser::CParser parser(kNumSwitches);
+  NCommandLineParser::CParser parser;
+  
   try
   {
-    parser.ParseStrings(kSwitchForms, commandStrings);
+    if (!parser.ParseStrings(kSwitchForms, kNumSwitches, commandStrings))
+    {
+      g_StdOut << "Command line error:" << endl
+          << parser.ErrorMessage << endl
+          << parser.ErrorLine << endl;
+      return NExitCode::kUserError;
+    }
   }
   catch(...)
   {
@@ -302,19 +330,23 @@ int Main2(
     PrintHelp();
     return 0;
   }
+  
   const UStringVector &nonSwitchStrings = parser.NonSwitchStrings;
 
-  int numNonSwitchStrings = nonSwitchStrings.Size();
+  unsigned curCommandIndex = 0;
 
   CArchiveCommand command;
-  if (numNonSwitchStrings == 0)
+  if (nonSwitchStrings.IsEmpty())
     command.CommandType = NCommandType::kFullExtract;
   else
   {
-    if (numNonSwitchStrings > 1)
-      PrintHelpAndExit();
-    if (!ParseArchiveCommand(nonSwitchStrings[kCommandIndex], command))
-      PrintHelpAndExit();
+    const UString &cmd = nonSwitchStrings[curCommandIndex];
+    if (!ParseArchiveCommand(cmd, command))
+    {
+      g_StdOut << "ERROR: Unknown command:" << endl << cmd << endl;
+      return NExitCode::kUserError;
+    }
+    curCommandIndex = 1;
   }
 
 
@@ -323,11 +355,17 @@ int Main2(
 
   NWildcard::CCensor wildcardCensor;
   
-  bool thereAreSwitchIncludeWildcards;
-  thereAreSwitchIncludeWildcards = false;
-
-  AddToCensorFromNonSwitchesStrings(wildcardCensor, nonSwitchStrings, recursedType,
-      thereAreSwitchIncludeWildcards);
+  {
+    if (nonSwitchStrings.Size() == curCommandIndex)
+      AddCommandLineWildcardToCensor(wildcardCensor, (UString)kUniversalWildcard, true, recursedType);
+    for (; curCommandIndex < nonSwitchStrings.Size(); curCommandIndex++)
+    {
+      const UString &s = nonSwitchStrings[curCommandIndex];
+      if (s.IsEmpty())
+        throw "Empty file path";
+      AddCommandLineWildcardToCensor(wildcardCensor, s, true, recursedType);
+    }
+  }
 
   bool yesToAll = parser[NKey::kYes].ThereIs;
 
@@ -340,7 +378,7 @@ int Main2(
   if (passwordEnabled)
     password = parser[NKey::kPassword].PostStrings[0];
 
-  if (!NFind::DoesFileExist(arcPath))
+  if (!NFind::DoesFileExist_FollowLink(arcPath))
     throw kCantFindSFX;
   
   FString outputDir;

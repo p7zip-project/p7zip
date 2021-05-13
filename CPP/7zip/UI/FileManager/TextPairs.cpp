@@ -98,7 +98,7 @@ static int ComparePairItems(const CTextPair &p1, const CTextPair &p2)
   { return ComparePairIDs(p1.ID, p2.ID); }
 
 static int ComparePairItems(void *const *a1, void *const *a2, void * /* param */)
-  { return ComparePairItems(**(const CTextPair **)a1, **(const CTextPair **)a2); }
+  { return ComparePairItems(**(const CTextPair *const *)a1, **(const CTextPair *const *)a2); }
 
 void CPairsStorage::Sort() { Pairs.Sort(ComparePairItems, 0); }
 
@@ -178,13 +178,13 @@ void CPairsStorage::SaveToString(UString &text) const
     const CTextPair &pair = Pairs[i];
     bool multiWord = (pair.ID.Find(L' ') >= 0);
     if (multiWord)
-      text += L'\"';
+      text += '\"';
     text += pair.ID;
     if (multiWord)
-      text += L'\"';
-    text += L' ';
+      text += '\"';
+    text += ' ';
     text += pair.Value;
-    text += L'\x0D';
+    text += '\x0D';
     text.Add_LF();
   }
 }

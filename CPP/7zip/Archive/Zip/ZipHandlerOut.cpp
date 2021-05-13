@@ -53,7 +53,7 @@ static int FindZipMethod(const char *s, const char * const *names, unsigned num)
   {
     const char *name = names[i];
     if (name && StringsAreEqualNoCase_Ascii(s, name))
-      return i;
+      return (int)i;
   }
   return -1;
 }
@@ -65,7 +65,7 @@ static int FindZipMethod(const char *s)
     return k;
   k = FindZipMethod(s, kMethodNames2, kNumMethodNames2);
   if (k >= 0)
-    return kMethodNames2Start + k;
+    return (int)kMethodNames2Start + k;
   return -1;
 }
 
@@ -75,7 +75,7 @@ static int FindZipMethod(const char *s)
 catch(const CSystemException &e) { return e.ErrorCode; } \
 catch(...) { return E_OUTOFMEMORY; }
 
-static HRESULT GetTime(IArchiveUpdateCallback *callback, int index, PROPID propID, FILETIME &filetime)
+static HRESULT GetTime(IArchiveUpdateCallback *callback, unsigned index, PROPID propID, FILETIME &filetime)
 {
   filetime.dwHighDateTime = filetime.dwLowDateTime = 0;
   NCOM::CPropVariant prop;
@@ -106,6 +106,10 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
   UInt64 largestSize = 0;
   bool largestSizeDefined = false;
 
+  #ifdef _WIN32
+  const UINT oemCP = GetOEMCP();
+  #endif
+
   UString name;
   CUpdateItem ui;
 
@@ -125,7 +129,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
 
     ui.NewProps = IntToBool(newProps);
     ui.NewData = IntToBool(newData);
-    ui.IndexInArc = indexInArc;
+    ui.IndexInArc = (int)indexInArc;
     ui.IndexInClient = i;
     
     bool existInArchive = (indexInArc != (UInt32)(Int32)-1);
@@ -136,6 +140,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
         thereAreAesUpdates = true;
       if (!IntToBool(newProps))
         ui.IsDir = inputItem.IsDir();
+      // ui.IsAltStream = inputItem.IsAltStream();
     }
 
     if (IntToBool(newProps))
@@ -175,6 +180,33 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
           ui.IsDir = (prop.boolVal != VARIANT_FALSE);
       }
 
+      /*
+      {
+        bool isAltStream = false;
+        {
+          NCOM::CPropVariant prop;
+          RINOK(callback->GetProperty(i, kpidIsAltStream, &prop));
+          if (prop.vt == VT_BOOL)
+            isAltStream = (prop.boolVal != VARIANT_FALSE);
+          else if (prop.vt != VT_EMPTY)
+            return E_INVALIDARG;
+        }
+      
+        if (isAltStream)
+        {
+          if (ui.IsDir)
+            return E_INVALIDARG;
+          int delim = name.ReverseFind(L':');
+          if (delim >= 0)
+          {
+            name.Delete(delim, 1);
+            name.Insert(delim, UString(k_SpecName_NTFS_STREAM));
+            ui.IsAltStream = true;
+          }
+        }
+      }
+      */
+
       {
         CPropVariant prop;
         RINOK(callback->GetProperty(i, kpidTimeType, &prop));
@@ -212,30 +244,52 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
       if (needSlash)
         name += kSlash;
 
-      UINT codePage = _forceCodePage ? _specifiedCodePage : CP_OEMCP;
-
+      const UINT codePage = _forceCodePage ? _specifiedCodePage : CP_OEMCP;
       bool tryUtf8 = true;
-      if ((m_ForceLocal || !m_ForceUtf8) && codePage != CP_UTF8)
+
+      /*
+        Windows 10 allows users to set UTF-8 in Region Settings via option:
+        "Beta: Use Unicode UTF-8 for worldwide language support"
+        In that case Windows uses CP_UTF8 when we use CP_OEMCP.
+        21.02 fixed:
+          we set UTF-8 mark for non-latin files for such UTF-8 mode in Windows.
+          we write additional Info-Zip Utf-8 FileName Extra for non-latin names/
+      */
+
+      if ((codePage != CP_UTF8) &&
+        #ifdef _WIN32
+          (m_ForceLocal || !m_ForceUtf8) && (oemCP != CP_UTF8)
+        #else
+          (m_ForceLocal && !m_ForceUtf8)
+        #endif
+        )
       {
-#ifdef _WIN32
         bool defaultCharWasUsed;
         ui.Name = UnicodeStringToMultiByte(name, codePage, '_', defaultCharWasUsed);
         tryUtf8 = (!m_ForceLocal && (defaultCharWasUsed ||
           MultiByteToUnicodeString(ui.Name, codePage) != name));
-#else
-	// FIXME
-        ui.Name = UnicodeStringToMultiByte(name, CP_OEMCP);
-        tryUtf8 = (!m_ForceLocal);
-#endif
       }
+
+      const bool isNonLatin = !name.IsAscii();
 
       if (tryUtf8)
       {
-        ui.IsUtf8 = !name.IsAscii();
+        ui.IsUtf8 = isNonLatin;
         ConvertUnicodeToUTF8(name, ui.Name);
-      }
 
-      if (ui.Name.Len() >= (1 << 16))
+        #ifndef _WIN32
+        if (ui.IsUtf8 && !CheckUTF8_AString(ui.Name))
+        {
+          // if it's non-Windows and there are non-UTF8 characters we clear UTF8-flag
+          ui.IsUtf8 = false;
+        }
+        #endif
+      }
+      else if (isNonLatin)
+        Convert_Unicode_To_UTF8_Buf(name, ui.Name_Utf);
+
+      if (ui.Name.Len() >= (1 << 16)
+          || ui.Name_Utf.Size() >= (1 << 16) - 128)
         return E_INVALIDARG;
 
       {
@@ -256,7 +310,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
           else
           {
             bool defaultCharWasUsed;
-            a = UnicodeStringToMultiByte(s, codePage);   // , '_', defaultCharWasUsed);
+            a = UnicodeStringToMultiByte(s, codePage, '_', defaultCharWasUsed);
           }
           if (a.Len() >= (1 << 16))
             return E_INVALIDARG;
@@ -315,10 +369,10 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
   options._dataSizeReduceDefined = largestSizeDefined;
 
   options.PasswordIsDefined = false;
-  options.Password.Empty();
+  options.Password.Wipe_and_Empty();
   if (getTextPassword)
   {
-    CMyComBSTR password;
+    CMyComBSTR_Wipe password;
     Int32 passwordIsDefined;
     RINOK(getTextPassword->CryptoGetTextPassword2(&passwordIsDefined, &password));
     options.PasswordIsDefined = IntToBool(passwordIsDefined);
@@ -330,7 +384,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
       if (!IsSimpleAsciiString(password))
         return E_INVALIDARG;
       if (password)
-        options.Password = UnicodeStringToMultiByte((LPCOLESTR)password, CP_OEMCP);
+        UnicodeStringToMultiByte2(options.Password, (LPCOLESTR)password, CP_OEMCP);
       if (options.IsAesMode)
       {
         if (options.Password.Len() > NCrypto::NWzAes::kPasswordSizeMax)
@@ -354,7 +408,8 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
         {
           CMethodId methodId;
           UInt32 numStreams;
-          if (!FindMethod(EXTERNAL_CODECS_VARS methodName, methodId, numStreams))
+          if (FindMethod_Index(EXTERNAL_CODECS_VARS methodName, true,
+              methodId, numStreams) < 0)
             return E_NOTIMPL;
           if (numStreams != 1)
             return E_NOTIMPL;
@@ -473,7 +528,7 @@ STDMETHODIMP CHandler::SetProperties(const wchar_t * const *names, const PROPVAR
         UInt32 id = prop.ulVal;
         if (id > 0xFF)
           return E_INVALIDARG;
-        m_MainMethod = id;
+        m_MainMethod = (int)id;
       }
       else
       {
@@ -495,7 +550,7 @@ STDMETHODIMP CHandler::SetProperties(const wchar_t * const *names, const PROPVAR
       const char *end;
       UInt32 id = ConvertStringToUInt32(methodName, &end);
       if (*end == 0 && id <= 0xFF)
-        m_MainMethod = id;
+        m_MainMethod = (int)id;
       else if (methodName.IsEqualTo_Ascii_NoCase("Copy")) // it's alias for "Store"
         m_MainMethod = 0;
     }

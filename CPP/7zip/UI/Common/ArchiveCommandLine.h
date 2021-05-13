@@ -6,14 +6,13 @@
 #include "../../../Common/CommandLineParser.h"
 #include "../../../Common/Wildcard.h"
 
+#include "EnumDirItems.h"
+
 #include "Extract.h"
 #include "HashCalc.h"
 #include "Update.h"
 
-struct CArcCmdLineException: public UString
-{
-  CArcCmdLineException(const char *a, const wchar_t *u = NULL);
-};
+typedef CMessagePathException CArcCmdLineException;
 
 namespace NCommandType { enum EEnum
 {
@@ -51,7 +50,7 @@ struct CArcCmdLineOptions
 {
   bool HelpMode;
 
-  bool LargePages;
+  // bool LargePages;
   bool CaseSensitiveChange;
   bool CaseSensitive;
 
@@ -64,6 +63,11 @@ struct CArcCmdLineOptions
 
   bool YesToAll;
   bool ShowDialog;
+  bool TechMode;
+  bool ShowTime;
+
+  int ConsoleCodePage;
+
   NWildcard::CCensor Censor;
 
   CArcCommand Command;
@@ -74,9 +78,6 @@ struct CArcCmdLineOptions
   UString Password;
   #endif
 
-  bool TechMode;
-  bool ShowTime;
-  
   UStringVector HashMethods;
 
   bool AppendName;
@@ -110,12 +111,26 @@ struct CArcCmdLineOptions
   UInt32 NumIterations;
 
   CArcCmdLineOptions():
-      LargePages(false),
+      HelpMode(false),
+      // LargePages(false),
       CaseSensitiveChange(false),
       CaseSensitive(false),
 
+      IsInTerminal(false),
+      IsStdOutTerminal(false),
+      IsStdErrTerminal(false),
+
       StdInMode(false),
       StdOutMode(false),
+
+      EnableHeaders(false),
+      
+      YesToAll(false),
+      ShowDialog(false),
+      TechMode(false),
+      ShowTime(false),
+
+      ConsoleCodePage(-1),
 
       Number_for_Out(k_OutStream_stdout),
       Number_for_Errors(k_OutStream_stderr),
@@ -130,18 +145,9 @@ class CArcCmdLineParser
 {
   NCommandLineParser::CParser parser;
 public:
-  CArcCmdLineParser();
+  UString Parse1Log;
   void Parse1(const UStringVector &commandStrings, CArcCmdLineOptions &options);
   void Parse2(CArcCmdLineOptions &options);
 };
-
-HRESULT EnumerateDirItemsAndSort(
-    NWildcard::CCensor &censor,
-    NWildcard::ECensorPathMode pathMode,
-    const UString &addPathPrefix,
-    UStringVector &sortedPaths,
-    UStringVector &sortedFullPaths,
-    CDirItemsStat &st,
-    IDirItemsCallback *callback);
 
 #endif

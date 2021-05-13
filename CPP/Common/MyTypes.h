@@ -7,7 +7,6 @@
 
 typedef int HRes;
 
-#ifdef __cplusplus
 struct CBoolPair
 {
   bool Val;
@@ -33,6 +32,15 @@ struct CBoolPair
   cls(const cls &); \
   cls &operator=(const cls &);
 
-#endif
+class CUncopyable
+{
+protected:
+  CUncopyable() {} // allow constructor
+  // ~CUncopyable() {}
+CLASS_NO_COPY(CUncopyable)
+};
+
+#define MY_UNCOPYABLE  :private CUncopyable
+// #define MY_UNCOPYABLE
 
 #endif

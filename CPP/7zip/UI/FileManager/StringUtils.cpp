@@ -9,24 +9,19 @@ void SplitStringToTwoStrings(const UString &src, UString &dest1, UString &dest2)
   dest1.Empty();
   dest2.Empty();
   bool quoteMode = false;
-  unsigned i;
-  for (i = 0; i < src.Len(); i++)
+  for (unsigned i = 0; i < src.Len(); i++)
   {
-    wchar_t c = src[i];
-    if (c == L'\"')
+    const wchar_t c = src[i];
+    if (c == '\"')
       quoteMode = !quoteMode;
-    else if (c == L' ' && !quoteMode)
+    else if (c == ' ' && !quoteMode)
     {
-      if (!quoteMode)
-      {
-        i++;
-        break;
-      }
+      dest2 = src.Ptr(i + 1);
+      return;
     }
     else
       dest1 += c;
   }
-  dest2 = src.Ptr(i);
 }
 
 void SplitString(const UString &srcString, UStringVector &destStrings)
@@ -39,7 +34,7 @@ void SplitString(const UString &srcString, UStringVector &destStrings)
   for (unsigned i = 0; i < len; i++)
   {
     wchar_t c = srcString[i];
-    if (c == L' ')
+    if (c == ' ')
     {
       if (!s.IsEmpty())
       {

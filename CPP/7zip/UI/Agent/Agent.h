@@ -43,7 +43,8 @@ enum AGENT_OP
   AGENT_OP_Delete,
   AGENT_OP_CreateFolder,
   AGENT_OP_Rename,
-  AGENT_OP_CopyFromFile
+  AGENT_OP_CopyFromFile,
+  AGENT_OP_Comment
 };
 
 class CAgentFolder:
@@ -101,6 +102,7 @@ public:
 
   STDMETHOD(GetFolderArcProps)(IFolderArcProps **object);
   STDMETHOD_(Int32, CompareItems)(UInt32 index1, UInt32 index2, PROPID propID, Int32 propIsRaw);
+  int CompareItems3(UInt32 index1, UInt32 index2, PROPID propID);
   int CompareItems2(UInt32 index1, UInt32 index2, PROPID propID, Int32 propIsRaw);
 
   // IArchiveFolder
@@ -205,6 +207,10 @@ public:
       const UInt32 *indices, UInt32 numItems, const wchar_t *newItemName,
       IFolderArchiveUpdateCallback *updateCallback100);
 
+  HRESULT CommentItem(ISequentialOutStream *outArchiveStream,
+      const UInt32 *indices, UInt32 numItems, const wchar_t *newItemName,
+      IFolderArchiveUpdateCallback *updateCallback100);
+
   HRESULT UpdateOneFile(ISequentialOutStream *outArchiveStream,
       const UInt32 *indices, UInt32 numItems, const wchar_t *diskFilePath,
       IFolderArchiveUpdateCallback *updateCallback100);
@@ -235,6 +241,7 @@ public:
   CAgentFolder *_agentFolder;
 
   UString _archiveFilePath;
+  DWORD _attrib;
   bool _isDeviceFile;
 
   #ifndef EXTRACT_ONLY
@@ -245,6 +252,11 @@ public:
   const CArc &GetArc() const { return _archiveLink.Arcs.Back(); }
   IInArchive *GetArchive() const { if ( _archiveLink.Arcs.IsEmpty()) return 0; return GetArc().Archive; }
   bool CanUpdate() const;
+
+  bool Is_Attrib_ReadOnly() const
+  {
+    return _attrib != INVALID_FILE_ATTRIBUTES && (_attrib & FILE_ATTRIBUTE_READONLY);
+  }
 
   bool IsThereReadOnlyArc() const
   {
@@ -262,7 +274,7 @@ public:
   UString GetTypeOfArc(const CArc &arc) const
   {
     if (arc.FormatIndex < 0)
-      return L"Parser";
+      return UString("Parser");
     return g_CodecsObj->GetFormatNamePtr(arc.FormatIndex);
   }
 
@@ -277,12 +289,12 @@ public:
       if (arc.ErrorInfo.ErrorFormatIndex >= 0)
       {
         if (arc.ErrorInfo.ErrorFormatIndex == arc.FormatIndex)
-          s2.AddAscii("Warning: The archive is open with offset");
+          s2 += "Warning: The archive is open with offset";
         else
         {
-          s2.AddAscii("Can not open the file as [");
+          s2 += "Cannot open the file as [";
           s2 += g_CodecsObj->GetFormatNamePtr(arc.ErrorInfo.ErrorFormatIndex);
-          s2.AddAscii("] archive");
+          s2 += "] archive";
         }
       }
 
@@ -290,16 +302,16 @@ public:
       {
         if (!s2.IsEmpty())
           s2.Add_LF();
-        s2.AddAscii("\n[");
+        s2 += "\n[";
         s2 += GetTypeOfArc(arc);
-        s2.AddAscii("]: ");
+        s2 += "]: ";
         s2 += arc.ErrorInfo.ErrorMessage;
       }
       
       if (!s2.IsEmpty())
       {
         if (!s.IsEmpty())
-          s.AddAscii("--------------------\n");
+          s += "--------------------\n";
         s += arc.Path;
         s.Add_LF();
         s += s2;

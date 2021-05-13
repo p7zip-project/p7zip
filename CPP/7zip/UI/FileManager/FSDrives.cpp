@@ -12,7 +12,7 @@
 #include "../../../Windows/FileDir.h"
 #include "../../../Windows/FileIO.h"
 #include "../../../Windows/FileName.h"
-// #include "../../../Windows/FileSystem.h"
+#include "../../../Windows/FileSystem.h"
 #include "../../../Windows/PropVariant.h"
 
 #include "../../PropID.h"
@@ -28,12 +28,14 @@ using namespace NWindows;
 using namespace NFile;
 using namespace NFind;
 
-static const CFSTR kVolPrefix   = FTEXT("\\\\.\\");
-static const CFSTR kSuperPrefix = FTEXT("\\\\?\\");
+static const char * const kVolPrefix   = "\\\\.\\";
+static const char * const kSuperPrefix = "\\\\?\\";
 
 FString CDriveInfo::GetDeviceFileIoName() const
 {
-  return kVolPrefix + Name;
+  FString f (kVolPrefix);
+  f += Name;
+  return f;
 }
 
 struct CPhysTempBuffer
@@ -126,7 +128,7 @@ static const char * const kDriveTypes[] =
 STDMETHODIMP CFSDrives::LoadItems()
 {
   _drives.Clear();
-#ifdef _WIN32
+
   FStringVector driveStrings;
   MyGetLogicalDriveStrings(driveStrings);
   
@@ -179,11 +181,10 @@ STDMETHODIMP CFSDrives::LoadItems()
     // we must use IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS
     for (unsigned n = 0; n < 16; n++) // why 16 ?
     {
-      FChar temp[16];
-      ConvertUInt32ToString(n, temp);
-      FString name = FTEXT("PhysicalDrive");
-      name += temp;
-      FString fullPath = kVolPrefix;
+      FString name ("PhysicalDrive");
+      name.Add_UInt32(n);
+      
+      FString fullPath (kVolPrefix);
       fullPath += name;
 
       CFileInfo fi;
@@ -204,31 +205,6 @@ STDMETHODIMP CFSDrives::LoadItems()
       _drives.Add(di);
     }
   }
-#else
-  CDriveInfo di;
-	// Root
-    di.FullSystemName = L"/";
-	di.VolumeName = L"/";
-	di.FileSystemName = L"img";	
-    di.Name = L"/"; // di.FullSystemName.Left(di.FullSystemName.Length() - 1);
-    di.ClusterSize = 0;
-    di.DriveSize = 0;
-    di.FreeSpace = 0;
-    di.DriveType = 0; // FIXME NFile::NSystem::MyGetDriveType(driveName);
-	di.KnownSizes = false;
-	_drives.Add(di);
-	
-	// Home Directory
-	const char * home = getenv("HOME");
-	if (home) {
-		UString ustr = GetUnicodeString(home);
-		di.FullSystemName = ustr + L"/";
-		di.VolumeName = ustr;
-		di.FileSystemName = L"img";	
-		di.Name = ustr;
-		_drives.Add(di);
-	}
-#endif
 
   return S_OK;
 }
@@ -361,10 +337,9 @@ STDMETHODIMP CFSDrives::GetSystemIconIndex(UInt32 index, Int32 *iconIndex)
 
 void CFSDrives::AddExt(FString &s, unsigned index) const
 {
-  s += FTEXT('.');
+  s += '.';
   const CDriveInfo &di = _drives[index];
   const char *ext;
-#ifdef _WIN32
   if (di.DriveType == DRIVE_CDROM)
     ext = "iso";
   else if (di.FileSystemName.IsPrefixedBy_Ascii_NoCase("NTFS"))
@@ -372,23 +347,18 @@ void CFSDrives::AddExt(FString &s, unsigned index) const
   else if (di.FileSystemName.IsPrefixedBy_Ascii_NoCase("FAT"))
     ext = "fat";
   else
-#endif
     ext = "img";
-  s.AddAscii(ext);
+  s += ext;
 }
 
 HRESULT CFSDrives::GetFileSize(unsigned index, UInt64 &fileSize) const
 {
-#ifdef _WIN32
   NIO::CInFile inFile;
   if (!inFile.Open(_drives[index].GetDeviceFileIoName()))
     return GetLastError();
   if (!inFile.SizeDefined)
     return E_FAIL;
   fileSize = inFile.Size;
-#else
-  fileSize = 0;
-#endif
   return S_OK;
 }
 
@@ -420,7 +390,7 @@ STDMETHODIMP CFSDrives::CopyTo(Int32 moveMode, const UInt32 *indices, UInt32 num
   if (destPath.IsEmpty())
     return E_INVALIDARG;
 
-  bool isAltDest = false; // FIXME NName::IsAltPathPrefix(destPath);
+  bool isAltDest = NName::IsAltPathPrefix(destPath);
   bool isDirectPath = (!isAltDest && !IsPathSepar(destPath.Back()));
   
   if (isDirectPath)
@@ -478,7 +448,7 @@ STDMETHODIMP CFSDrives::CopyTo(Int32 moveMode, const UInt32 *indices, UInt32 num
     RINOK(callback->SetCurrentFilePath(fs2us(srcPath)));
     
     static const UInt32 kBufferSize = (4 << 20);
-    UInt32 bufferSize = /* FIXME (di.DriveType == DRIVE_REMOVABLE) ? (18 << 10) * 4 : */ kBufferSize;
+    UInt32 bufferSize = (di.DriveType == DRIVE_REMOVABLE) ? (18 << 10) * 4 : kBufferSize;
     RINOK(CopyFileSpec(srcPath, us2fs(destPathResult), false, fileSize, bufferSize, completedSize, callback));
     completedSize += fileSize;
   }

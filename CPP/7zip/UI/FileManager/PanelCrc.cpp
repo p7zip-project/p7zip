@@ -128,28 +128,55 @@ DWORD CDirEnumerator::GetNextFile(NFind::CFileInfo &fi, bool &filled, FString &r
     FString s = resPath;
     s.Add_PathSepar();
     Prefixes.Add(s);
-    s += FCHAR_ANY_MASK;
-    Enumerators.Add(NFind::CEnumerator(BasePrefix + s));
+    Enumerators.AddNew().SetDirPrefix(BasePrefix + s);
   }
   
   filled = true;
   return S_OK;
 }
 
+
+
 class CThreadCrc: public CProgressThreadVirt
 {
+  bool ResultsWereShown;
+  bool WasFinished;
+
   HRESULT ProcessVirt();
+  virtual void ProcessWasFinished_GuiVirt();
 public:
   CDirEnumerator Enumerator;
   CHashBundle Hash;
+  // FString FirstFilePath;
 
   void SetStatus(const UString &s);
   void AddErrorMessage(DWORD systemError, const FChar *name);
+  void ShowFinalResults(HWND hwnd);
+
+  CThreadCrc():
+    ResultsWereShown(false),
+    WasFinished(false)
+    {}
 };
+
+void CThreadCrc::ShowFinalResults(HWND hwnd)
+{
+  if (WasFinished)
+  if (!ResultsWereShown)
+  {
+    ResultsWereShown = true;
+    ShowHashResults(Hash, hwnd);
+  }
+}
+
+void CThreadCrc::ProcessWasFinished_GuiVirt()
+{
+  ShowFinalResults(*this);
+}
 
 void CThreadCrc::AddErrorMessage(DWORD systemError, const FChar *name)
 {
-  ProgressDialog.Sync.AddError_Code_Name(systemError, fs2us(Enumerator.BasePrefix + name));
+  Sync.AddError_Code_Name(systemError, fs2us(Enumerator.BasePrefix + name));
   Hash.NumErrors++;
 }
 
@@ -161,18 +188,18 @@ void CThreadCrc::SetStatus(const UString &s2)
     s.Add_Space_if_NotEmpty();
     s += fs2us(Enumerator.BasePrefix);
   }
-  ProgressDialog.Sync.Set_Status(s);
+  Sync.Set_Status(s);
 }
 
 HRESULT CThreadCrc::ProcessVirt()
 {
-  Hash.Init();
+  // Hash.Init();
   
   CMyBuffer buf;
   if (!buf.Allocate(kBufSize))
     return E_OUTOFMEMORY;
 
-  CProgressSync &sync = ProgressDialog.Sync;
+  CProgressSync &sync = Sync;
   
   SetStatus(LangString(IDS_SCANNING));
 
@@ -232,7 +259,6 @@ HRESULT CThreadCrc::ProcessVirt()
   Enumerator.Init();
 
   FString tempPath;
-  FString firstFilePath;
   bool isFirstFile = true;
   UInt64 errorsFilesSize = 0;
 
@@ -263,7 +289,7 @@ HRESULT CThreadCrc::ProcessVirt()
       }
       if (isFirstFile)
       {
-        firstFilePath = path;
+        Hash.FirstFileName = path;
         isFirstFile = false;
       }
       sync.Set_FilePath(fs2us(path));
@@ -302,10 +328,11 @@ HRESULT CThreadCrc::ProcessVirt()
   SetStatus(L"");
 
   CProgressMessageBoxPair &pair = GetMessagePair(Hash.NumErrors != 0);
-  AddHashBundleRes(pair.Message, Hash, fs2us(firstFilePath));
+  WasFinished = true;
   LangString(IDS_CHECKSUM_INFORMATION, pair.Title);
   return S_OK;
 }
+
 
 
 HRESULT CApp::CalculateCrc2(const UString &methodName)
@@ -337,13 +364,18 @@ HRESULT CApp::CalculateCrc2(const UString &methodName)
 
   {
     CThreadCrc t;
+
     {
       UStringVector methods;
       methods.Add(methodName);
       RINOK(t.Hash.SetMethods(EXTERNAL_CODECS_VARS_G methods));
     }
+    
     FOR_VECTOR (i, indices)
       t.Enumerator.FilePaths.Add(us2fs(srcPanel.GetItemRelPath(indices[i])));
+
+    if (t.Enumerator.FilePaths.Size() == 1)
+      t.Hash.MainName = t.Enumerator.FilePaths[0];
 
     UString basePrefix = srcPanel.GetFsPath();
     UString basePrefix2 = basePrefix;
@@ -351,7 +383,7 @@ HRESULT CApp::CalculateCrc2(const UString &methodName)
     {
       int pos = basePrefix2.ReverseFind_PathSepar();
       if (pos >= 0)
-        basePrefix2.DeleteFrom(pos + 1);
+        basePrefix2.DeleteFrom((unsigned)(pos + 1));
     }
 
     t.Enumerator.BasePrefix = us2fs(basePrefix);
@@ -359,28 +391,31 @@ HRESULT CApp::CalculateCrc2(const UString &methodName)
 
     t.Enumerator.EnterToDirs = !GetFlatMode();
     
-    t.ProgressDialog.ShowCompressionInfo = false;
+    t.ShowCompressionInfo = false;
     
     UString title = LangString(IDS_CHECKSUM_CALCULATING);
     
-    t.ProgressDialog.MainWindow = _window;
-    t.ProgressDialog.MainTitle = L"7-Zip"; // LangString(IDS_APP_TITLE);
-    t.ProgressDialog.MainAddTitle = title;
-    t.ProgressDialog.MainAddTitle.Add_Space();
+    t.MainWindow = _window;
+    t.MainTitle = "7-Zip"; // LangString(IDS_APP_TITLE);
+    t.MainAddTitle = title;
+    t.MainAddTitle.Add_Space();
     
     RINOK(t.Create(title, _window));
+
+    t.ShowFinalResults(_window);
   }
+
   RefreshTitleAlways();
   return S_OK;
 }
 
-void CApp::CalculateCrc(const UString &methodName)
+void CApp::CalculateCrc(const char *methodName)
 {
-  HRESULT res = CalculateCrc2(methodName);
+  HRESULT res = CalculateCrc2(UString(methodName));
   if (res != S_OK && res != E_ABORT)
   {
     unsigned srcPanelIndex = GetFocusedPanelIndex();
     CPanel &srcPanel = Panels[srcPanelIndex];
-    srcPanel.MessageBoxError(res);
+    srcPanel.MessageBox_Error_HRESULT(res);
   }
 }

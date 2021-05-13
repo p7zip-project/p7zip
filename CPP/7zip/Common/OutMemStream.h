@@ -17,8 +17,8 @@ class COutMemStream:
   bool _realStreamMode;
 
   bool _unlockEventWasSent;
-  NWindows::NSynchronization::CAutoResetEventWFMO StopWritingEvent;
-  NWindows::NSynchronization::CAutoResetEventWFMO WriteToRealStreamEvent;
+  NWindows::NSynchronization::CAutoResetEvent_WFMO StopWritingEvent;
+  NWindows::NSynchronization::CAutoResetEvent_WFMO WriteToRealStreamEvent;
   // NWindows::NSynchronization::CAutoResetEvent NoLockEvent;
 
   HRESULT StopWriteResult;
@@ -31,18 +31,15 @@ class COutMemStream:
 
 public:
 
-  HRes CreateEvents(NWindows::NSynchronization::CSynchro *sync)
+  
+  HRes CreateEvents(SYNC_PARAM_DECL(synchro))
   {
-    RINOK(StopWritingEvent.CreateIfNotCreated(sync));
-    return WriteToRealStreamEvent.CreateIfNotCreated(sync);
+    WRes wres = StopWritingEvent.CreateIfNotCreated_Reset(SYNC_WFMO(synchro));
+    if (wres == 0)
+      wres = WriteToRealStreamEvent.CreateIfNotCreated_Reset(SYNC_WFMO(synchro));
+    return HRESULT_FROM_WIN32(wres);
   }
 
-  HRes CreateEvents()
-  {
-    RINOK(StopWritingEvent.CreateIfNotCreated());
-    return WriteToRealStreamEvent.CreateIfNotCreated();
-  }
-  
   void SetOutStream(IOutStream *outStream)
   {
     OutStream = outStream;
@@ -61,7 +58,16 @@ public:
     OutSeqStream.Release();
   }
 
-  COutMemStream(CMemBlockManagerMt *memManager): _memManager(memManager)  { }
+  COutMemStream(CMemBlockManagerMt *memManager):
+      _memManager(memManager)
+  {
+    /*
+    #ifndef _WIN32
+    StopWritingEvent._sync       =
+    WriteToRealStreamEvent._sync =  &memManager->Synchro;
+    #endif
+    */
+  }
 
   ~COutMemStream() { Free(); }
   void Free();

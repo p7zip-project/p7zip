@@ -111,7 +111,9 @@ HRESULT CUnpacker::UnpackChunk(
     }
     else if (method == NMethod::kLZX)
     {
-      lzxDecoderSpec->SetExternalWindow(unpackBuf.Data, chunkSizeBits);
+      res = lzxDecoderSpec->SetExternalWindow(unpackBuf.Data, chunkSizeBits);
+      if (res != S_OK)
+        return E_NOTIMPL;
       lzxDecoderSpec->KeepHistoryForNext = false;
       lzxDecoderSpec->SetKeepHistory(false);
       res = lzxDecoderSpec->Code(packBuf.Data, inSize, (UInt32)outSize);
@@ -300,12 +302,12 @@ HRESULT CUnpacker::Unpack2(
   UInt64 packDataSize;
   size_t numChunks;
   {
-    UInt64 numChunks64 = (unpackSize + (((UInt32)1 << chunkSizeBits) - 1)) >> chunkSizeBits;
-    UInt64 sizesBufSize64 = (numChunks64 - 1) << entrySizeShifts;
+    const UInt64 numChunks64 = (unpackSize + (((UInt32)1 << chunkSizeBits) - 1)) >> chunkSizeBits;
+    const UInt64 sizesBufSize64 = (numChunks64 - 1) << entrySizeShifts;
     if (sizesBufSize64 > resource.PackSize)
       return S_FALSE;
     packDataSize = resource.PackSize - sizesBufSize64;
-    size_t sizesBufSize = (size_t)sizesBufSize64;
+    const size_t sizesBufSize = (size_t)sizesBufSize64;
     if (sizesBufSize != sizesBufSize64)
       return E_OUTOFMEMORY;
     sizesBuf.AllocAtLeast(sizesBufSize);
@@ -563,7 +565,13 @@ void CDatabase::GetItemPath(unsigned index1, bool showImageNumber, NWindows::NCO
       wchar_t *dest = s + size;
       meta += 2;
       for (unsigned i = 0; i < len; i++)
-        dest[i] = Get16(meta + i * 2);
+      {
+        wchar_t c = Get16(meta + i * 2);
+        // 18.06
+        if (c == CHAR_PATH_SEPARATOR || c == '/')
+          c = '_';
+        dest[i] = c;
+      }
     }
     if (index < 0)
       return;
@@ -631,10 +639,10 @@ HRESULT CDatabase::ParseDirItem(size_t pos, int parent)
     p += dirRecordSize;
     
     {
-      if (*(const UInt16 *)(p + fileNameLen) != 0)
+      if (*(const UInt16 *)(const void *)(p + fileNameLen) != 0)
         return S_FALSE;
       for (UInt32 j = 0; j < fileNameLen; j += 2)
-        if (*(const UInt16 *)(p + j) == 0)
+        if (*(const UInt16 *)(const void *)(p + j) == 0)
           return S_FALSE;
     }
 
@@ -644,10 +652,10 @@ HRESULT CDatabase::ParseDirItem(size_t pos, int parent)
     {
       // empty shortName has no ZERO at the end ?
       const Byte *p2 = p + fileNameLen2;
-      if (*(const UInt16 *)(p2 + shortNameLen) != 0)
+      if (*(const UInt16 *)(const void *)(p2 + shortNameLen) != 0)
         return S_FALSE;
       for (UInt32 j = 0; j < shortNameLen; j += 2)
-        if (*(const UInt16 *)(p2 + j) == 0)
+        if (*(const UInt16 *)(const void *)(p2 + j) == 0)
           return S_FALSE;
     }
       
@@ -695,10 +703,10 @@ HRESULT CDatabase::ParseDirItem(size_t pos, int parent)
       
       {
         const Byte *p3 = p2 + extraOffset + 2;
-        if (*(const UInt16 *)(p3 + fileNameLen111) != 0)
+        if (*(const UInt16 *)(const void *)(p3 + fileNameLen111) != 0)
           return S_FALSE;
         for (UInt32 j = 0; j < fileNameLen111; j += 2)
-          if (*(const UInt16 *)(p3 + j) == 0)
+          if (*(const UInt16 *)(const void *)(p3 + j) == 0)
             return S_FALSE;
   
         // PRF(printf("\n  %S", p3));
@@ -866,7 +874,11 @@ HRESULT CDatabase::ParseImageDirs(CByteBuffer &buf, int parent)
   if (DirProcessed == DirSize - 8 && Get64(p + DirSize - 8) != 0)
     return S_OK;
 
-  return S_FALSE;
+  // 18.06: we support cases, when some old dism can capture images
+  // where DirProcessed much smaller than DirSize
+  HeadersError = true;
+  return S_OK;
+  // return S_FALSE;
 }
 
 
@@ -1778,7 +1790,8 @@ void CImageInfo::Parse(const CXmlItem &item)
 {
   CTimeDefined = ParseTime(item, CTime, "CREATIONTIME");
   MTimeDefined = ParseTime(item, MTime, "LASTMODIFICATIONTIME");
-  NameDefined = ConvertUTF8ToUnicode(item.GetSubStringForTag("NAME"), Name);
+  NameDefined = true;
+  ConvertUTF8ToUnicode(item.GetSubStringForTag("NAME"), Name);
 
   ParseNumber64(item.GetSubStringForTag("DIRCOUNT"), DirCount);
   ParseNumber64(item.GetSubStringForTag("FILECOUNT"), FileCount);

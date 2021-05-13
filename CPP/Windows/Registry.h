@@ -5,21 +5,6 @@
 
 #include "../Common/MyBuffer.h"
 #include "../Common/MyString.h"
-#include "../Common/MyTypes.h"
-
-#ifndef _WIN32
-class HKEY_Impl;
-
-typedef HKEY_Impl * HKEY;
-
-#define HKEY_CURRENT_USER       ((HKEY) 0x80000001)
-
-typedef DWORD REGSAM;
-#define ERROR_SUCCESS (0)
-#define KEY_READ	(0x1234) // FIXME
-#define KEY_ALL_ACCESS  (~0)     // FIXME
-
-#endif
 
 namespace NWindows {
 namespace NRegistry {
@@ -34,7 +19,6 @@ public:
   ~CKey() { Close(); }
 
   operator HKEY() const { return _object; }
-#if 0
   void Attach(HKEY key) { _object = key; }
   HKEY Detach()
   {
@@ -47,9 +31,7 @@ public:
       LPTSTR keyClass = REG_NONE, DWORD options = REG_OPTION_NON_VOLATILE,
       REGSAM accessMask = KEY_ALL_ACCESS,
       LPSECURITY_ATTRIBUTES securityAttributes = NULL,
-      LPDWORD disposition = NULL);
-#endif // #if 0
-  LONG Create(HKEY parentKey, LPCTSTR keyName) throw();
+      LPDWORD disposition = NULL) throw();
   LONG Open(HKEY parentKey, LPCTSTR keyName, REGSAM accessMask = KEY_ALL_ACCESS) throw();
 
   LONG Close() throw();
@@ -73,7 +55,7 @@ public:
 
   LONG SetValue(LPCTSTR name, const void *value, UInt32 size) throw();
 
-  LONG SetValue_Strings(LPCTSTR valueName, const UStringVector &strings) throw();
+  LONG SetValue_Strings(LPCTSTR valueName, const UStringVector &strings);
   LONG GetValue_Strings(LPCTSTR valueName, UStringVector &strings);
 
   LONG SetKeyValue(LPCTSTR keyName, LPCTSTR valueName, LPCTSTR value) throw();

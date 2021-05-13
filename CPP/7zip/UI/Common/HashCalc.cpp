@@ -8,6 +8,7 @@
 
 #include "../../Common/FileStreams.h"
 #include "../../Common/StreamUtils.h"
+#include "../../Common/StreamObjects.h"
 
 #include "EnumDirItems.h"
 #include "HashCalc.h"
@@ -30,17 +31,13 @@ public:
   ~CHashMidBuf() { ::MidFree(_data); }
 };
 
-static const char *k_DefaultHashMethod = "CRC32";
+static const char * const k_DefaultHashMethod = "CRC32";
 
 HRESULT CHashBundle::SetMethods(DECL_EXTERNAL_CODECS_LOC_VARS const UStringVector &hashMethods)
 {
   UStringVector names = hashMethods;
   if (names.IsEmpty())
-  {
-    UString s;
-    s.SetFromAscii(k_DefaultHashMethod);
-    names.Add(s);
-  }
+    names.Add(UString(k_DefaultHashMethod));
 
   CRecordVector<CMethodId> ids;
   CObjectVector<COneMethodInfo> methods;
@@ -215,6 +212,8 @@ HRESULT HashCalc(
   else
   {
     RINOK(callback->StartScanning());
+
+    dirItems.SymLinks = options.SymLinks.Val;
     dirItems.ScanAltStreams = options.AltStreamsMode;
 
     HRESULT res = EnumerateItems(censor,
@@ -234,7 +233,7 @@ HRESULT HashCalc(
   unsigned i;
   CHashBundle hb;
   RINOK(hb.SetMethods(EXTERNAL_CODECS_LOC_VARS options.Methods));
-  hb.Init();
+  // hb.Init();
 
   hb.NumErrors = dirItems.Stat.NumErrors;
   
@@ -262,31 +261,47 @@ HRESULT HashCalc(
     UString path;
     bool isDir = false;
     bool isAltStream = false;
+    
     if (options.StdInMode)
     {
       inStream = new CStdInFileStream;
     }
     else
     {
-      CInFileStream *inStreamSpec = new CInFileStream;
-      inStream = inStreamSpec;
-      const CDirItem &dirItem = dirItems.Items[i];
-      isDir = dirItem.IsDir();
-      isAltStream = dirItem.IsAltStream;
       path = dirItems.GetLogPath(i);
-      if (!isDir)
+      const CDirItem &di = dirItems.Items[i];
+      isAltStream = di.IsAltStream;
+
+      #ifndef UNDER_CE
+      // if (di.AreReparseData())
+      if (di.ReparseData.Size() != 0)
       {
-        FString phyPath = dirItems.GetPhyPath(i);
-        if (!inStreamSpec->OpenShared(phyPath, options.OpenShareForWrite))
+        CBufInStream *inStreamSpec = new CBufInStream();
+        inStream = inStreamSpec;
+        inStreamSpec->Init(di.ReparseData, di.ReparseData.Size());
+      }
+      else
+      #endif
+      {
+        CInFileStream *inStreamSpec = new CInFileStream;
+        inStreamSpec->File.PreserveATime = options.PreserveATime;
+        inStream = inStreamSpec;
+        isDir = di.IsDir();
+        if (!isDir)
         {
-          HRESULT res = callback->OpenFileError(phyPath, ::GetLastError());
-          hb.NumErrors++;
-          if (res != S_FALSE)
-            return res;
-          continue;
+          const FString phyPath = dirItems.GetPhyPath(i);
+          if (!inStreamSpec->OpenShared(phyPath, options.OpenShareForWrite))
+          {
+            HRESULT res = callback->OpenFileError(phyPath, ::GetLastError());
+            hb.NumErrors++;
+            if (res != S_FALSE)
+              return res;
+            continue;
+          }
         }
       }
     }
+    
     RINOK(callback->GetStream(path, isDir));
     UInt64 fileSize = 0;
 

@@ -9,7 +9,6 @@
 #include "../../Common/MethodProps.h"
 
 #include "DirItem.h"
-#include "Property.h"
 
 const unsigned k_HashCalc_DigestSize_Max = 64;
 
@@ -52,12 +51,18 @@ struct CHashBundle: public IHashCalc
 
   UInt64 CurSize;
 
+  UString MainName;
+  UString FirstFileName;
+
   HRESULT SetMethods(DECL_EXTERNAL_CODECS_LOC_VARS const UStringVector &methods);
   
-  void Init()
+  // void Init() {}
+  CHashBundle()
   {
     NumDirs = NumFiles = NumAltStreams = FilesSize = AltStreamsSize = NumErrors = 0;
   }
+
+  virtual ~CHashBundle() {};
 
   void InitForNewFile();
   void Update(const void *data, UInt32 size);
@@ -77,7 +82,7 @@ struct CHashBundle: public IHashCalc
   virtual HRESULT GetStream(const wchar_t *name, bool isFolder) x; \
   virtual HRESULT OpenFileError(const FString &path, DWORD systemError) x; \
   virtual HRESULT SetOperationResult(UInt64 fileSize, const CHashBundle &hb, bool showHash) x; \
-  virtual HRESULT AfterLastFile(const CHashBundle &hb) x; \
+  virtual HRESULT AfterLastFile(CHashBundle &hb) x; \
 
 struct IHashCallbackUI: public IDirItemsCallback
 {
@@ -87,12 +92,20 @@ struct IHashCallbackUI: public IDirItemsCallback
 struct CHashOptions
 {
   UStringVector Methods;
+  bool PreserveATime;
   bool OpenShareForWrite;
   bool StdInMode;
   bool AltStreamsMode;
+  CBoolPair SymLinks;
+
   NWildcard::ECensorPathMode PathMode;
  
-  CHashOptions(): StdInMode(false), OpenShareForWrite(false), AltStreamsMode(false), PathMode(NWildcard::k_RelatPath) {};
+  CHashOptions():
+      PreserveATime(false),
+      OpenShareForWrite(false),
+      StdInMode(false),
+      AltStreamsMode(false),
+      PathMode(NWildcard::k_RelatPath) {};
 };
 
 HRESULT HashCalc(

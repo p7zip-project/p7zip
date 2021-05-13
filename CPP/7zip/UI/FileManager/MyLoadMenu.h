@@ -3,14 +3,11 @@
 #ifndef __MY_LOAD_MENU_H
 #define __MY_LOAD_MENU_H
 
-class myHMENU; // FIXME
-typedef myHMENU * HMENU; // FIXME
-
 void OnMenuActivating(HWND hWnd, HMENU hMenu, int position);
 // void OnMenuUnActivating(HWND hWnd, HMENU hMenu, int id);
 // void OnMenuUnActivating(HWND hWnd);
 
-bool OnMenuCommand(HWND hWnd, int id);
+bool OnMenuCommand(HWND hWnd, unsigned id);
 void MyLoadMenu();
 
 struct CFileMenu
@@ -22,6 +19,8 @@ struct CFileMenu
   bool isAltStreamsSupported;
   int numItems;
   
+  UString FilePath;
+
   CFileMenu():
       programMenu(false),
       readOnly(false),
@@ -34,6 +33,6 @@ struct CFileMenu
   void Load(HMENU hMenu, unsigned startPos);
 };
 
-bool ExecuteFileCommand(int id);
+bool ExecuteFileCommand(unsigned id);
 
 #endif

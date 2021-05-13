@@ -1,5 +1,5 @@
 /* Bcj2.c -- BCJ2 Decoder (Converter for x86 code)
-2017-04-03 : Igor Pavlov : Public domain */
+2021-02-09 : Igor Pavlov : Public domain */
 
 #include "Precomp.h"
 
@@ -123,7 +123,7 @@ SRes Bcj2Dec_Decode(CBcj2Dec *p)
         const Byte *src = p->bufs[BCJ2_STREAM_MAIN];
         const Byte *srcLim;
         Byte *dest;
-        SizeT num = p->lims[BCJ2_STREAM_MAIN] - src;
+        SizeT num = (SizeT)(p->lims[BCJ2_STREAM_MAIN] - src);
         
         if (num == 0)
         {
@@ -134,7 +134,7 @@ SRes Bcj2Dec_Decode(CBcj2Dec *p)
         dest = p->dest;
         if (num > (SizeT)(p->destLim - dest))
         {
-          num = p->destLim - dest;
+          num = (SizeT)(p->destLim - dest);
           if (num == 0)
           {
             p->state = BCJ2_DEC_STATE_ORIG;
@@ -168,7 +168,7 @@ SRes Bcj2Dec_Decode(CBcj2Dec *p)
           break;
         }
         
-        num = src - p->bufs[BCJ2_STREAM_MAIN];
+        num = (SizeT)(src - p->bufs[BCJ2_STREAM_MAIN]);
         
         if (src == srcLim)
         {
@@ -228,14 +228,14 @@ SRes Bcj2Dec_Decode(CBcj2Dec *p)
       p->ip += 4;
       val -= p->ip;
       dest = p->dest;
-      rem = p->destLim - dest;
+      rem = (SizeT)(p->destLim - dest);
       
       if (rem < 4)
       {
-        SizeT i;
-        SetUi32(p->temp, val);
-        for (i = 0; i < rem; i++)
-          dest[i] = p->temp[i];
+        p->temp[0] = (Byte)val; if (rem > 0) dest[0] = (Byte)val; val >>= 8;
+        p->temp[1] = (Byte)val; if (rem > 1) dest[1] = (Byte)val; val >>= 8;
+        p->temp[2] = (Byte)val; if (rem > 2) dest[2] = (Byte)val; val >>= 8;
+        p->temp[3] = (Byte)val;
         p->dest = dest + rem;
         p->state = BCJ2_DEC_STATE_ORIG_0 + (unsigned)rem;
         break;

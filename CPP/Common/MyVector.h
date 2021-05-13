@@ -3,8 +3,6 @@
 #ifndef __COMMON_MY_VECTOR_H
 #define __COMMON_MY_VECTOR_H
 
-#include "Common.h"
-
 #include <string.h>
 
 template <class T>
@@ -37,7 +35,7 @@ class CRecordVector
 
 public:
 
-  CRecordVector(): _items(0), _size(0), _capacity(0) {}
+  CRecordVector(): _items(NULL), _size(0), _capacity(0) {}
   
   CRecordVector(const CRecordVector &v): _items(0), _size(0), _capacity(0)
   {
@@ -58,7 +56,7 @@ public:
   {
     if (size != 0)
     {
-      MY_ARRAY_NEW(_items, T, size);
+      MY_ARRAY_NEW(_items, T, size)
       // _items = new T[size];
       _capacity = size;
     }
@@ -259,7 +257,7 @@ public:
       unsigned mid = (left + right) / 2;
       const T midVal = (*this)[mid];
       if (item == midVal)
-        return mid;
+        return (int)mid;
       if (item < midVal)
         right = mid;
       else
@@ -276,7 +274,7 @@ public:
       const T& midVal = (*this)[mid];
       int comp = item.Compare(midVal);
       if (comp == 0)
-        return mid;
+        return (int)mid;
       if (comp < 0)
         right = mid;
       else
@@ -430,7 +428,7 @@ public:
   // void Reserve(unsigned newCapacity) { _v.Reserve(newCapacity); }
   void ClearAndReserve(unsigned newCapacity) { Clear(); _v.ClearAndReserve(newCapacity); }
 
-  CObjectVector() {};
+  CObjectVector() {}
   CObjectVector(const CObjectVector &v)
   {
     unsigned size = v.Size();
@@ -570,7 +568,7 @@ public:
       const T& midVal = (*this)[mid];
       int comp = item.Compare(midVal);
       if (comp == 0)
-        return mid;
+        return (int)mid;
       if (comp < 0)
         right = mid;
       else
@@ -626,9 +624,9 @@ public:
     { _v.Sort(compare, param); }
 
   static int CompareObjectItems(void *const *a1, void *const *a2, void * /* param */)
-    { return (*(*((const T **)a1))).Compare(*(*((const T **)a2))); }
+    { return (*(*((const T *const *)a1))).Compare(*(*((const T *const *)a2))); }
 
-  void Sort() { _v.Sort(CompareObjectItems, 0); }
+  void Sort() { _v.Sort(CompareObjectItems, NULL); }
 };
 
 #define FOR_VECTOR(_i_, _v_) for (unsigned _i_ = 0; _i_ < (_v_).Size(); _i_++)

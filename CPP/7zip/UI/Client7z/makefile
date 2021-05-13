@@ -1,9 +1,28 @@
+PROG = 7zcl.exe
+MY_CONSOLE = 1
 
-include ../../../../makefile.crc32
-include ../../../../makefile.machine
+CURRENT_OBJS = \
+  $O\Client7z.obj \
 
-TARGET_FLAGS=$(CC_EXE)
-LOCAL_LINK=$(LINK_EXE)
-LIBS=$(LOCAL_LIBS_DLL)
+COMMON_OBJS = \
+  $O\IntToString.obj \
+  $O\NewHandler.obj \
+  $O\MyString.obj \
+  $O\MyVector.obj \
+  $O\StringConvert.obj \
+  $O\StringToInt.obj \
+  $O\Wildcard.obj \
 
-include ../../../../makefile.glb
+WIN_OBJS = \
+  $O\DLL.obj \
+  $O\FileDir.obj \
+  $O\FileFind.obj \
+  $O\FileIO.obj \
+  $O\FileName.obj \
+  $O\PropVariant.obj \
+  $O\PropVariantConv.obj \
+
+7ZIP_COMMON_OBJS = \
+  $O\FileStreams.obj \
+
+!include "../../7zip.mak"

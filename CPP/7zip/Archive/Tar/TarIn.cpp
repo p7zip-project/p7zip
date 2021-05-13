@@ -81,20 +81,22 @@ static void ReadString(const char *s, unsigned size, AString &result)
 static bool ParseInt64(const char *p, Int64 &val)
 {
   UInt32 h = GetBe32(p);
-  val = GetBe64(p + 4);
+  val = (Int64)GetBe64(p + 4);
   if (h == (UInt32)1 << 31)
     return ((val >> 63) & 1) == 0;
   if (h == (UInt32)(Int32)-1)
     return ((val >> 63) & 1) != 0;
   UInt64 uv;
   bool res = OctalToNumber(p, 12, uv);
-  val = uv;
+  val = (Int64)uv;
   return res;
 }
 
 static bool ParseInt64_MTime(const char *p, Int64 &val)
 {
-  // rare case tar contains spaces instead of MTime
+  // rare case tar : ZEROs in Docker-Windows TARs
+  // rare case tar : spaces
+  if (GetUi32(p) != 0)
   for (unsigned i = 0; i < 12; i++)
     if (p[i] != ' ')
       return ParseInt64(p, val);
@@ -110,7 +112,9 @@ static bool ParseSize(const char *p, UInt64 &val)
     val = GetBe64(p + 4);
     return ((val >> 63) & 1) == 0;
   }
-  return OctalToNumber(p, 12, val);
+  return OctalToNumber(p, 12, val,
+      true // 20.03: allow empty size for 'V' Label entry
+      );
 }
 
 #define CHECK(x) { if (!(x)) return k_IsArc_Res_NO; }
@@ -199,8 +203,8 @@ static HRESULT GetNextItemReal(ISequentialInStream *stream, bool &filled, CItemE
   // we allow empty Mode value for LongName prefix items
   RIF(OctalToNumber32(p, 8, item.Mode, true)); p += 8;
 
-  if (!OctalToNumber32(p, 8, item.UID)) item.UID = 0; p += 8;
-  if (!OctalToNumber32(p, 8, item.GID)) item.GID = 0; p += 8;
+  if (!OctalToNumber32(p, 8, item.UID)) { item.UID = 0; }  p += 8;
+  if (!OctalToNumber32(p, 8, item.GID)) { item.GID = 0; }  p += 8;
 
   RIF(ParseSize(p, item.PackSize));
   item.Size = item.PackSize;
@@ -243,6 +247,15 @@ static HRESULT GetNextItemReal(ISequentialInStream *stream, bool &filled, CItemE
     item.PackSize = 0;
     item.Size = 0;
   }
+
+  if (item.LinkFlag == NFileHeader::NLinkFlag::kDirectory)
+  {
+    // GNU tar ignores Size field, if LinkFlag is kDirectory
+    // 21.02 : we set PackSize = 0 to be more compatible with GNU tar
+    item.PackSize = 0;
+    // item.Size = 0;
+  }
+
   /*
     TAR standard requires sum of unsigned byte values.
     But some TAR programs use sum of signed byte values.
@@ -267,7 +280,7 @@ static HRESULT GetNextItemReal(ISequentialInStream *stream, bool &filled, CItemE
 
   if (item.LinkFlag == NFileHeader::NLinkFlag::kSparse)
   {
-    Byte isExtended = buf[482];
+    Byte isExtended = (Byte)buf[482];
     if (isExtended != 0 && isExtended != 1)
       return S_OK;
     RIF(ParseSize(buf + 483, item.Size));
@@ -307,7 +320,7 @@ static HRESULT GetNextItemReal(ISequentialInStream *stream, bool &filled, CItemE
       }
 
       item.HeaderSize += NFileHeader::kRecordSize;
-      isExtended = buf[21 * 24];
+      isExtended = (Byte)buf[21 * 24];
       if (isExtended != 0 && isExtended != 1)
         return S_OK;
       for (unsigned i = 0; i < 21; i++)
@@ -440,15 +453,22 @@ HRESULT ReadItem(ISequentialInStream *stream, bool &filled, CItemEx &item, EErro
       case 'x':
       case 'X':
       {
-        // pax Extended Header
-        if (item.Name.IsPrefixedBy("PaxHeader/"))
+        const char *s = item.Name.Ptr();
+        if (IsString1PrefixedByString2(s, "./"))
+          s += 2;
+        if (IsString1PrefixedByString2(s, "./"))
+          s += 2;
+        if (   IsString1PrefixedByString2(s, "PaxHeader/")
+            || IsString1PrefixedByString2(s, "PaxHeaders.X/")
+            || IsString1PrefixedByString2(s, "PaxHeaders.4467/")
+            || StringsAreEqual_Ascii(s, "@PaxHeader")
+            )
         {
           RINOK(ReadDataToString(stream, item, pax, error));
           if (error != k_ErrorType_OK)
             return S_OK;
           continue;
         }
-       
         break;
       }
       case NFileHeader::NLinkFlag::kDumpDir:
@@ -486,7 +506,11 @@ HRESULT ReadItem(ISequentialInStream *stream, bool &filled, CItemEx &item, EErro
       if (ParsePaxLongName(pax, name))
         item.Name = name;
       else
-        error = k_ErrorType_Warning;
+      {
+        // no "path" property is allowed in pax4467
+        // error = k_ErrorType_Warning;
+      }
+      pax.Empty();
     }
 
     return S_OK;

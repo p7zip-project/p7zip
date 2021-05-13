@@ -56,8 +56,10 @@ namespace NFileHeader
       
       kTerse = 18,
       kLz77 = 19,
+      kZstdPk = 20,
       
-      kZstd = 93,
+      kZstdWz = 93,
+      kMP3 = 94,
       kXz = 95,
       kJpeg = 96,
       kWavPack = 97,
@@ -78,7 +80,6 @@ namespace NFileHeader
     const Byte kExtractVersion_LZMA = 63;
     const Byte kExtractVersion_PPMd = 63;
     const Byte kExtractVersion_Xz = 20; // test it
-    const Byte kExtractVersion_Zstd = 20; // WinZip mark it
   }
 
   namespace NExtraID
@@ -92,7 +93,10 @@ namespace NFileHeader
       kUnixExtra = 0x5855,
       kIzUnicodeComment = 0x6375,
       kIzUnicodeName = 0x7075,
-      kWzAES = 0x9901
+      kUnix2Extra = 0x7855,
+      kUnix3Extra = 0x7875,
+      kWzAES = 0x9901,
+      kApkAlign = 0xD935
     };
   }
 
@@ -133,6 +137,7 @@ namespace NFileHeader
     const unsigned kDescriptorUsedMask = 1 << 3;
     const unsigned kStrongEncrypted = 1 << 6;
     const unsigned kUtf8 = 1 << 11;
+    const unsigned kAltStream = 1 << 14;
 
     const unsigned kImplodeDictionarySizeMask = 1 << 1;
     const unsigned kImplodeLiteralsOnMask     = 1 << 2;

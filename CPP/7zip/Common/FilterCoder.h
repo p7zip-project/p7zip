@@ -19,41 +19,11 @@
 
 struct CAlignedMidBuffer
 {
-  #ifdef _WIN32
-
   Byte *_buf;
 
   CAlignedMidBuffer(): _buf(NULL) {}
-  ~CAlignedMidBuffer() { ::MidFree(_buf); }
-  
-  void AllocAlignedMask(size_t size, size_t)
-  {
-    ::MidFree(_buf);
-    _buf = (Byte *)::MidAlloc(size);
-  }
-  
-  #else
-  
-  Byte *_bufBase;
-  Byte *_buf;
-
-  CAlignedMidBuffer(): _bufBase(NULL), _buf(NULL) {}
-  ~CAlignedMidBuffer() { ::MidFree(_bufBase); }
-  
-  void AllocAlignedMask(size_t size, size_t alignMask)
-  {
-    ::MidFree(_bufBase);
-    _buf = NULL;
-    _bufBase = (Byte *)::MidAlloc(size + alignMask);
-    
-    if (_bufBase)
-    {
-      // _buf = (Byte *)(((uintptr_t)_bufBase + alignMask) & ~(uintptr_t)alignMask);
-         _buf = (Byte *)(((ptrdiff_t)_bufBase + alignMask) & ~(ptrdiff_t)alignMask);
-    }
-  }
-  
-  #endif
+  ~CAlignedMidBuffer();
+  void AllocAligned(size_t size);
 };
 
 class CFilterCoder:
@@ -161,7 +131,7 @@ public:
     ~C_Filter_Releaser() { if (FilterCoder) FilterCoder->Filter.Release(); }
   };
   
-  
+
   MY_QUERYINTERFACE_BEGIN2(ICompressCoder)
 
     MY_QUERYINTERFACE_ENTRY(ICompressSetOutStreamSize)

@@ -41,7 +41,6 @@ bool CComboDialog::OnInit()
 
 bool CComboDialog::OnSize(WPARAM /* wParam */, int xSize, int ySize)
 {
-#ifdef _WIN32
   int mx, my;
   GetMargins(8, mx, my);
   int bx1, bx2, by;
@@ -55,7 +54,6 @@ bool CComboDialog::OnSize(WPARAM /* wParam */, int xSize, int ySize)
   MoveItem(IDCANCEL, x, y, bx1, by);
   MoveItem(IDOK, x - mx - bx2, y, bx2, by);
   ChangeSubWindowSizeX(_comboBox, xSize - mx * 2);
-#endif
   return false;
 }
 

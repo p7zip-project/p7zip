@@ -180,7 +180,7 @@ UInt32 CInArchive::ReadDigits(int numDigits)
     Byte b = ReadByte();
     if (b < '0' || b > '9')
     {
-      if (b == 0) // it's bug in some CD's
+      if (b == 0 || b == ' ') // it's bug in some CD's
         b = '0';
       else
         throw CHeaderErrorException();
@@ -299,10 +299,12 @@ void CInArchive::ReadVolumeDescriptor(CVolumeDescriptor &d)
 
 static const Byte kSig_CD001[5] = { 'C', 'D', '0', '0', '1' };
 
+/*
 static const Byte kSig_NSR02[5] = { 'N', 'S', 'R', '0', '2' };
 static const Byte kSig_NSR03[5] = { 'N', 'S', 'R', '0', '3' };
 static const Byte kSig_BEA01[5] = { 'B', 'E', 'A', '0', '1' };
 static const Byte kSig_TEA01[5] = { 'T', 'E', 'A', '0', '1' };
+*/
 
 static inline bool CheckSignature(const Byte *sig, const Byte *data)
 {

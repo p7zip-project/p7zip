@@ -15,8 +15,8 @@
 namespace NArchive {
 namespace NZip {
 
-const unsigned kNumMethodNames1 = NFileHeader::NCompressionMethod::kLZMA + 1;
-const unsigned kMethodNames2Start = NFileHeader::NCompressionMethod::kZstd;
+const unsigned kNumMethodNames1 = NFileHeader::NCompressionMethod::kZstdPk + 1;
+const unsigned kMethodNames2Start = NFileHeader::NCompressionMethod::kZstdWz;
 const unsigned kNumMethodNames2 = NFileHeader::NCompressionMethod::kWzAES + 1 - kMethodNames2Start;
 
 extern const char * const kMethodNames1[kNumMethodNames1];
@@ -25,6 +25,7 @@ extern const char * const kMethodNames2[kNumMethodNames2];
 
 class CHandler:
   public IInArchive,
+  // public IArchiveGetRawProps,
   public IOutArchive,
   public ISetProperties,
   PUBLIC_ISetCompressCodecsInfo
@@ -32,6 +33,7 @@ class CHandler:
 {
 public:
   MY_QUERYINTERFACE_BEGIN2(IInArchive)
+  // MY_QUERYINTERFACE_ENTRY(IArchiveGetRawProps)
   MY_QUERYINTERFACE_ENTRY(IOutArchive)
   MY_QUERYINTERFACE_ENTRY(ISetProperties)
   QUERY_ENTRY_ISetCompressCodecsInfo
@@ -39,6 +41,7 @@ public:
   MY_ADDREF_RELEASE
 
   INTERFACE_IInArchive(;)
+  // INTERFACE_IArchiveGetRawProps(;)
   INTERFACE_IOutArchive(;)
 
   STDMETHOD(SetProperties)(const wchar_t * const *names, const PROPVARIANT *values, UInt32 numProps);
@@ -71,10 +74,14 @@ private:
     m_WriteNtfsTimeExtra = true;
     _removeSfxBlock = false;
     m_ForceLocal = false;
-    m_ForceUtf8 = true;
+    m_ForceUtf8 = false;
     _forceCodePage = false;
     _specifiedCodePage = CP_OEMCP;
   }
+
+  // void MarkAltStreams(CObjectVector<CItemEx> &items);
+
+  HRESULT GetOutProperty(IArchiveUpdateCallback *callback, UInt32 callbackIndex, Int32 arcIndex, PROPID propID, PROPVARIANT *value);
 };
 
 }}

@@ -3,6 +3,10 @@
 #ifndef __DIR_ITEM_H
 #define __DIR_ITEM_H
 
+#ifdef _WIN32
+#include "../../../Common/MyLinux.h"
+#endif
+
 #include "../../../Common/MyString.h"
 
 #include "../../../Windows/FileFind.h"
@@ -20,9 +24,18 @@ struct CDirItemsStat
   UInt64 AltStreamsSize;
   
   UInt64 NumErrors;
-  // UInt64 GetTotalItems() const { return NumDirs + NumFiles + NumAltStreams; }
   
+  // UInt64 Get_NumItems() const { return NumDirs + NumFiles + NumAltStreams; }
+  UInt64 Get_NumDataItems() const { return NumFiles + NumAltStreams; }
   UInt64 GetTotalBytes() const { return FilesSize + AltStreamsSize; }
+
+  bool IsEmpty() const { return
+           0 == NumDirs
+        && 0 == NumFiles
+        && 0 == NumAltStreams
+        && 0 == FilesSize
+        && 0 == AltStreamsSize
+        && 0 == NumErrors; }
   
   CDirItemsStat():
       NumDirs(0),
@@ -33,6 +46,30 @@ struct CDirItemsStat
       NumErrors(0)
     {}
 };
+
+
+struct CDirItemsStat2: public CDirItemsStat
+{
+  UInt64 Anti_NumDirs;
+  UInt64 Anti_NumFiles;
+  UInt64 Anti_NumAltStreams;
+  
+  // UInt64 Get_NumItems() const { return Anti_NumDirs + Anti_NumFiles + Anti_NumAltStreams + CDirItemsStat::Get_NumItems(); }
+  UInt64 Get_NumDataItems2() const { return Anti_NumFiles + Anti_NumAltStreams + CDirItemsStat::Get_NumDataItems(); }
+
+  bool IsEmpty() const { return CDirItemsStat::IsEmpty()
+        && 0 == Anti_NumDirs
+        && 0 == Anti_NumFiles
+        && 0 == Anti_NumAltStreams; }
+  
+  CDirItemsStat2():
+      Anti_NumDirs(0),
+      Anti_NumFiles(0),
+      Anti_NumAltStreams(0)
+    {}
+};
+
+
 
 #define INTERFACE_IDirItemsCallback(x) \
   virtual HRESULT ScanError(const FString &path, DWORD systemError) x; \
@@ -51,13 +88,18 @@ struct CDirItem
   FILETIME MTime;
   UString Name;
   
-  #if defined(_WIN32) && !defined(UNDER_CE)
-  // UString ShortName;
+  #ifndef UNDER_CE
   CByteBuffer ReparseData;
-  CByteBuffer ReparseData2; // fixed (reduced) absolute links
 
+  #ifdef _WIN32
+  // UString ShortName;
+  CByteBuffer ReparseData2; // fixed (reduced) absolute links for WIM format
   bool AreReparseData() const { return ReparseData.Size() != 0 || ReparseData2.Size() != 0; }
-  #endif
+  #else
+  bool AreReparseData() const { return ReparseData.Size() != 0; }
+  #endif // _WIN32
+
+  #endif // !UNDER_CE
   
   UInt32 Attrib;
   int PhyParent;
@@ -67,8 +109,22 @@ struct CDirItem
   bool IsAltStream;
   
   CDirItem(): PhyParent(-1), LogParent(-1), SecureIndex(-1), IsAltStream(false) {}
-  bool IsDir() const { return (Attrib & FILE_ATTRIBUTE_DIRECTORY) != 0 ; }
+  
+  bool IsDir() const { return (Attrib & FILE_ATTRIBUTE_DIRECTORY) != 0; }
+  bool IsReadOnly() const { return (Attrib & FILE_ATTRIBUTE_READONLY) != 0; }
+  bool Has_Attrib_ReparsePoint() const { return (Attrib & FILE_ATTRIBUTE_REPARSE_POINT) != 0; }
+
+  #ifdef _WIN32
+  UInt32 GetPosixAttrib() const
+  {
+    UInt32 v = IsDir() ? MY_LIN_S_IFDIR : MY_LIN_S_IFREG;
+    v |= (IsReadOnly() ? 0555 : 0777);
+    return v;
+  }
+  #endif
 };
+
+
 
 class CDirItems
 {
@@ -84,16 +140,14 @@ public:
   CObjectVector<CDirItem> Items;
 
   bool SymLinks;
-
   bool ScanAltStreams;
   
   CDirItemsStat Stat;
 
-  #ifndef UNDER_CE
+  #if !defined(UNDER_CE)
   HRESULT SetLinkInfo(CDirItem &dirItem, const NWindows::NFile::NFind::CFileInfo &fi,
       const FString &phyPrefix);
   #endif
-
 
   #if defined(_WIN32) && !defined(UNDER_CE)
 
@@ -103,6 +157,7 @@ public:
   bool ReadSecure;
   
   HRESULT AddSecurityItem(const FString &path, int &secureIndex);
+  HRESULT FillFixedReparse();
 
   #endif
 
@@ -124,6 +179,9 @@ public:
 
   unsigned AddPrefix(int phyParent, int logParent, const UString &prefix);
   void DeleteLastPrefix();
+
+  // HRESULT EnumerateOneDir(const FString &phyPrefix, CObjectVector<NWindows::NFile::NFind::CDirEntry> &files);
+  HRESULT EnumerateOneDir(const FString &phyPrefix, CObjectVector<NWindows::NFile::NFind::CFileInfo> &files);
   
   HRESULT EnumerateItems2(
     const FString &phyPrefix,
@@ -131,12 +189,9 @@ public:
     const FStringVector &filePaths,
     FStringVector *requestedPaths);
 
-  #if defined(_WIN32) && !defined(UNDER_CE)
-  void FillFixedReparse();
-  #endif
-
   void ReserveDown();
 };
+
 
 struct CArcItem
 {

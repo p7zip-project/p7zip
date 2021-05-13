@@ -3,11 +3,11 @@
 #include "StdAfx.h"
 
 #ifndef _UNICODE
-#include "Common/StringConvert.h"
+#include "../../Common/StringConvert.h"
 #endif
-#include "Windows/Control/Window2.h"
 
-// extern HINSTANCE g_hInstance;
+#include "Window2.h"
+
 #ifndef _UNICODE
 extern bool g_IsNT;
 #endif
@@ -20,16 +20,19 @@ ATOM MyRegisterClass(CONST WNDCLASSW *wndClass);
 
 namespace NControl {
 
-#ifdef _WIN32
-static LRESULT CALLBACK WindowProcedure(HWND aHWND, UINT message,
-    WPARAM wParam, LPARAM lParam)
+#ifdef UNDER_CE
+#define MY_START_WM_CREATE WM_CREATE
+#else
+#define MY_START_WM_CREATE WM_NCCREATE
+#endif
+
+static LRESULT CALLBACK WindowProcedure(HWND aHWND, UINT message, WPARAM wParam, LPARAM lParam)
 {
   CWindow tempWindow(aHWND);
-  if (message == WM_NCCREATE)
-    tempWindow.SetUserDataLongPtr(
-        LONG_PTR(((LPCREATESTRUCT)lParam)->lpCreateParams));
-  CWindow2 *window = (CWindow2*)(tempWindow.GetUserDataLongPtr());
-  if (window != NULL && message == WM_NCCREATE)
+  if (message == MY_START_WM_CREATE)
+    tempWindow.SetUserDataLongPtr((LONG_PTR)(((LPCREATESTRUCT)lParam)->lpCreateParams));
+  CWindow2 *window = (CWindow2 *)(tempWindow.GetUserDataLongPtr());
+  if (window != NULL && message == MY_START_WM_CREATE)
     window->Attach(aHWND);
   if (window == 0)
   {
@@ -43,48 +46,42 @@ static LRESULT CALLBACK WindowProcedure(HWND aHWND, UINT message,
   return window->OnMessage(message, wParam, lParam);
 }
 
-bool CWindow2::CreateEx(DWORD exStyle, LPCTSTR className,
-      LPCTSTR windowName, DWORD style,
-      int x, int y, int width, int height,
-      HWND parentWindow, HMENU idOrHMenu,
-      HINSTANCE instance)
+bool CWindow2::CreateEx(DWORD exStyle, LPCTSTR className, LPCTSTR windowName,
+    DWORD style, int x, int y, int width, int height,
+    HWND parentWindow, HMENU idOrHMenu, HINSTANCE instance)
 {
-  WNDCLASS windowClass;
-  if(!::GetClassInfo(instance, className, &windowClass))
+  WNDCLASS wc;
+  if (!::GetClassInfo(instance, className, &wc))
   {
-    // windowClass.style          = CS_HREDRAW | CS_VREDRAW;
-    windowClass.style          = 0;
-
-    windowClass.lpfnWndProc    = WindowProcedure;
-    windowClass.cbClsExtra     = NULL;
-    windowClass.cbWndExtra     = NULL;
-    windowClass.hInstance      = instance;
-    windowClass.hIcon          = NULL;
-    windowClass.hCursor        = LoadCursor(NULL, IDC_ARROW);
-    windowClass.hbrBackground  = (HBRUSH)(COLOR_WINDOW + 1);
-    windowClass.lpszMenuName   = NULL;
-    windowClass.lpszClassName  = className;
-    if (::RegisterClass(&windowClass) == 0)
+    // wc.style          = CS_HREDRAW | CS_VREDRAW;
+    wc.style          = 0;
+    wc.lpfnWndProc    = WindowProcedure;
+    wc.cbClsExtra     = 0;
+    wc.cbWndExtra     = 0;
+    wc.hInstance      = instance;
+    wc.hIcon          = NULL;
+    wc.hCursor        = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground  = (HBRUSH)(COLOR_WINDOW + 1);
+    wc.lpszMenuName   = NULL;
+    wc.lpszClassName  = className;
+    if (::RegisterClass(&wc) == 0)
       return false;
   }
-  return CWindow::CreateEx(exStyle, className, windowName,
-      style, x, y, width, height, parentWindow,
-      idOrHMenu, instance, this);
+  return CWindow::CreateEx(exStyle, className, windowName, style,
+      x, y, width, height, parentWindow, idOrHMenu, instance, this);
 }
 
 #ifndef _UNICODE
 
-bool CWindow2::CreateEx(DWORD exStyle, LPCWSTR className,
-      LPCWSTR windowName, DWORD style,
-      int x, int y, int width, int height,
-      HWND parentWindow, HMENU idOrHMenu,
-      HINSTANCE instance)
+bool CWindow2::CreateEx(DWORD exStyle, LPCWSTR className, LPCWSTR windowName,
+    DWORD style, int x, int y, int width, int height,
+    HWND parentWindow, HMENU idOrHMenu, HINSTANCE instance)
 {
   bool needRegister;
-  if(g_IsNT)
+  if (g_IsNT)
   {
-    WNDCLASSW windowClass;
-    needRegister = ::GetClassInfoW(instance, className, &windowClass) == 0;
+    WNDCLASSW wc;
+    needRegister = ::GetClassInfoW(instance, className, &wc) == 0;
   }
   else
   {
@@ -102,26 +99,25 @@ bool CWindow2::CreateEx(DWORD exStyle, LPCWSTR className,
   }
   if (needRegister)
   {
-    WNDCLASSW windowClass;
-    // windowClass.style          = CS_HREDRAW | CS_VREDRAW;
-    windowClass.style          = 0;
-    windowClass.lpfnWndProc    = WindowProcedure;
-    windowClass.cbClsExtra     = NULL;
-    windowClass.cbWndExtra     = NULL;
-    windowClass.hInstance      = instance;
-    windowClass.hIcon          = NULL;
-    windowClass.hCursor        = LoadCursor(NULL, IDC_ARROW);
-    windowClass.hbrBackground  = (HBRUSH)(COLOR_WINDOW + 1);
-    windowClass.lpszMenuName   = NULL;
-    windowClass.lpszClassName  = className;
-    if (MyRegisterClass(&windowClass) == 0)
+    WNDCLASSW wc;
+    // wc.style          = CS_HREDRAW | CS_VREDRAW;
+    wc.style          = 0;
+    wc.lpfnWndProc    = WindowProcedure;
+    wc.cbClsExtra     = 0;
+    wc.cbWndExtra     = 0;
+    wc.hInstance      = instance;
+    wc.hIcon          = NULL;
+    wc.hCursor        = LoadCursor(NULL, IDC_ARROW);
+    wc.hbrBackground  = (HBRUSH)(COLOR_WINDOW + 1);
+    wc.lpszMenuName   = NULL;
+    wc.lpszClassName  = className;
+    if (MyRegisterClass(&wc) == 0)
       return false;
   }
-  return CWindow::CreateEx(exStyle, className, windowName,
-      style, x, y, width, height, parentWindow,
-      idOrHMenu, instance, this);
-
+  return CWindow::CreateEx(exStyle, className, windowName, style,
+      x, y, width, height, parentWindow, idOrHMenu, instance, this);
 }
+
 #endif
 
 LRESULT CWindow2::DefProc(UINT message, WPARAM wParam, LPARAM lParam)
@@ -133,7 +129,6 @@ LRESULT CWindow2::DefProc(UINT message, WPARAM wParam, LPARAM lParam)
   #endif
     return DefWindowProc(_window, message, wParam, lParam);
 }
-#endif
 
 LRESULT CWindow2::OnMessage(UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -158,17 +153,11 @@ LRESULT CWindow2::OnMessage(UINT message, WPARAM wParam, LPARAM lParam)
     case WM_CLOSE:
       OnClose();
       return 0;
-#ifdef _WIN32
     case WM_SIZE:
       if (OnSize(wParam, LOWORD(lParam), HIWORD(lParam)))
         return 0;
-#endif
   }
-#ifdef _WIN32
   return DefProc(message, wParam, lParam);
-#else
-  return 0;
-#endif
 }
 
 bool CWindow2::OnCommand(WPARAM wParam, LPARAM lParam, LRESULT &result)
@@ -189,7 +178,7 @@ bool CWindow2::OnCommand(int /* code */, int /* itemID */, LPARAM /* lParam */, 
 /*
 bool CDialog::OnButtonClicked(int buttonID, HWND buttonHWND)
 {
-  switch(aButtonID)
+  switch (buttonID)
   {
     case IDOK:
       OnOK();

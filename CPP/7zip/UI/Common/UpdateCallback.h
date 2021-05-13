@@ -15,6 +15,18 @@
 
 #include "OpenArchive.h"
 
+struct CArcToDoStat
+{
+  CDirItemsStat2 NewData;
+  CDirItemsStat2 OldData;
+  CDirItemsStat2 DeleteData;
+
+  UInt64 Get_NumDataItems_Total() const
+  {
+    return NewData.Get_NumDataItems2() + OldData.Get_NumDataItems2();
+  }
+};
+
 #define INTERFACE_IUpdateCallbackUI(x) \
   virtual HRESULT WriteSfx(const wchar_t *name, UInt64 size) x; \
   virtual HRESULT SetTotal(UInt64 size) x; \
@@ -22,7 +34,7 @@
   virtual HRESULT SetRatioInfo(const UInt64 *inSize, const UInt64 *outSize) x; \
   virtual HRESULT CheckBreak() x; \
   /* virtual HRESULT Finalize() x; */ \
-  virtual HRESULT SetNumItems(UInt64 numItems) x; \
+  virtual HRESULT SetNumItems(const CArcToDoStat &stat) x; \
   virtual HRESULT GetStream(const wchar_t *name, bool isDir, bool isAnti, UInt32 mode) x; \
   virtual HRESULT OpenFileError(const FString &path, DWORD systemError) x; \
   virtual HRESULT ReadingFileError(const FString &path, DWORD systemError) x; \
@@ -120,8 +132,12 @@ public:
   const CObjectVector<CArcItem> *ArcItems;
   const CRecordVector<CUpdatePair2> *UpdatePairs;
   const UStringVector *NewNames;
+  int CommentIndex;
+  const UString *Comment;
 
+  bool PreserveATime;
   bool ShareForWrite;
+  bool StopAfterOpenError;
   bool StdInMode;
 
   bool KeepOriginalItemNames;
@@ -137,9 +153,9 @@ public:
   bool IsDir(const CUpdatePair2 &up) const
   {
     if (up.DirIndex >= 0)
-      return DirItems->Items[up.DirIndex].IsDir();
+      return DirItems->Items[(unsigned)up.DirIndex].IsDir();
     else if (up.ArcIndex >= 0)
-      return (*ArcItems)[up.ArcIndex].IsDir;
+      return (*ArcItems)[(unsigned)up.ArcIndex].IsDir;
     return false;
   }
 };

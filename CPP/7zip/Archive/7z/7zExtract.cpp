@@ -152,6 +152,12 @@ STDMETHODIMP CFolderOutStream::Write(const void *data, UInt32 size, UInt32 *proc
     if (_fileIsOpen)
     {
       UInt32 cur = (size < _rem ? size : (UInt32)_rem);
+      if (_calcCrc)
+      {
+        const UInt32 k_Step = (UInt32)1 << 20;
+        if (cur > k_Step)
+          cur = k_Step;
+      }
       HRESULT result = S_OK;
       if (_stream)
         result = _stream->Write(data, cur, &cur);
@@ -211,6 +217,10 @@ HRESULT CFolderOutStream::FlushCorrupted(Int32 callbackOperationResult)
 STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
     Int32 testModeSpec, IArchiveExtractCallback *extractCallbackSpec)
 {
+  // for GCC
+  // CFolderOutStream *folderOutStream = new CFolderOutStream;
+  // CMyComPtr<ISequentialOutStream> outStream(folderOutStream);
+
   COM_TRY_BEGIN
   
   CMyComPtr<IArchiveExtractCallback> extractCallback = extractCallbackSpec;
@@ -344,7 +354,7 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
       #ifndef _NO_CRYPTO
         bool isEncrypted = false;
         bool passwordIsDefined = false;
-        UString password;
+        UString_Wipe password;
       #endif
 
 
@@ -363,8 +373,8 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
           , dataAfterEnd_Error
           
           _7Z_DECODER_CRYPRO_VARS
-          #if !defined(_7ZIP_ST) && !defined(_SFX)
-            , true, _numThreads
+          #if !defined(_7ZIP_ST)
+            , true, _numThreads, _memUsage
           #endif
           );
 
@@ -405,7 +415,8 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
     {
       RINOK(folderOutStream->FlushCorrupted(NExtract::NOperationResult::kDataError));
       // continue;
-      return E_FAIL;
+      // return E_FAIL;
+      throw;
     }
   }
 

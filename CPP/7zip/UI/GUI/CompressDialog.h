@@ -108,6 +108,7 @@ class CCompressDialog: public NWindows::NControl::CModalDialog
   NWindows::NControl::CEdit _password1Control;
   NWindows::NControl::CEdit _password2Control;
   NWindows::NControl::CComboBox _encryptionMethod;
+  int _default_encryptionMethod_Index;
 
   NCompression::CInfo m_RegistryInfo;
 
@@ -137,6 +138,7 @@ class CCompressDialog: public NWindows::NControl::CModalDialog
   UString GetEncryptionMethodSpec();
 
   bool IsZipFormat();
+  bool IsXzFormat();
 
   void SetEncryptionMethod();
 
@@ -161,7 +163,7 @@ class CCompressDialog: public NWindows::NControl::CModalDialog
   void SetOrder();
   bool GetOrderMode();
 
-  void SetSolidBlockSize();
+  void SetSolidBlockSize(bool useDictionary = false);
   void SetNumThreads();
 
   UInt64 GetMemoryUsage(UInt32 dict, UInt64 &decompressMemory);
@@ -183,7 +185,7 @@ public:
   CUIntVector ArcIndices; // can not be empty, must contain Info.FormatIndex, if Info.FormatIndex >= 0
 
   NCompressDialog::CInfo Info;
-  UString OriginalFileName; // for bzip2, gzip2, lzip
+  UString OriginalFileName; // for bzip2, gzip2
   bool CurrentDirWasChanged;
 
   INT_PTR Create(HWND wndParent = 0)

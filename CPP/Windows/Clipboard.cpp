@@ -2,57 +2,37 @@
 
 #include "StdAfx.h"
 
-
-#include "Windows/Clipboard.h"
-#include "Windows/Defs.h"
-#ifdef _WIN32
-#include "Windows/Memory.h"
-#include "Windows/Shell.h"
-#include "Windows/Memory.h"
-#else
-#include <wx/clipbrd.h>
-#include <wx/dataobj.h>
-#undef _WIN32
+#ifdef UNDER_CE
+#include <winuserm.h>
 #endif
 
-#include "Common/StringConvert.h"
+#include "../Common/StringConvert.h"
+
+#include "Clipboard.h"
+#include "Defs.h"
+#include "MemoryGlobal.h"
+#include "Shell.h"
 
 namespace NWindows {
 
-bool CClipboard::Open(HWND wndNewOwner)
+bool CClipboard::Open(HWND wndNewOwner) throw()
 {
-#ifdef _WIN32
   m_Open = BOOLToBool(::OpenClipboard(wndNewOwner));
-#else
-  m_Open = wxTheClipboard->Open();
-#endif
   return m_Open;
 }
 
-CClipboard::~CClipboard()
-{
-  Close();
-}
-
-bool CClipboard::Close()
+bool CClipboard::Close() throw()
 {
   if (!m_Open)
     return true;
-#ifdef _WIN32
   m_Open = !BOOLToBool(CloseClipboard());
-#else
-  wxTheClipboard->Close();
-  m_Open = false;
-#endif
   return !m_Open;
 }
 
-#ifdef _WIN32
 bool ClipboardIsFormatAvailableHDROP()
 {
   return BOOLToBool(IsClipboardFormatAvailable(CF_HDROP));
 }
-#endif
 
 /*
 bool ClipboardGetTextString(AString &s)
@@ -108,8 +88,7 @@ bool ClipboardGetFileNames(UStringVector &names)
 }
 */
 
-#ifdef _WIN32
-static bool ClipboardSetData(UINT uFormat, const void *data, size_t size)
+static bool ClipboardSetData(UINT uFormat, const void *data, size_t size) throw()
 {
   NMemory::CGlobal global;
   if (!global.Alloc(GMEM_DDESHARE | GMEM_MOVEABLE, size))
@@ -117,7 +96,7 @@ static bool ClipboardSetData(UINT uFormat, const void *data, size_t size)
   {
     NMemory::CGlobalLock globalLock(global);
     LPVOID p = globalLock.GetPointer();
-    if (p == NULL)
+    if (!p)
       return false;
     memcpy(p, data, size);
   }
@@ -126,35 +105,26 @@ static bool ClipboardSetData(UINT uFormat, const void *data, size_t size)
   global.Detach();
   return true;
 }
-#endif
 
 bool ClipboardSetText(HWND owner, const UString &s)
 {
   CClipboard clipboard;
   if (!clipboard.Open(owner))
     return false;
-#ifdef _WIN32
   if (!::EmptyClipboard())
     return false;
 
   bool res;
-  res = ClipboardSetData(CF_UNICODETEXT, (const wchar_t *)s, (s.Length() + 1) * sizeof(wchar_t));
+  res = ClipboardSetData(CF_UNICODETEXT, (const wchar_t *)s, (s.Len() + 1) * sizeof(wchar_t));
   #ifndef _UNICODE
-  AString a;
-  a = UnicodeStringToMultiByte(s, CP_ACP);
-  res |=  ClipboardSetData(CF_TEXT, (const char *)a, (a.Length() + 1) * sizeof(char));
+  AString a (UnicodeStringToMultiByte(s, CP_ACP));
+  if (ClipboardSetData(CF_TEXT, (const char *)a, (a.Len() + 1) * sizeof(char)))
+    res = true;
   a = UnicodeStringToMultiByte(s, CP_OEMCP);
-  res |=  ClipboardSetData(CF_OEMTEXT, (const char *)a, (a.Length() + 1) * sizeof(char));
+  if (ClipboardSetData(CF_OEMTEXT, (const char *)a, (a.Len() + 1) * sizeof(char)))
+    res = true;
   #endif
   return res;
-#else
-  wxTheClipboard->Clear();
-  // This data objects are held by the clipboard, 
-  // so do not delete them in the app.
-  wxString ws(s);
-  wxTheClipboard->SetData( new wxTextDataObject(ws) );  
-  return true;
-#endif
 }
  
 }

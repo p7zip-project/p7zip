@@ -20,15 +20,23 @@ class CItemEx: public CItem
 {
 public:
   UInt32 LocalFullHeaderSize; // including Name and Extra
+  // int ParentOfAltStream; // -1, if not AltStream
   
   bool DescriptorWasRead;
 
-  CItemEx(): DescriptorWasRead(false) {}
+  CItemEx():
+    // ParentOfAltStream(-1),
+    DescriptorWasRead(false) {}
 
   UInt64 GetLocalFullSize() const
     { return LocalFullHeaderSize + GetPackSizeWithDescriptor(); }
   UInt64 GetDataPosition() const
     { return LocalHeaderPos + LocalFullHeaderSize; }
+
+  bool IsBadDescriptor() const
+  {
+    return !FromCentral && FromLocal && HasDescriptor() && !DescriptorWasRead;
+  }
 };
 
 
@@ -159,6 +167,7 @@ struct CVols
   
   bool NeedSeek;
 
+  bool DisableVolsSearch;
   bool StartIsExe;  // is .exe
   bool StartIsZ;    // is .zip or .zNN
   bool StartIsZip;  // is .zip
@@ -198,6 +207,7 @@ struct CVols
     StreamIndex = -1;
     NeedSeek = false;
 
+    DisableVolsSearch = false;
     StartIsExe = false;
     StartIsZ = false;
     StartIsZip = false;
@@ -245,6 +255,9 @@ class CInArchive
   UInt64 _streamPos;
   UInt64 _cnt;
 
+  // UInt32 _startLocalFromCd_Disk;
+  // UInt64 _startLocalFromCd_Offset;
+
   size_t GetAvail() const { return _bufCached - _bufPos; }
 
   void InitBuf() { _bufPos = 0; _bufCached = 0; }
@@ -274,6 +287,7 @@ class CInArchive
   HRESULT SeekToVol(int volIndex, UInt64 offset);
 
   HRESULT ReadFromCache(Byte *data, unsigned size, unsigned &processed);
+  HRESULT ReadFromCache_FALSE(Byte *data, unsigned size);
 
   HRESULT ReadVols2(IArchiveOpenVolumeCallback *volCallback,
       unsigned start, int lastDisk, int zipDisk, unsigned numMissingVolsMax, unsigned &numMissingVols);
@@ -297,7 +311,7 @@ class CInArchive
 
   bool ReadFileName(unsigned nameSize, AString &dest);
 
-  bool ReadExtra(unsigned extraSize, CExtraBlock &extra,
+  bool ReadExtra(const CLocalItem &item, unsigned extraSize, CExtraBlock &extra,
       UInt64 &unpackSize, UInt64 &packSize, UInt64 &localOffset, UInt32 &disk);
   bool ReadLocalItem(CItemEx &item);
   HRESULT FindDescriptor(CItemEx &item, unsigned numFiles);
@@ -317,6 +331,9 @@ public:
   
   bool IsArc;
   bool IsZip64;
+
+  bool IsApk;
+  bool IsCdUnsorted;
   
   bool HeadersError;
   bool HeadersWarning;
@@ -337,14 +354,19 @@ public:
 
   CVols Vols;
  
-  CInArchive(): Stream(NULL), StartStream(NULL), Callback(NULL), IsArcOpen(false) {}
+  CInArchive():
+      IsArcOpen(false),
+      Stream(NULL),
+      StartStream(NULL),
+      Callback(NULL)
+      {}
 
   UInt64 GetPhySize() const
   {
     if (IsMultiVol)
       return ArcInfo.FinishPos;
     else
-      return ArcInfo.FinishPos - ArcInfo.Base;
+      return (UInt64)((Int64)ArcInfo.FinishPos - ArcInfo.Base);
   }
 
   UInt64 GetOffset() const
@@ -352,7 +374,7 @@ public:
     if (IsMultiVol)
       return 0;
     else
-      return ArcInfo.Base;
+      return (UInt64)ArcInfo.Base;
   }
 
   
@@ -378,11 +400,14 @@ public:
 
   UInt64 GetEmbeddedStubSize() const
   {
+    // it's possible that first item in CD doesn refers to first local item
+    // so FirstItemRelatOffset is not first local item
+
     if (ArcInfo.CdWasRead)
       return ArcInfo.FirstItemRelatOffset;
     if (IsMultiVol)
       return 0;
-    return ArcInfo.MarkerPos2 - ArcInfo.Base;
+    return (UInt64)((Int64)ArcInfo.MarkerPos2 - ArcInfo.Base);
   }
 
 
@@ -401,7 +426,9 @@ public:
        || ArcInfo.Base < 0
        || (Int64)ArcInfo.MarkerPos2 < ArcInfo.Base
        || ArcInfo.ThereIsTail
-       || GetEmbeddedStubSize() != 0)
+       || GetEmbeddedStubSize() != 0
+       || IsApk
+       || IsCdUnsorted)
       return false;
    
     // 7-zip probably can update archives with embedded stubs.

@@ -31,8 +31,21 @@ STDMETHODIMP CArchiveFolderManager::OpenFolderFile(IInStream *inStream,
   }
   CAgent *agent = new CAgent();
   CMyComPtr<IInFolderArchive> archive = agent;
-  RINOK(agent->Open(inStream, filePath, arcFormat, NULL, openArchiveCallback));
-  return agent->BindToRootFolder(resultFolder);
+  
+  HRESULT res = agent->Open(inStream, filePath, arcFormat, NULL, openArchiveCallback);
+  
+  if (res != S_OK)
+  {
+    if (res != S_FALSE)
+      return res;
+    /* 20.01: we create folder even for Non-Open cases, if there is NonOpen_ErrorInfo information.
+         So we can get error information from that IFolderFolder later. */
+    if (!agent->_archiveLink.NonOpen_ErrorInfo.IsThereErrorOrWarning())
+      return res;
+  }
+  
+  RINOK(agent->BindToRootFolder(resultFolder));
+  return res;
 }
 
 /*
@@ -86,7 +99,7 @@ STDMETHODIMP CArchiveFolderManager::GetIconPath(const wchar_t *ext, BSTR *iconPa
 {
   *iconPath = 0;
   *iconIndex = 0;
-#ifdef _WIN32
+
   LoadFormats();
 
   #ifdef EXTERNAL_CODECS
@@ -114,7 +127,6 @@ STDMETHODIMP CArchiveFolderManager::GetIconPath(const wchar_t *ext, BSTR *iconPa
       return StringToBstr(fs2us(path), iconPath);
     }
   }
-#endif
   return S_OK;
 }
 

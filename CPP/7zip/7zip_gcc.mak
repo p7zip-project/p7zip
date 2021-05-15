@@ -101,7 +101,7 @@ DEL_OBJ_EXE = -$(RM) $(O)\*.o $(O)\$(PROG).exe $(O)\$(PROG).dll
  
 else
 
-RM = rm -f
+RM = rm -rf
 MY_MKDIR=mkdir -p
 # CFLAGS_BASE := $(CFLAGS_BASE) -D_7ZIP_ST
 # CXXFLAGS_EXTRA = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
@@ -1164,6 +1164,26 @@ $O/7zMain.o: ../../../../C/Util/7z/7zMain.c
 $O/LzmaUtil.o: ../../../../C/Util/Lzma/LzmaUtil.c
 	$(CC) $(CFLAGS) $<
 
+# Build zstd lib static and dynamic
+$O/libzstd.a: ../../../../C/zstd/lib/zstd.h
+	$(RM) zstd_build
+	$(MY_MKDIR) -p zstd_build
+	cd zstd_build; \
+	cmake ../../../../../C/zstd/build/cmake; \
+	make -j; \
+	cd ..; \
+	cp zstd_build/lib/libzstd.a $O
+
+# Compile zstd method 
+$O/ZstdDecoder.o: ../../Compress/ZstdDecoder.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/ZstdEncoder.o: ../../Compress/ZstdEncoder.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/ZstdRegister.o: ../../Compress/ZstdRegister.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/ZstdHandler.o: ../../Archive/ZstdHandler.cpp
+	$(CXX) $(CXXFLAGS) $<
+
 ifneq ($(CC), xlc)
 SHOW_PREDEF=-dM
 else
@@ -1181,3 +1201,4 @@ predef: predef_cc predef_cxx
 
 clean:
 	-$(DEL_OBJ_EXE)
+	$(RM) zstd_build

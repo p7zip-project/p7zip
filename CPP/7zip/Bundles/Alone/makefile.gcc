@@ -167,6 +167,7 @@ AR_OBJS = \
   $O/LzmaHandler.o \
   $O/SplitHandler.o \
   $O/XzHandler.o \
+  $O/ZstdHandler.o \
 
 AR_COMMON_OBJS = \
   $O/CoderMixer2.o \
@@ -257,6 +258,9 @@ COMPRESS_OBJS = \
   $O/ShrinkDecoder.o \
   $O/XzDecoder.o \
   $O/XzEncoder.o \
+  $O/ZstdDecoder.o \
+  $O/ZstdEncoder.o \
+  $O/ZstdRegister.o \
 
 CRYPTO_OBJS = \
   $O/7zAes.o \
@@ -312,6 +316,8 @@ C_OBJS = \
   $O/Sha1.o \
   $O/Sha1Opt.o \
 
+ZSTD_STATIC_LIB = $O/libzstd.a
+
 OBJS = \
 	$(LZMA_DEC_OPT_OBJS) \
   $(C_OBJS) \
@@ -330,5 +336,6 @@ OBJS = \
   $(ZIP_OBJS) \
   $(UI_COMMON_OBJS) \
   $(CONSOLE_OBJS) \
+  $(ZSTD_STATIC_LIB) \
 
 include ../../7zip_gcc.mak

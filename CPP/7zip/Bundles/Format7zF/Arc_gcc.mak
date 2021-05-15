@@ -120,6 +120,7 @@ AR_OBJS = \
   $O/XarHandler.o \
   $O/XzHandler.o \
   $O/ZHandler.o \
+  $O/ZstdHandler.o \
 
 AR_COMMON_OBJS = \
   $O/CoderMixer2.o \
@@ -256,6 +257,9 @@ COMPRESS_OBJS = \
   $O/ZlibDecoder.o \
   $O/ZlibEncoder.o \
   $O/ZDecoder.o \
+  $O/ZstdDecoder.o \
+  $O/ZstdEncoder.o \
+  $O/ZstdRegister.o \
 
 
 CRYPTO_OBJS = \
@@ -320,6 +324,8 @@ C_OBJS = \
   $O/Sha1.o \
   $O/Sha1Opt.o \
 
+ZSTD_STATIC_LIB = $O/libzstd.a
+
 ARC_OBJS = \
 	$(LZMA_DEC_OPT_OBJS) \
   $(C_OBJS) \
@@ -342,4 +348,5 @@ ARC_OBJS = \
   $(COMPRESS_OBJS) \
   $(CRYPTO_OBJS) \
   $(7ZIP_COMMON_OBJS) \
+  $(ZSTD_STATIC_LIB) \
 

@@ -25,6 +25,9 @@ MT_OBJS = \
   $O/OutMemStream.o \
   $O/ProgressMt.o \
   $O/Threads.o \
+  $O/lz4-mt_common.o \
+  $O/lz4-mt_compress.o \
+  $O/lz4-mt_decompress.o \
 
 endif
 
@@ -121,6 +124,7 @@ AR_OBJS = \
   $O/XzHandler.o \
   $O/ZHandler.o \
   $O/ZstdHandler.o \
+  $O/Lz4Handler.o \
 
 AR_COMMON_OBJS = \
   $O/CoderMixer2.o \
@@ -260,6 +264,9 @@ COMPRESS_OBJS = \
   $O/ZstdDecoder.o \
   $O/ZstdEncoder.o \
   $O/ZstdRegister.o \
+  $O/Lz4Decoder.o \
+  $O/Lz4Encoder.o \
+  $O/Lz4Register.o \
 
 
 CRYPTO_OBJS = \
@@ -325,6 +332,7 @@ C_OBJS = \
   $O/Sha1Opt.o \
 
 ZSTD_STATIC_LIB = $O/libzstd.a
+LZ4_STATIC_LIB = $O/liblz4.a
 
 ARC_OBJS = \
 	$(LZMA_DEC_OPT_OBJS) \
@@ -349,4 +357,5 @@ ARC_OBJS = \
   $(CRYPTO_OBJS) \
   $(7ZIP_COMMON_OBJS) \
   $(ZSTD_STATIC_LIB) \
+  $(LZ4_STATIC_LIB) \
 

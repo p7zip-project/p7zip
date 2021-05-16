@@ -112,7 +112,7 @@ LIB2 = -lpthread -ldl
 
 
 
-DEL_OBJ_EXE = -$(RM) $(PROGPATH) $(OBJS)
+DEL_OBJ_EXE = -$(RM) $(O) 
 
 endif
 
@@ -1164,6 +1164,15 @@ $O/7zMain.o: ../../../../C/Util/7z/7zMain.c
 $O/LzmaUtil.o: ../../../../C/Util/Lzma/LzmaUtil.c
 	$(CC) $(CFLAGS) $<
 
+# Build MT API 
+$O/lz4-mt_common.o: ../../../../C/zstdmt/lz4-mt_common.c
+	$(CC) $(CFLAGS) $<
+$O/lz4-mt_compress.o: ../../../../C/zstdmt/lz4-mt_compress.c
+	$(CC) $(CFLAGS) $<
+$O/lz4-mt_decompress.o: ../../../../C/zstdmt/lz4-mt_decompress.c
+	$(CC) $(CFLAGS) $<
+
+
 # Build zstd lib static and dynamic
 $O/libzstd.a: ../../../../C/zstd/lib/zstd.h
 	$(RM) zstd_build
@@ -1174,7 +1183,7 @@ $O/libzstd.a: ../../../../C/zstd/lib/zstd.h
 	cd ..; \
 	cp zstd_build/lib/libzstd.a $O
 
-# Compile zstd method 
+# Compile zstd method and Handler
 $O/ZstdDecoder.o: ../../Compress/ZstdDecoder.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/ZstdEncoder.o: ../../Compress/ZstdEncoder.cpp
@@ -1182,6 +1191,26 @@ $O/ZstdEncoder.o: ../../Compress/ZstdEncoder.cpp
 $O/ZstdRegister.o: ../../Compress/ZstdRegister.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/ZstdHandler.o: ../../Archive/ZstdHandler.cpp
+	$(CXX) $(CXXFLAGS) $<
+
+# Build lz4 lib static and dynamic
+$O/liblz4.a: ../../../../C/lz4/lib/lz4.h
+	$(RM) lz4_build
+	$(MY_MKDIR) -p lz4_build
+	cd lz4_build; \
+	cmake -DBUILD_STATIC_LIBS=ON ../../../../../C/lz4/build/cmake; \
+	make -j; \
+	cd ..; \
+	cp lz4_build/liblz4.a $O
+
+# Compile lz4 method and Handler
+$O/Lz4Decoder.o: ../../Compress/Lz4Decoder.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Lz4Encoder.o: ../../Compress/Lz4Encoder.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Lz4Register.o: ../../Compress/Lz4Register.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Lz4Handler.o: ../../Archive/Lz4Handler.cpp
 	$(CXX) $(CXXFLAGS) $<
 
 ifneq ($(CC), xlc)
@@ -1202,3 +1231,4 @@ predef: predef_cc predef_cxx
 clean:
 	-$(DEL_OBJ_EXE)
 	$(RM) zstd_build
+	$(RM) lz4_build

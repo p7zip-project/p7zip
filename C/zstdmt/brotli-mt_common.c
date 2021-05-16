@@ -9,8 +9,11 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#include "../brotli/encode.h"
-#include "../brotli/decode.h"
+// #include "../brotli/c/include/brotli/encode.h"
+// #include "../brotli/c/include/brotli/decode.h"
+
+#include "brotli/encode.h"
+#include "brotli/decode.h"
 
 #include "brotli-mt.h"
 
@@ -33,7 +36,8 @@ const char *BROTLIMT_getErrorString(size_t code)
 {
 	static const char *noErrorCode = "Unspecified brotli error code";
 
-	switch ((BROTLIMT_ErrorCode) (0 - code)) {
+	switch ((BROTLIMT_ErrorCode)(0 - code))
+	{
 	case PREFIX(no_error):
 		return "No error detected";
 	case PREFIX(memory_allocation):

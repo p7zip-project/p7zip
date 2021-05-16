@@ -1171,6 +1171,12 @@ $O/lz4-mt_compress.o: ../../../../C/zstdmt/lz4-mt_compress.c
 	$(CC) $(CFLAGS) $<
 $O/lz4-mt_decompress.o: ../../../../C/zstdmt/lz4-mt_decompress.c
 	$(CC) $(CFLAGS) $<
+$O/brotli-mt_common.o: ../../../../C/zstdmt/brotli-mt_common.c
+	$(CC) $(CFLAGS) $< -I ../../../../C/brotli/c/include
+$O/brotli-mt_compress.o: ../../../../C/zstdmt/brotli-mt_compress.c
+	$(CC) $(CFLAGS) $< -I ../../../../C/brotli/c/include
+$O/brotli-mt_decompress.o: ../../../../C/zstdmt/brotli-mt_decompress.c
+	$(CC) $(CFLAGS) $< -I ../../../../C/brotli/c/include
 
 
 # Build zstd lib static and dynamic
@@ -1213,6 +1219,27 @@ $O/Lz4Register.o: ../../Compress/Lz4Register.cpp
 $O/Lz4Handler.o: ../../Archive/Lz4Handler.cpp
 	$(CXX) $(CXXFLAGS) $<
 
+# Build brotli lib static and dynamic
+$O/libbrotlicommon-static.a $O/libbrotlienc-static.a $O/libbrotlidec-static.a: ../../../../C/lz4/lib/lz4.h
+	$(RM) brotli_build
+	$(MY_MKDIR) -p brotli_build
+	cd brotli_build; \
+	cmake ../../../../../C/brotli/; \
+	make -j; \
+	cd ..; \
+	cp brotli_build/libbrotlicommon-static.a $O
+	cp brotli_build/libbrotlidec-static.a $O
+	cp brotli_build/libbrotlienc-static.a $O
+
+# Compile brotli method and Handler 
+$O/BrotliDecoder.o: ../../Compress/BrotliDecoder.cpp
+	$(CXX) $(CXXFLAGS) $< -I ../../../../C/brotli/c/include
+$O/BrotliEncoder.o: ../../Compress/BrotliEncoder.cpp
+	$(CXX) $(CXXFLAGS) $< -I ../../../../C/brotli/c/include
+$O/BrotliRegister.o: ../../Compress/BrotliRegister.cpp
+	$(CXX) $(CXXFLAGS) $< -I ../../../../C/brotli/c/include
+
+
 ifneq ($(CC), xlc)
 SHOW_PREDEF=-dM
 else
@@ -1232,3 +1259,4 @@ clean:
 	-$(DEL_OBJ_EXE)
 	$(RM) zstd_build
 	$(RM) lz4_build
+	$(RM) brotli_build

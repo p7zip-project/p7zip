@@ -28,6 +28,9 @@ MT_OBJS = \
   $O/lz4-mt_common.o \
   $O/lz4-mt_compress.o \
   $O/lz4-mt_decompress.o \
+  $O/brotli-mt_common.o \
+  $O/brotli-mt_compress.o \
+  $O/brotli-mt_decompress.o \
 
 endif
 
@@ -267,6 +270,9 @@ COMPRESS_OBJS = \
   $O/Lz4Decoder.o \
   $O/Lz4Encoder.o \
   $O/Lz4Register.o \
+  $O/BrotliDecoder.o \
+  $O/BrotliEncoder.o \
+  $O/BrotliRegister.o \
 
 
 CRYPTO_OBJS = \
@@ -333,6 +339,9 @@ C_OBJS = \
 
 ZSTD_STATIC_LIB = $O/libzstd.a
 LZ4_STATIC_LIB = $O/liblz4.a
+BROTLI_STATIC_LIB = $O/libbrotlienc-static.a \
+  $O/libbrotlidec-static.a \
+  $O/libbrotlicommon-static.a \
 
 ARC_OBJS = \
 	$(LZMA_DEC_OPT_OBJS) \
@@ -358,4 +367,5 @@ ARC_OBJS = \
   $(7ZIP_COMMON_OBJS) \
   $(ZSTD_STATIC_LIB) \
   $(LZ4_STATIC_LIB) \
+  $(BROTLI_STATIC_LIB) \
 

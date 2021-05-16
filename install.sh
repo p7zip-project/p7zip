@@ -159,9 +159,9 @@ else
    chmod 644 "${DEST_DIR}${DEST_MAN}/man1/7zr.1"
 fi
 
-gzip "${DEST_DIR}${DEST_MAN}/man1/7z.1"
-gzip "${DEST_DIR}${DEST_MAN}/man1/7za.1"
-gzip "${DEST_DIR}${DEST_MAN}/man1/7zr.1"
+gzip -n "${DEST_DIR}${DEST_MAN}/man1/7z.1"
+gzip -n "${DEST_DIR}${DEST_MAN}/man1/7za.1"
+gzip -n "${DEST_DIR}${DEST_MAN}/man1/7zr.1"
 
 if [ -f README ]
 then

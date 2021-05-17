@@ -20,18 +20,26 @@ This is the place for 7zz (Well known as 7zip-21.02 Linux version) to include ma
 2. Use makefile to compile and build the binary 7zz:
 ```
    cd p7zip/CPP/7zip/Bundles/Alone2 && make -f makefile.gcc
+   OR
+   cd p7zip/CPP/7zip/Bundles/Alone2 && make -j -f ../../cmpl_gcc.mak
 ```
 If you want build 7za:
 ```
    cd p7zip/CPP/7zip/Bundles/Alone && make -f makefile.gcc
+   OR
+   cd p7zip/CPP/7zip/Bundles/Alone && make -j -f ../../cmpl_gcc.mak
 ```
 7zr:
 ```
    cd p7zip/CPP/7zip/Bundles/Alone7z && make -f makefile.gcc
+   OR
+   cd p7zip/CPP/7zip/Bundles/Alone7z && make -j -f ../../cmpl_gcc.mak
 ```
 or build 7z.so:
 ```
    cd p7zip/CPP/7zip/Bundles/Format7zF && make -f makefile.gcc
+   OR
+   cd p7zip/CPP/7zip/Bundles/Format7zF && make -j -f ../../cmpl_gcc.mak
 ```
 3. Test:
 ```

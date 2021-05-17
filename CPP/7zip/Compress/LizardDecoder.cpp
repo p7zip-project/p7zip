@@ -3,15 +3,16 @@
 #include "StdAfx.h"
 #include "LizardDecoder.h"
 
-int LizardRead(void *arg, LIZARDMT_Buffer * in)
+int LizardRead(void *arg, LIZARDMT_Buffer *in)
 {
-  struct LizardStream *x = (struct LizardStream*)arg;
+  struct LizardStream *x = (struct LizardStream *)arg;
   size_t size = in->size;
 
   HRESULT res = ReadStream(x->inStream, in->buf, &size);
 
   /* catch errors */
-  switch (res) {
+  switch (res)
+  {
   case E_ABORT:
     return -2;
   case E_OUTOFMEMORY:
@@ -28,19 +29,20 @@ int LizardRead(void *arg, LIZARDMT_Buffer * in)
   return 0;
 }
 
-int LizardWrite(void *arg, LIZARDMT_Buffer * out)
+int LizardWrite(void *arg, LIZARDMT_Buffer *out)
 {
-  struct LizardStream *x = (struct LizardStream*)arg;
+  struct LizardStream *x = (struct LizardStream *)arg;
   UInt32 todo = (UInt32)out->size;
   UInt32 done = 0;
 
   while (todo != 0)
   {
     UInt32 block;
-    HRESULT res = x->outStream->Write((char*)out->buf + done, todo, &block);
+    HRESULT res = x->outStream->Write((char *)out->buf + done, todo, &block);
 
     /* catch errors */
-    switch (res) {
+    switch (res)
+    {
     case E_ABORT:
       return -2;
     case E_OUTOFMEMORY:
@@ -67,122 +69,127 @@ int LizardWrite(void *arg, LIZARDMT_Buffer * out)
   return 0;
 }
 
-namespace NCompress {
-namespace NLIZARD {
-
-CDecoder::CDecoder():
-  _processedIn(0),
-  _processedOut(0),
-  _inputSize(0),
-  _numThreads(NWindows::NSystem::GetNumberOfProcessors())
+namespace NCompress
 {
-  _props.clear();
-}
+  namespace NLIZARD
+  {
 
-CDecoder::~CDecoder()
-{
-}
+    CDecoder::CDecoder() : _processedIn(0),
+                           _processedOut(0),
+                           _inputSize(0),
+                           _numThreads(NWindows::NSystem::GetNumberOfProcessors())
+    {
+      _props.clear();
+    }
 
-STDMETHODIMP CDecoder::SetDecoderProperties2(const Byte * prop, UInt32 size)
-{
-  DProps *pProps = (DProps *)prop;
+    CDecoder::~CDecoder()
+    {
+    }
 
-  if (size != sizeof(DProps))
-    return E_NOTIMPL;
+    STDMETHODIMP CDecoder::SetDecoderProperties2(const Byte *prop, UInt32 size)
+    {
+      DProps *pProps = (DProps *)prop;
 
-  memcpy(&_props, pProps, sizeof (DProps));
+      if (size != sizeof(DProps))
+        return E_NOTIMPL;
 
-  return S_OK;
-}
+      memcpy((void *)&_props, (void *)pProps, sizeof(DProps));
 
-STDMETHODIMP CDecoder::SetNumberOfThreads(UInt32 numThreads)
-{
-  const UInt32 kNumThreadsMax = LIZARDMT_THREAD_MAX;
-  if (numThreads < 1) numThreads = 1;
-  if (numThreads > kNumThreadsMax) numThreads = kNumThreadsMax;
-  _numThreads = numThreads;
-  return S_OK;
-}
+      return S_OK;
+    }
 
-HRESULT CDecoder::SetOutStreamSizeResume(const UInt64 * /*outSize*/)
-{
-  _processedOut = 0;
-  return S_OK;
-}
+    STDMETHODIMP CDecoder::SetNumberOfThreads(UInt32 numThreads)
+    {
+      const UInt32 kNumThreadsMax = LIZARDMT_THREAD_MAX;
+      if (numThreads < 1)
+        numThreads = 1;
+      if (numThreads > kNumThreadsMax)
+        numThreads = kNumThreadsMax;
+      _numThreads = numThreads;
+      return S_OK;
+    }
 
-STDMETHODIMP CDecoder::SetOutStreamSize(const UInt64 * outSize)
-{
-  _processedIn = 0;
-  RINOK(SetOutStreamSizeResume(outSize));
-  return S_OK;
-}
+    HRESULT CDecoder::SetOutStreamSizeResume(const UInt64 * /*outSize*/)
+    {
+      _processedOut = 0;
+      return S_OK;
+    }
 
-HRESULT CDecoder::CodeSpec(ISequentialInStream * inStream,
-  ISequentialOutStream * outStream, ICompressProgressInfo * progress)
-{
-  LIZARDMT_RdWr_t rdwr;
-  size_t result;
-  HRESULT res = S_OK;
+    STDMETHODIMP CDecoder::SetOutStreamSize(const UInt64 *outSize)
+    {
+      _processedIn = 0;
+      RINOK(SetOutStreamSizeResume(outSize));
+      return S_OK;
+    }
 
-  struct LizardStream Rd;
-  Rd.inStream = inStream;
-  Rd.processedIn = &_processedIn;
+    HRESULT CDecoder::CodeSpec(ISequentialInStream *inStream,
+                               ISequentialOutStream *outStream, ICompressProgressInfo *progress)
+    {
+      LIZARDMT_RdWr_t rdwr;
+      size_t result;
+      HRESULT res = S_OK;
 
-  struct LizardStream Wr;
-  Wr.progress = progress;
-  Wr.outStream = outStream;
-  Wr.processedIn = &_processedIn;
-  Wr.processedOut = &_processedOut;
+      struct LizardStream Rd;
+      Rd.inStream = inStream;
+      Rd.processedIn = &_processedIn;
 
-  /* 1) setup read/write functions */
-  rdwr.fn_read = ::LizardRead;
-  rdwr.fn_write = ::LizardWrite;
-  rdwr.arg_read = (void *)&Rd;
-  rdwr.arg_write = (void *)&Wr;
+      struct LizardStream Wr;
+      Wr.progress = progress;
+      Wr.outStream = outStream;
+      Wr.processedIn = &_processedIn;
+      Wr.processedOut = &_processedOut;
 
-  /* 2) create decompression context */
-  LIZARDMT_DCtx *ctx = LIZARDMT_createDCtx(_numThreads, _inputSize);
-  if (!ctx)
-      return S_FALSE;
+      /* 1) setup read/write functions */
+      rdwr.fn_read = ::LizardRead;
+      rdwr.fn_write = ::LizardWrite;
+      rdwr.arg_read = (void *)&Rd;
+      rdwr.arg_write = (void *)&Wr;
 
-  /* 3) decompress */
-  result = LIZARDMT_decompressDCtx(ctx, &rdwr);
-  if (LIZARDMT_isError(result)) {
-    if (result == (size_t)-LIZARDMT_error_canceled)
-      return E_ABORT;
-    return E_FAIL;
-  }
+      /* 2) create decompression context */
+      LIZARDMT_DCtx *ctx = LIZARDMT_createDCtx(_numThreads, _inputSize);
+      if (!ctx)
+        return S_FALSE;
 
-  /* 4) free resources */
-  LIZARDMT_freeDCtx(ctx);
-  return res;
-}
+      /* 3) decompress */
+      result = LIZARDMT_decompressDCtx(ctx, &rdwr);
+      if (LIZARDMT_isError(result))
+      {
+        if (result == (size_t)-LIZARDMT_error_canceled)
+          return E_ABORT;
+        return E_FAIL;
+      }
 
-STDMETHODIMP CDecoder::Code(ISequentialInStream * inStream, ISequentialOutStream * outStream,
-  const UInt64 * /*inSize */, const UInt64 *outSize, ICompressProgressInfo * progress)
-{
-  SetOutStreamSize(outSize);
-  return CodeSpec(inStream, outStream, progress);
-}
+      /* 4) free resources */
+      LIZARDMT_freeDCtx(ctx);
+      return res;
+    }
+
+    STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
+                                const UInt64 * /*inSize */, const UInt64 *outSize, ICompressProgressInfo *progress)
+    {
+      SetOutStreamSize(outSize);
+      return CodeSpec(inStream, outStream, progress);
+    }
 
 #ifndef NO_READ_FROM_CODER
-STDMETHODIMP CDecoder::SetInStream(ISequentialInStream * inStream)
-{
-  _inStream = inStream;
-  return S_OK;
-}
+    STDMETHODIMP CDecoder::SetInStream(ISequentialInStream *inStream)
+    {
+      _inStream = inStream;
+      return S_OK;
+    }
 
-STDMETHODIMP CDecoder::ReleaseInStream()
-{
-  _inStream.Release();
-  return S_OK;
-}
+    STDMETHODIMP CDecoder::ReleaseInStream()
+    {
+      _inStream.Release();
+      return S_OK;
+    }
 #endif
 
-HRESULT CDecoder::CodeResume(ISequentialOutStream * outStream, const UInt64 * outSize, ICompressProgressInfo * progress)
-{
-  RINOK(SetOutStreamSizeResume(outSize));
-  return CodeSpec(_inStream, outStream, progress);
-}
+    HRESULT CDecoder::CodeResume(ISequentialOutStream *outStream, const UInt64 *outSize, ICompressProgressInfo *progress)
+    {
+      RINOK(SetOutStreamSizeResume(outSize));
+      return CodeSpec(_inStream, outStream, progress);
+    }
 
-}}
+  }
+}

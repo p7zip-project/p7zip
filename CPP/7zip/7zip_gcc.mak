@@ -1177,6 +1177,12 @@ $O/brotli-mt_compress.o: ../../../../C/zstdmt/brotli-mt_compress.c
 	$(CC) $(CFLAGS) $< -I ../../../../C/brotli/c/include
 $O/brotli-mt_decompress.o: ../../../../C/zstdmt/brotli-mt_decompress.c
 	$(CC) $(CFLAGS) $< -I ../../../../C/brotli/c/include
+$O/lizard-mt_common.o: ../../../../C/zstdmt/lizard-mt_common.c
+	$(CC) $(CFLAGS) $<
+$O/lizard-mt_compress.o: ../../../../C/zstdmt/lizard-mt_compress.c
+	$(CC) $(CFLAGS) $<
+$O/lizard-mt_decompress.o: ../../../../C/zstdmt/lizard-mt_decompress.c
+	$(CC) $(CFLAGS) $<
 
 
 # Build zstd lib static and dynamic
@@ -1239,6 +1245,20 @@ $O/BrotliEncoder.o: ../../Compress/BrotliEncoder.cpp
 $O/BrotliRegister.o: ../../Compress/BrotliRegister.cpp
 	$(CXX) $(CXXFLAGS) $< -I ../../../../C/brotli/c/include
 
+# Build lizard lib static and dynamic
+$O/liblizard.a: ../../../../C/lizard/lib/lizard_frame.h
+	make -C ../../../../C/lizard/lib CFLAGS=-Wno-implicit-fallthrough
+	cp ../../../../C/lizard/lib/liblizard.a $O
+
+# Compile lizard method and Handler
+$O/LizardDecoder.o: ../../Compress/LizardDecoder.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/LizardEncoder.o: ../../Compress/LizardEncoder.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/LizardRegister.o: ../../Compress/LizardRegister.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/LizardHandler.o: ../../Archive/LizardHandler.cpp
+	$(CXX) $(CXXFLAGS) $<
 
 ifneq ($(CC), xlc)
 SHOW_PREDEF=-dM
@@ -1260,3 +1280,4 @@ clean:
 	$(RM) zstd_build
 	$(RM) lz4_build
 	$(RM) brotli_build
+	make -C ../../../../C/lizard/lib clean

@@ -13,7 +13,7 @@ PROGPATH = $(O)/$(PROG)
 
 
 ifneq ($(CC), xlc)
-CFLAGS_WARN_WALL = -Wall -Werror -Wextra
+CFLAGS_WARN_WALL = -Wno-maybe-uninitialized -Wall -Werror -Wextra
 endif
 
 # for object file

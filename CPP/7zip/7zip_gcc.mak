@@ -1247,7 +1247,7 @@ $O/BrotliRegister.o: ../../Compress/BrotliRegister.cpp
 
 # Build lizard lib static and dynamic
 $O/liblizard.a: ../../../../C/lizard/lib/lizard_frame.h
-	make -C ../../../../C/lizard/lib CFLAGS=-Wno-implicit-fallthrough
+	make -C ../../../../C/lizard/lib
 	cp ../../../../C/lizard/lib/liblizard.a $O
 
 # Compile lizard method and Handler

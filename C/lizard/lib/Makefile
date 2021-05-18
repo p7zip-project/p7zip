@@ -45,10 +45,10 @@ LIBVER := $(shell echo $(LIBVER_SCRIPT))
 BUILD_STATIC:= yes
 
 CPPFLAGS= -DXXH_NAMESPACE=Lizard_
-CFLAGS ?= -O3
+CFLAGS ?= -O3 
 CFLAGS += -Wall -Wextra -Wcast-qual -Wcast-align -Wshadow \
           -Wswitch-enum -Wdeclaration-after-statement -Wstrict-prototypes -Wundef \
-          -Wpointer-arith -Wstrict-aliasing=1
+          -Wpointer-arith -Wstrict-aliasing=1 -Wno-implicit-fallthrough
 CFLAGS  += $(MOREFLAGS) 
 FLAGS   = $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)
 
@@ -77,7 +77,7 @@ lib: liblizard.a liblizard
 liblizard.a: *.c xxhash/*.c entropy/*.c
 ifeq ($(BUILD_STATIC),yes)
 	@echo compiling static library
-	@$(CC) $(FLAGS) -c $^
+	@$(CC) $(FLAGS) -c $^ -fPIC 
 	@$(AR) rcs $@ *.o
 endif
 

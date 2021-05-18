@@ -9,7 +9,7 @@
  * of patent rights can be found in the PATENTS file in the same directory.
  */
 
-#include "../lz5/lz5frame.h"
+#include "../lz5/lib/lz5frame.h"
 #include "lz5-mt.h"
 
 /* will be used for lib errors */
@@ -37,7 +37,8 @@ const char *LZ5MT_getErrorString(size_t code)
 	if (LZ5F_isError(lz5mt_errcode))
 		return LZ5F_getErrorName(lz5mt_errcode);
 
-	switch ((LZ5MT_ErrorCode) (0 - code)) {
+	switch ((LZ5MT_ErrorCode)(0 - code))
+	{
 	case PREFIX(no_error):
 		return "No error detected";
 	case PREFIX(memory_allocation):

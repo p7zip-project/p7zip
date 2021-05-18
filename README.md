@@ -11,6 +11,15 @@ This is the place for 7zz (Well known as 7zip-21.02 Linux version) to include ma
 3. [Brotli] v1.0.9 is a generic-purpose lossless compression algorithm that compresses data using a combination of a modern variant of the LZ77 algorithm, Huffman coding and 2nd order context modeling, with a compression ratio comparable to the best currently available general-purpose compression methods. It is similar in speed with deflate but offers more dense compression.
    - Levels: 0..11
 
+4. [LZ5] v1.5 is a modification of LZ4 which gives a better ratio at cost of slower compression and decompression.
+   - Levels: 1..15
+
+5. [Lizard] v1.0 is an efficient compressor with very fast decompression. It achieves compression ratio that is comparable to zip/zlib and zstd/brotli (at low and medium compression levels) at decompression speed of 1000 MB/s and faster.
+   - Levels 10..19 (fastLZ4) are designed to give about 10% better decompression speed than LZ4
+   - Levels 20..29 (LIZv1) are designed to give better ratio than LZ4 keeping 75% decompression speed
+   - Levels 30..39 (fastLZ4 + Huffman) adds Huffman coding to fastLZ4
+   - Levels 40..49 (LIZv1 + Huffman) give the best ratio, comparable to zlib and low levels of zstd/brotli, but with a faster decompression speed
+
 ## Build Binary
 #### (Currently only supports CLI, if you want to do GUI please contact us)
 1. Download src:

@@ -1,0 +1,29 @@
+v1.5
+- introduced compatibility with Visual C++ 2010 and newer
+- attached Visual Studio 2010 project
+- thoroughly tested with 21 Travis CI and 7 AppVeyor CI tests
+- fixed bug with reusing a context in lz5frame.c (LZ5F_compressBegin and LZ5_compress_HC_continue)
+- fixed rare bug in match finder (concerns levels 4 - 15)
+
+v1.4.1
+- fixed bug with a backward match extension (level 11 and 12)
+
+v1.4
+- improved: levels from 13 to 15 (maximum compression ratio)
+- added a new parser: LZ5HC_optimal_price_bt
+- updated documentation: lz5_Block_format.md and lz5_Frame_format.md 
+- changed lz5.exe: the "-B" option with block size [1-7] = 64KB, 256KB, 1MB, 4MB, 16MB, 64MB, 256MB (default : 4 = 4MB)
+ 
+v1.3.3
+- added: new levels from 11 to 18 (maximum compression ratio)
+- added: a new parser: LZ5HC_optimal_price
+- fixed: buffer-overflow during decompression (thanks to m^2)
+
+r132
+- improved compression ratio
+- added: new parsers: LZ5HC_fast, LZ5HC_price_fast, LZ5HC_lowest_price
+- added: a special 1-byte codeword for the last occured offset
+- added: support for 3-byte long matches (MINMATCH = 3)
+
+r131
+The first release based on LZ4 r132 dev

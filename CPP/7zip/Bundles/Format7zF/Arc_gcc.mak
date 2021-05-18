@@ -34,6 +34,9 @@ MT_OBJS = \
   $O/lizard-mt_common.o \
   $O/lizard-mt_compress.o \
   $O/lizard-mt_decompress.o \
+  $O/lz5-mt_common.o \
+  $O/lz5-mt_compress.o \
+  $O/lz5-mt_decompress.o \
 
 endif
 
@@ -130,8 +133,9 @@ AR_OBJS = \
   $O/XzHandler.o \
   $O/ZHandler.o \
   $O/ZstdHandler.o \
-  $O/Lz4Handler.o \
   $O/LizardHandler.o \
+  $O/Lz5Handler.o \
+#  $O/Lz4Handler.o \
 
 AR_COMMON_OBJS = \
   $O/CoderMixer2.o \
@@ -280,6 +284,9 @@ COMPRESS_OBJS = \
   $O/LizardDecoder.o \
   $O/LizardEncoder.o \
   $O/LizardRegister.o \
+  $O/Lz5Decoder.o \
+  $O/Lz5Encoder.o \
+  $O/Lz5Register.o \
 
 
 CRYPTO_OBJS = \
@@ -350,6 +357,7 @@ BROTLI_STATIC_LIB = $O/libbrotlienc-static.a \
   $O/libbrotlidec-static.a \
   $O/libbrotlicommon-static.a 
 LIZARD_STATIC_LIB = $O/liblizard.a
+LZ5_STATIC_LIB = $O/liblz5.a
 
 ARC_OBJS = \
 	$(LZMA_DEC_OPT_OBJS) \
@@ -377,3 +385,4 @@ ARC_OBJS = \
   $(LZ4_STATIC_LIB) \
   $(BROTLI_STATIC_LIB) \
   $(LIZARD_STATIC_LIB) \
+  $(LZ5_STATIC_LIB) 

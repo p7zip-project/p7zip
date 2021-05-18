@@ -15,7 +15,7 @@
 #include <string.h>
 
 #define LZ5F_DISABLE_OBSOLETE_ENUMS
-#include "../lz5/lz5frame.h"
+#include "../lz5/lib/lz5frame.h"
 
 #include "memmt.h"
 #include "threading.h"
@@ -36,20 +36,23 @@
  */
 
 /* worker for compression */
-typedef struct {
+typedef struct
+{
 	LZ5MT_CCtx *ctx;
 	LZ5F_preferences_t zpref;
 	pthread_t pthread;
 } cwork_t;
 
 struct writelist;
-struct writelist {
+struct writelist
+{
 	size_t frame;
 	LZ5MT_Buffer out;
 	struct list_head node;
 };
 
-struct LZ5MT_CCtx_s {
+struct LZ5MT_CCtx_s
+{
 
 	/* level: 1..LZ5MT_LEVEL_MAX */
 	int level;
@@ -95,7 +98,7 @@ LZ5MT_CCtx *LZ5MT_createCCtx(int threads, int level, int inputsize)
 	int t;
 
 	/* allocate ctx */
-	ctx = (LZ5MT_CCtx *) malloc(sizeof(LZ5MT_CCtx));
+	ctx = (LZ5MT_CCtx *)malloc(sizeof(LZ5MT_CCtx));
 	if (!ctx)
 		return 0;
 
@@ -125,15 +128,16 @@ LZ5MT_CCtx *LZ5MT_createCCtx(int threads, int level, int inputsize)
 	pthread_mutex_init(&ctx->write_mutex, NULL);
 
 	/* free -> busy -> out -> free -> ... */
-	INIT_LIST_HEAD(&ctx->writelist_free);	/* free, can be used */
-	INIT_LIST_HEAD(&ctx->writelist_busy);	/* busy */
-	INIT_LIST_HEAD(&ctx->writelist_done);	/* can be written */
+	INIT_LIST_HEAD(&ctx->writelist_free); /* free, can be used */
+	INIT_LIST_HEAD(&ctx->writelist_busy); /* busy */
+	INIT_LIST_HEAD(&ctx->writelist_done); /* can be written */
 
-	ctx->cwork = (cwork_t *) malloc(sizeof(cwork_t) * threads);
+	ctx->cwork = (cwork_t *)malloc(sizeof(cwork_t) * threads);
 	if (!ctx->cwork)
 		goto err_cwork;
 
-	for (t = 0; t < threads; t++) {
+	for (t = 0; t < threads; t++)
+	{
 		cwork_t *w = &ctx->cwork[t];
 		w->ctx = ctx;
 
@@ -143,13 +147,12 @@ LZ5MT_CCtx *LZ5MT_createCCtx(int threads, int level, int inputsize)
 		w->zpref.frameInfo.blockMode = LZ5F_blockLinked;
 		w->zpref.frameInfo.contentSize = 1;
 		w->zpref.frameInfo.contentChecksumFlag =
-		    LZ5F_contentChecksumEnabled;
-
+			LZ5F_contentChecksumEnabled;
 	}
 
 	return ctx;
 
- err_cwork:
+err_cwork:
 	free(ctx);
 
 	return 0;
@@ -160,7 +163,8 @@ LZ5MT_CCtx *LZ5MT_createCCtx(int threads, int level, int inputsize)
  */
 static size_t mt_error(int rv)
 {
-	switch (rv) {
+	switch (rv)
+	{
 	case -1:
 		return ERROR(read_fail);
 	case -2:
@@ -175,7 +179,7 @@ static size_t mt_error(int rv)
 /**
  * pt_write - queue for compressed output
  */
-static size_t pt_write(LZ5MT_CCtx * ctx, struct writelist *wl)
+static size_t pt_write(LZ5MT_CCtx *ctx, struct writelist *wl)
 {
 	struct list_head *entry;
 
@@ -186,11 +190,13 @@ static size_t pt_write(LZ5MT_CCtx * ctx, struct writelist *wl)
 	if (wl->frame != ctx->curframe)
 		return 0;
 
- again:
+again:
 	/* check, what can be written ... */
-	list_for_each(entry, &ctx->writelist_done) {
+	list_for_each(entry, &ctx->writelist_done)
+	{
 		wl = list_entry(entry, struct writelist, node);
-		if (wl->frame == ctx->curframe) {
+		if (wl->frame == ctx->curframe)
+		{
 			int rv = ctx->fn_write(ctx->arg_write, &wl->out);
 			if (rv != 0)
 				return mt_error(rv);
@@ -206,7 +212,7 @@ static size_t pt_write(LZ5MT_CCtx * ctx, struct writelist *wl)
 
 static void *pt_compress(void *arg)
 {
-	cwork_t *w = (cwork_t *) arg;
+	cwork_t *w = (cwork_t *)arg;
 	LZ5MT_CCtx *ctx = w->ctx;
 	size_t result;
 	LZ5MT_Buffer in;
@@ -217,34 +223,43 @@ static void *pt_compress(void *arg)
 	if (!in.buf)
 		return (void *)ERROR(memory_allocation);
 
-	for (;;) {
+	for (;;)
+	{
 		struct list_head *entry;
 		struct writelist *wl;
 		int rv;
 
 		/* allocate space for new output */
 		pthread_mutex_lock(&ctx->write_mutex);
-		if (!list_empty(&ctx->writelist_free)) {
+		if (!list_empty(&ctx->writelist_free))
+		{
 			/* take unused entry */
 			entry = list_first(&ctx->writelist_free);
 			wl = list_entry(entry, struct writelist, node);
 			wl->out.size =
-			    LZ5F_compressFrameBound(ctx->inputsize,
-						    &w->zpref) + 12;
+				LZ5F_compressFrameBound(ctx->inputsize,
+										&w->zpref) +
+				12;
 			list_move(entry, &ctx->writelist_busy);
-		} else {
+		}
+		else
+		{
 			/* allocate new one */
 			wl = (struct writelist *)
-			    malloc(sizeof(struct writelist));
-			if (!wl) {
+				malloc(sizeof(struct writelist));
+			if (!wl)
+			{
 				pthread_mutex_unlock(&ctx->write_mutex);
 				return (void *)ERROR(memory_allocation);
 			}
 			wl->out.size =
-			    LZ5F_compressFrameBound(ctx->inputsize,
-						    &w->zpref) + 12;;
+				LZ5F_compressFrameBound(ctx->inputsize,
+										&w->zpref) +
+				12;
+			;
 			wl->out.buf = malloc(wl->out.size);
-			if (!wl->out.buf) {
+			if (!wl->out.buf)
+			{
 				pthread_mutex_unlock(&ctx->write_mutex);
 				return (void *)ERROR(memory_allocation);
 			}
@@ -256,13 +271,15 @@ static void *pt_compress(void *arg)
 		pthread_mutex_lock(&ctx->read_mutex);
 		in.size = ctx->inputsize;
 		rv = ctx->fn_read(ctx->arg_read, &in);
-		if (rv != 0) {
+		if (rv != 0)
+		{
 			pthread_mutex_unlock(&ctx->read_mutex);
 			return (void *)mt_error(rv);
 		}
 
 		/* eof */
-		if (in.size == 0 && ctx->frames > 0) {
+		if (in.size == 0 && ctx->frames > 0)
+		{
 			free(in.buf);
 			pthread_mutex_unlock(&ctx->read_mutex);
 
@@ -278,10 +295,11 @@ static void *pt_compress(void *arg)
 
 		/* compress whole frame */
 		result =
-		    LZ5F_compressFrame((unsigned char *)wl->out.buf + 12,
-				       wl->out.size - 12, in.buf, in.size,
-				       &w->zpref);
-		if (LZ5F_isError(result)) {
+			LZ5F_compressFrame((unsigned char *)wl->out.buf + 12,
+							   wl->out.size - 12, in.buf, in.size,
+							   &w->zpref);
+		if (LZ5F_isError(result))
+		{
 			pthread_mutex_lock(&ctx->write_mutex);
 			list_move(&wl->node, &ctx->writelist_free);
 			pthread_mutex_unlock(&ctx->write_mutex);
@@ -292,9 +310,9 @@ static void *pt_compress(void *arg)
 
 		/* write skippable frame */
 		MEM_writeLE32((unsigned char *)wl->out.buf + 0,
-			      LZ5FMT_MAGIC_SKIPPABLE);
+					  LZ5FMT_MAGIC_SKIPPABLE);
 		MEM_writeLE32((unsigned char *)wl->out.buf + 4, 4);
-		MEM_writeLE32((unsigned char *)wl->out.buf + 8, (U32) result);
+		MEM_writeLE32((unsigned char *)wl->out.buf + 8, (U32)result);
 		wl->out.size = result + 12;
 
 		/* write result */
@@ -305,11 +323,11 @@ static void *pt_compress(void *arg)
 			return (void *)result;
 	}
 
- okay:
+okay:
 	return 0;
 }
 
-size_t LZ5MT_compressCCtx(LZ5MT_CCtx * ctx, LZ5MT_RdWr_t * rdwr)
+size_t LZ5MT_compressCCtx(LZ5MT_CCtx *ctx, LZ5MT_RdWr_t *rdwr)
 {
 	int t;
 	void *retval_of_thread = 0;
@@ -324,13 +342,15 @@ size_t LZ5MT_compressCCtx(LZ5MT_CCtx * ctx, LZ5MT_RdWr_t * rdwr)
 	ctx->arg_write = rdwr->arg_write;
 
 	/* start all workers */
-	for (t = 0; t < ctx->threads; t++) {
+	for (t = 0; t < ctx->threads; t++)
+	{
 		cwork_t *w = &ctx->cwork[t];
 		pthread_create(&w->pthread, NULL, pt_compress, w);
 	}
 
 	/* wait for all workers */
-	for (t = 0; t < ctx->threads; t++) {
+	for (t = 0; t < ctx->threads; t++)
+	{
 		cwork_t *w = &ctx->cwork[t];
 		void *p = 0;
 		pthread_join(w->pthread, &p);
@@ -339,7 +359,8 @@ size_t LZ5MT_compressCCtx(LZ5MT_CCtx * ctx, LZ5MT_RdWr_t * rdwr)
 	}
 
 	/* clean up lists */
-	while (!list_empty(&ctx->writelist_free)) {
+	while (!list_empty(&ctx->writelist_free))
+	{
 		struct writelist *wl;
 		struct list_head *entry;
 		entry = list_first(&ctx->writelist_free);
@@ -349,11 +370,11 @@ size_t LZ5MT_compressCCtx(LZ5MT_CCtx * ctx, LZ5MT_RdWr_t * rdwr)
 		free(wl);
 	}
 
-	return (size_t) retval_of_thread;
+	return (size_t)retval_of_thread;
 }
 
 /* returns current uncompressed data size */
-size_t LZ5MT_GetInsizeCCtx(LZ5MT_CCtx * ctx)
+size_t LZ5MT_GetInsizeCCtx(LZ5MT_CCtx *ctx)
 {
 	if (!ctx)
 		return 0;
@@ -362,7 +383,7 @@ size_t LZ5MT_GetInsizeCCtx(LZ5MT_CCtx * ctx)
 }
 
 /* returns the current compressed data size */
-size_t LZ5MT_GetOutsizeCCtx(LZ5MT_CCtx * ctx)
+size_t LZ5MT_GetOutsizeCCtx(LZ5MT_CCtx *ctx)
 {
 	if (!ctx)
 		return 0;
@@ -371,7 +392,7 @@ size_t LZ5MT_GetOutsizeCCtx(LZ5MT_CCtx * ctx)
 }
 
 /* returns the current compressed frames */
-size_t LZ5MT_GetFramesCCtx(LZ5MT_CCtx * ctx)
+size_t LZ5MT_GetFramesCCtx(LZ5MT_CCtx *ctx)
 {
 	if (!ctx)
 		return 0;
@@ -379,7 +400,7 @@ size_t LZ5MT_GetFramesCCtx(LZ5MT_CCtx * ctx)
 	return ctx->curframe;
 }
 
-void LZ5MT_freeCCtx(LZ5MT_CCtx * ctx)
+void LZ5MT_freeCCtx(LZ5MT_CCtx *ctx)
 {
 	if (!ctx)
 		return;

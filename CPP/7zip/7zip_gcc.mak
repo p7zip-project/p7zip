@@ -1183,6 +1183,12 @@ $O/lizard-mt_compress.o: ../../../../C/zstdmt/lizard-mt_compress.c
 	$(CC) $(CFLAGS) $<
 $O/lizard-mt_decompress.o: ../../../../C/zstdmt/lizard-mt_decompress.c
 	$(CC) $(CFLAGS) $<
+$O/lz5-mt_common.o: ../../../../C/zstdmt/lz5-mt_common.c
+	$(CC) $(CFLAGS) $<
+$O/lz5-mt_compress.o: ../../../../C/zstdmt/lz5-mt_compress.c
+	$(CC) $(CFLAGS) $<
+$O/lz5-mt_decompress.o: ../../../../C/zstdmt/lz5-mt_decompress.c
+	$(CC) $(CFLAGS) $<
 
 
 # Build zstd lib static and dynamic
@@ -1260,6 +1266,21 @@ $O/LizardRegister.o: ../../Compress/LizardRegister.cpp
 $O/LizardHandler.o: ../../Archive/LizardHandler.cpp
 	$(CXX) $(CXXFLAGS) $<
 
+# Build lz5 lib static and dynamic
+$O/liblz5.a: ../../../../C/lz5/lib/lz5frame.h
+	make -C ../../../../C/lz5/lib
+	cp ../../../../C/lz5/lib/liblz5.a $O
+
+# Compile lz5 method and Handler
+$O/Lz5Decoder.o: ../../Compress/Lz5Decoder.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Lz5Encoder.o: ../../Compress/Lz5Encoder.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Lz5Register.o: ../../Compress/Lz5Register.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Lz5Handler.o: ../../Archive/Lz5Handler.cpp
+	$(CXX) $(CXXFLAGS) $<
+
 ifneq ($(CC), xlc)
 SHOW_PREDEF=-dM
 else
@@ -1281,3 +1302,4 @@ clean:
 	$(RM) lz4_build
 	$(RM) brotli_build
 	make -C ../../../../C/lizard/lib clean
+	make -C ../../../../C/lz5/lib clean

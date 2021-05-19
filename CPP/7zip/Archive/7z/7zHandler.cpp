@@ -523,9 +523,45 @@ case kpidIsAux: if (_db.IsTree) prop = true; break;
               dest += MyStringLen(dest);
             }
           }
+          else if (id == k_LIZARD)
+          {
+            name = "Lizard";
+            if (propsSize == 3)
+            {
+              char *dest = s;
+              *dest++ = 'v';
+              ConvertUInt32ToString(props[0], dest);
+              dest += MyStringLen(dest);
+              *dest++ = '.';
+              ConvertUInt32ToString(props[1], dest);
+              dest += MyStringLen(dest);
+              *dest++ = ',';
+              *dest++ = 'l';
+              ConvertUInt32ToString(props[2], dest);
+              dest += MyStringLen(dest);
+            }
+          }
           else if (id == k_LZ4)
           {
             name = "LZ4";
+            if (propsSize == 3 || propsSize == 5)
+            {
+              char *dest = s;
+              *dest++ = 'v';
+              ConvertUInt32ToString(props[0], dest);
+              dest += MyStringLen(dest);
+              *dest++ = '.';
+              ConvertUInt32ToString(props[1], dest);
+              dest += MyStringLen(dest);
+              *dest++ = ',';
+              *dest++ = 'l';
+              ConvertUInt32ToString(props[2], dest);
+              dest += MyStringLen(dest);
+            }
+          }
+          else if (id == k_LZ5)
+          {
+            name = "LZ5";
             if (propsSize == 3 || propsSize == 5)
             {
               char *dest = s;

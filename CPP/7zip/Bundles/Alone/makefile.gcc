@@ -182,7 +182,7 @@ AR_OBJS = \
   $O/ZstdHandler.o \
   $O/LizardHandler.o \
   $O/Lz5Handler.o \
-#  $O/Lz4Handler.o \
+  $O/Lz4Handler.o \
 
 
 AR_COMMON_OBJS = \

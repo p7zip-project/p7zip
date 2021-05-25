@@ -20,7 +20,7 @@ void * operator new(size_t size) throw(std::bad_alloc)
 {
   void *p;
   p = MyAlloc(size);
-  if(!p)
+  if(size && (!p))
     throw std::bad_alloc();
   return p;
 }
@@ -30,7 +30,7 @@ void * operator new[](size_t size) throw(std::bad_alloc)
 {
   void *p;
   p = MyAlloc(size);
-  if(!p)
+  if(size && (!p))
     throw std::bad_alloc();
   return p;
 }

@@ -24,6 +24,7 @@
 #include "../../Compress/ShrinkDecoder.h"
 #include "../../Compress/XzDecoder.h"
 #include "../../Compress/ZstdDecoder.h"
+#include "../../Compress/PKImplodeDecoder.h"
 
 #include "../../Crypto/WzAes.h"
 #include "../../Crypto/ZipCrypto.h"
@@ -976,6 +977,8 @@ HRESULT CZipDecoder::Decode(
       mi.Coder = new CZstdDecoder();
     else if (id == NFileHeader::NCompressionMethod::kXz)
       mi.Coder = new NCompress::NXz::CComDecoder;
+    else if (id == NFileHeader::NCompressionMethod::kPKImploding)
+      mi.Coder = new NCompress::NPKImplode::NDecoder::CCoder;
     else if (id == NFileHeader::NCompressionMethod::kPPMd)
       mi.Coder = new NCompress::NPpmdZip::CDecoder(true);
     else

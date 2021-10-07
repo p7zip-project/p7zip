@@ -131,7 +131,8 @@ files_c=[
  'C/brotli/br_state.c',
  'C/brotli/br_static_dict.c',
  'C/brotli/br_transform.c',
- 'C/brotli/br_utf8_util.c'
+ 'C/brotli/br_utf8_util.c',
+ 'C/blast/blast.c',
 ]
 
 files_cpp=[
@@ -267,6 +268,7 @@ files_cpp=[
  'CPP/7zip/Compress/BrotliDecoder.cpp',
  'CPP/7zip/Compress/BrotliEncoder.cpp',
  'CPP/7zip/Compress/BrotliRegister.cpp',
+ 'CPP/7zip/Compress/PKImplodeDecoder.cpp',
  'CPP/7zip/Crypto/7zAes.cpp',
  'CPP/7zip/Crypto/7zAesRegister.cpp',
  'CPP/7zip/Crypto/HmacSha1.cpp',

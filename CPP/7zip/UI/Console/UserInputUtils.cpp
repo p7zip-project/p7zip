@@ -89,12 +89,20 @@ UString GetPassword(CStdOutStream *outStream,bool verify)
     outStream->Flush();
   }
 #ifdef ENV_HAVE_GETPASS
+#if defined(__illumos__)
+  AString oemPassword = getpassphrase("");
+#else
   AString oemPassword = getpass("");
+#endif
   if ( (verify) && (outStream) )
   {
     (*outStream) << "Verify password (will not be echoed) :";
     outStream->Flush();
+#if defined(__illumos__)
+    AString oemPassword2 = getpassphrase("");
+#else
     AString oemPassword2 = getpass("");
+#endif
     if (oemPassword != oemPassword2) throw "password verification failed";
   }
   return MultiByteToUnicodeString(oemPassword, CP_OEMCP);

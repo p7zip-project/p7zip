@@ -5,6 +5,10 @@
 #include <locale.h>
 #endif
 
+#if (defined __illumos__)
+#include <strings.h>    // for bzero
+#endif
+
 #include "StdAfx.h"
 
 #include "../../../../C/CpuArch.h"

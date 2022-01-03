@@ -283,6 +283,7 @@ import file_7zFM
 import file_7z_so
 import file_Codecs_Rar_so
 import file_Codecs_Lzham_so
+import file_Codecs_PKImplode_so
 import file_LzmaCon
 import file_Client7z
 import file_P7ZIP
@@ -480,8 +481,6 @@ LOCAL_CFLAGS := -DANDROID_NDK  -fexceptions \
 -I../../../include_windows
 ''')
 
-
-
 project_Codecs_Lzham=Structure(name="Lzham",name2="Lzham",
 	type=TYPE_DLL,
 	need_AES=False,
@@ -522,6 +521,43 @@ LOCAL_CFLAGS := -DANDROID_NDK  -fexceptions \
 
 ''')
 
+project_Codecs_PKImplode=Structure(name="PKImplode",name2="PKImplode",
+	type=TYPE_DLL,
+	need_AES=False,
+	includedirs=includedirs_7za,
+	defines=[ "EXTERNAL_CODECS", "_FILE_OFFSET_BITS=64", "_LARGEFILE_SOURCE", "_REENTRANT", "ENV_UNIX", "BREAK_HANDLER", "UNICODE", "_UNICODE", "UNIX_USE_WIN_FILE" ],
+	files_c=file_Codecs_PKImplode_so.files_c,
+	files_cpp=file_Codecs_PKImplode_so.files_cpp,
+	cmake_end='''
+    
+SET_TARGET_PROPERTIES(PKImplode PROPERTIES PREFIX "")
+
+find_library(DL_LIB dl)
+
+link_directories(${DL_LIB_PATH})
+
+IF(APPLE)
+   TARGET_LINK_LIBRARIES(Rar ${COREFOUNDATION_LIBRARY} ${CMAKE_THREAD_LIBS_INIT})
+ELSE(APPLE)
+  IF(HAVE_PTHREADS)
+   TARGET_LINK_LIBRARIES(Rar ${CMAKE_THREAD_LIBS_INIT} dl)
+  ENDIF(HAVE_PTHREADS)
+ENDIF(APPLE)
+
+''',
+android_header=r'''
+LOCAL_CFLAGS := -DANDROID_NDK  -fexceptions \
+	-DNDEBUG -D_REENTRANT -DENV_UNIX \
+	-DEXTERNAL_CODECS \
+	-DBREAK_HANDLER \
+	-DUNICODE -D_UNICODE -DUNIX_USE_WIN_FILE \
+	-I../../../Windows \
+	-I../../../Common \
+	-I../../../../C \
+-I../../../myWindows \
+-I../../../ \
+-I../../../include_windows
+''')
 
 project_7zG=Structure(name="7zG",name2="7zG",
 	type=TYPE_EXE,
@@ -768,6 +804,7 @@ generate_makefile_list('../CPP/7zip/UI/Console/makefile.list',project_7z)
 generate_makefile_list('../CPP/7zip/Bundles/Format7zFree/makefile.list',project_Format7zFree)
 generate_makefile_list('../CPP/7zip/Compress/Rar/makefile.list',project_Codecs_Rar,'../../../../bin/Codecs')
 generate_makefile_list('../CPP/7zip/Compress/Lzham/makefile.list',project_Codecs_Lzham,'../../../../bin/Codecs')
+generate_makefile_list('../CPP/7zip/Compress/PKImplode/makefile.list',project_Codecs_PKImplode,'../../../../bin/Codecs')
 generate_makefile_list('../CPP/7zip/Bundles/SFXCon/makefile.list',project_7zCon_sfx)
 generate_makefile_list('../CPP/7zip/UI/GUI/makefile.list',project_7zG)
 generate_makefile_list('../CPP/7zip/UI/FileManager/makefile.list',project_7zFM)

@@ -5,16 +5,14 @@
 #include "../Common/RegisterCodec.h"
 
 #include "PKImplodeDecoder.h"
+#include "PKImplodeEncoder.h"
 
 namespace NCompress {
 
-REGISTER_CODEC_CREATE(CreateCodecPKImplode, NPKImplode::NDecoder::CDecoder())
-
-REGISTER_CODECS_VAR
-{
-  { CreateCodecPKImplode, NULL, 0x4010a, "PKImplode", 1, false }
-};
-
-REGISTER_CODECS(PKImplode)
+REGISTER_CODEC_E(
+  PKImplode,
+  NPKImplode::NDecoder::CDecoder(),
+  NPKImplode::NEncoder::CEncoder(),
+  0x4010a, "PKImplode")
 
 }

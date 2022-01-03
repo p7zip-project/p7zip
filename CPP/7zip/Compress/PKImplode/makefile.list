@@ -24,11 +24,14 @@ SRCS=\
   ../../../../CPP/7zip/Compress/CodecExports.cpp \
   ../../../../CPP/7zip/Compress/DllExportsCompress.cpp \
   ../../../../CPP/7zip/Compress/PKImplodeDecoder.cpp \
+  ../../../../CPP/7zip/Compress/PKImplodeEncoder.cpp \
   ../../../../CPP/7zip/Compress/PKImplodeRegister.cpp \
   ../../../../CPP/Common/MyWindows.cpp \
 
 SRCS_C=\
   ../../../../C/blast/blast.c \
+  ../../../../C/pklib/explode.c \
+  ../../../../C/pklib/implode.c \
   ../../../../C/Alloc.c \
 
 StdAfx.h.gch : ../../../myWindows/StdAfx.h
@@ -36,6 +39,10 @@ StdAfx.h.gch : ../../../myWindows/StdAfx.h
 	$(CXX) $(CXXFLAGS) ../../../myWindows/StdAfx.h -o StdAfx.h.gch
 blast.o : ../../../../C/blast/blast.c
 	$(CC) $(CFLAGS) ../../../../C/blast/blast.c
+explode.o : ../../../../C/pklib/explode.c
+	$(CC) $(CFLAGS) ../../../../C/pklib/explode.c
+implode.o : ../../../../C/pklib/implode.c
+	$(CC) $(CFLAGS) ../../../../C/pklib/implode.c
 Alloc.o : ../../../../C/Alloc.c
 	$(CC) $(CFLAGS) ../../../../C/Alloc.c
 InBuffer.o : ../../../../CPP/7zip/Common/InBuffer.cpp
@@ -50,6 +57,8 @@ DllExportsCompress.o : ../../../../CPP/7zip/Compress/DllExportsCompress.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/DllExportsCompress.cpp
 PKImplodeDecoder.o : ../../../../CPP/7zip/Compress/PKImplodeDecoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/PKImplodeDecoder.cpp
+PKImplodeEncoder.o : ../../../../CPP/7zip/Compress/PKImplodeEncoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/PKImplodeEncoder.cpp
 PKImplodeRegister.o : ../../../../CPP/7zip/Compress/PKImplodeRegister.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/PKImplodeRegister.cpp
 MyWindows.o : ../../../../CPP/Common/MyWindows.cpp
@@ -57,6 +66,8 @@ MyWindows.o : ../../../../CPP/Common/MyWindows.cpp
 
 OBJS=\
  blast.o \
+ explode.o \
+ implode.o \
  Alloc.o \
  InBuffer.o \
  OutBuffer.o \
@@ -64,6 +75,7 @@ OBJS=\
  CodecExports.o \
  DllExportsCompress.o \
  PKImplodeDecoder.o \
+ PKImplodeEncoder.o \
  PKImplodeRegister.o \
  MyWindows.o \
 

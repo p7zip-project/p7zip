@@ -978,7 +978,7 @@ HRESULT CZipDecoder::Decode(
     else if (id == NFileHeader::NCompressionMethod::kXz)
       mi.Coder = new NCompress::NXz::CComDecoder;
     else if (id == NFileHeader::NCompressionMethod::kPKImploding)
-      mi.Coder = new NCompress::NPKImplode::NDecoder::CCoder;
+      mi.Coder = new NCompress::NPKImplode::NDecoder::CDecoder;
     else if (id == NFileHeader::NCompressionMethod::kPPMd)
       mi.Coder = new NCompress::NPpmdZip::CDecoder(true);
     else

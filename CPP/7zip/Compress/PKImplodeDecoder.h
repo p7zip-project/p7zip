@@ -15,7 +15,7 @@ namespace NDecoder {
 
 static const unsigned int kS = 65536;
 
-class CCoder:
+class CDecoder:
   public ICompressCoder,
   public ICompressGetInStreamProcessedSize,
   public CMyUnknownImp
@@ -37,7 +37,7 @@ public:
       const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
   STDMETHOD(GetInStreamProcessedSize)(UInt64 *value);
 
-  CCoder();
+  CDecoder();
 };
 
 }}}

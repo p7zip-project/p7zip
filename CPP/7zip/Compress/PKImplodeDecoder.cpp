@@ -17,7 +17,7 @@ namespace NPKImplode {
 namespace NDecoder {
 
 static int BLAST_put(void *out_desc, unsigned char *buf, unsigned int len){
-  CCoder *w = (CCoder*)out_desc;
+  CDecoder *w = (CDecoder*)out_desc;
   UInt32 rlen=0;
   HRESULT res = w->outS->Write(buf, len, &rlen);
   w->processedOut += rlen;
@@ -27,7 +27,7 @@ static int BLAST_put(void *out_desc, unsigned char *buf, unsigned int len){
 }
 
 static unsigned int BLAST_get(void *in_desc, unsigned char **buf){
-  CCoder *r = (CCoder*)in_desc;
+  CDecoder *r = (CDecoder*)in_desc;
   *buf = r->buf;
   size_t readsize = kS;
   HRESULT res = ReadStream(r->inS,r->buf,&readsize);
@@ -35,9 +35,9 @@ static unsigned int BLAST_get(void *in_desc, unsigned char **buf){
   return res != S_OK ? 0 : readsize;
 }
 
-CCoder::CCoder(){}
+CDecoder::CDecoder(){}
 
-HRESULT CCoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *outStream,
+HRESULT CDecoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *outStream,
     const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress)
 {
   inS = inStream;
@@ -52,7 +52,7 @@ HRESULT CCoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *ou
 }
 
 
-STDMETHODIMP CCoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
+STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
     const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress)
 {
   try { return CodeReal(inStream, outStream, inSize, outSize, progress);  }
@@ -61,7 +61,7 @@ STDMETHODIMP CCoder::Code(ISequentialInStream *inStream, ISequentialOutStream *o
   catch(...) { return S_FALSE; }
 }
 
-STDMETHODIMP CCoder::GetInStreamProcessedSize(UInt64 *value)
+STDMETHODIMP CDecoder::GetInStreamProcessedSize(UInt64 *value)
 {
   *value = processedIn;
   return S_OK;

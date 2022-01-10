@@ -29,7 +29,6 @@ SRCS=\
   ../../../../CPP/Common/MyWindows.cpp \
 
 SRCS_C=\
-  ../../../../C/blast/blast.c \
   ../../../../C/pklib/explode.c \
   ../../../../C/pklib/implode.c \
   ../../../../C/Alloc.c \
@@ -37,8 +36,6 @@ SRCS_C=\
 StdAfx.h.gch : ../../../myWindows/StdAfx.h
 	rm -f StdAfx.h.gch
 	$(CXX) $(CXXFLAGS) ../../../myWindows/StdAfx.h -o StdAfx.h.gch
-blast.o : ../../../../C/blast/blast.c
-	$(CC) $(CFLAGS) ../../../../C/blast/blast.c
 explode.o : ../../../../C/pklib/explode.c
 	$(CC) $(CFLAGS) ../../../../C/pklib/explode.c
 implode.o : ../../../../C/pklib/implode.c
@@ -65,7 +62,6 @@ MyWindows.o : ../../../../CPP/Common/MyWindows.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/MyWindows.cpp
 
 OBJS=\
- blast.o \
  explode.o \
  implode.o \
  Alloc.o \

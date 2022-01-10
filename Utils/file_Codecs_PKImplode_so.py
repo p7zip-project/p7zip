@@ -1,6 +1,5 @@
 
 files_c=[
- 'C/blast/blast.c',
  'C/pklib/explode.c',
  'C/pklib/implode.c',
  #'C/7zCrcOpt.c',

@@ -8,34 +8,33 @@
 #include "PKImplodeDecoder.h"
 #include "../../Common/StreamUtils.h"
 
-extern "C" {
-#include "../../../C/blast/blast.h"
-}
-
 namespace NCompress {
 namespace NPKImplode {
 namespace NDecoder {
 
-static int BLAST_put(void *out_desc, unsigned char *buf, unsigned int len){
-  CDecoder *w = (CDecoder*)out_desc;
+static void C_put(char *buf, unsigned int *size, void *param){
+  CDecoder *w = (CDecoder*)param;
   UInt32 rlen=0;
-  HRESULT res = w->outS->Write(buf, len, &rlen);
+  HRESULT res = w->outS->Write(buf, *size, &rlen);
+  //*size = rlen;
   w->processedOut += rlen;
   if(w->progr)
 	  w->progr->SetRatioInfo(&w->processedIn, &w->processedOut);
-  return res != S_OK || rlen != len;
+  //return res != S_OK || rlen != len;
 }
 
-static unsigned int BLAST_get(void *in_desc, unsigned char **buf){
-  CDecoder *r = (CDecoder*)in_desc;
-  *buf = r->buf;
-  size_t readsize = kS;
-  HRESULT res = ReadStream(r->inS,r->buf,&readsize);
+static unsigned int C_get(char *buf, unsigned int *size, void *param){
+  CDecoder *r = (CDecoder*)param;
+  size_t readsize = *size;
+  HRESULT res = ReadStream(r->inS,buf,&readsize);
+  //*size = readsize;
   r->processedIn += readsize;
   return res != S_OK ? 0 : readsize;
 }
 
-CDecoder::CDecoder(){}
+CDecoder::CDecoder(){
+  memset(&DcmpStruct, 0, sizeof(TDcmpStruct));
+}
 
 HRESULT CDecoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *outStream,
     const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress)
@@ -44,7 +43,7 @@ HRESULT CDecoder::CodeReal(ISequentialInStream *inStream, ISequentialOutStream *
   outS = outStream;
   progr = progress;
   processedIn = processedOut = 0;
-  int x = blast(BLAST_get, this, BLAST_put, this, NULL, NULL);
+  int x = explode(C_get, C_put, (char*)&DcmpStruct, this);
   if(x<0)return E_FAIL;
   if(x==2)return E_ABORT;
   if(x==1)return E_OUTOFMEMORY;
@@ -68,4 +67,3 @@ STDMETHODIMP CDecoder::GetInStreamProcessedSize(UInt64 *value)
 }
 
 }}}
-

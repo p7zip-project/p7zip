@@ -9,6 +9,10 @@
 
 #include "../Common/InBuffer.h"
 
+extern "C" {
+#include "../../../C/pklib/pklib.h"
+}
+
 namespace NCompress {
 namespace NPKImplode {
 namespace NDecoder {
@@ -30,6 +34,8 @@ public:
   ISequentialInStream *inS;
   ISequentialOutStream *outS;
   ICompressProgressInfo *progr;
+
+  TDcmpStruct DcmpStruct;
 
   MY_UNKNOWN_IMP1(ICompressGetInStreamProcessedSize)
 

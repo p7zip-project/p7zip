@@ -355,6 +355,9 @@ bool Dlg_CreateFolder(HWND wnd, UString &destName);
 
 void CPanel::CreateFolder()
 {
+  if (IsHashFolder())
+    return;
+
   if (!CheckBeforeUpdate(IDS_CREATE_FOLDER_ERROR))
     return;
 
@@ -415,6 +418,9 @@ void CPanel::CreateFolder()
 
 void CPanel::CreateFile()
 {
+  if (IsHashFolder())
+    return;
+
   if (!CheckBeforeUpdate(IDS_CREATE_FILE_ERROR))
     return;
 
@@ -473,6 +479,8 @@ void CPanel::RenameFile()
 
 void CPanel::ChangeComment()
 {
+  if (IsHashFolder())
+    return;
   if (!CheckBeforeUpdate(IDS_COMMENT))
     return;
   CDisableTimerProcessing disableTimerProcessing2(*this);
@@ -503,7 +511,7 @@ void CPanel::ChangeComment()
   LangString(IDS_COMMENT2, dlg.Static);
   if (dlg.Create(GetParent()) != IDOK)
     return;
-  NCOM::CPropVariant propVariant = dlg.Value.Ptr();
+  NCOM::CPropVariant propVariant (dlg.Value);
 
   CDisableNotify disableNotify(*this);
   HRESULT result = _folderOperations->SetProperty(realIndex, kpidComment, &propVariant, NULL);

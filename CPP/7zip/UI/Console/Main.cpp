@@ -71,6 +71,9 @@ extern const CCodecInfo *g_Codecs[];
 extern unsigned g_NumHashers;
 extern const CHasherInfo *g_Hashers[];
 
+#ifdef EXTERNAL_CODECS
+const CExternalCodecs *g_ExternalCodecs_Ptr;
+#endif
 
 #if defined(PROG_VARIANT_Z)
   #define PROG_POSTFIX      "z"
@@ -128,7 +131,7 @@ static const char * const kHelpString =
     #ifndef _NO_CRYPTO
     "  -p{Password} : set Password\n"
     #endif
-    "  -r[-|0] : Recurse subdirectories\n"
+    "  -r[-|0] : Recurse subdirectories for name search\n"
     "  -sa{a|e|s} : set Archive name mode\n"
     "  -scc{UTF-8|WIN|DOS} : set charset for for console input/output\n"
     "  -scs{UTF-8|UTF-16LE|UTF-16BE|WIN|DOS|{id}} : set charset for list files\n"
@@ -200,63 +203,55 @@ static void ShowProgInfo(CStdOutStream *so)
   #endif
   */
 
-  #ifdef __VERSION__
-     << " compiler: " << __VERSION__
-  #endif
-
-  #ifdef __GNUC__
-     << " GCC " << __GNUC__ << "." << __GNUC_MINOR__ << "." << __GNUC_PATCHLEVEL__
-  #endif
-
-  #ifdef __clang__
-     << " CLANG " << __clang_major__ << "." << __clang_minor__
-  #endif
-
-  #ifdef __xlC__
-      << " XLC " << (__xlC__ >> 8) << "." << (__xlC__ & 0xFF)
-    #ifdef __xlC_ver__
-      << "." << (__xlC_ver__ >> 8) << "." << (__xlC_ver__ & 0xFF)
-    #endif
-  #endif
-
-  #ifdef _MSC_VER
-     << " MSC " << _MSC_VER
-  #endif
-  
-  #ifdef __ARM_FEATURE_CRC32
-     << " CRC32"
-  #endif
-
   << " " << (unsigned)(sizeof(void *)) * 8 << "-bit"
 
   #ifdef __ILP32__
     << " ILP32"
   #endif
-  
+
   #ifdef __ARM_ARCH
   << " arm_v:" << __ARM_ARCH
   #ifdef __ARM_ARCH_ISA_THUMB
   << " thumb:" << __ARM_ARCH_ISA_THUMB
   #endif
   #endif
+  ;
+
 
 
   #ifdef ENV_HAVE_LOCALE
-  << " locale=" << GetLocale()
+    *so << " locale=" << GetLocale();
   #endif
   #ifndef _WIN32
-  << " UTF8=" << (IsNativeUTF8() ? "+" : "-")
-  << " use-UTF8=" << (g_ForceToUTF8 ? "+" : "-")
-  << " wchar_t=" << (unsigned)(sizeof(wchar_t)) * 8 << "-bit"
-  << " Files=" << (unsigned)(sizeof(off_t)) * 8 << "-bit"
+  {
+    const bool is_IsNativeUTF8 = IsNativeUTF8();
+    if (!is_IsNativeUTF8)
+      *so << " UTF8=" << (is_IsNativeUTF8 ? "+" : "-");
+  }
+  if (!g_ForceToUTF8)
+    *so << " use-UTF8=" << (g_ForceToUTF8 ? "+" : "-");
+  {
+    const unsigned wchar_t_size = (unsigned)sizeof(wchar_t);
+    if (wchar_t_size != 4)
+      *so << " wchar_t=" << wchar_t_size * 8 << "-bit";
+  }
+  {
+    const unsigned off_t_size = (unsigned)sizeof(off_t);
+    if (off_t_size != 8)
+      *so << " Files=" << off_t_size * 8 << "-bit";
+  }
   #endif
-  ;
   
   {
     const UInt32 numCpus = NWindows::NSystem::GetNumberOfProcessors();
     *so << " Threads:" << numCpus;
   }
 
+  #ifdef _7ZIP_ASM
+  *so << ", ASM";
+  #endif
+
+  /*
   {
     AString s;
     GetCpuName(s);
@@ -264,9 +259,10 @@ static void ShowProgInfo(CStdOutStream *so)
     *so << ", " << s;
   }
 
-  #ifdef _7ZIP_ASM
-  *so << ",ASM";
+  #ifdef __ARM_FEATURE_CRC32
+     << " CRC32"
   #endif
+
   
   #if (defined MY_CPU_X86_OR_AMD64 || defined(MY_CPU_ARM_OR_ARM64))
   if (CPU_IsSupported_AES()) *so << ",AES";
@@ -281,6 +277,7 @@ static void ShowProgInfo(CStdOutStream *so)
   if (CPU_IsSupported_SHA2()) *so << ",SHA2";
   #endif
   #endif
+  */
 
   *so << endl;
 }
@@ -865,9 +862,11 @@ int Main2(
   codecs->CaseSensitiveChange = options.CaseSensitiveChange;
   codecs->CaseSensitive = options.CaseSensitive;
   ThrowException_if_Error(codecs->Load());
+  Codecs_AddHashArcHandler(codecs);
 
   #ifdef EXTERNAL_CODECS
   {
+    g_ExternalCodecs_Ptr = &__externalCodecs;
     UString s;
     codecs->GetCodecsErrorMessage(s);
     if (!s.IsEmpty())
@@ -878,8 +877,7 @@ int Main2(
   }
   #endif
 
-
-  bool isExtractGroupCommand = options.Command.IsFromExtractGroup();
+  const bool isExtractGroupCommand = options.Command.IsFromExtractGroup();
 
   if (codecs->Formats.Size() == 0 &&
         (isExtractGroupCommand
@@ -894,13 +892,15 @@ int Main2(
       throw s;
     }
     #endif
-    
     throw kNoFormats;
   }
 
   CObjectVector<COpenType> types;
   if (!ParseOpenTypes(*codecs, options.ArcType, types))
+  {
     throw kUnsupportedArcTypeMessage;
+  }
+
 
   CIntVector excludedFormats;
   FOR_VECTOR (k, options.ExcludedArcTypes)
@@ -909,13 +909,16 @@ int Main2(
     if (!codecs->FindFormatForArchiveType(options.ExcludedArcTypes[k], tempIndices)
         || tempIndices.Size() != 1)
       throw kUnsupportedArcTypeMessage;
+    
+    
+    
     excludedFormats.AddToUniqueSorted(tempIndices[0]);
     // excludedFormats.Sort();
   }
-
   
   #ifdef EXTERNAL_CODECS
   if (isExtractGroupCommand
+      || options.Command.IsFromUpdateGroup()
       || options.Command.CommandType == NCommandType::kHash
       || options.Command.CommandType == NCommandType::kBenchmark)
     ThrowException_if_Error(__externalCodecs.Load());
@@ -949,7 +952,7 @@ int Main2(
 
     so << endl << "Formats:" << endl;
     
-    const char * const kArcFlags = "KSNFMGOPBELHX";
+    const char * const kArcFlags = "KSNFMGOPBELHXC";
     const unsigned kNumArcFlags = (unsigned)strlen(kArcFlags);
     
     for (i = 0; i < codecs->Formats.Size(); i++)
@@ -959,7 +962,7 @@ int Main2(
       #ifdef EXTERNAL_CODECS
       PrintLibIndex(so, arc.LibIndex);
       #else
-      so << "  ";
+      so << "   ";
       #endif
 
       so << (char)(arc.UpdateEnabled ? 'C' : ' ');
@@ -994,6 +997,8 @@ int Main2(
       
       if (arc.SignatureOffset != 0)
         so << "offset=" << arc.SignatureOffset << ' ';
+
+      // so << "numSignatures = " << arc.Signatures.Size() << " ";
 
       FOR_VECTOR(si, arc.Signatures)
       {
@@ -1036,6 +1041,7 @@ int Main2(
       
       so << (char)(cod.CreateEncoder ? 'E' : ' ');
       so << (char)(cod.CreateDecoder ? 'D' : ' ');
+      so << (char)(cod.IsFilter      ? 'F' : ' ');
 
       so << ' ';
       PrintHexId(so, cod.Id);
@@ -1059,6 +1065,12 @@ int Main2(
       
       so << (char)(codecs->GetCodec_EncoderIsAssigned(j) ? 'E' : ' ');
       so << (char)(codecs->GetCodec_DecoderIsAssigned(j) ? 'D' : ' ');
+      {
+        bool isFilter_Assigned;
+        const bool isFilter = codecs->GetCodec_IsFilter(j, isFilter_Assigned);
+        so << (char)(isFilter ? 'F' : isFilter_Assigned ? ' ' : '*');
+      }
+
 
       so << ' ';
       UInt64 id;
@@ -1221,6 +1233,7 @@ int Main2(
       }
       
       hresultMain = Extract(
+          // EXTERNAL_CODECS_VARS_L
           codecs,
           types,
           excludedFormats,
@@ -1335,7 +1348,12 @@ int Main2(
       
       // options.ExtractNtOptions.StoreAltStreams = true, if -sns[-] is not definmed
 
+      CListOptions lo;
+      lo.ExcludeDirItems = options.Censor.ExcludeDirItems;
+      lo.ExcludeFileItems = options.Censor.ExcludeFileItems;
+
       hresultMain = ListArchives(
+          lo,
           codecs,
           types,
           excludedFormats,
@@ -1435,6 +1453,7 @@ int Main2(
   
     callback.Init(g_StdStream, g_ErrStream, percentsStream);
     callback.PrintHeaders = options.EnableHeaders;
+    callback.PrintFields = options.ListFields;
 
     AString errorInfoString;
     hresultMain = HashCalc(EXTERNAL_CODECS_VARS_L

@@ -1,9 +1,20 @@
 ; 7zAsm.asm -- ASM macros
-; 2021-02-07 : Igor Pavlov : Public domain
+; 2021-12-25 : Igor Pavlov : Public domain
 
+
+ifdef @wordsize
+; @wordsize is defined only in JWASM and ASMC and is not defined in MASM
+; @wordsize eq 8 for 64-bit x64
+; @wordsize eq 2 for 32-bit x86
+if @wordsize eq 8
+  x64 equ 1
+endif
+else
 ifdef RAX
   x64 equ 1
 endif
+endif
+
 
 ifdef x64
   IS_X64 equ 1
@@ -27,6 +38,8 @@ else
 endif
 endif
 
+OPTION PROLOGUE:NONE 
+OPTION EPILOGUE:NONE
 
 MY_ASM_START macro
   ifdef x64
@@ -171,6 +184,7 @@ endm
 ; for fastcall and for WIN-x64
 REG_PARAM_0_x   equ x1
 REG_PARAM_0     equ r1
+REG_PARAM_1_x   equ x2
 REG_PARAM_1     equ r2
 
 ifndef x64
@@ -178,6 +192,7 @@ ifndef x64
 
 REG_ABI_PARAM_0_x equ REG_PARAM_0_x
 REG_ABI_PARAM_0   equ REG_PARAM_0
+REG_ABI_PARAM_1_x equ REG_PARAM_1_x
 REG_ABI_PARAM_1   equ REG_PARAM_1
 
 else
@@ -186,28 +201,39 @@ else
 if  (IS_LINUX eq 0)
 
 ; for WIN-x64:
-REG_PARAM_2 equ r8
-REG_PARAM_3 equ r9
+REG_PARAM_2_x   equ x8
+REG_PARAM_2     equ r8
+REG_PARAM_3     equ r9
 
 REG_ABI_PARAM_0_x equ REG_PARAM_0_x
 REG_ABI_PARAM_0   equ REG_PARAM_0
+REG_ABI_PARAM_1_x equ REG_PARAM_1_x
 REG_ABI_PARAM_1   equ REG_PARAM_1
+REG_ABI_PARAM_2_x equ REG_PARAM_2_x
 REG_ABI_PARAM_2   equ REG_PARAM_2
 REG_ABI_PARAM_3   equ REG_PARAM_3
 
 else
 ; for LINUX-x64:
 REG_LINUX_PARAM_0_x equ x7
-REG_LINUX_PARAM_0 equ r7
-REG_LINUX_PARAM_1 equ r6
-REG_LINUX_PARAM_2 equ r2
-REG_LINUX_PARAM_3 equ r1
+REG_LINUX_PARAM_0   equ r7
+REG_LINUX_PARAM_1_x equ x6
+REG_LINUX_PARAM_1   equ r6
+REG_LINUX_PARAM_2   equ r2
+REG_LINUX_PARAM_3   equ r1
+REG_LINUX_PARAM_4_x equ x8
+REG_LINUX_PARAM_4   equ r8
+REG_LINUX_PARAM_5   equ r9
 
 REG_ABI_PARAM_0_x equ REG_LINUX_PARAM_0_x
 REG_ABI_PARAM_0   equ REG_LINUX_PARAM_0
+REG_ABI_PARAM_1_x equ REG_LINUX_PARAM_1_x
 REG_ABI_PARAM_1   equ REG_LINUX_PARAM_1
 REG_ABI_PARAM_2   equ REG_LINUX_PARAM_2
 REG_ABI_PARAM_3   equ REG_LINUX_PARAM_3
+REG_ABI_PARAM_4_x equ REG_LINUX_PARAM_4_x
+REG_ABI_PARAM_4   equ REG_LINUX_PARAM_4
+REG_ABI_PARAM_5   equ REG_LINUX_PARAM_5
 
 MY_ABI_LINUX_TO_WIN_2 macro
         mov     r2, r6

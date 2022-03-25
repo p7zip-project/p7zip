@@ -322,6 +322,17 @@ bool IsString1PrefixedByString2(const wchar_t *s1, const char *s2) throw()
   }
 }
 
+bool IsString1PrefixedByString2_NoCase_Ascii(const char *s1, const char *s2) throw()
+{
+  for (;;)
+  {
+    char c2 = *s2++; if (c2 == 0) return true;
+    char c1 = *s1++;
+    if (c1 != c2 && MyCharLower_Ascii(c1) != MyCharLower_Ascii(c2))
+      return false;
+  }
+}
+
 bool IsString1PrefixedByString2_NoCase_Ascii(const wchar_t *s1, const char *s2) throw()
 {
   for (;;)
@@ -648,6 +659,12 @@ void AString::Add_UInt32(UInt32 v)
 {
   Grow(10);
   _len = (unsigned)(ConvertUInt32ToString(v, _chars + _len) - _chars);
+}
+
+void UString::Add_UInt64(UInt64 v)
+{
+  Grow(20);
+  _len = (unsigned)(ConvertUInt64ToString(v, _chars + _len) - _chars);
 }
 
 void AString::SetFrom(const char *s, unsigned len) // no check
@@ -1079,18 +1096,29 @@ UString::UString(char c)
 
 UString::UString(const wchar_t *s)
 {
-  unsigned len = MyStringLen(s);
+  const unsigned len = MyStringLen(s);
   SetStartLen(len);
   wmemcpy(_chars, s, len + 1);
 }
 
 UString::UString(const char *s)
 {
-  unsigned len = MyStringLen(s);
+  const unsigned len = MyStringLen(s);
   SetStartLen(len);
   wchar_t *chars = _chars;
   for (unsigned i = 0; i < len; i++)
     chars[i] = (unsigned char)s[i];
+  chars[len] = 0;
+}
+
+UString::UString(const AString &s)
+{
+  const unsigned len = s.Len();
+  SetStartLen(len);
+  wchar_t *chars = _chars;
+  const char *s2 = s.Ptr();
+  for (unsigned i = 0; i < len; i++)
+    chars[i] = (unsigned char)s2[i];
   chars[len] = 0;
 }
 
@@ -1291,6 +1319,12 @@ void UString::Add_UInt32(UInt32 v)
 {
   Grow(10);
   _len = (unsigned)(ConvertUInt32ToString(v, _chars + _len) - _chars);
+}
+
+void AString::Add_UInt64(UInt64 v)
+{
+  Grow(20);
+  _len = (unsigned)(ConvertUInt64ToString(v, _chars + _len) - _chars);
 }
 
 

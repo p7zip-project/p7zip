@@ -25,27 +25,25 @@
 using namespace NWindows;
 using namespace NCOM;
 
-namespace NArchive
-{
-  namespace N7z
-  {
+namespace NArchive {
+namespace N7z {
 
 CHandler::CHandler()
 {
-#ifndef _NO_CRYPTO
+  #ifndef _NO_CRYPTO
   _isEncrypted = false;
   _passwordIsDefined = false;
-#endif
+  #endif
 
-#ifdef EXTRACT_ONLY
-
+  #ifdef EXTRACT_ONLY
+  
   _crcSize = 4;
-
-#ifdef __7Z_SET_PROPERTIES
+  
+  #ifdef __7Z_SET_PROPERTIES
   _useMultiThreadMixer = true;
-#endif
-
-#endif
+  #endif
+  
+  #endif
 }
 
 STDMETHODIMP CHandler::GetNumberOfItems(UInt32 *numItems)
@@ -58,31 +56,32 @@ STDMETHODIMP CHandler::GetNumberOfItems(UInt32 *numItems)
 
 IMP_IInArchive_ArcProps_NO_Table
 
-    STDMETHODIMP
-    CHandler::GetNumberOfProperties(UInt32 *numProps)
+STDMETHODIMP CHandler::GetNumberOfProperties(UInt32 *numProps)
 {
   *numProps = 0;
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetPropertyInfo(UInt32 /* index */, BSTR * /* name */,
-                                       PROPID * /* propID */,
-                                       VARTYPE * /* varType */)
+STDMETHODIMP CHandler::GetPropertyInfo(UInt32 /* index */,
+      BSTR * /* name */, PROPID * /* propID */, VARTYPE * /* varType */)
 {
   return E_NOTIMPL;
 }
 
 #else
 
-static const Byte kArcProps[] = {
-    kpidHeadersSize, kpidMethod, kpidSolid, kpidNumBlocks
-    // , kpidIsTree
+static const Byte kArcProps[] =
+{
+  kpidHeadersSize,
+  kpidMethod,
+  kpidSolid,
+  kpidNumBlocks
+  // , kpidIsTree
 };
 
 IMP_IInArchive_ArcProps
 
-    static inline char
-    GetHex(unsigned value)
+static inline char GetHex(unsigned value)
 {
   return (char)((value < 10) ? ('0' + value) : ('A' + (value - 10)));
 }
@@ -92,11 +91,10 @@ static unsigned ConvertMethodIdToString_Back(char *s, UInt64 id)
   int len = 0;
   do
   {
-    s[--len] = GetHex((unsigned)id & 0xF);
-    id >>= 4;
-    s[--len] = GetHex((unsigned)id & 0xF);
-    id >>= 4;
-  } while (id != 0);
+    s[--len] = GetHex((unsigned)id & 0xF); id >>= 4;
+    s[--len] = GetHex((unsigned)id & 0xF); id >>= 4;
+  }
+  while (id != 0);
   return (unsigned)-len;
 }
 
@@ -109,6 +107,7 @@ static void ConvertMethodIdToString(AString &res, UInt64 id)
   res += s + len - ConvertMethodIdToString_Back(s + len, id);
 }
 
+
 static char *GetStringForSizeValue(char *s, UInt32 val)
 {
   unsigned i;
@@ -117,30 +116,23 @@ static char *GetStringForSizeValue(char *s, UInt32 val)
     {
       if (i >= 10)
       {
-        *s++ = (char)('0' + i / 10);
+        *s++= (char)('0' + i / 10);
         i %= 10;
       }
       *s++ = (char)('0' + i);
       *s = 0;
       return s;
     }
-
+  
   char c = 'b';
-  if ((val & ((1 << 20) - 1)) == 0)
-  {
-    val >>= 20;
-    c = 'm';
-  }
-  else if ((val & ((1 << 10) - 1)) == 0)
-  {
-    val >>= 10;
-    c = 'k';
-  }
+  if      ((val & ((1 << 20) - 1)) == 0) { val >>= 20; c = 'm'; }
+  else if ((val & ((1 << 10) - 1)) == 0) { val >>= 10; c = 'k'; }
   s = ConvertUInt32ToString(val, s);
   *s++ = c;
   *s = 0;
   return s;
 }
+
 
 static void GetLzma2String(char *s, unsigned d)
 {
@@ -170,6 +162,7 @@ static void GetLzma2String(char *s, unsigned d)
   ConvertUInt32ToString(d, s);
 }
 
+
 /*
 static inline void AddHexToString(UString &res, Byte value)
 {
@@ -184,7 +177,7 @@ static char *AddProp32(char *s, const char *name, UInt32 v)
   s = MyStpCpy(s, name);
   return ConvertUInt32ToString(v, s);
 }
-
+ 
 void CHandler::AddMethodName(AString &s, UInt64 id)
 {
   AString name;
@@ -199,108 +192,89 @@ void CHandler::AddMethodName(AString &s, UInt64 id)
 
 STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
 {
-#ifndef _SFX
+  #ifndef _SFX
   COM_TRY_BEGIN
-#endif
+  #endif
   NCOM::CPropVariant prop;
   switch (propID)
   {
-#ifndef _SFX
-  case kpidMethod:
-  {
-    AString s;
-    const CParsedMethods &pm = _db.ParsedMethods;
-    FOR_VECTOR(i, pm.IDs)
+    #ifndef _SFX
+    case kpidMethod:
     {
-      UInt64 id = pm.IDs[i];
-      s.Add_Space_if_NotEmpty();
-      char temp[16];
-      if (id == k_LZMA2)
+      AString s;
+      const CParsedMethods &pm = _db.ParsedMethods;
+      FOR_VECTOR (i, pm.IDs)
       {
-        s += "LZMA2:";
-        GetLzma2String(temp, pm.Lzma2Prop);
-        s += temp;
+        UInt64 id = pm.IDs[i];
+        s.Add_Space_if_NotEmpty();
+        char temp[16];
+        if (id == k_LZMA2)
+        {
+          s += "LZMA2:";
+          GetLzma2String(temp, pm.Lzma2Prop);
+          s += temp;
+        }
+        else if (id == k_LZMA)
+        {
+          s += "LZMA:";
+          GetStringForSizeValue(temp, pm.LzmaDic);
+          s += temp;
+        }
+        else
+          AddMethodName(s, id);
       }
-      else if (id == k_LZMA)
-      {
-        s += "LZMA:";
-        GetStringForSizeValue(temp, pm.LzmaDic);
-        s += temp;
-      }
-      else
-        AddMethodName(s, id);
+      prop = s;
+      break;
     }
-    prop = s;
-    break;
-  }
-  case kpidSolid:
-    prop = _db.IsSolid();
-    break;
-  case kpidNumBlocks:
-    prop = (UInt32)_db.NumFolders;
-    break;
-  case kpidHeadersSize:
-    prop = _db.HeadersSize;
-    break;
-  case kpidPhySize:
-    prop = _db.PhySize;
-    break;
-  case kpidOffset:
-    if (_db.ArcInfo.StartPosition != 0)
-      prop = _db.ArcInfo.StartPosition;
-    break;
-/*
-case kpidIsTree: if (_db.IsTree) prop = true; break;
-case kpidIsAltStream: if (_db.ThereAreAltStreams) prop = true; break;
-case kpidIsAux: if (_db.IsTree) prop = true; break;
-*/
-// case kpidError: if (_db.ThereIsHeaderError) prop = "Header error"; break;
-#endif
-
-  case kpidWarningFlags:
-  {
-    UInt32 v = 0;
-    if (_db.StartHeaderWasRecovered)
-      v |= kpv_ErrorFlags_HeadersError;
-    if (_db.UnsupportedFeatureWarning)
-      v |= kpv_ErrorFlags_UnsupportedFeature;
-    if (v != 0)
+    case kpidSolid: prop = _db.IsSolid(); break;
+    case kpidNumBlocks: prop = (UInt32)_db.NumFolders; break;
+    case kpidHeadersSize:  prop = _db.HeadersSize; break;
+    case kpidPhySize:  prop = _db.PhySize; break;
+    case kpidOffset: if (_db.ArcInfo.StartPosition != 0) prop = _db.ArcInfo.StartPosition; break;
+    /*
+    case kpidIsTree: if (_db.IsTree) prop = true; break;
+    case kpidIsAltStream: if (_db.ThereAreAltStreams) prop = true; break;
+    case kpidIsAux: if (_db.IsTree) prop = true; break;
+    */
+    // case kpidError: if (_db.ThereIsHeaderError) prop = "Header error"; break;
+    #endif
+    
+    case kpidWarningFlags:
+    {
+      UInt32 v = 0;
+      if (_db.StartHeaderWasRecovered) v |= kpv_ErrorFlags_HeadersError;
+      if (_db.UnsupportedFeatureWarning) v |= kpv_ErrorFlags_UnsupportedFeature;
+      if (v != 0)
+        prop = v;
+      break;
+    }
+    
+    case kpidErrorFlags:
+    {
+      UInt32 v = 0;
+      if (!_db.IsArc) v |= kpv_ErrorFlags_IsNotArc;
+      if (_db.ThereIsHeaderError) v |= kpv_ErrorFlags_HeadersError;
+      if (_db.UnexpectedEnd) v |= kpv_ErrorFlags_UnexpectedEnd;
+      // if (_db.UnsupportedVersion) v |= kpv_ErrorFlags_Unsupported;
+      if (_db.UnsupportedFeatureError) v |= kpv_ErrorFlags_UnsupportedFeature;
       prop = v;
-    break;
-  }
+      break;
+    }
 
-  case kpidErrorFlags:
-  {
-    UInt32 v = 0;
-    if (!_db.IsArc)
-      v |= kpv_ErrorFlags_IsNotArc;
-    if (_db.ThereIsHeaderError)
-      v |= kpv_ErrorFlags_HeadersError;
-    if (_db.UnexpectedEnd)
-      v |= kpv_ErrorFlags_UnexpectedEnd;
-    // if (_db.UnsupportedVersion) v |= kpv_ErrorFlags_Unsupported;
-    if (_db.UnsupportedFeatureError)
-      v |= kpv_ErrorFlags_UnsupportedFeature;
-    prop = v;
-    break;
-  }
-
-  case kpidReadOnly:
-  {
-    if (!_db.CanUpdate())
-      prop = true;
-    break;
-  }
+    case kpidReadOnly:
+    {
+      if (!_db.CanUpdate())
+        prop = true;
+      break;
+    }
   }
   return prop.Detach(value);
-#ifndef _SFX
+  #ifndef _SFX
   COM_TRY_END
-#endif
+  #endif
 }
 
-static void SetFileTimeProp_From_UInt64Def(PROPVARIANT *prop,
-                                           const CUInt64DefVector &v,
-                                           unsigned index)
+static void SetFileTimeProp_From_UInt64Def(PROPVARIANT *prop, const CUInt64DefVector &v, unsigned index)
 {
   UInt64 value;
   if (v.GetItem(index, value))
@@ -316,7 +290,7 @@ bool CHandler::IsFolderEncrypted(CNum folderIndex) const
   size_t size = _db.FoCodersDataOffset[folderIndex + 1] - startPos;
   CInByte2 inByte;
   inByte.Init(p, size);
-
+  
   CNum numCoders = inByte.ReadNum();
   for (; numCoders != 0; numCoders--)
   {
@@ -341,38 +315,33 @@ STDMETHODIMP CHandler::GetNumRawProps(UInt32 *numProps)
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetRawPropInfo(UInt32 /* index */, BSTR *name,
-                                      PROPID *propID)
+STDMETHODIMP CHandler::GetRawPropInfo(UInt32 /* index */, BSTR *name, PROPID *propID)
 {
   *name = NULL;
   *propID = kpidNtSecure;
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetParent(UInt32 /* index */, UInt32 *parent,
-                                 UInt32 *parentType)
+STDMETHODIMP CHandler::GetParent(UInt32 /* index */, UInt32 *parent, UInt32 *parentType)
 {
   /*
   const CFileItem &file = _db.Files[index];
-  *parentType = (file.IsAltStream ? NParentType::kAltStream :
-  NParentType::kDir); *parent = (UInt32)(Int32)file.Parent;
+  *parentType = (file.IsAltStream ? NParentType::kAltStream : NParentType::kDir);
+  *parent = (UInt32)(Int32)file.Parent;
   */
   *parentType = NParentType::kDir;
   *parent = (UInt32)(Int32)-1;
   return S_OK;
 }
 
-STDMETHODIMP CHandler::GetRawProp(UInt32 index, PROPID propID,
-                                  const void **data, UInt32 *dataSize,
-                                  UInt32 *propType)
+STDMETHODIMP CHandler::GetRawProp(UInt32 index, PROPID propID, const void **data, UInt32 *dataSize, UInt32 *propType)
 {
   *data = NULL;
   *dataSize = 0;
   *propType = 0;
 
   if (/* _db.IsTree && propID == kpidName ||
-  !_db.IsTree && */
-      propID == kpidPath)
+      !_db.IsTree && */ propID == kpidPath)
   {
     if (_db.NameOffsets && _db.NamesBuf)
     {
@@ -390,18 +359,18 @@ STDMETHODIMP CHandler::GetRawProp(UInt32 index, PROPID propID,
   /*
   if (propID == kpidNtSecure)
   {
-if (index < (UInt32)_db.SecureIDs.Size())
-{
-  int id = _db.SecureIDs[index];
-  size_t offs = _db.SecureOffsets[id];
-  size_t size = _db.SecureOffsets[id + 1] - offs;
-  if (size >= 0)
-  {
-    *data = _db.SecureBuf + offs;
-    *dataSize = (UInt32)size;
-    *propType = NPropDataType::kRaw;
-  }
-}
+    if (index < (UInt32)_db.SecureIDs.Size())
+    {
+      int id = _db.SecureIDs[index];
+      size_t offs = _db.SecureOffsets[id];
+      size_t size = _db.SecureOffsets[id + 1] - offs;
+      if (size >= 0)
+      {
+        *data = _db.SecureBuf + offs;
+        *dataSize = (UInt32)size;
+        *propType = NPropDataType::kRaw;
+      }
+    }
   }
   */
   return S_OK;
@@ -419,17 +388,17 @@ HRESULT CHandler::SetMethodToProp(CNum folderIndex, PROPVARIANT *prop) const
   char temp[kTempSize];
   unsigned pos = kTempSize;
   temp[--pos] = 0;
-
+ 
   size_t startPos = _db.FoCodersDataOffset[folderIndex];
   const Byte *p = _db.CodersData + startPos;
   size_t size = _db.FoCodersDataOffset[folderIndex + 1] - startPos;
   CInByte2 inByte;
   inByte.Init(p, size);
-
+  
   // numCoders == 0 ???
   CNum numCoders = inByte.ReadNum();
   bool needSpace = false;
-
+  
   for (; numCoders != 0; numCoders--, needSpace = true)
   {
     if (pos < 32) // max size of property
@@ -447,7 +416,7 @@ HRESULT CHandler::SetMethodToProp(CNum folderIndex, PROPVARIANT *prop) const
       inByte.ReadNum(); // NumInStreams
       inByte.ReadNum(); // NumOutStreams
     }
-
+  
     CNum propsSize = 0;
     const Byte *props = NULL;
     if ((mainByte & 0x20) != 0)
@@ -456,11 +425,11 @@ HRESULT CHandler::SetMethodToProp(CNum folderIndex, PROPVARIANT *prop) const
       props = inByte.GetPtr();
       inByte.SkipDataNoCheck(propsSize);
     }
-
+    
     const char *name = NULL;
     char s[32];
     s[0] = 0;
-
+    
     if (id64 <= (UInt32)0xFFFFFFFF)
     {
       UInt32 id = (UInt32)id64;
@@ -478,12 +447,9 @@ HRESULT CHandler::SetMethodToProp(CNum folderIndex, PROPVARIANT *prop) const
             d /= 9;
             UInt32 pb = d / 5;
             UInt32 lp = d % 5;
-            if (lc != 3)
-              dest = AddProp32(dest, "lc", lc);
-            if (lp != 0)
-              dest = AddProp32(dest, "lp", lp);
-            if (pb != 2)
-              dest = AddProp32(dest, "pb", pb);
+            if (lc != 3) dest = AddProp32(dest, "lc", lc);
+            if (lp != 0) dest = AddProp32(dest, "lp", lp);
+            if (pb != 2) dest = AddProp32(dest, "pb", pb);
           }
         }
       }
@@ -611,10 +577,8 @@ HRESULT CHandler::SetMethodToProp(CNum folderIndex, PROPVARIANT *prop) const
         if (propsSize == 1)
           ConvertUInt32ToString((UInt32)props[0] + 1, s);
       }
-      else if (id == k_BCJ2)
-        name = "BCJ2";
-      else if (id == k_BCJ)
-        name = "BCJ";
+      else if (id == k_BCJ2) name = "BCJ2";
+      else if (id == k_BCJ) name = "BCJ";
       else if (id == k_AES)
       {
         name = "7zAES";
@@ -626,7 +590,7 @@ HRESULT CHandler::SetMethodToProp(CNum folderIndex, PROPVARIANT *prop) const
         }
       }
     }
-
+    
     if (name)
     {
       unsigned nameLen = MyStringLen(name);
@@ -668,7 +632,7 @@ HRESULT CHandler::SetMethodToProp(CNum folderIndex, PROPVARIANT *prop) const
       }
     }
   }
-
+  
   if (numCoders != 0 && pos >= 4)
   {
     temp[--pos] = ' ';
@@ -676,147 +640,117 @@ HRESULT CHandler::SetMethodToProp(CNum folderIndex, PROPVARIANT *prop) const
     temp[--pos] = '.';
     temp[--pos] = '.';
   }
-
+  
   return PropVarEm_Set_Str(prop, temp + pos);
   // }
 }
 
 #endif
 
-STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID,
-                                   PROPVARIANT *value)
+STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *value)
 {
   RINOK(PropVariant_Clear(value));
   // COM_TRY_BEGIN
   // NCOM::CPropVariant prop;
-
+  
   /*
   const CRef2 &ref2 = _refs[index];
   if (ref2.Refs.IsEmpty())
-return E_FAIL;
+    return E_FAIL;
   const CRef &ref = ref2.Refs.Front();
   */
-
+  
   const CFileItem &item = _db.Files[index];
   const UInt32 index2 = index;
 
   switch (propID)
   {
-  case kpidIsDir:
-    PropVarEm_Set_Bool(value, item.IsDir);
-    break;
-  case kpidSize:
-  {
-    PropVarEm_Set_UInt64(value, item.Size);
-    // prop = ref2.Size;
-    break;
-  }
-  case kpidPackSize:
-  {
-    // prop = ref2.PackSize;
+    case kpidIsDir: PropVarEm_Set_Bool(value, item.IsDir); break;
+    case kpidSize:
     {
-      CNum folderIndex = _db.FileIndexToFolderIndexMap[index2];
-      if (folderIndex != kNumNoIndex)
+      PropVarEm_Set_UInt64(value, item.Size);
+      // prop = ref2.Size;
+      break;
+    }
+    case kpidPackSize:
+    {
+      // prop = ref2.PackSize;
       {
-        if (_db.FolderStartFileIndex[folderIndex] == (CNum)index2)
-          PropVarEm_Set_UInt64(value, _db.GetFolderFullPackSize(folderIndex));
-        /*
-    else
-      PropVarEm_Set_UInt64(value, 0);
-    */
+        CNum folderIndex = _db.FileIndexToFolderIndexMap[index2];
+        if (folderIndex != kNumNoIndex)
+        {
+          if (_db.FolderStartFileIndex[folderIndex] == (CNum)index2)
+            PropVarEm_Set_UInt64(value, _db.GetFolderFullPackSize(folderIndex));
+          /*
+          else
+            PropVarEm_Set_UInt64(value, 0);
+          */
+        }
+        else
+          PropVarEm_Set_UInt64(value, 0);
       }
-      else
-        PropVarEm_Set_UInt64(value, 0);
+      break;
     }
-    break;
-  }
-  // case kpidIsAux: prop = _db.IsItemAux(index2); break;
-  case kpidPosition:
-  {
-    UInt64 v;
-    if (_db.StartPos.GetItem(index2, v))
-      PropVarEm_Set_UInt64(value, v);
-    break;
-  }
-  case kpidCTime:
-    SetFileTimeProp_From_UInt64Def(value, _db.CTime, index2);
-    break;
-  case kpidATime:
-    SetFileTimeProp_From_UInt64Def(value, _db.ATime, index2);
-    break;
-  case kpidMTime:
-    SetFileTimeProp_From_UInt64Def(value, _db.MTime, index2);
-    break;
-  case kpidAttrib:
-    if (_db.Attrib.ValidAndDefined(index2))
-      PropVarEm_Set_UInt32(value, _db.Attrib.Vals[index2]);
-    break;
-  case kpidCRC:
-    if (item.CrcDefined)
-      PropVarEm_Set_UInt32(value, item.Crc);
-    break;
-  case kpidEncrypted:
-    PropVarEm_Set_Bool(
-        value, IsFolderEncrypted(_db.FileIndexToFolderIndexMap[index2]));
-    break;
-  case kpidIsAnti:
-    PropVarEm_Set_Bool(value, _db.IsItemAnti(index2));
-    break;
+    // case kpidIsAux: prop = _db.IsItemAux(index2); break;
+    case kpidPosition:  { UInt64 v; if (_db.StartPos.GetItem(index2, v)) PropVarEm_Set_UInt64(value, v); break; }
+    case kpidCTime:  SetFileTimeProp_From_UInt64Def(value, _db.CTime, index2); break;
+    case kpidATime:  SetFileTimeProp_From_UInt64Def(value, _db.ATime, index2); break;
+    case kpidMTime:  SetFileTimeProp_From_UInt64Def(value, _db.MTime, index2); break;
+    case kpidAttrib:  if (_db.Attrib.ValidAndDefined(index2)) PropVarEm_Set_UInt32(value, _db.Attrib.Vals[index2]); break;
+    case kpidCRC:  if (item.CrcDefined) PropVarEm_Set_UInt32(value, item.Crc); break;
+    case kpidEncrypted:  PropVarEm_Set_Bool(value, IsFolderEncrypted(_db.FileIndexToFolderIndexMap[index2])); break;
+    case kpidIsAnti:  PropVarEm_Set_Bool(value, _db.IsItemAnti(index2)); break;
     /*
-case kpidIsAltStream:  prop = item.IsAltStream; break;
-case kpidNtSecure:
-  {
-    int id = _db.SecureIDs[index];
-    size_t offs = _db.SecureOffsets[id];
-    size_t size = _db.SecureOffsets[id + 1] - offs;
-    if (size >= 0)
-    {
-      prop.SetBlob(_db.SecureBuf + offs, (ULONG)size);
-    }
-    break;
-  }
-*/
+    case kpidIsAltStream:  prop = item.IsAltStream; break;
+    case kpidNtSecure:
+      {
+        int id = _db.SecureIDs[index];
+        size_t offs = _db.SecureOffsets[id];
+        size_t size = _db.SecureOffsets[id + 1] - offs;
+        if (size >= 0)
+        {
+          prop.SetBlob(_db.SecureBuf + offs, (ULONG)size);
+        }
+        break;
+      }
+    */
 
-  case kpidPath:
-    return _db.GetPath_Prop(index, value);
-
-#ifndef _SFX
-
-  case kpidMethod:
-    return SetMethodToProp(_db.FileIndexToFolderIndexMap[index2], value);
-  case kpidBlock:
-  {
-    CNum folderIndex = _db.FileIndexToFolderIndexMap[index2];
-    if (folderIndex != kNumNoIndex)
-      PropVarEm_Set_UInt32(value, (UInt32)folderIndex);
-  }
-  break;
-  /*
-  case kpidPackedSize0:
-  case kpidPackedSize1:
-  case kpidPackedSize2:
-  case kpidPackedSize3:
-  case kpidPackedSize4:
-{
-  CNum folderIndex = _db.FileIndexToFolderIndexMap[index2];
-  if (folderIndex != kNumNoIndex)
-  {
-    if (_db.FolderStartFileIndex[folderIndex] == (CNum)index2 &&
-        _db.FoStartPackStreamIndex[folderIndex + 1] -
-        _db.FoStartPackStreamIndex[folderIndex] > (propID -
-  kpidPackedSize0))
-    {
-      PropVarEm_Set_UInt64(value, _db.GetFolderPackStreamSize(folderIndex,
-  propID - kpidPackedSize0));
-    }
-  }
-  else
-    PropVarEm_Set_UInt64(value, 0);
-}
-break;
-  */
-
-#endif
+    case kpidPath: return _db.GetPath_Prop(index, value);
+    
+    #ifndef _SFX
+    
+    case kpidMethod: return SetMethodToProp(_db.FileIndexToFolderIndexMap[index2], value);
+    case kpidBlock:
+      {
+        CNum folderIndex = _db.FileIndexToFolderIndexMap[index2];
+        if (folderIndex != kNumNoIndex)
+          PropVarEm_Set_UInt32(value, (UInt32)folderIndex);
+      }
+      break;
+    /*
+    case kpidPackedSize0:
+    case kpidPackedSize1:
+    case kpidPackedSize2:
+    case kpidPackedSize3:
+    case kpidPackedSize4:
+      {
+        CNum folderIndex = _db.FileIndexToFolderIndexMap[index2];
+        if (folderIndex != kNumNoIndex)
+        {
+          if (_db.FolderStartFileIndex[folderIndex] == (CNum)index2 &&
+              _db.FoStartPackStreamIndex[folderIndex + 1] -
+              _db.FoStartPackStreamIndex[folderIndex] > (propID - kpidPackedSize0))
+          {
+            PropVarEm_Set_UInt64(value, _db.GetFolderPackStreamSize(folderIndex, propID - kpidPackedSize0));
+          }
+        }
+        else
+          PropVarEm_Set_UInt64(value, 0);
+      }
+      break;
+    */
+    
+    #endif
   }
   // return prop.Detach(value);
   return S_OK;
@@ -824,50 +758,48 @@ break;
 }
 
 STDMETHODIMP CHandler::Open(IInStream *stream,
-                            const UInt64 *maxCheckStartPosition,
-                            IArchiveOpenCallback *openArchiveCallback)
+    const UInt64 *maxCheckStartPosition,
+    IArchiveOpenCallback *openArchiveCallback)
 {
   COM_TRY_BEGIN
   Close();
-#ifndef _SFX
+  #ifndef _SFX
   _fileInfoPopIDs.Clear();
-#endif
-
+  #endif
+  
   try
   {
-    CMyComPtr<IArchiveOpenCallback> openArchiveCallbackTemp =
-        openArchiveCallback;
+    CMyComPtr<IArchiveOpenCallback> openArchiveCallbackTemp = openArchiveCallback;
 
-#ifndef _NO_CRYPTO
+    #ifndef _NO_CRYPTO
     CMyComPtr<ICryptoGetTextPassword> getTextPassword;
     if (openArchiveCallback)
-      openArchiveCallbackTemp.QueryInterface(IID_ICryptoGetTextPassword,
-                                             &getTextPassword);
-#endif
+      openArchiveCallbackTemp.QueryInterface(IID_ICryptoGetTextPassword, &getTextPassword);
+    #endif
 
     CInArchive archive(
-#ifdef __7Z_SET_PROPERTIES
-        _useMultiThreadMixer
-#else
-        true
-#endif
-    );
+          #ifdef __7Z_SET_PROPERTIES
+          _useMultiThreadMixer
+          #else
+          true
+          #endif
+          );
     _db.IsArc = false;
     RINOK(archive.Open(stream, maxCheckStartPosition));
     _db.IsArc = true;
-
-    HRESULT result = archive.ReadDatabase(EXTERNAL_CODECS_VARS _db
-#ifndef _NO_CRYPTO
-                                          ,
-                                          getTextPassword, _isEncrypted,
-                                          _passwordIsDefined, _password
-#endif
-    );
+    
+    HRESULT result = archive.ReadDatabase(
+        EXTERNAL_CODECS_VARS
+        _db
+        #ifndef _NO_CRYPTO
+          , getTextPassword, _isEncrypted, _passwordIsDefined, _password
+        #endif
+        );
     RINOK(result);
-
+    
     _inStream = stream;
   }
-  catch (...)
+  catch(...)
   {
     Close();
     // return E_INVALIDARG;
@@ -875,10 +807,10 @@ STDMETHODIMP CHandler::Open(IInStream *stream,
     // we must return out_of_memory here
     return E_OUTOFMEMORY;
   }
-// _inStream = stream;
-#ifndef _SFX
+  // _inStream = stream;
+  #ifndef _SFX
   FillPopIDs();
-#endif
+  #endif
   return S_OK;
   COM_TRY_END
 }
@@ -888,11 +820,11 @@ STDMETHODIMP CHandler::Close()
   COM_TRY_BEGIN
   _inStream.Release();
   _db.Clear();
-#ifndef _NO_CRYPTO
+  #ifndef _NO_CRYPTO
   _isEncrypted = false;
   _passwordIsDefined = false;
   _password.Wipe_and_Empty();
-#endif
+  #endif
   return S_OK;
   COM_TRY_END
 }
@@ -900,12 +832,10 @@ STDMETHODIMP CHandler::Close()
 #ifdef __7Z_SET_PROPERTIES
 #ifdef EXTRACT_ONLY
 
-STDMETHODIMP CHandler::SetProperties(const wchar_t *const *names,
-                                     const PROPVARIANT *values,
-                                     UInt32 numProps)
+STDMETHODIMP CHandler::SetProperties(const wchar_t * const *names, const PROPVARIANT *values, UInt32 numProps)
 {
   COM_TRY_BEGIN
-
+  
   InitCommon();
   _useMultiThreadMixer = true;
 
@@ -945,5 +875,4 @@ STDMETHODIMP CHandler::SetProperties(const wchar_t *const *names,
 
 IMPL_ISetCompressCodecsInfo
 
-  } // namespace N7z
-} // namespace NArchive
+}}

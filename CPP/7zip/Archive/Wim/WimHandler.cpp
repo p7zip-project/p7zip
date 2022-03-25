@@ -877,8 +877,10 @@ STDMETHODIMP CHandler::Open(IInStream *inStream, const UInt64 *, IArchiveOpenCal
         curStream = inStream;
       else
       {
-        UString fullName = seqName.GetNextName(i);
-        HRESULT result = openVolumeCallback->GetStream(fullName, &curStream);
+        if (!openVolumeCallback)
+          continue;
+        const UString fullName = seqName.GetNextName(i);
+        const HRESULT result = openVolumeCallback->GetStream(fullName, &curStream);
         if (result == S_FALSE)
           continue;
         if (result != S_OK)
@@ -1206,6 +1208,12 @@ STDMETHODIMP CHandler::SetProperties(const wchar_t * const *names, const PROPVAR
       UInt32 image = 9;
       RINOK(ParsePropToUInt32(L"", prop, image));
       _defaultImageNumber = image;
+    }
+    else if (name.IsPrefixedBy_Ascii_NoCase("mt"))
+    {
+    }
+    else if (name.IsPrefixedBy_Ascii_NoCase("memuse"))
+    {
     }
     else
       return E_INVALIDARG;

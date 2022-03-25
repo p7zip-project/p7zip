@@ -44,7 +44,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /Gr /MT /W4 /WX /GX /O1 /I "..\..\..\\" /D "NDEBUG" /D "_MBCS" /D "WIN32" /D "_CONSOLE" /D "_7ZIP_LARGE_PAGES" /D "SUPPORT_DEVICE_FILE" /FAc /Yu"StdAfx.h" /FD /c
+# ADD CPP /nologo /Gr /MT /W4 /WX /GX /O1 /I "..\..\..\\" /D "NDEBUG" /D "_MBCS" /D "WIN32" /D "_CONSOLE" /D "_7ZIP_LARGE_PAGES" /D "SUPPORT_DEVICE_FILE" /FAcs /Yu"StdAfx.h" /FD /c
 # ADD BASE RSC /l 0x419 /d "NDEBUG"
 # ADD RSC /l 0x419 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -290,6 +290,14 @@ SOURCE=..\..\..\Common\DynamicBuffer.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\Common\DynLimBuf.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Common\DynLimBuf.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\Common\IntToString.cpp
 # End Source File
 # Begin Source File
@@ -303,6 +311,10 @@ SOURCE=..\..\..\Common\ListFileUtils.cpp
 # Begin Source File
 
 SOURCE=..\..\..\Common\ListFileUtils.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Common\LzFindPrepare.cpp
 # End Source File
 # Begin Source File
 
@@ -1681,6 +1693,30 @@ SOURCE=..\..\..\..\C\LzFindMt.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\..\C\LzFindOpt.c
+
+!IF  "$(CFG)" == "Alone - Win32 Release"
+
+# ADD CPP /O2
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ELSEIF  "$(CFG)" == "Alone - Win32 Debug"
+
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ELSEIF  "$(CFG)" == "Alone - Win32 ReleaseU"
+
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ELSEIF  "$(CFG)" == "Alone - Win32 DebugU"
+
+# SUBTRACT CPP /YX /Yc /Yu
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\..\C\Compress\Lz\LzHash.h
 # End Source File
 # Begin Source File
@@ -1905,10 +1941,6 @@ SOURCE=..\..\..\..\C\Threads.c
 # Begin Source File
 
 SOURCE=..\..\..\..\C\Threads.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\..\C\Types.h
 # End Source File
 # End Group
 # Begin Group "Crypto"

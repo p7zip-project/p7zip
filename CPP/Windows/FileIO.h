@@ -244,8 +244,10 @@ public:
   bool SetMTime(const FILETIME *mTime) throw();
   bool WritePart(const void *data, UInt32 size, UInt32 &processedSize) throw();
   bool Write(const void *data, UInt32 size, UInt32 &processedSize) throw();
+  bool WriteFull(const void *data, size_t size) throw();
   bool SetEndOfFile() throw();
   bool SetLength(UInt64 length) throw();
+  bool SetLength_KeepPosition(UInt64 length) throw();
 };
 
 }
@@ -278,6 +280,7 @@ public:
   bool GetLength(UInt64 &length) const;
   off_t seek(off_t distanceToMove, int moveMethod) const;
   off_t seekToBegin() const throw();
+  off_t seekToCur() const throw();
   // bool SeekToBegin() throw();
   int my_fstat(struct stat *st) const  { return fstat(_handle, st); }
 };
@@ -315,7 +318,21 @@ public:
   bool Create(const char *name, bool createAlways);
   bool Open(const char *name, DWORD creationDisposition);
   ssize_t write_full(const void *data, size_t size, size_t &processed) throw();
+
+  bool WriteFull(const void *data, size_t size) throw()
+  {
+    size_t processed;
+    ssize_t res = write_full(data, size, processed);
+    if (res == -1)
+      return false;
+    return processed == size;
+  }
+
   bool SetLength(UInt64 length) throw();
+  bool SetLength_KeepPosition(UInt64 length) throw()
+  {
+    return SetLength(length);
+  }
   bool SetTime(const FILETIME *cTime, const FILETIME *aTime, const FILETIME *mTime) throw();
   bool SetMTime(const FILETIME *mTime) throw();
 };

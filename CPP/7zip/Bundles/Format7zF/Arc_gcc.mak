@@ -18,6 +18,7 @@ else
 
 MT_OBJS = \
   $O/LzFindMt.o \
+  $O/LzFindOpt.o \
   $O/StreamBinder.o \
   $O/Synchronization.o \
   $O/VirtThread.o \
@@ -47,6 +48,7 @@ COMMON_OBJS = \
   $O/CrcReg.o \
   $O/DynLimBuf.o \
   $O/IntToString.o \
+  $O/LzFindPrepare.o \
   $O/MyMap.o \
   $O/MyString.o \
   $O/MyVector.o \
@@ -128,6 +130,7 @@ AR_OBJS = \
   $O/UefiHandler.o \
   $O/VdiHandler.o \
   $O/VhdHandler.o \
+  $O/VhdxHandler.o \
   $O/VmdkHandler.o \
   $O/XarHandler.o \
   $O/XzHandler.o \
@@ -189,9 +192,13 @@ NSIS_OBJS = \
   $O/NsisIn.o \
   $O/NsisRegister.o \
 
+ifndef DISABLE_RAR
 RAR_OBJS = \
   $O/RarHandler.o \
   $O/Rar5Handler.o \
+
+endif
+
 
 TAR_OBJS = \
   $O/TarHandler.o \
@@ -259,12 +266,6 @@ COMPRESS_OBJS = \
   $O/PpmdRegister.o \
   $O/PpmdZip.o \
   $O/QuantumDecoder.o \
-  $O/Rar1Decoder.o \
-  $O/Rar2Decoder.o \
-  $O/Rar3Decoder.o \
-  $O/Rar3Vm.o \
-  $O/Rar5Decoder.o \
-  $O/RarCodecsRegister.o \
   $O/ShrinkDecoder.o \
   $O/XpressDecoder.o \
   $O/XzDecoder.o \
@@ -298,12 +299,17 @@ CRYPTO_OBJS = \
   $O/MyAesReg.o \
   $O/Pbkdf2HmacSha1.o \
   $O/RandGen.o \
-  $O/Rar20Crypto.o \
-  $O/Rar5Aes.o \
-  $O/RarAes.o \
   $O/WzAes.o \
   $O/ZipCrypto.o \
   $O/ZipStrong.o \
+
+ifndef DISABLE_RAR
+CRYPTO_OBJS += \
+  $O/Rar20Crypto.o \
+  $O/Rar5Aes.o \
+  $O/RarAes.o \
+
+endif
 
 
 C_OBJS = \

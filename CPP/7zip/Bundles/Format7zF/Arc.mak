@@ -3,6 +3,7 @@ COMMON_OBJS = \
   $O\CrcReg.obj \
   $O\DynLimBuf.obj \
   $O\IntToString.obj \
+  $O\LzFindPrepare.obj \
   $O\MyMap.obj \
   $O\MyString.obj \
   $O\MyVector.obj \
@@ -88,6 +89,7 @@ AR_OBJS = \
   $O\UefiHandler.obj \
   $O\VdiHandler.obj \
   $O\VhdHandler.obj \
+  $O\VhdxHandler.obj \
   $O\VmdkHandler.obj \
   $O\XarHandler.obj \
   $O\XzHandler.obj \
@@ -287,6 +289,7 @@ C_OBJS = \
 !include "../../Aes.mak"
 !include "../../Crc.mak"
 !include "../../Crc64.mak"
+!include "../../LzFindOpt.mak"
 !include "../../LzmaDec.mak"
 !include "../../Sha1.mak"
 !include "../../Sha256.mak"

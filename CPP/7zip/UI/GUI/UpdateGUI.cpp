@@ -61,7 +61,7 @@ HRESULT CThreadUpdating::ProcessVirt()
   return HRESULT_FROM_WIN32(ei.SystemError);
 }
 
-static void AddProp(CObjectVector<CProperty> &properties, const char *name, const UString &value)
+static void AddProp_UString(CObjectVector<CProperty> &properties, const char *name, const UString &value)
 {
   CProperty prop;
   prop.Name = name;
@@ -69,16 +69,16 @@ static void AddProp(CObjectVector<CProperty> &properties, const char *name, cons
   properties.Add(prop);
 }
 
-static void AddProp(CObjectVector<CProperty> &properties, const char *name, UInt32 value)
+static void AddProp_UInt32(CObjectVector<CProperty> &properties, const char *name, UInt32 value)
 {
-  char tmp[32];
-  ConvertUInt64ToString(value, tmp);
-  AddProp(properties, name, UString(tmp));
+  UString s;
+  s.Add_UInt32(value);
+  AddProp_UString(properties, name, s);
 }
 
-static void AddProp(CObjectVector<CProperty> &properties, const char *name, bool value)
+static void AddProp_bool(CObjectVector<CProperty> &properties, const char *name, bool value)
 {
-  AddProp(properties, name, UString(value ? "on": "off"));
+  AddProp_UString(properties, name, UString(value ? "on": "off"));
 }
 
 static bool IsThereMethodOverride(bool is7z, const UString &propertiesString)
@@ -112,9 +112,13 @@ static void ParseAndAddPropertires(CObjectVector<CProperty> &properties,
   SplitString(propertiesString, strings);
   FOR_VECTOR (i, strings)
   {
-    const UString &s = strings[i];
+    UString s = strings[i];
+    if (s.Len() > 2
+        && s[0] == '-'
+        && MyCharLower_Ascii(s[1]) == 'm')
+      s.DeleteFrontal(2);
     CProperty property;
-    int index = s.Find(L'=');
+    const int index = s.Find(L'=');
     if (index < 0)
       property.Name = s;
     else
@@ -126,15 +130,15 @@ static void ParseAndAddPropertires(CObjectVector<CProperty> &properties,
   }
 }
 
-static UString GetNumInBytesString(UInt64 v)
+
+static void AddProp_Size(CObjectVector<CProperty> &properties, const char *name, const UInt64 size)
 {
-  char s[32];
-  ConvertUInt64ToString(v, s);
-  size_t len = MyStringLen(s);
-  s[len++] = 'B';
-  s[len] = '\0';
-  return UString(s);
+  UString s;
+  s.Add_UInt64(size);
+  s += 'b';
+  AddProp_UString(properties, name, s);
 }
+
 
 static void SetOutProperties(
     CObjectVector<CProperty> &properties,
@@ -142,28 +146,30 @@ static void SetOutProperties(
     UInt32 level,
     bool setMethod,
     const UString &method,
-    UInt32 dictionary,
+    UInt64 dict64,
     bool orderMode,
     UInt32 order,
     bool solidIsSpecified, UInt64 solidBlockSize,
-    bool multiThreadIsAllowed, UInt32 numThreads,
+    // bool multiThreadIsAllowed,
+    UInt32 numThreads,
     const UString &encryptionMethod,
     bool encryptHeadersIsAllowed, bool encryptHeaders,
+    const NCompression::CMemUse &memUse,
     bool /* sfxMode */)
 {
   if (level != (UInt32)(Int32)-1)
-    AddProp(properties, "x", (UInt32)level);
+    AddProp_UInt32(properties, "x", (UInt32)level);
   if (setMethod)
   {
     if (!method.IsEmpty())
-      AddProp(properties, is7z ? "0": "m", method);
-    if (dictionary != (UInt32)(Int32)-1)
+      AddProp_UString(properties, is7z ? "0": "m", method);
+    if (dict64 != (UInt64)(Int64)-1)
     {
       AString name;
       if (is7z)
         name = "0";
       name += (orderMode ? "mem" : "d");
-      AddProp(properties, name, GetNumInBytesString(dictionary));
+      AddProp_Size(properties, name, dict64);
     }
     if (order != (UInt32)(Int32)-1)
     {
@@ -171,19 +177,37 @@ static void SetOutProperties(
       if (is7z)
         name = "0";
       name += (orderMode ? "o" : "fb");
-      AddProp(properties, name, (UInt32)order);
+      AddProp_UInt32(properties, name, (UInt32)order);
     }
   }
     
   if (!encryptionMethod.IsEmpty())
-    AddProp(properties, "em", encryptionMethod);
+    AddProp_UString(properties, "em", encryptionMethod);
 
   if (encryptHeadersIsAllowed)
-    AddProp(properties, "he", encryptHeaders);
+    AddProp_bool(properties, "he", encryptHeaders);
   if (solidIsSpecified)
-    AddProp(properties, "s", GetNumInBytesString(solidBlockSize));
-  if (multiThreadIsAllowed)
-    AddProp(properties, "mt", numThreads);
+    AddProp_Size(properties, "s", solidBlockSize);
+  
+  if (
+      // multiThreadIsAllowed &&
+      numThreads != (UInt32)(Int32)-1)
+    AddProp_UInt32(properties, "mt", numThreads);
+  
+  if (memUse.IsDefined)
+  {
+    const char *kMemUse = "memuse";
+    if (memUse.IsPercent)
+    {
+      UString s;
+      // s += 'p'; // for debug: alternate percent method
+      s.Add_UInt64(memUse.Val);
+      s += '%';
+      AddProp_UString(properties, kMemUse, s);
+    }
+    else
+      AddProp_Size(properties, kMemUse, memUse.Val);
+  }
 }
 
 struct C_UpdateMode_ToAction_Pair
@@ -287,6 +311,11 @@ static HRESULT ShowDialog(
   CCompressDialog dialog;
   NCompressDialog::CInfo &di = dialog.Info;
   dialog.ArcFormats = &codecs->Formats;
+  {
+    CObjectVector<CCodecInfoUser> userCodecs;
+    codecs->Get_CodecsInfoUser_Vector(userCodecs);
+    dialog.SetMethods(userCodecs);
+  }
 
   if (options.MethodMode.Type_Defined)
     di.FormatIndex = options.MethodMode.Type.FormatIndex;
@@ -299,9 +328,13 @@ static HRESULT ShowDialog(
     if (!oneFile && ai.Flags_KeepName())
       continue;
     if ((int)i != di.FormatIndex)
+    {
+      if (ai.Flags_HashHandler())
+        continue;
       if (ai.Name.IsEqualTo_Ascii_NoCase("swfc"))
         if (!oneFile || name.Len() < 4 || !StringsAreEqualNoCase_Ascii(name.RightPtr(4), ".swf"))
           continue;
+    }
     dialog.ArcIndices.Add(i);
   }
   if (dialog.ArcIndices.IsEmpty())
@@ -389,12 +422,14 @@ static HRESULT ShowDialog(
       di.Level,
       !methodOverride,
       di.Method,
-      di.Dictionary,
+      di.Dict64,
       di.OrderMode, di.Order,
       di.SolidIsSpecified, di.SolidBlockSize,
-      di.MultiThreadIsAllowed, di.NumThreads,
+      // di.MultiThreadIsAllowed,
+      di.NumThreads,
       di.EncryptionMethod,
       di.EncryptHeadersIsAllowed, di.EncryptHeaders,
+      di.MemUsage,
       di.SFXMode);
   
   options.OpenShareForWrite = di.OpenShareForWrite;
@@ -464,6 +499,13 @@ HRESULT UpdateGUI(
   tu.UpdateCallbackGUI->Init();
 
   UString title = LangString(IDS_PROGRESS_COMPRESSING);
+  if (!formatIndices.IsEmpty())
+  {
+    const int fin = formatIndices[0].FormatIndex;
+    if (fin >= 0)
+      if (codecs->Formats[fin].Flags_HashHandler())
+        title = LangString(IDS_CHECKSUM_CALCULATING);
+  }
 
   /*
   if (hwndParent != 0)

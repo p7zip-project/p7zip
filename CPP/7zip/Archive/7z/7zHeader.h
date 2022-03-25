@@ -21,14 +21,16 @@ extern Byte kSignature[kSignatureSize];
 extern Byte kFinishSignature[kSignatureSize];
 #endif
 
-struct CArchiveVersion {
+struct CArchiveVersion
+{
   Byte Major;
   Byte Minor;
 };
 
 const Byte kMajorVersion = 0;
 
-struct CStartHeader {
+struct CStartHeader
+{
   UInt64 NextHeaderOffset;
   UInt64 NextHeaderSize;
   UInt32 NextHeaderCRC;
@@ -37,59 +39,63 @@ struct CStartHeader {
 const UInt32 kStartHeaderSize = 20;
 
 #ifdef _7Z_VOL
-struct CFinishHeader : public CStartHeader {
-  UInt64 ArchiveStartOffset;       // data offset from end if that struct
+struct CFinishHeader: public CStartHeader
+{
+  UInt64 ArchiveStartOffset;  // data offset from end if that struct
   UInt64 AdditionalStartBlockSize; // start  signature & start header size
 };
 
 const UInt32 kFinishHeaderSize = kStartHeaderSize + 16;
 #endif
 
-namespace NID {
-enum EEnum {
-  kEnd,
+namespace NID
+{
+  enum EEnum
+  {
+    kEnd,
 
-  kHeader,
+    kHeader,
 
-  kArchiveProperties,
+    kArchiveProperties,
+    
+    kAdditionalStreamsInfo,
+    kMainStreamsInfo,
+    kFilesInfo,
+    
+    kPackInfo,
+    kUnpackInfo,
+    kSubStreamsInfo,
 
-  kAdditionalStreamsInfo,
-  kMainStreamsInfo,
-  kFilesInfo,
+    kSize,
+    kCRC,
 
-  kPackInfo,
-  kUnpackInfo,
-  kSubStreamsInfo,
+    kFolder,
 
-  kSize,
-  kCRC,
+    kCodersUnpackSize,
+    kNumUnpackStream,
 
-  kFolder,
+    kEmptyStream,
+    kEmptyFile,
+    kAnti,
 
-  kCodersUnpackSize,
-  kNumUnpackStream,
+    kName,
+    kCTime,
+    kATime,
+    kMTime,
+    kWinAttrib,
+    kComment,
 
-  kEmptyStream,
-  kEmptyFile,
-  kAnti,
+    kEncodedHeader,
 
-  kName,
-  kCTime,
-  kATime,
-  kMTime,
-  kWinAttrib,
-  kComment,
+    kStartPos,
+    kDummy
 
-  kEncodedHeader,
-
-  kStartPos,
-  kDummy
-
-  // kNtSecure,
-  // kParent,
-  // kIsAux
-};
+    // kNtSecure,
+    // kParent,
+    // kIsAux
+  };
 }
+
 
 const UInt32 k_Copy = 0;
 const UInt32 k_Delta = 3;
@@ -99,22 +105,22 @@ const UInt32 k_LZMA2 = 0x21;
 const UInt32 k_SWAP2 = 0x20302;
 const UInt32 k_SWAP4 = 0x20304;
 
-const UInt32 k_LZMA = 0x30101;
-const UInt32 k_PPMD = 0x30401;
+const UInt32 k_LZMA  = 0x30101;
+const UInt32 k_PPMD  = 0x30401;
 
-const UInt32 k_Deflate = 0x40108;
+const UInt32 k_Deflate   = 0x40108;
 const UInt32 k_Deflate64 = 0x40109;
-const UInt32 k_BZip2 = 0x40202;
+const UInt32 k_BZip2     = 0x40202;
 
-const UInt32 k_BCJ = 0x3030103;
-const UInt32 k_BCJ2 = 0x303011B;
-const UInt32 k_PPC = 0x3030205;
-const UInt32 k_IA64 = 0x3030401;
-const UInt32 k_ARM = 0x3030501;
-const UInt32 k_ARMT = 0x3030701;
+const UInt32 k_BCJ   = 0x3030103;
+const UInt32 k_BCJ2  = 0x303011B;
+const UInt32 k_PPC   = 0x3030205;
+const UInt32 k_IA64  = 0x3030401;
+const UInt32 k_ARM   = 0x3030501;
+const UInt32 k_ARMT  = 0x3030701;
 const UInt32 k_SPARC = 0x3030805;
 
-const UInt32 k_AES = 0x6F10701;
+const UInt32 k_AES   = 0x6F10701;
 
 const UInt32 k_ZSTD = 0x4F71101;
 const UInt32 k_BROTLI = 0x4F71102;
@@ -122,26 +128,27 @@ const UInt32 k_LZ4 = 0x4F71104;
 const UInt32 k_LZ5 = 0x4F71105;
 const UInt32 k_LIZARD = 0x4F71106;
 
-static inline bool IsFilterMethod(UInt64 m) {
+static inline bool IsFilterMethod(UInt64 m)
+{
   if (m > (UInt64)0xFFFFFFFF)
     return false;
-  switch ((UInt32)m) {
-  case k_Delta:
-  case k_BCJ:
-  case k_BCJ2:
-  case k_PPC:
-  case k_IA64:
-  case k_ARM:
-  case k_ARMT:
-  case k_SPARC:
-  case k_SWAP2:
-  case k_SWAP4:
-    return true;
+  switch ((UInt32)m)
+  {
+    case k_Delta:
+    case k_BCJ:
+    case k_BCJ2:
+    case k_PPC:
+    case k_IA64:
+    case k_ARM:
+    case k_ARMT:
+    case k_SPARC:
+    case k_SWAP2:
+    case k_SWAP4:
+      return true;
   }
   return false;
 }
 
-} // namespace N7z
-} // namespace NArchive
+}}
 
 #endif

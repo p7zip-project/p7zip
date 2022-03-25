@@ -19,6 +19,14 @@ namespace NError {
 
 static bool MyFormatMessage(DWORD errorCode, UString &message)
 {
+  #ifndef _SFX
+  if ((HRESULT)errorCode == MY_HRES_ERROR__INTERNAL_ERROR)
+  {
+    message = "Internal Error: The failure in hardware (RAM or CPU), OS or program";
+    return true;
+  }
+  #endif
+
   #ifdef _WIN32
   
   LPVOID msgBuf;
@@ -69,8 +77,8 @@ static bool MyFormatMessage(DWORD errorCode, UString &message)
       break;
   }
 
-  /* strerror() for unknow errors still shows message "Unknown error -12345678")
-     So we must trasfer error codes before strerror() */
+  /* strerror() for unknown errors still shows message "Unknown error -12345678")
+     So we must transfer error codes before strerror() */
   if (!s)
   {
     if ((errorCode & 0xFFFF0000) == (UInt32)((MY__FACILITY__WRes << 16) | 0x80000000))

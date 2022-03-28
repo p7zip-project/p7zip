@@ -1,4 +1,4 @@
-PROG = 7zCon
+PROG = 7zCon.sfx
 
 # IS_X64 = 1
 # USE_ASM = 1

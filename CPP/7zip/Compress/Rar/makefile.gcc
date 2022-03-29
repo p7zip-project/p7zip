@@ -1,0 +1,57 @@
+PROG = Rar
+DEF_FILE = ../Codec.def
+
+# IS_X64 = 1
+# USE_ASM = 1
+# ST_MODE = 1
+
+ifdef SystemDrive
+
+LOCAL_FLAGS_WIN = \
+  -D_7ZIP_LARGE_PAGES \
+  $(LOCAL_FLAGS_ST) \
+
+SYS_OBJS = \
+
+else
+
+SYS_OBJS = \
+  $O/MyWindows.o \
+
+endif
+
+LOCAL_FLAGS = \
+  -DEXTERNAL_CODECS \
+  $(LOCAL_FLAGS_WIN) \
+  $(LOCAL_FLAGS_ST) \
+
+COMMON_OBJS = \
+  $O/InBuffer.o \
+  $O/OutBuffer.o \
+  $O/StreamUtils.o \
+  $O/System.o \
+
+COMPRESS_OBJS_2 = \
+  $O/CodecExports.o \
+  $O/DllExportsCompress.o \
+  $O/Alloc.o \
+  $O/CpuArch.o \
+  $O/Ppmd7.o \
+  $O/Ppmd7aDec.o \
+  $O/7zCrc.o \
+  $O/7zCrcOpt.o \
+  $O/RarCodecsRegister.o \
+  $O/Rar1Decoder.o \
+  $O/Rar2Decoder.o \
+  $O/Rar3Decoder.o \
+  $O/Rar3Vm.o \
+  $O/Rar5Decoder.o \
+  $O/LzOutWindow.o \
+
+OBJS = \
+  $(COMPRESS_OBJS_2) \
+  $(SYS_OBJS) \
+  $(COMMON_OBJS) \
+
+include ../../7zip_gcc.mak
+

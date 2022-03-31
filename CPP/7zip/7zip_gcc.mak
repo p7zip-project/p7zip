@@ -109,7 +109,7 @@ DEL_OBJ_EXE = -$(RM) $(O)\*.o $(O)\$(PROG).exe $(O)\$(PROG).dll
  
 else
 
-RM = rm -f
+RM = rm -rf
 MY_MKDIR=mkdir -p
 # CFLAGS_BASE := $(CFLAGS_BASE) -D_7ZIP_ST
 # CXXFLAGS_EXTRA = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE

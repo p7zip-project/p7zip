@@ -1275,7 +1275,8 @@ $O/Lz4Handler.o: ../../Archive/Lz4Handler.cpp
 	$(CXX) $(CXXFLAGS) $<
 
 # Build brotli lib static and dynamic
-$O/libbrotlicommon-static.a $O/libbrotlienc-static.a $O/libbrotlidec-static.a: ../../../../C/brotli/c/include/brotli/decode.h
+$O/libbrotlienc-static.a $O/libbrotlidec-static.a: $O/libbrotlicommon-static.a
+$O/libbrotlicommon-static.a: ../../../../C/brotli/c/include/brotli/decode.h
 	$(RM) brotli_build
 	$(MY_MKDIR) -p brotli_build
 	cd brotli_build; \

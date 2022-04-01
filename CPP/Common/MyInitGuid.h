@@ -29,7 +29,7 @@ Also we need IID_IUnknown that is initialized in some file for linking:
 #include <basetyps.h>
 #endif
 
-#include <InitGuid.h>
+#include <initguid.h>
 
 #ifdef UNDER_CE
 DEFINE_GUID(IID_IUnknown,

@@ -1075,7 +1075,7 @@ static HRESULT EnumerateInArchiveItems(
 
 #if defined(_WIN32) && !defined(UNDER_CE)
 
-#include <MAPI.h>
+#include <mapi.h>
 
 #endif
 

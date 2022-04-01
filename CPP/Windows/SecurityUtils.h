@@ -3,7 +3,7 @@
 #ifndef __WINDOWS_SECURITY_UTILS_H
 #define __WINDOWS_SECURITY_UTILS_H
 
-#include <NTSecAPI.h>
+#include <ntsecapi.h>
 
 #include "Defs.h"
 

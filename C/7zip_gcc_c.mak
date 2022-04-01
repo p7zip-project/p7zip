@@ -64,7 +64,7 @@ ifdef IS_MINGW
 
 RM = del
 MY_MKDIR=mkdir
-LIB2 = -loleaut32 -luuid -ladvapi32 -lUser32
+LIB2 = -loleaut32 -luuid -ladvapi32 -luser32
 
 
 CXXFLAGS_EXTRA = -DUNICODE -D_UNICODE

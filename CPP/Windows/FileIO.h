@@ -17,7 +17,7 @@
 #ifdef _WIN32
 
 #if defined(_WIN32) && !defined(UNDER_CE)
-#include <WinIoCtl.h>
+#include <winioctl.h>
 #endif
 
 #else

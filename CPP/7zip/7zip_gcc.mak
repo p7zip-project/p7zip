@@ -99,8 +99,8 @@ ifdef IS_MINGW
 
 RM = del
 MY_MKDIR=mkdir
-LIB2_GUI = -lOle32 -lGdi32 -lComctl32 -lComdlg32
-LIB2 = -loleaut32 -luuid -ladvapi32 -lUser32 $(LIB2_GUI)
+LIB2_GUI = -lole32 -lgdi32 -lcomctl32 -lcomdlg32
+LIB2 = -loleaut32 -luuid -ladvapi32 -luser32 $(LIB2_GUI)
 
 CXXFLAGS_EXTRA = -DUNICODE -D_UNICODE
 # -Wno-delete-non-virtual-dtor

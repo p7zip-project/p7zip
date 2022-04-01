@@ -16,3 +16,6 @@
 [submodule "Codecs/zstdmt"]
 	path = Codecs/zstdmt
 	url = https://github.com/mcmilk/zstdmt.git
+[submodule "Codecs/lzham_codec_devel"]
+	path = Codecs/lzham_codec_devel
+	url = https://github.com/richgel999/lzham_codec_devel.git

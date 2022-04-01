@@ -127,9 +127,29 @@ $O/Lz5Register.o: ../../Compress/Lz5Register.cpp
 $O/Lz5Handler.o: ../../Archive/Lz5Handler.cpp
 	$(CXX) $(CXXFLAGS) $<
 
+# Build lzham lib static
+$O/liblzhamdecomp.a: $O/liblzhamcomp.a
+$O/liblzhamcomp.a: ../../../../Codecs/lzham_codec_devel/lzhamcomp/lzham_comp.h
+	$(RM) lzham_build
+	$(MY_MKDIR) -p lzham_build
+	cd lzham_build; \
+	cmake -DBUILD_X64=ON -DBUILD_SHARED_LIBS=OFF ../../../../../Codecs/lzham_codec_devel; \
+	make -j lzhamcomp lzhamdecomp; \
+	cd ..; \
+	cp lzham_build/lzhamcomp/liblzhamcomp.a $O
+	cp lzham_build/lzhamdecomp/liblzhamdecomp.a $O
+
+$O/lzham_lib.o: ../../../../Codecs/lzham_codec_devel/lzhamlib/lzham_lib.cpp
+	$(CXX) $(CXXFLAGS) $< -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamcomp -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
+
+# Compile lzham method and Handler 
+$O/LzhamRegister.o: ../../Compress/LzhamRegister.cpp
+	$(CXX) $(CXXFLAGS) $< -Wno-reorder -Wno-unused-parameter -Wno-unused-variable -I ../../../.. -I ../../../../CPP -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
+
 clean2:
 	$(RM) zstd_build
 	# $(RM) lz4_build
 	$(RM) brotli_build
+	$(RM) lzham_build
 	make -C ../../../../Codecs/lizard/lib clean
 	# make -C ../../../../Codecs/lz5/lib clean

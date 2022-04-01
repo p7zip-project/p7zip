@@ -385,9 +385,10 @@ BROTLI_STATIC_LIB = $O/libbrotlienc-static.a \
   $O/libbrotlicommon-static.a 
 LIZARD_STATIC_LIB = $O/liblizard.a
 LZ5_STATIC_LIB = $O/liblz5.a
+LZHAM_STATIC_LIB = $O/LzhamRegister.o $O/lzham_lib.o $O/liblzhamcomp.a $O/liblzhamdecomp.a
 
 ARC_OBJS = \
-	$(LZMA_DEC_OPT_OBJS) \
+  $(LZMA_DEC_OPT_OBJS) \
   $(C_OBJS) \
   $(MT_OBJS) \
   $(COMMON_OBJS) \
@@ -412,3 +413,4 @@ ARC_OBJS = \
   $(ZSTD_STATIC_LIB) \
   $(BROTLI_STATIC_LIB) \
   $(LIZARD_STATIC_LIB) \
+  $(LZHAM_STATIC_LIB) \

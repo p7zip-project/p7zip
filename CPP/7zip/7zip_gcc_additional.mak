@@ -140,11 +140,11 @@ $O/liblzhamcomp.a: ../../../../Codecs/lzham_codec_devel/lzhamcomp/lzham_comp.h
 	cp lzham_build/lzhamdecomp/liblzhamdecomp.a $O
 
 $O/lzham_lib.o: ../../../../Codecs/lzham_codec_devel/lzhamlib/lzham_lib.cpp
-	$(CXX) $(CXXFLAGS) $< -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamcomp -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
+	$(CXX) $(CXXFLAGS) $< -Wno-attributes -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamcomp -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
 
 # Compile lzham method and Handler 
 $O/LzhamRegister.o: ../../Compress/LzhamRegister.cpp
-	$(CXX) $(CXXFLAGS) $< -Wno-reorder -Wno-unused-parameter -Wno-unused-variable -I ../../../.. -I ../../../../CPP -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
+	$(CXX) $(CXXFLAGS) $< -Wno-reorder -Wno-unused-parameter -Wno-unused-variable -Wno-attributes -Wno-error -I ../../../.. -I ../../../../CPP -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
 
 # Build pkimplode lib
 $O/explode.o: ../../../../Codecs/StormLib/src/pklib/explode.c
@@ -182,7 +182,7 @@ $O/radix_struct.o: ../../../../Codecs/fast-lzma2/radix_struct.c
 $O/range_enc.o: ../../../../Codecs/fast-lzma2/range_enc.c
 	$(CC) $(CFLAGS) $<
 $O/fl2util.o: ../../../../Codecs/fast-lzma2/util.c
-	$(CC) $(CFLAGS) $< -Wno-cast-function-type
+	$(CC) $(CFLAGS) $<
 
 # Compile fast-lzma2 method
 $O/FastLzma2Encoder.o: ../../Compress/FastLzma2Encoder.cpp

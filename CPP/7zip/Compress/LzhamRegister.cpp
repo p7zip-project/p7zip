@@ -8,6 +8,8 @@
 #define WINAPI /* */
 #endif
 
+#include "StdAfx.h"
+
 #include "lzham_core.h" // for LZHAM_64BIT_POINTERS
 
 #include "C/Alloc.h"

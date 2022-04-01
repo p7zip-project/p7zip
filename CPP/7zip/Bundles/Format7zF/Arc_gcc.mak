@@ -289,6 +289,20 @@ COMPRESS_OBJS = \
   $O/Lz5Encoder.o \
   $O/Lz5Register.o \
 
+ifdef DISABLE_RAR
+DISABLE_RAR_COMPRESS=1
+endif
+
+ifndef DISABLE_RAR_COMPRESS
+COMPRESS_OBJS += \
+  $O/Rar1Decoder.o \
+  $O/Rar2Decoder.o \
+  $O/Rar3Decoder.o \
+  $O/Rar3Vm.o \
+  $O/Rar5Decoder.o \
+  $O/RarCodecsRegister.o \
+
+endif
 
 CRYPTO_OBJS = \
   $O/7zAes.o \

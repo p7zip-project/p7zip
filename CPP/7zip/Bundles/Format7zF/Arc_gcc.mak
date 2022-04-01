@@ -332,6 +332,16 @@ CRYPTO_OBJS += \
 
 endif
 
+HASHES_OBJS = \
+  $O/Md2Reg.o \
+  $O/Md4Reg.o \
+  $O/Md5Reg.o \
+  $O/Sha384Reg.o \
+  $O/Sha512Reg.o \
+  $O/md2.o \
+  $O/md4.o \
+  $O/md5.o \
+  $O/sha512.o \
 
 C_OBJS = \
   $O/7zBuf2.o \
@@ -410,6 +420,7 @@ ARC_OBJS = \
   $(CRYPTO_OBJS) \
   $(7ZIP_COMMON_OBJS) \
   $(ADDITIONAL_CODECS_OBJS) \
+  $(HASHES_OBJS) \
   $(ZSTD_STATIC_LIB) \
   $(BROTLI_STATIC_LIB) \
   $(LIZARD_STATIC_LIB) \

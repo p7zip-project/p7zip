@@ -146,6 +146,28 @@ $O/lzham_lib.o: ../../../../Codecs/lzham_codec_devel/lzhamlib/lzham_lib.cpp
 $O/LzhamRegister.o: ../../Compress/LzhamRegister.cpp
 	$(CXX) $(CXXFLAGS) $< -Wno-reorder -Wno-unused-parameter -Wno-unused-variable -I ../../../.. -I ../../../../CPP -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
 
+# Build hashes lib
+$O/md2.o: ../../../../Codecs/hashes/md2.c
+	$(CC) $(CFLAGS) $<
+$O/md4.o: ../../../../Codecs/hashes/md4.c
+	$(CC) $(CFLAGS) $<
+$O/md5.o: ../../../../Codecs/hashes/md5.c
+	$(CC) $(CFLAGS) $<
+$O/sha512.o: ../../../../Codecs/hashes/sha512.c
+	$(CC) $(CFLAGS) $<
+
+# Compile hashes Handler 
+$O/Md2Reg.o: ../../../Common/Md2Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Md4Reg.o: ../../../Common/Md4Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Md5Reg.o: ../../../Common/Md5Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Sha384Reg.o: ../../../Common/Sha384Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Sha512Reg.o: ../../../Common/Sha512Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+
 clean2:
 	$(RM) zstd_build
 	# $(RM) lz4_build

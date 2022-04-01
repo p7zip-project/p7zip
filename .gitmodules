@@ -1,0 +1,18 @@
+[submodule "Codecs/lz4"]
+	path = Codecs/lz4
+	url = https://github.com/lz4/lz4.git
+[submodule "Codecs/zstd"]
+	path = Codecs/zstd
+	url = https://github.com/facebook/zstd.git
+[submodule "Codecs/lz5"]
+	path = Codecs/lz5
+	url = https://github.com/inikep/lizard.git
+[submodule "Codecs/lizard"]
+	path = Codecs/lizard
+	url = https://github.com/inikep/lizard.git
+[submodule "Codecs/brotli"]
+	path = Codecs/brotli
+	url = https://github.com/google/brotli.git
+[submodule "Codecs/zstdmt"]
+	path = Codecs/zstdmt
+	url = https://github.com/mcmilk/zstdmt.git

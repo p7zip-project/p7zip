@@ -1,3 +1,7 @@
+ifneq ($(findstring mingw32,$(CC)),)
+  DCMAKE_SYSTEM_NAME := -DCMAKE_SYSTEM_NAME=Windows
+endif
+
 # Build MT API 
 $O/lz4-mt_common.o: ../../../../Codecs/zstdmt/lib/lz4-mt_common.c
 	$(CC) $(CFLAGS) $< -I ../../../../Codecs/lz4/lib
@@ -23,15 +27,14 @@ $O/lz5-mt_compress.o: ../../../../Codecs/zstdmt/lib/lz5-mt_compress.c
 	$(CC) $(CFLAGS) $< -I ../../../../Codecs/lz5/lib
 $O/lz5-mt_decompress.o: ../../../../Codecs/zstdmt/lib/lz5-mt_decompress.c
 	$(CC) $(CFLAGS) $< -I ../../../../Codecs/lz5/lib
+$O/threading.o: ../../../../Codecs/zstdmt/lib/threading.c
+	$(CC) $(CFLAGS) $<
 
 # Build zstd lib static
 $O/libzstd.a: ../../../../Codecs/zstd/lib/zstd.h
 	$(RM) zstd_build
-	$(MY_MKDIR) -p zstd_build
-	cd zstd_build; \
-	cmake -DZSTD_BUILD_STATIC=ON -DZSTD_BUILD_SHARED=OFF -DZSTD_BUILD_PROGRAMS=OFF ../../../../../Codecs/zstd/build/cmake; \
-	make -j; \
-	cd ..; \
+	cmake -DZSTD_BUILD_STATIC=ON -DZSTD_BUILD_SHARED=OFF -DZSTD_BUILD_PROGRAMS=OFF -S ../../../../Codecs/zstd/build/cmake -B zstd_build
+	make -C zstd_build -j
 	cp zstd_build/lib/libzstd.a $O
 
 # Compile zstd method and Handler
@@ -47,11 +50,8 @@ $O/ZstdHandler.o: ../../Archive/ZstdHandler.cpp
 # Build lz4 lib static
 $O/liblz4.a: ../../../../Codecs/lz4/lib/lz4.h
 	$(RM) lz4_build
-	$(MY_MKDIR) -p lz4_build
-	cd lz4_build; \
-	cmake -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF ../../../../../Codecs/lz4/build/cmake; \
-	make -j; \
-	cd ..; \
+	cmake -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF -S ../../../../Codecs/lz4/build/cmake -B lz4_build
+	make -C lz4_build -j
 	cp lz4_build/liblz4.a $O
 
 $O/lz4.o: ../../../../Codecs/lz4/lib/lz4.c
@@ -77,11 +77,8 @@ $O/Lz4Handler.o: ../../Archive/Lz4Handler.cpp
 $O/libbrotlienc-static.a $O/libbrotlidec-static.a: $O/libbrotlicommon-static.a
 $O/libbrotlicommon-static.a: ../../../../Codecs/brotli/c/include/brotli/decode.h
 	$(RM) brotli_build
-	$(MY_MKDIR) -p brotli_build
-	cd brotli_build; \
-	cmake ../../../../../Codecs/brotli/; \
-	make -j; \
-	cd ..; \
+	cmake $(DCMAKE_SYSTEM_NAME) -S ../../../../Codecs/brotli -B brotli_build
+	make -C brotli_build -j
 	cp brotli_build/libbrotlicommon-static.a $O
 	cp brotli_build/libbrotlidec-static.a $O
 	cp brotli_build/libbrotlienc-static.a $O
@@ -131,11 +128,8 @@ $O/Lz5Handler.o: ../../Archive/Lz5Handler.cpp
 $O/liblzhamdecomp.a: $O/liblzhamcomp.a
 $O/liblzhamcomp.a: ../../../../Codecs/lzham_codec_devel/lzhamcomp/lzham_comp.h
 	$(RM) lzham_build
-	$(MY_MKDIR) -p lzham_build
-	cd lzham_build; \
-	cmake -DBUILD_X64=ON -DBUILD_SHARED_LIBS=OFF ../../../../../Codecs/lzham_codec_devel; \
-	make -j lzhamcomp lzhamdecomp; \
-	cd ..; \
+	cmake $(DCMAKE_SYSTEM_NAME) -DBUILD_X64=ON -DBUILD_SHARED_LIBS=OFF -S ../../../../Codecs/lzham_codec_devel -B lzham_build
+	make -C lzham_build -j lzhamcomp lzhamdecomp
 	cp lzham_build/lzhamcomp/liblzhamcomp.a $O
 	cp lzham_build/lzhamdecomp/liblzhamdecomp.a $O
 

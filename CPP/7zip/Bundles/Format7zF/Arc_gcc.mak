@@ -42,6 +42,7 @@ ADDITIONAL_CODECS_OBJS = \
   $O/lz5-mt_common.o \
   $O/lz5-mt_compress.o \
   $O/lz5-mt_decompress.o \
+  $O/threading.o \
   $O/lz4.o \
   $O/lz4hc.o \
   $O/lz4frame.o \

@@ -182,7 +182,7 @@ $O/radix_struct.o: ../../../../Codecs/fast-lzma2/radix_struct.c
 $O/range_enc.o: ../../../../Codecs/fast-lzma2/range_enc.c
 	$(CC) $(CFLAGS) $<
 $O/fl2util.o: ../../../../Codecs/fast-lzma2/util.c
-	$(CC) $(CFLAGS) $<
+	$(CC) $(CFLAGS) $< -Wno-cast-function-type
 
 # Compile fast-lzma2 method
 $O/FastLzma2Encoder.o: ../../Compress/FastLzma2Encoder.cpp

@@ -46,6 +46,9 @@ namespace NCompress
 
       switch (size)
       {
+      case 1:
+        // possibly zip general purpose flag, ignore it
+        return S_OK;
       case 3:
         memcpy((void *)&_props, (void *)pProps, 3);
         return S_OK;

@@ -34,6 +34,8 @@
 #include "../../Compress/PpmdZip.h"
 #include "../../Compress/ShrinkDecoder.h"
 #include "../../Compress/XzDecoder.h"
+#include "../../Compress/ZstdDecoder.h"
+#include "../../Compress/PKImplodeDecoder.h"
 
 #include "../../Crypto/WzAes.h"
 #include "../../Crypto/ZipCrypto.h"
@@ -1174,8 +1176,14 @@ HRESULT CZipDecoder::Decode(
       lzmaDecoderSpec = new CLzmaDecoder;
       mi.Coder = lzmaDecoderSpec;
     }
+    else if (id ==NFileHeader::NCompressionMethod::kZstdPk)
+      mi.Coder = new NCompress::NZSTD::CDecoder();
+    else if (id ==NFileHeader::NCompressionMethod::kZstdWz)
+      mi.Coder = new NCompress::NZSTD::CDecoder();
     else if (id == NFileHeader::NCompressionMethod::kXz)
       mi.Coder = new NCompress::NXz::CComDecoder;
+    else if (id == NFileHeader::NCompressionMethod::kPKImploding)
+      mi.Coder = new NCompress::NPKImplode::NDecoder::CDecoder;
     else if (id == NFileHeader::NCompressionMethod::kPPMd)
       mi.Coder = new NCompress::NPpmdZip::CDecoder(true);
     #ifdef SUPPORT_LZFSE

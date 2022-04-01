@@ -49,6 +49,8 @@ ADDITIONAL_CODECS_OBJS = \
   $O/lz5.o \
   $O/lz5hc.o \
   $O/lz5frame.o \
+  $O/explode.o \
+  $O/implode.o \
 
 COMMON_OBJS = \
   $O/CRC.o \
@@ -295,6 +297,10 @@ COMPRESS_OBJS = \
   $O/Lz5Decoder.o \
   $O/Lz5Encoder.o \
   $O/Lz5Register.o \
+  $O/LzhamRegister.o \
+  $O/PKImplodeDecoder.o \
+  $O/PKImplodeEncoder.o \
+  $O/PKImplodeRegister.o \
 
 ifdef DISABLE_RAR
 DISABLE_RAR_COMPRESS=1
@@ -395,7 +401,7 @@ BROTLI_STATIC_LIB = $O/libbrotlienc-static.a \
   $O/libbrotlicommon-static.a 
 LIZARD_STATIC_LIB = $O/liblizard.a
 LZ5_STATIC_LIB = $O/liblz5.a
-LZHAM_STATIC_LIB = $O/LzhamRegister.o $O/lzham_lib.o $O/liblzhamcomp.a $O/liblzhamdecomp.a
+LZHAM_STATIC_LIB = $O/lzham_lib.o $O/liblzhamcomp.a $O/liblzhamdecomp.a
 
 ARC_OBJS = \
   $(LZMA_DEC_OPT_OBJS) \

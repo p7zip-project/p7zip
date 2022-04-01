@@ -146,6 +146,20 @@ $O/lzham_lib.o: ../../../../Codecs/lzham_codec_devel/lzhamlib/lzham_lib.cpp
 $O/LzhamRegister.o: ../../Compress/LzhamRegister.cpp
 	$(CXX) $(CXXFLAGS) $< -Wno-reorder -Wno-unused-parameter -Wno-unused-variable -I ../../../.. -I ../../../../CPP -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
 
+# Build pkimplode lib
+$O/explode.o: ../../../../Codecs/StormLib/src/pklib/explode.c
+	$(CC) $(CFLAGS) $<
+$O/implode.o: ../../../../Codecs/StormLib/src/pklib/implode.c
+	$(CC) $(CFLAGS) $< -Wno-implicit-fallthrough
+
+# Compile pkimplode method
+$O/PKImplodeDecoder.o: ../../Compress/PKImplodeDecoder.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/PKImplodeEncoder.o: ../../Compress/PKImplodeEncoder.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/PKImplodeRegister.o: ../../Compress/PKImplodeRegister.cpp
+	$(CXX) $(CXXFLAGS) $<
+
 # Build hashes lib
 $O/md2.o: ../../../../Codecs/hashes/md2.c
 	$(CC) $(CFLAGS) $<
@@ -156,7 +170,7 @@ $O/md5.o: ../../../../Codecs/hashes/md5.c
 $O/sha512.o: ../../../../Codecs/hashes/sha512.c
 	$(CC) $(CFLAGS) $<
 
-# Compile hashes Handler 
+# Compile hashes method 
 $O/Md2Reg.o: ../../../Common/Md2Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/Md4Reg.o: ../../../Common/Md4Reg.cpp

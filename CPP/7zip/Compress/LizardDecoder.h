@@ -3,10 +3,10 @@
 #define LIZARD_STATIC_LINKING_ONLY
 #include "../../../C/Alloc.h"
 #include "../../../C/Threads.h"
-#include "../../../C/lizard/lib/lizard_compress.h"
-#include "../../../C/lizard/lib/lizard_decompress.h"
-#include "../../../C/lizard/lib/lizard_frame.h"
-#include "../../../C/zstdmt/lizard-mt.h"
+#include "../../../Codecs/lizard/lib/lizard_compress.h"
+#include "../../../Codecs/lizard/lib/lizard_decompress.h"
+#include "../../../Codecs/lizard/lib/lizard_frame.h"
+#include "../../../Codecs/zstdmt/lib/lizard-mt.h"
 
 #include "../../Windows/System.h"
 #include "../../Common/Common.h"

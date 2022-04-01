@@ -3,8 +3,8 @@
 #define LZ5_STATIC_LINKING_ONLY
 #include "../../../C/Alloc.h"
 #include "../../../C/Threads.h"
-#include "../../../C/lz5/lib/lz5.h"
-#include "../../../C/zstdmt/lz5-mt.h"
+#include "../../../Codecs/lz5/lib/lz5.h"
+#include "../../../Codecs/zstdmt/lib/lz5-mt.h"
 
 #include "../../Common/Common.h"
 #include "../../Common/MyCom.h"

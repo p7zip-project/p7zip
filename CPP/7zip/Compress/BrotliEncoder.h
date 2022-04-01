@@ -4,7 +4,7 @@
 #include "../../../C/Alloc.h"
 #include "../../../C/Threads.h"
 #include "brotli/encode.h"
-#include "../../../C/zstdmt/brotli-mt.h"
+#include "../../../Codecs/zstdmt/lib/brotli-mt.h"
 
 #include "../../Common/Common.h"
 #include "../../Common/MyCom.h"

@@ -22,3 +22,6 @@
 [submodule "Codecs/StormLib"]
 	path = Codecs/StormLib
 	url = https://github.com/ladislav-zezula/StormLib.git
+[submodule "Codecs/fast-lzma2"]
+	path = Codecs/fast-lzma2
+	url = https://github.com/conor42/fast-lzma2.git

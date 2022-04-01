@@ -344,6 +344,8 @@ HASHES_OBJS = \
   $O/Md5Reg.o \
   $O/Sha384Reg.o \
   $O/Sha512Reg.o \
+  $O/XXH32Reg.o \
+  $O/XXH64Reg.o \
   $O/md2.o \
   $O/md4.o \
   $O/md5.o \
@@ -394,13 +396,28 @@ C_OBJS = \
   $O/Sha1.o \
   $O/Sha1Opt.o \
 
+FASTLZMA2_OBJS = \
+  $O/FastLzma2Register.o \
+  $O/FastLzma2Encoder.o \
+  $O/dict_buffer.o \
+  $O/fl2_common.o \
+  $O/fl2_compress.o \
+  $O/fl2_pool.o \
+  $O/fl2_threading.o \
+  $O/lzma2_enc.o \
+  $O/radix_bitpack.o \
+  $O/radix_mf.o \
+  $O/radix_struct.o \
+  $O/range_enc.o \
+  $O/fl2util.o \
+
 ZSTD_STATIC_LIB = $O/libzstd.a
-LZ4_STATIC_LIB = $O/liblz4.a
+# LZ4_STATIC_LIB = $O/liblz4.a
 BROTLI_STATIC_LIB = $O/libbrotlienc-static.a \
   $O/libbrotlidec-static.a \
   $O/libbrotlicommon-static.a 
 LIZARD_STATIC_LIB = $O/liblizard.a
-LZ5_STATIC_LIB = $O/liblz5.a
+# LZ5_STATIC_LIB = $O/liblz5.a
 LZHAM_STATIC_LIB = $O/lzham_lib.o $O/liblzhamcomp.a $O/liblzhamdecomp.a
 
 ARC_OBJS = \
@@ -427,6 +444,7 @@ ARC_OBJS = \
   $(7ZIP_COMMON_OBJS) \
   $(ADDITIONAL_CODECS_OBJS) \
   $(HASHES_OBJS) \
+  $(FASTLZMA2_OBJS) \
   $(ZSTD_STATIC_LIB) \
   $(BROTLI_STATIC_LIB) \
   $(LIZARD_STATIC_LIB) \

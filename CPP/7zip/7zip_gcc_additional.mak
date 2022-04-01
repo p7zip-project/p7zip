@@ -160,6 +160,36 @@ $O/PKImplodeEncoder.o: ../../Compress/PKImplodeEncoder.cpp
 $O/PKImplodeRegister.o: ../../Compress/PKImplodeRegister.cpp
 	$(CXX) $(CXXFLAGS) $<
 
+# Build fast-lzma2 lib
+$O/dict_buffer.o: ../../../../Codecs/fast-lzma2/dict_buffer.c
+	$(CC) $(CFLAGS) $<
+$O/fl2_common.o: ../../../../Codecs/fast-lzma2/fl2_common.c
+	$(CC) $(CFLAGS) $<
+$O/fl2_compress.o: ../../../../Codecs/fast-lzma2/fl2_compress.c
+	$(CC) $(CFLAGS) $< -Wno-sign-compare
+$O/fl2_pool.o: ../../../../Codecs/fast-lzma2/fl2_pool.c
+	$(CC) $(CFLAGS) $<
+$O/fl2_threading.o: ../../../../Codecs/fast-lzma2/fl2_threading.c
+	$(CC) $(CFLAGS) $<
+$O/lzma2_enc.o: ../../../../Codecs/fast-lzma2/lzma2_enc.c
+	$(CC) $(CFLAGS) $<
+$O/radix_bitpack.o: ../../../../Codecs/fast-lzma2/radix_bitpack.c
+	$(CC) $(CFLAGS) $<
+$O/radix_mf.o: ../../../../Codecs/fast-lzma2/radix_mf.c
+	$(CC) $(CFLAGS) $<
+$O/radix_struct.o: ../../../../Codecs/fast-lzma2/radix_struct.c
+	$(CC) $(CFLAGS) $<
+$O/range_enc.o: ../../../../Codecs/fast-lzma2/range_enc.c
+	$(CC) $(CFLAGS) $<
+$O/fl2util.o: ../../../../Codecs/fast-lzma2/util.c
+	$(CC) $(CFLAGS) $<
+
+# Compile fast-lzma2 method
+$O/FastLzma2Encoder.o: ../../Compress/FastLzma2Encoder.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/FastLzma2Register.o: ../../Compress/FastLzma2Register.cpp
+	$(CXX) $(CXXFLAGS) $<
+
 # Build hashes lib
 $O/md2.o: ../../../../Codecs/hashes/md2.c
 	$(CC) $(CFLAGS) $<
@@ -181,7 +211,11 @@ $O/Sha384Reg.o: ../../../Common/Sha384Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/Sha512Reg.o: ../../../Common/Sha512Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
-
+$O/XXH32Reg.o: ../../../Common/XXH32Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/XXH64Reg.o: ../../../Common/XXH64Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+	
 clean2:
 	$(RM) zstd_build
 	# $(RM) lz4_build

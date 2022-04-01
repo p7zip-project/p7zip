@@ -24,13 +24,12 @@ $O/lz5-mt_compress.o: ../../../../Codecs/zstdmt/lib/lz5-mt_compress.c
 $O/lz5-mt_decompress.o: ../../../../Codecs/zstdmt/lib/lz5-mt_decompress.c
 	$(CC) $(CFLAGS) $< -I ../../../../Codecs/lz5/lib
 
-
-# Build zstd lib static and dynamic
+# Build zstd lib static
 $O/libzstd.a: ../../../../Codecs/zstd/lib/zstd.h
 	$(RM) zstd_build
 	$(MY_MKDIR) -p zstd_build
 	cd zstd_build; \
-	cmake ../../../../../Codecs/zstd/build/cmake; \
+	cmake -DZSTD_BUILD_STATIC=ON -DZSTD_BUILD_SHARED=OFF -DZSTD_BUILD_PROGRAMS=OFF ../../../../../Codecs/zstd/build/cmake; \
 	make -j; \
 	cd ..; \
 	cp zstd_build/lib/libzstd.a $O
@@ -45,15 +44,24 @@ $O/ZstdRegister.o: ../../Compress/ZstdRegister.cpp
 $O/ZstdHandler.o: ../../Archive/ZstdHandler.cpp
 	$(CXX) $(CXXFLAGS) $<
 
-# Build lz4 lib static and dynamic
+# Build lz4 lib static
 $O/liblz4.a: ../../../../Codecs/lz4/lib/lz4.h
 	$(RM) lz4_build
 	$(MY_MKDIR) -p lz4_build
 	cd lz4_build; \
-	cmake -DBUILD_STATIC_LIBS=ON ../../../../../Codecs/lz4/build/cmake; \
+	cmake -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF ../../../../../Codecs/lz4/build/cmake; \
 	make -j; \
 	cd ..; \
 	cp lz4_build/liblz4.a $O
+
+$O/lz4.o: ../../../../Codecs/lz4/lib/lz4.c
+	$(CC) $(CFLAGS) $<
+$O/lz4hc.o: ../../../../Codecs/lz4/lib/lz4hc.c
+	$(CC) $(CFLAGS) $<
+$O/lz4frame.o: ../../../../Codecs/lz4/lib/lz4frame.c
+	$(CC) $(CFLAGS) $<
+$O/xxhash.o: ../../../../Codecs/lz4/lib/xxhash.c
+	$(CC) $(CFLAGS) $<
 
 # Compile lz4 method and Handler
 $O/Lz4Decoder.o: ../../Compress/Lz4Decoder.cpp
@@ -86,9 +94,9 @@ $O/BrotliEncoder.o: ../../Compress/BrotliEncoder.cpp
 $O/BrotliRegister.o: ../../Compress/BrotliRegister.cpp
 	$(CXX) $(CXXFLAGS) $< -I ../../../../Codecs/brotli/c/include
 
-# Build lizard lib static and dynamic
+# Build lizard lib static
 $O/liblizard.a: ../../../../Codecs/lizard/lib/lizard_frame.h
-	make -C ../../../../Codecs/lizard/lib
+	make -C ../../../../Codecs/lizard/lib liblizard.a
 	cp ../../../../Codecs/lizard/lib/liblizard.a $O
 
 # Compile lizard method and Handler
@@ -101,10 +109,13 @@ $O/LizardRegister.o: ../../Compress/LizardRegister.cpp
 $O/LizardHandler.o: ../../Archive/LizardHandler.cpp
 	$(CXX) $(CXXFLAGS) $<
 
-# Build lz5 lib static and dynamic
-$O/liblz5.a: ../../../../Codecs/lz5/lib/lz5frame.h
-	make -C ../../../../Codecs/lz5/lib
-	cp ../../../../Codecs/lz5/lib/liblz5.a $O
+# Build lz5 lib static
+$O/lz5.o: ../../../../Codecs/lz5/lib/lz5.c
+	$(CC) $(CFLAGS) $<
+$O/lz5hc.o: ../../../../Codecs/lz5/lib/lz5hc.c
+	$(CC) $(CFLAGS) $<
+$O/lz5frame.o: ../../../../Codecs/lz5/lib/lz5frame.c
+	$(CC) $(CFLAGS) $< -Wno-implicit-fallthrough
 
 # Compile lz5 method and Handler
 $O/Lz5Decoder.o: ../../Compress/Lz5Decoder.cpp
@@ -118,7 +129,7 @@ $O/Lz5Handler.o: ../../Archive/Lz5Handler.cpp
 
 clean2:
 	$(RM) zstd_build
-	$(RM) lz4_build
+	# $(RM) lz4_build
 	$(RM) brotli_build
 	make -C ../../../../Codecs/lizard/lib clean
-	make -C ../../../../Codecs/lz5/lib clean
+	# make -C ../../../../Codecs/lz5/lib clean

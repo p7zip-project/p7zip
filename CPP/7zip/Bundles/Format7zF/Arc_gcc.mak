@@ -26,6 +26,10 @@ MT_OBJS = \
   $O/OutMemStream.o \
   $O/ProgressMt.o \
   $O/Threads.o \
+
+endif
+
+ADDITIONAL_CODECS_OBJS = \
   $O/lz4-mt_common.o \
   $O/lz4-mt_compress.o \
   $O/lz4-mt_decompress.o \
@@ -38,10 +42,13 @@ MT_OBJS = \
   $O/lz5-mt_common.o \
   $O/lz5-mt_compress.o \
   $O/lz5-mt_decompress.o \
-
-endif
-
-
+  $O/lz4.o \
+  $O/lz4hc.o \
+  $O/lz4frame.o \
+  $O/xxhash.o \
+  $O/lz5.o \
+  $O/lz5hc.o \
+  $O/lz5frame.o \
 
 COMMON_OBJS = \
   $O/CRC.o \
@@ -401,8 +408,7 @@ ARC_OBJS = \
   $(COMPRESS_OBJS) \
   $(CRYPTO_OBJS) \
   $(7ZIP_COMMON_OBJS) \
+  $(ADDITIONAL_CODECS_OBJS) \
   $(ZSTD_STATIC_LIB) \
-  $(LZ4_STATIC_LIB) \
   $(BROTLI_STATIC_LIB) \
   $(LIZARD_STATIC_LIB) \
-  $(LZ5_STATIC_LIB) 

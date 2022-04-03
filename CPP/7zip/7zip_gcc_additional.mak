@@ -44,6 +44,8 @@ $O/ZstdEncoder.o: ../../Compress/ZstdEncoder.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/ZstdRegister.o: ../../Compress/ZstdRegister.cpp
 	$(CXX) $(CXXFLAGS) $<
+$O/ZstdZipRegister.o: ../../Compress/ZstdZipRegister.cpp
+	$(CXX) $(CXXFLAGS) $<
 $O/ZstdHandler.o: ../../Archive/ZstdHandler.cpp
 	$(CXX) $(CXXFLAGS) $<
 

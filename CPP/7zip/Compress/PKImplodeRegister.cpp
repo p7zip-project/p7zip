@@ -13,6 +13,6 @@ REGISTER_CODEC_E(
   PKImplode,
   NPKImplode::NDecoder::CDecoder(),
   NPKImplode::NEncoder::CEncoder(),
-  0x4010a, "PKImplode")
+  0x40100+10, "PKImplode")
 
 }

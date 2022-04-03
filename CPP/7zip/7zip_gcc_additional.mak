@@ -52,7 +52,7 @@ $O/ZstdHandler.o: ../../Archive/ZstdHandler.cpp
 # Build lz4 lib static
 $O/liblz4.a: ../../../../Codecs/lz4/lib/lz4.h
 	$(RM) lz4_build
-	cmake -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF -S ../../../../Codecs/lz4/build/cmake -B lz4_build
+	cmake $(DCMAKE_SYSTEM_NAME) -DBUILD_STATIC_LIBS=ON -DBUILD_SHARED_LIBS=OFF -DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF -S ../../../../Codecs/lz4/build/cmake -B lz4_build
 	make -C lz4_build -j
 	cp lz4_build/liblz4.a $O
 

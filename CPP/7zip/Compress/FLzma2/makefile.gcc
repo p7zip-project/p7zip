@@ -1,0 +1,77 @@
+PROG = FLzma2
+DEF_FILE = ../Codec.def
+
+# IS_X64 = 1
+# USE_ASM = 1
+# ST_MODE = 1
+
+ifdef SystemDrive
+
+LOCAL_FLAGS_WIN = \
+  -D_7ZIP_LARGE_PAGES \
+  $(LOCAL_FLAGS_ST) \
+
+SYS_OBJS = \
+
+else
+
+SYS_OBJS = \
+  $O/MyWindows.o \
+
+endif
+
+LOCAL_FLAGS = \
+  -DEXTERNAL_CODECS \
+  $(LOCAL_FLAGS_WIN) \
+  $(LOCAL_FLAGS_ST) \
+
+COMMON_OBJS = \
+  $O/InBuffer.o \
+  $O/OutBuffer.o \
+  $O/StreamUtils.o \
+  $O/System.o \
+
+COMPRESS_OBJS_2 = \
+  $O/CodecExports.o \
+  $O/DllExportsCompress.o \
+  $O/Alloc.o \
+  $O/Lzma2Decoder.o \
+  $O/CWrappers.o \
+  $O/Lzma2DecMt.o \
+  $O/Lzma2Dec.o \
+  $O/LzmaDec.o \
+  $O/MtDec.o \
+  $O/Threads.o \
+  $O/xxhash.o \
+  $O/Lzma2Encoder.o \
+  $O/LzmaEncoder.o \
+  $O/Lzma2Enc.o \
+  $O/LzmaEnc.o \
+  $O/LzFindMt.o \
+  $O/LzFind.o \
+  $O/LzFindOpt.o \
+  $O/MtCoder.o \
+  $O/CpuArch.o \
+
+FASTLZMA2_OBJS = \
+  $O/FastLzma2Register.o \
+  $O/FastLzma2Encoder.o \
+  $O/dict_buffer.o \
+  $O/fl2_common.o \
+  $O/fl2_compress.o \
+  $O/fl2_pool.o \
+  $O/fl2_threading.o \
+  $O/lzma2_enc.o \
+  $O/radix_bitpack.o \
+  $O/radix_mf.o \
+  $O/radix_struct.o \
+  $O/range_enc.o \
+  $O/fl2util.o \
+
+OBJS = \
+  $(COMPRESS_OBJS_2) \
+  $(FASTLZMA2_OBJS) \
+  $(SYS_OBJS) \
+  $(COMMON_OBJS) \
+
+include ../../7zip_gcc.mak

@@ -50,8 +50,6 @@ ADDITIONAL_CODECS_OBJS = \
   $O/lz5.o \
   $O/lz5hc.o \
   $O/lz5frame.o \
-  $O/explode.o \
-  $O/implode.o \
 
 COMMON_OBJS = \
   $O/CRC.o \
@@ -299,9 +297,6 @@ COMPRESS_OBJS = \
   $O/Lz5Encoder.o \
   $O/Lz5Register.o \
   $O/LzhamRegister.o \
-  $O/PKImplodeDecoder.o \
-  $O/PKImplodeEncoder.o \
-  $O/PKImplodeRegister.o \
 
 ifdef DISABLE_RAR
 DISABLE_RAR_COMPRESS=1
@@ -315,6 +310,16 @@ COMPRESS_OBJS += \
   $O/Rar3Vm.o \
   $O/Rar5Decoder.o \
   $O/RarCodecsRegister.o \
+
+endif
+
+ifndef DISABLE_PKIMPLODE_COMPRESS
+PKIMPLODE_OBJS += \
+  $O/PKImplodeDecoder.o \
+  $O/PKImplodeEncoder.o \
+  $O/PKImplodeRegister.o \
+  $O/explode.o \
+  $O/implode.o \
 
 endif
 
@@ -445,6 +450,7 @@ ARC_OBJS = \
   $(7ZIP_COMMON_OBJS) \
   $(ADDITIONAL_CODECS_OBJS) \
   $(HASHES_OBJS) \
+  $(PKIMPLODE_OBJS) \
   $(FASTLZMA2_OBJS) \
   $(ZSTD_STATIC_LIB) \
   $(BROTLI_STATIC_LIB) \

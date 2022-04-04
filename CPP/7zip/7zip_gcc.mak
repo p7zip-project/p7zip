@@ -70,7 +70,7 @@ SHARED_EXT=.dll
 LDFLAGS = -shared -DEF $(DEF_FILE) $(LDFLAGS_STATIC)
 else
 SHARED_EXT=.so
-LDFLAGS = -shared -fPIC $(LDFLAGS_STATIC)
+LDFLAGS = -shared -fPIC $(LDFLAGS_STATIC) -Wl,--no-undefined
 CC_SHARED=-fPIC
 endif
 

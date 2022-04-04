@@ -1175,13 +1175,17 @@ $O/AesOpt.o: ../../../../C/AesOpt.c
 	$(CC) $(CFLAGS) $<
 endif
 
-
+ifdef IS_MAC
+$O/LzFindOpt.o: ../../../../C/LzFindOpt.c
+	$(CC) $(CFLAGS) $<
+else
 ifdef USE_X64_ASM
 $O/LzFindOpt.o: ../../../../Asm/x86/LzFindOpt.asm
 	$(MY_ASM) $(AFLAGS) $<
 else
 $O/LzFindOpt.o: ../../../../C/LzFindOpt.c
 	$(CC) $(CFLAGS) $<
+endif
 endif
 
 ifdef USE_LZMA_DEC_ASM

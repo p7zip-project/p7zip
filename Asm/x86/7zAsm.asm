@@ -24,12 +24,15 @@ endif
 
 ifdef ABI_LINUX
   IS_LINUX equ 1
+  IS_MAC equ 0
 else
   ifdef ABI_MAC
     ABI_LINUX=1
     IS_LINUX equ 1
+    IS_MAC equ 1
   else
     IS_LINUX equ 0
+    IS_MAC equ 0
   endif
 endif
 
@@ -59,10 +62,10 @@ endm
 MY_PROC macro name:req, numParams:req
   align 16
   proc_numParams = numParams
-  if (IS_X64 gt 0)
-    proc_name equ name
-  elseif (IS_MAC gt 0)
+  if (IS_MAC gt 0)
     proc_name equ @CatStr(_,name)
+  elseif (IS_X64 gt 0)
+    proc_name equ name
   elseif (IS_LINUX gt 0)
     proc_name equ name
   elseif (IS_CDECL gt 0)

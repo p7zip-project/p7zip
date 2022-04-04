@@ -34,18 +34,6 @@ MT_OBJS = \
   $O/OutMemStream.o \
   $O/ProgressMt.o \
   $O/Threads.o \
-  $O/lz4-mt_common.o \
-  $O/lz4-mt_compress.o \
-  $O/lz4-mt_decompress.o \
-  $O/brotli-mt_common.o \
-  $O/brotli-mt_compress.o \
-  $O/brotli-mt_decompress.o \
-  $O/lizard-mt_common.o \
-  $O/lizard-mt_compress.o \
-  $O/lizard-mt_decompress.o \
-  $O/lz5-mt_common.o \
-  $O/lz5-mt_compress.o \
-  $O/lz5-mt_decompress.o \
 
 endif
 
@@ -79,7 +67,27 @@ LOCAL_FLAGS = \
   $(LOCAL_FLAGS_ST) \
   $(LOCAL_FLAGS_SYS) \
 
-
+ADDITIONAL_CODECS_OBJS = \
+  $O/lz4-mt_common.o \
+  $O/lz4-mt_compress.o \
+  $O/lz4-mt_decompress.o \
+  $O/brotli-mt_common.o \
+  $O/brotli-mt_compress.o \
+  $O/brotli-mt_decompress.o \
+  $O/lizard-mt_common.o \
+  $O/lizard-mt_compress.o \
+  $O/lizard-mt_decompress.o \
+  $O/lz5-mt_common.o \
+  $O/lz5-mt_compress.o \
+  $O/lz5-mt_decompress.o \
+  $O/threading.o \
+  $O/lz4.o \
+  $O/lz4hc.o \
+  $O/lz4frame.o \
+  $O/xxhash.o \
+  $O/lz5.o \
+  $O/lz5hc.o \
+  $O/lz5frame.o \
 
 CONSOLE_OBJS = \
   $O/BenchCon.o \
@@ -365,6 +373,7 @@ OBJS = \
   $(COMPRESS_OBJS) \
   $(CRYPTO_OBJS) \
   $(7ZIP_COMMON_OBJS) \
+  $(ADDITIONAL_CODECS_OBJS) \
   $(AR_OBJS) \
   $(AR_COMMON_OBJS) \
   $(7Z_OBJS) \
@@ -374,9 +383,7 @@ OBJS = \
   $(UI_COMMON_OBJS) \
   $(CONSOLE_OBJS) \
   $(ZSTD_STATIC_LIB) \
-  $(LZ4_STATIC_LIB) \
   $(BROTLI_STATIC_LIB) \
   $(LIZARD_STATIC_LIB) \
-  $(LZ5_STATIC_LIB) 
 
 include ../../7zip_gcc.mak

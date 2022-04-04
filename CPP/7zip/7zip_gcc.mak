@@ -7,7 +7,7 @@
 
 MY_ARCH_2 = $(MY_ARCH)
 
-MY_ASM = asmc
+MY_ASM = uasm
 ifdef USE_JWASM
 MY_ASM = jwasm
 endif
@@ -70,7 +70,7 @@ SHARED_EXT=.dll
 LDFLAGS = -shared -DEF $(DEF_FILE) $(LDFLAGS_STATIC)
 else
 SHARED_EXT=.so
-LDFLAGS = -shared -fPIC $(LDFLAGS_STATIC) -Wl,--no-undefined
+LDFLAGS = -shared -fPIC $(LDFLAGS_STATIC) -Wl,--no-undefined -Wl,-z,noexecstack 
 CC_SHARED=-fPIC
 endif
 
@@ -131,8 +131,12 @@ CFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CFLAGS_BASE2) $(CFLAGS_BASE) $(CC_SHARED)
 
 
 ifdef IS_MINGW
+ifdef IS_X64
+AFLAGS_ABI = -win64
+else
 AFLAGS_ABI = -coff -DABI_CDECL
-AFLAGS = $(AFLAGS_ABI) -Fo$(O)/$(basename $(<F)).o
+endif
+AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/$(basename $(<F)).o
 else
 ifdef IS_X64
 AFLAGS_ABI = -elf64 -DABI_LINUX
@@ -142,7 +146,7 @@ AFLAGS_ABI = -elf -DABI_LINUX -DABI_CDECL
 # -DABI_LINUX
 # -DABI_CDECL
 endif
-AFLAGS = $(AFLAGS_ABI) -Fo$(O)/
+AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/
 endif
 
 ifdef USE_ASM

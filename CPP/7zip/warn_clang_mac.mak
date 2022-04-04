@@ -6,7 +6,7 @@ CFLAGS_WARN_CLANG_3_8_UNIQ = \
 
 CFLAGS_WARN_CLANG_3_8 = \
   $(CFLAGS_WARN_CLANG_3_8_UNIQ) \
-  -Weverything \
+  -Wno-unknown-warning-option \
   -Wno-extra-semi \
   -Wno-sign-conversion \
   -Wno-language-extension-token \
@@ -30,24 +30,24 @@ CFLAGS_WARN_CLANG_12= $(CFLAGS_WARN_CLANG_3_8) \
   -Wno-suggest-override \
   -Wno-suggest-destructor-override \
 
-  CFLAGS_WARN_CLANG_ADDITIONAL = \
-    -Wno-suggest-override \
-    -Wno-suggest-destructor-override \
-    -Wno-documentation \
-    -Wno-documentation-unknown-command \
-    -Wno-used-but-marked-unused \
-    -Wno-undef \
-    -Wno-implicit-fallthrough \
-    -Wno-empty-translation-unit \
-    -Wno-vla \
-    -Wno-bad-function-cast \
-    -Wno-missing-prototypes \
-    -Wno-cast-align \
-    -Wno-shorten-64-to-32 \
-    -Wno-implicit-int-conversion \
-    -Wno-conditional-uninitialized \
-    -Wno-missing-variable-declarations \
-    -Wno-newline-eof \
+CFLAGS_WARN_CLANG_ADDITIONAL = \
+  -Wno-suggest-override \
+  -Wno-suggest-destructor-override \
+  -Wno-documentation \
+  -Wno-documentation-unknown-command \
+  -Wno-used-but-marked-unused \
+  -Wno-undef \
+  -Wno-implicit-fallthrough \
+  -Wno-empty-translation-unit \
+  -Wno-vla \
+  -Wno-bad-function-cast \
+  -Wno-missing-prototypes \
+  -Wno-cast-align \
+  -Wno-shorten-64-to-32 \
+  -Wno-implicit-int-conversion \
+  -Wno-conditional-uninitialized \
+  -Wno-missing-variable-declarations \
+  -Wno-newline-eof \
 
 CFLAGS_WARN_MAC = \
   -Wno-poison-system-directories \

@@ -18,7 +18,7 @@ PROGPATH_STATIC = $(O)/$(PROG)s
 
 
 ifneq ($(CC), xlc)
-CFLAGS_WARN_WALL = -Wall -Werror -Wextra -Wno-cast-function-type
+CFLAGS_WARN_WALL = -Wall -Werror -Wextra
 endif
 
 # for object file
@@ -37,6 +37,7 @@ endif
 
 ifdef IS_MINGW
 LDFLAGS_STATIC_2 = -static
+CFLAGS_BASE += -Wno-cast-function-type
 else
 ifndef DEF_FILE
 ifndef IS_NOT_STANDALONE
@@ -70,7 +71,7 @@ SHARED_EXT=.dll
 LDFLAGS = -shared -DEF $(DEF_FILE) $(LDFLAGS_STATIC)
 else
 SHARED_EXT=.so
-LDFLAGS = -shared -fPIC $(LDFLAGS_STATIC) -Wl,--no-undefined -Wl,-z,noexecstack 
+LDFLAGS = -shared -fPIC $(LDFLAGS_STATIC) 
 CC_SHARED=-fPIC
 endif
 
@@ -129,24 +130,32 @@ endif
 
 CFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CFLAGS_BASE2) $(CFLAGS_BASE) $(CC_SHARED) -o $@
 
-
 ifdef IS_MINGW
-ifdef IS_X64
-AFLAGS_ABI = -win64
+  ifdef IS_X64
+    AFLAGS_ABI = -win64
+  else
+    AFLAGS_ABI = -coff -DABI_CDECL
+  endif
+  AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/$(basename $(<F)).o
 else
-AFLAGS_ABI = -coff -DABI_CDECL
-endif
-AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/$(basename $(<F)).o
-else
-ifdef IS_X64
-AFLAGS_ABI = -elf64 -DABI_LINUX
-else
-AFLAGS_ABI = -elf -DABI_LINUX -DABI_CDECL
-# -DABI_CDECL
-# -DABI_LINUX
-# -DABI_CDECL
-endif
-AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/
+  ifdef IS_MAC
+    ifdef IS_X64
+      AFLAGS_ABI = -macho64
+    else
+      AFLGGS_ABI = -UNSUPPORTED_CONFIGURATION
+    endif
+  else
+    LD_arch += -Wl,--no-undefined -Wl,-z,noexecstack
+    ifdef IS_X64
+      AFLAGS_ABI = -elf64 -DABI_LINUX
+    else
+      AFLAGS_ABI = -elf -DABI_LINUX -DABI_CDECL
+      # -DABI_CDECL
+      # -DABI_LINUX
+      # -DABI_CDECL
+    endif
+  endif
+  AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/
 endif
 
 ifdef USE_ASM
@@ -159,7 +168,7 @@ CXX_WARN_FLAGS =
 #-Wno-invalid-offsetof
 #-Wno-reorder
 
-CXXFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CXXFLAGS_BASE2) $(CFLAGS_BASE) $(CXXFLAGS_EXTRA) $(CC_SHARED) -o $@ $(CXX_WARN_FLAGS)
+CXXFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CXXFLAGS_BASE2) $(CFLAGS_BASE) $(CXXFLAGS_EXTRA) -std=c++11 $(CC_SHARED) -o $@ $(CXX_WARN_FLAGS)
 
 STATIC_TARGET=
 ifdef COMPL_STATIC

@@ -146,7 +146,8 @@ AR_OBJS = \
   $O/ZstdHandler.o \
   $O/LizardHandler.o \
   $O/Lz5Handler.o \
-#  $O/Lz4Handler.o \
+  $O/Lz4Handler.o \
+  $O/LzHandler.o \
 
 AR_COMMON_OBJS = \
   $O/CoderMixer2.o \

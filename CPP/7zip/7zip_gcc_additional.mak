@@ -186,6 +186,10 @@ $O/FastLzma2Encoder.o: ../../Compress/FastLzma2Encoder.cpp
 $O/FastLzma2Register.o: ../../Compress/FastLzma2Register.cpp
 	$(CXX) $(CXXFLAGS) $<
 
+# Compile lz Handler
+$O/LzHandler.o: ../../Archive/LzHandler.cpp
+	$(CXX) $(CXXFLAGS) $<
+
 # Build hashes lib
 $O/md2.o: ../../../../Codecs/hashes/md2.c
 	$(CC) $(CFLAGS) $<

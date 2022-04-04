@@ -9,6 +9,7 @@
 #endif
 
 #include "StdAfx.h"
+#undef NOMINMAX // because lzham_core.h redefines it...
 
 #include "lzham_core.h" // for LZHAM_64BIT_POINTERS
 
@@ -127,14 +128,18 @@ namespace NCompress
          virtual ~CDecoder();
       };
 
-      CDecoder::CDecoder(): _inBuf(0), _outBuf(0), _propsWereSet(false), _outSizeDefined(false),
-         _inBufSize(1 << 22),
-         _outBufSize(1 << 22),
+      CDecoder::CDecoder():
+         _inBuf(0),
+         _outBuf(0),
          _state(NULL),
+         _propsWereSet(false),
+         _outSizeDefined(false),
+         _inSizeProcessed(0),
+         _outSizeProcessed(0),
          _inBufSizeAllocated(0),
          _outBufSizeAllocated(0),
-         _inSizeProcessed(0),
-         _outSizeProcessed(0)
+         _inBufSize(1 << 22),
+         _outBufSize(1 << 22)
       {
          _inSizeProcessed = 0;
          _inPos = _inSize = 0;
@@ -304,7 +309,7 @@ namespace NCompress
       }
 
       STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-         const UInt64 * inSize, const UInt64 *outSize, ICompressProgressInfo *progress)
+         const UInt64 * /*inSize*/, const UInt64 *outSize, ICompressProgressInfo *progress)
       {
          if (_inBuf == 0)
             return E_INVALIDARG;
@@ -485,7 +490,7 @@ namespace NCompress
                   if (prop.vt != VT_UI4)
                      return E_INVALIDARG;
 
-                  bool val = (UInt32)prop.ulVal != 0;
+                  // bool val = (UInt32)prop.ulVal != 0;
 
                   if (prop.boolVal)
                      _props._flags |= LZHAM_COMP_FLAG_DETERMINISTIC_PARSING;

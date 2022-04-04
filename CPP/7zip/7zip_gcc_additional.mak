@@ -130,7 +130,7 @@ $O/Lz5Handler.o: ../../Archive/Lz5Handler.cpp
 $O/liblzhamdecomp.a: $O/liblzhamcomp.a
 $O/liblzhamcomp.a: ../../../../Codecs/lzham_codec_devel/lzhamcomp/lzham_comp.h
 	$(RM) lzham_build
-	cmake $(DCMAKE_SYSTEM_NAME) -DBUILD_X64=ON -DBUILD_SHARED_LIBS=OFF -S ../../../../Codecs/lzham_codec_devel -B lzham_build
+	cmake $(DCMAKE_SYSTEM_NAME) -DBUILD_X64=ON -DBUILD_SHARED_LIBS=OFF -DCMAKE_POSITION_INDEPENDENT_CODE=ON -S ../../../../Codecs/lzham_codec_devel -B lzham_build
 	make -C lzham_build -j lzhamcomp lzhamdecomp
 	cp lzham_build/lzhamcomp/liblzhamcomp.a $O
 	cp lzham_build/lzhamdecomp/liblzhamdecomp.a $O
@@ -138,9 +138,9 @@ $O/liblzhamcomp.a: ../../../../Codecs/lzham_codec_devel/lzhamcomp/lzham_comp.h
 $O/lzham_lib.o: ../../../../Codecs/lzham_codec_devel/lzhamlib/lzham_lib.cpp
 	$(CXX) $(CXXFLAGS) $< -Wno-attributes -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamcomp -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
 
-# Compile lzham method and Handler 
+# Compile lzham method and Handler
 $O/LzhamRegister.o: ../../Compress/LzhamRegister.cpp
-	$(CXX) $(CXXFLAGS) $< -Wno-reorder -Wno-unused-parameter -Wno-unused-variable -Wno-attributes -Wno-error -I ../../../.. -I ../../../../CPP -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
+	$(CXX) $(CXXFLAGS) $< -Wno-attributes -I ../../../.. -I ../../../../CPP -I ../../../../Codecs/lzham_codec_devel/include -I ../../../../Codecs/lzham_codec_devel/lzhamdecomp
 
 # Build pkimplode lib
 $O/explode.o: ../../../../Codecs/StormLib/src/pklib/explode.c
@@ -168,7 +168,7 @@ $O/fl2_pool.o: ../../../../Codecs/fast-lzma2/fl2_pool.c
 $O/fl2_threading.o: ../../../../Codecs/fast-lzma2/fl2_threading.c
 	$(CC) $(CFLAGS) $<
 $O/lzma2_enc.o: ../../../../Codecs/fast-lzma2/lzma2_enc.c
-	$(CC) $(CFLAGS) $<
+	$(CC) $(CFLAGS) $< -Wno-sign-compare
 $O/radix_bitpack.o: ../../../../Codecs/fast-lzma2/radix_bitpack.c
 	$(CC) $(CFLAGS) $<
 $O/radix_mf.o: ../../../../Codecs/fast-lzma2/radix_mf.c

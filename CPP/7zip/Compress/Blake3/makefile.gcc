@@ -1,0 +1,39 @@
+PROG = Blake3
+DEF_FILE = ../Codec.def
+
+# IS_X64 = 1
+# USE_ASM = 1
+# ST_MODE = 1
+
+ifdef SystemDrive
+
+LOCAL_FLAGS_WIN = \
+  -D_7ZIP_LARGE_PAGES \
+  $(LOCAL_FLAGS_ST) \
+
+SYS_OBJS = \
+
+else
+
+SYS_OBJS = \
+  $O/MyWindows.o \
+
+endif
+
+LOCAL_FLAGS = \
+  -DEXTERNAL_CODECS \
+  $(LOCAL_FLAGS_WIN) \
+  $(LOCAL_FLAGS_ST) \
+
+COMPRESS_OBJS_2 = \
+  $O/CodecExports.o \
+  $O/DllExportsCompress.o \
+  $O/Blake3Reg.o \
+  $O/blake3.o \
+
+OBJS = \
+  $(COMPRESS_OBJS_2) \
+  $(SYS_OBJS) \
+  $(COMMON_OBJS) \
+
+include ../../7zip_gcc.mak

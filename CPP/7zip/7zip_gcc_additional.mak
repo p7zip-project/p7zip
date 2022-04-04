@@ -199,6 +199,8 @@ $O/md5.o: ../../../../Codecs/hashes/md5.c
 	$(CC) $(CFLAGS) $<
 $O/sha512.o: ../../../../Codecs/hashes/sha512.c
 	$(CC) $(CFLAGS) $<
+$O/blake3.o: ../../../../Codecs/hashes/blake3.c
+	$(CC) $(CFLAGS) $<
 
 # Compile hashes method 
 $O/Md2Reg.o: ../../../Common/Md2Reg.cpp
@@ -215,7 +217,9 @@ $O/XXH32Reg.o: ../../../Common/XXH32Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/XXH64Reg.o: ../../../Common/XXH64Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
-	
+$O/Blake3Reg.o: ../../../Common/Blake3Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+
 clean2:
 	$(RM) zstd_build
 	# $(RM) lz4_build

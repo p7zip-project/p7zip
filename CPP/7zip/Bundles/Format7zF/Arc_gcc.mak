@@ -353,10 +353,12 @@ HASHES_OBJS = \
   $O/Sha512Reg.o \
   $O/XXH32Reg.o \
   $O/XXH64Reg.o \
+  $O/Blake3Reg.o \
   $O/md2.o \
   $O/md4.o \
   $O/md5.o \
   $O/sha512.o \
+  $O/blake3.o \
 
 C_OBJS = \
   $O/7zBuf2.o \

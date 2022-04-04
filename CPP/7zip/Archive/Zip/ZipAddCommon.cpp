@@ -398,12 +398,15 @@ HRESULT CAddCommon::Compress(
             NCompress::NPpmdZip::CEncoder *encoder = new NCompress::NPpmdZip::CEncoder();
             _compressEncoder = encoder;
           }
+#if 0
+// PKImploding might not be available, must be handled by CreateCoder_Id
           else if (method == NCompressionMethod::kPKImploding)
           {
             _compressExtractVersion = NCompressionMethod::kExtractVersion_PKImploding;
             NCompress::NPKImplode::NEncoder::CEncoder *encoder = new NCompress::NPKImplode::NEncoder::CEncoder();
             _compressEncoder = encoder;
           }
+#endif
           else
           {
           CMethodId methodId;
@@ -432,6 +435,10 @@ HRESULT CAddCommon::Compress(
           }
           else if (method == NCompressionMethod::kBZip2)
           {
+          }
+          else if (method == NCompressionMethod::kPKImploding)
+          {
+            _compressExtractVersion = NCompressionMethod::kExtractVersion_PKImploding;
           }
           }
           {

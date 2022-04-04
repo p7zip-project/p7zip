@@ -140,7 +140,7 @@ ifdef IS_MINGW
 else
   ifdef IS_MAC
     ifdef IS_X64
-      AFLAGS_ABI = -macho64
+      AFLAGS_ABI = -macho64 -DABI_MAC
     else
       AFLGGS_ABI = -UNSUPPORTED_CONFIGURATION
     endif

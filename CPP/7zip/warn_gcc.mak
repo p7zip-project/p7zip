@@ -13,7 +13,6 @@ CFLAGS_WARN_GCC_6 = \
   -Winit-self \
   -Wint-to-pointer-cast \
   -Wunused \
-  -Wunused-macros \
 
 #  -Wno-strict-aliasing
 
@@ -24,22 +23,22 @@ CFLAGS_WARN_GCC_9 = \
   -Wattributes \
   -Wbool-compare \
   -Wbool-operation \
-  -Wcast-align \
-  -Wcast-align=strict \
   -Wcomment \
   -Wdangling-else \
   -Wdiv-by-zero \
   -Wduplicated-branches \
   -Wduplicated-cond \
   -Wformat-contains-nul \
-  -Wimplicit-fallthrough=5 \
+  -Wimplicit-fallthrough=3 \
   -Winit-self \
   -Wint-in-bool-context \
   -Wint-to-pointer-cast \
   -Wunused \
-  -Wunused-macros \
-  -Wconversion \
 
+#  -Wcast-align \
+#  -Wcast-align=strict \
+#  -Wunused-macros \
+#  -Wconversion \
 #  -Wno-sign-conversion \
 
 CFLAGS_WARN_GCC_10 = $(CFLAGS_WARN_GCC_9) \

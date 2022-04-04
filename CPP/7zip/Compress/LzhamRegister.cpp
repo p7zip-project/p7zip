@@ -396,10 +396,10 @@ namespace NCompress
    } // namespace NLzham
 } // namespace NCompress
 
-static void *CreateCodec() 
-{ 
-   return (void *)(ICompressCoder *)(new NCompress::NLzham::CDecoder); 
-}
+//static void *CreateCodec() 
+//{ 
+//   return (void *)(ICompressCoder *)(new NCompress::NLzham::CDecoder);
+//}
 
 #ifndef EXTRACT_ONLY
 
@@ -769,14 +769,15 @@ namespace NCompress
    }
 }
 
-static void *CreateCodecOut() 
-{ 
-   return (void *)(ICompressCoder *)(new NCompress::NLzham::CEncoder);  
-}
+//static void *CreateCodecOut() 
+//{ 
+//   return (void *)(ICompressCoder *)(new NCompress::NLzham::CEncoder);  
+//}
 #else
 #define CreateCodecOut 0
 #endif
 
+#if 0
 static CCodecInfo g_CodecsInfo[1] =
 { 
    CreateCodec, 
@@ -788,3 +789,11 @@ static CCodecInfo g_CodecsInfo[1] =
 };
 
 REGISTER_CODECS(LZHAM)
+#else
+REGISTER_CODEC_E(
+  LZHAM,
+  NCompress::NLzham::CDecoder(),
+  NCompress::NLzham::CEncoder(),
+  0x4F71001,
+  "LZHAM")
+#endif

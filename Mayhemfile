@@ -1,4 +1,4 @@
-project: jacob-clemente/p7zip
+project: p7zip
 target: 7z
 
 cmds:

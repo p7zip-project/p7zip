@@ -1,15 +1,25 @@
-This repository uses 2 different licenses :
-- all files in the `lib` directory use a BSD 2-Clause license
-- all other files use a GPLv2 license, unless explicitly stated otherwise
+Lizard Library
+Copyright (C) 2011-2016, Yann Collet.
+Copyright (C) 2016-2017, Przemyslaw Skibinski <inikep@gmail.com>
+All rights reserved.
 
-Relevant license is reminded at the top of each source file,
-and with the presence of COPYING or LICENSE file.
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
 
-This model emphasizes the fact that
-only files in the `lib` directory are designed to be included into 3rd party projects.
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
 
-Other files, such as those from `programs` or `examples` directory,
-are not intended to be compiled outside of their context.
-They can serve as source of inspiration,
-but they should not be copy/pasted into 3rd party projects,
-as this scenario is not supported.
+* Redistributions in binary form must reproduce the above copyright notice, this
+  list of conditions and the following disclaimer in the documentation and/or
+  other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

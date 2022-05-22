@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "brotli/decode.h"
+#include "../brotli/decode.h"
 
 #include "brotli-mt.h"
 #include "memmt.h"
@@ -35,23 +35,20 @@
  */
 
 /* worker for compression */
-typedef struct
-{
+typedef struct {
 	BROTLIMT_DCtx *ctx;
 	pthread_t pthread;
 	BROTLIMT_Buffer in;
 } cwork_t;
 
 struct writelist;
-struct writelist
-{
+struct writelist {
 	size_t frame;
 	BROTLIMT_Buffer out;
 	struct list_head node;
 };
 
-struct BROTLIMT_DCtx_s
-{
+struct BROTLIMT_DCtx_s {
 
 	/* threads: 1..BROTLIMT_THREAD_MAX */
 	int threads;
@@ -94,7 +91,7 @@ BROTLIMT_DCtx *BROTLIMT_createDCtx(int threads, int inputsize)
 	int t;
 
 	/* allocate ctx */
-	ctx = (BROTLIMT_DCtx *)malloc(sizeof(BROTLIMT_DCtx));
+	ctx = (BROTLIMT_DCtx *) malloc(sizeof(BROTLIMT_DCtx));
 	if (!ctx)
 		return 0;
 
@@ -113,7 +110,7 @@ BROTLIMT_DCtx *BROTLIMT_createDCtx(int threads, int inputsize)
 	if (inputsize)
 		ctx->inputsize = inputsize;
 	else
-		ctx->inputsize = 1024 * 64; /* 64K buffer */
+		ctx->inputsize = 1024 * 64;	/* 64K buffer */
 
 	pthread_mutex_init(&ctx->read_mutex, NULL);
 	pthread_mutex_init(&ctx->write_mutex, NULL);
@@ -122,19 +119,18 @@ BROTLIMT_DCtx *BROTLIMT_createDCtx(int threads, int inputsize)
 	INIT_LIST_HEAD(&ctx->writelist_busy);
 	INIT_LIST_HEAD(&ctx->writelist_done);
 
-	ctx->cwork = (cwork_t *)malloc(sizeof(cwork_t) * threads);
+	ctx->cwork = (cwork_t *) malloc(sizeof(cwork_t) * threads);
 	if (!ctx->cwork)
 		goto err_cwork;
 
-	for (t = 0; t < threads; t++)
-	{
+	for (t = 0; t < threads; t++) {
 		cwork_t *w = &ctx->cwork[t];
 		w->ctx = ctx;
 	}
 
 	return ctx;
 
-err_cwork:
+ err_cwork:
 	free(ctx);
 
 	return 0;
@@ -145,8 +141,7 @@ err_cwork:
  */
 static size_t mt_error(int rv)
 {
-	switch (rv)
-	{
+	switch (rv) {
 	case -1:
 		return MT_ERROR(read_fail);
 	case -2:
@@ -162,19 +157,17 @@ static size_t mt_error(int rv)
 /**
  * pt_write - queue for decompressed output
  */
-static size_t pt_write(BROTLIMT_DCtx *ctx, struct writelist *wl)
+static size_t pt_write(BROTLIMT_DCtx * ctx, struct writelist *wl)
 {
 	struct list_head *entry;
 
 	/* move the entry to the done list */
 	list_move(&wl->node, &ctx->writelist_done);
-again:
+ again:
 	/* check, what can be written ... */
-	list_for_each(entry, &ctx->writelist_done)
-	{
+	list_for_each(entry, &ctx->writelist_done) {
 		wl = list_entry(entry, struct writelist, node);
-		if (wl->frame == ctx->curframe)
-		{
+		if (wl->frame == ctx->curframe) {
 			int rv = ctx->fn_write(ctx->arg_write, &wl->out);
 			if (rv != 0)
 				return mt_error(rv);
@@ -191,7 +184,7 @@ again:
 /**
  * pt_read - read compressed output
  */
-static size_t pt_read(BROTLIMT_DCtx *ctx, BROTLIMT_Buffer *in, size_t *frame, size_t *uncompressed)
+static size_t pt_read(BROTLIMT_DCtx * ctx, BROTLIMT_Buffer * in, size_t * frame, size_t * uncompressed)
 {
 	unsigned char hdrbuf[16];
 	BROTLIMT_Buffer hdr;
@@ -201,33 +194,27 @@ static size_t pt_read(BROTLIMT_DCtx *ctx, BROTLIMT_Buffer *in, size_t *frame, si
 	pthread_mutex_lock(&ctx->read_mutex);
 
 	/* special case, first 4 bytes already read */
-	if (ctx->frames == 0)
-	{
+	if (ctx->frames == 0) {
 		hdr.buf = hdrbuf + 4;
 		hdr.size = 12;
 		rv = ctx->fn_read(ctx->arg_read, &hdr);
-		if (rv != 0)
-		{
+		if (rv != 0) {
 			pthread_mutex_unlock(&ctx->read_mutex);
 			return mt_error(rv);
 		}
 		if (hdr.size != 12)
 			goto error_read;
 		hdr.buf = hdrbuf;
-	}
-	else
-	{
+	} else {
 		hdr.buf = hdrbuf;
 		hdr.size = 16;
 		rv = ctx->fn_read(ctx->arg_read, &hdr);
-		if (rv != 0)
-		{
+		if (rv != 0) {
 			pthread_mutex_unlock(&ctx->read_mutex);
 			return mt_error(rv);
 		}
 		/* eof reached ? */
-		if (hdr.size == 0)
-		{
+		if (hdr.size == 0) {
 			pthread_mutex_unlock(&ctx->read_mutex);
 			in->size = 0;
 			return 0;
@@ -235,7 +222,7 @@ static size_t pt_read(BROTLIMT_DCtx *ctx, BROTLIMT_Buffer *in, size_t *frame, si
 		if (hdr.size != 16)
 			goto error_read;
 		if (MEM_readLE32((unsigned char *)hdr.buf + 0) !=
-			BROTLIMT_MAGIC_SKIPPABLE)
+		    BROTLIMT_MAGIC_SKIPPABLE)
 			goto error_data;
 	}
 
@@ -255,8 +242,7 @@ static size_t pt_read(BROTLIMT_DCtx *ctx, BROTLIMT_Buffer *in, size_t *frame, si
 	/* read new inputsize */
 	{
 		size_t toRead = MEM_readLE32((unsigned char *)hdr.buf + 8);
-		if (in->allocated < toRead)
-		{
+		if (in->allocated < toRead) {
 			/* need bigger input buffer */
 			if (in->allocated)
 				in->buf = realloc(in->buf, toRead);
@@ -270,8 +256,7 @@ static size_t pt_read(BROTLIMT_DCtx *ctx, BROTLIMT_Buffer *in, size_t *frame, si
 		in->size = toRead;
 		rv = ctx->fn_read(ctx->arg_read, in);
 		/* generic read failure! */
-		if (rv != 0)
-		{
+		if (rv != 0) {
 			pthread_mutex_unlock(&ctx->read_mutex);
 			return mt_error(rv);
 		}
@@ -287,47 +272,42 @@ static size_t pt_read(BROTLIMT_DCtx *ctx, BROTLIMT_Buffer *in, size_t *frame, si
 	/* done, no error */
 	return 0;
 
-error_data:
+ error_data:
 	pthread_mutex_unlock(&ctx->read_mutex);
 	return MT_ERROR(data_error);
-error_read:
+ error_read:
 	pthread_mutex_unlock(&ctx->read_mutex);
 	return MT_ERROR(read_fail);
-error_nomem:
+ error_nomem:
 	pthread_mutex_unlock(&ctx->read_mutex);
 	return MT_ERROR(memory_allocation);
 }
 
 static void *pt_decompress(void *arg)
 {
-	cwork_t *w = (cwork_t *)arg;
+	cwork_t *w = (cwork_t *) arg;
 	BROTLIMT_Buffer *in = &w->in;
 	BROTLIMT_DCtx *ctx = w->ctx;
 	size_t result = 0;
 	struct writelist *wl;
 
-	for (;;)
-	{
+	for (;;) {
 		struct list_head *entry;
 		BROTLIMT_Buffer *out;
 		int rv;
 
 		/* allocate space for new output */
 		pthread_mutex_lock(&ctx->write_mutex);
-		if (!list_empty(&ctx->writelist_free))
-		{
+		if (!list_empty(&ctx->writelist_free)) {
 			/* take unused entry */
 			entry = list_first(&ctx->writelist_free);
 			wl = list_entry(entry, struct writelist, node);
 			list_move(entry, &ctx->writelist_busy);
-		}
-		else
-		{
+		} else {
 			/* allocate new one */
 			wl = (struct writelist *)
-				malloc(sizeof(struct writelist));
-			if (!wl)
-			{
+			    malloc(sizeof(struct writelist));
+			if (!wl) {
 				result = MT_ERROR(memory_allocation);
 				goto error_unlock;
 			}
@@ -341,8 +321,7 @@ static void *pt_decompress(void *arg)
 
 		/* zero should not happen here! */
 		result = pt_read(ctx, in, &wl->frame, &wl->out.size);
-		if (BROTLIMT_isError(result))
-		{
+		if (BROTLIMT_isError(result)) {
 			list_move(&wl->node, &ctx->writelist_free);
 			goto error_lock;
 		}
@@ -350,14 +329,12 @@ static void *pt_decompress(void *arg)
 		if (in->size == 0)
 			break;
 
-		if (out->allocated < out->size)
-		{
+		if (out->allocated < out->size) {
 			if (out->allocated)
 				out->buf = realloc(out->buf, out->size);
 			else
 				out->buf = malloc(out->size);
-			if (!out->buf)
-			{
+			if (!out->buf) {
 				result = MT_ERROR(memory_allocation);
 				goto error_lock;
 			}
@@ -365,11 +342,10 @@ static void *pt_decompress(void *arg)
 		}
 
 		rv =
-			BrotliDecoderDecompress(in->size, in->buf, &out->size,
-									out->buf);
+		    BrotliDecoderDecompress(in->size, in->buf, &out->size,
+					    out->buf);
 
-		if (rv != BROTLI_DECODER_RESULT_SUCCESS)
-		{
+		if (rv != BROTLI_DECODER_RESULT_SUCCESS) {
 			result = MT_ERROR(frame_decompress);
 			goto error_lock;
 		}
@@ -390,9 +366,9 @@ static void *pt_decompress(void *arg)
 		free(in->buf);
 	return 0;
 
-error_lock:
+ error_lock:
 	pthread_mutex_lock(&ctx->write_mutex);
-error_unlock:
+ error_unlock:
 	list_move(&wl->node, &ctx->writelist_free);
 	pthread_mutex_unlock(&ctx->write_mutex);
 	if (in->allocated)
@@ -400,7 +376,7 @@ error_unlock:
 	return (void *)result;
 }
 
-size_t BROTLIMT_decompressDCtx(BROTLIMT_DCtx *ctx, BROTLIMT_RdWr_t *rdwr)
+size_t BROTLIMT_decompressDCtx(BROTLIMT_DCtx * ctx, BROTLIMT_RdWr_t * rdwr)
 {
 	unsigned char buf[4];
 	int t, rv;
@@ -436,18 +412,16 @@ size_t BROTLIMT_decompressDCtx(BROTLIMT_DCtx *ctx, BROTLIMT_RdWr_t *rdwr)
 	in->allocated = 0;
 
 	/* single threaded, but with known sizes */
-	if (ctx->threads == 1)
-	{
+	if (ctx->threads == 1) {
 		/* no pthread_create() needed! */
 		void *p = pt_decompress(w);
 		if (p)
-			return (size_t)p;
+			return (size_t) p;
 		goto okay;
 	}
 
 	/* multi threaded */
-	for (t = 0; t < ctx->threads; t++)
-	{
+	for (t = 0; t < ctx->threads; t++) {
 		cwork_t *wt = &ctx->cwork[t];
 		wt->in.buf = 0;
 		wt->in.size = 0;
@@ -456,8 +430,7 @@ size_t BROTLIMT_decompressDCtx(BROTLIMT_DCtx *ctx, BROTLIMT_RdWr_t *rdwr)
 	}
 
 	/* wait for all workers */
-	for (t = 0; t < ctx->threads; t++)
-	{
+	for (t = 0; t < ctx->threads; t++) {
 		cwork_t *wt = &ctx->cwork[t];
 		void *p = 0;
 		pthread_join(wt->pthread, &p);
@@ -465,10 +438,9 @@ size_t BROTLIMT_decompressDCtx(BROTLIMT_DCtx *ctx, BROTLIMT_RdWr_t *rdwr)
 			retval_of_thread = p;
 	}
 
-okay:
+ okay:
 	/* clean up the buffers */
-	while (!list_empty(&ctx->writelist_free))
-	{
+	while (!list_empty(&ctx->writelist_free)) {
 		struct writelist *wl;
 		struct list_head *entry;
 		entry = list_first(&ctx->writelist_free);
@@ -478,11 +450,11 @@ okay:
 		free(wl);
 	}
 
-	return (size_t)retval_of_thread;
+	return (size_t) retval_of_thread;
 }
 
 /* returns current uncompressed data size */
-size_t BROTLIMT_GetInsizeDCtx(BROTLIMT_DCtx *ctx)
+size_t BROTLIMT_GetInsizeDCtx(BROTLIMT_DCtx * ctx)
 {
 	if (!ctx)
 		return 0;
@@ -491,7 +463,7 @@ size_t BROTLIMT_GetInsizeDCtx(BROTLIMT_DCtx *ctx)
 }
 
 /* returns the current compressed data size */
-size_t BROTLIMT_GetOutsizeDCtx(BROTLIMT_DCtx *ctx)
+size_t BROTLIMT_GetOutsizeDCtx(BROTLIMT_DCtx * ctx)
 {
 	if (!ctx)
 		return 0;
@@ -500,7 +472,7 @@ size_t BROTLIMT_GetOutsizeDCtx(BROTLIMT_DCtx *ctx)
 }
 
 /* returns the current compressed frames */
-size_t BROTLIMT_GetFramesDCtx(BROTLIMT_DCtx *ctx)
+size_t BROTLIMT_GetFramesDCtx(BROTLIMT_DCtx * ctx)
 {
 	if (!ctx)
 		return 0;
@@ -508,7 +480,7 @@ size_t BROTLIMT_GetFramesDCtx(BROTLIMT_DCtx *ctx)
 	return ctx->curframe;
 }
 
-void BROTLIMT_freeDCtx(BROTLIMT_DCtx *ctx)
+void BROTLIMT_freeDCtx(BROTLIMT_DCtx * ctx)
 {
 	if (!ctx)
 		return;

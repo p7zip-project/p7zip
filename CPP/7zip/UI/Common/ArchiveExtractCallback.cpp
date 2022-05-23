@@ -47,6 +47,7 @@ static const char * const kCantRenameFile = "Cannot rename existing file";
 static const char * const kCantDeleteOutputFile = "Cannot delete output file";
 static const char * const kCantDeleteOutputDir = "Cannot delete output folder";
 static const char * const kCantOpenOutFile = "Cannot open output file";
+static const char * const kCantOpenInFile = "Cannot open input file";
 static const char * const kCantSetFileLen = "Cannot set length for output file";
 #ifdef SUPPORT_LINKS
 static const char * const kCantCreateHardLink = "Cannot create hard link";
@@ -347,6 +348,8 @@ STDMETHODIMP CArchiveExtractCallback::SetRatioInfo(const UInt64 *inSize, const U
 
 void CArchiveExtractCallback::CreateComplexDirectory(const UStringVector &dirPathParts, FString &fullPath)
 {
+  // we use (_item.IsDir) in this function
+
   bool isAbsPath = false;
   
   if (!dirPathParts.IsEmpty())
@@ -374,12 +377,41 @@ void CArchiveExtractCallback::CreateComplexDirectory(const UStringVector &dirPat
       fullPath.Add_PathSepar();
     const UString &s = dirPathParts[i];
     fullPath += us2fs(s);
+
+    const bool isFinalDir = (i == dirPathParts.Size() - 1 && _item.IsDir);
+    
+    if (fullPath.IsEmpty())
+    {
+      if (isFinalDir)
+        _itemFailure = true;
+      continue;
+    }
+
     #if defined(_WIN32) && !defined(UNDER_CE)
     if (_pathMode == NExtract::NPathMode::kAbsPaths)
       if (i == 0 && s.Len() == 2 && NName::IsDrivePath2(s))
+      {
+        if (isFinalDir)
+        {
+          // we don't want to call SetAttrib() for root drive path
+          _itemFailure = true;
+        }
         continue;
+      }
     #endif
+
+    // bool res =
     CreateDir(fullPath);
+    // if (!res)
+    if (isFinalDir)
+    {
+      if (!NFile::NFind::DoesDirExist(fullPath))
+      {
+        _itemFailure = true;
+        SendMessageError("Cannot create folder", fullPath);
+        // SendMessageError_with_LastError()
+      }
+    }
   }
 }
 
@@ -654,6 +686,7 @@ HRESULT CArchiveExtractCallback::ReadLink()
 {
   IInArchive *archive = _arc->Archive;
   const UInt32 index = _index;
+  _link.Clear();
 
   {
     NCOM::CPropVariant prop;
@@ -716,7 +749,8 @@ HRESULT CArchiveExtractCallback::ReadLink()
       if (propType != NPropDataType::kRaw)
         return E_FAIL;
   
-      #ifdef _WIN32
+      // 21.06: we need kpidNtReparse in linux for wim archives created in Windows
+      // #ifdef _WIN32
 
       NtReparse_Data = data;
       NtReparse_Size = dataSize;
@@ -738,11 +772,14 @@ HRESULT CArchiveExtractCallback::ReadLink()
         else
           _link.isRelative = reparse.IsRelative_Win();
 
+        // const AString s = GetAnsiString(_link.linkPath);
+        // printf("\n_link.linkPath: %s\n", s.Ptr());
+
         #ifndef _WIN32
         _link.linkPath.Replace(L'\\', WCHAR_PATH_SEPARATOR);
         #endif
       }
-      #endif
+      // #endif
     }
   }
 
@@ -889,7 +926,8 @@ void CArchiveExtractCallback::CorrectPathParts()
 
 void CArchiveExtractCallback::CreateFolders()
 {
-  UStringVector &pathParts = _item.PathParts;
+  // 21.04 : we don't change original (_item.PathParts) here
+  UStringVector pathParts = _item.PathParts;
 
   if (!_item.IsDir)
   {
@@ -906,7 +944,10 @@ void CArchiveExtractCallback::CreateFolders()
   if (!_item.IsDir)
     return;
 
-  CDirPathTime &pt = _extractedFolders.AddNew();
+  if (_itemFailure)
+    return;
+
+  CDirPathTime pt;
   
   pt.CTime = _fi.CTime;
   pt.CTimeDefined = (WriteCTime && _fi.CTimeDefined);
@@ -929,9 +970,13 @@ void CArchiveExtractCallback::CreateFolders()
       pt.MTimeDefined = true;
     }
   }
-  
-  pt.Path = fullPathNew;
-  pt.SetDirTime();
+
+  if (pt.MTimeDefined || pt.ATimeDefined || pt.CTimeDefined)
+  {
+    pt.Path = fullPathNew;
+    pt.SetDirTime();
+    _extractedFolders.Add(pt);
+  }
 }
 
 
@@ -955,8 +1000,8 @@ HRESULT CArchiveExtractCallback::CheckExistFile(FString &fullProcessedPath, bool
     
     if (_overwriteMode == NExtract::NOverwriteMode::kAsk)
     {
-      int slashPos = fullProcessedPath.ReverseFind_PathSepar();
-      FString realFullProcessedPath (fullProcessedPath.Left((unsigned)(slashPos + 1)) + fileInfo.Name);
+      const int slashPos = fullProcessedPath.ReverseFind_PathSepar();
+      const FString realFullProcessedPath = fullProcessedPath.Left((unsigned)(slashPos + 1)) + fileInfo.Name;
   
       /* (fileInfo) can be symbolic link.
          we can show final file properties here. */
@@ -1078,18 +1123,19 @@ HRESULT CArchiveExtractCallback::GetExtractStream(CMyComPtr<ISequentialOutStream
   IInArchive *archive = _arc->Archive;
   #endif
 
-  const UStringVector &pathParts = _item.PathParts;
   const UInt32 index = _index;
 
   bool isAnti = false;
   RINOK(_arc->IsItemAnti(index, isAnti));
 
   CorrectPathParts();
-  
-  UString processedPath (MakePathFromParts(pathParts));
+  UString processedPath (MakePathFromParts(_item.PathParts));
   
   if (!isAnti)
+  {
+    // 21.04: CreateFolders doesn't change (_item.PathParts)
     CreateFolders();
+  }
   
   FString fullProcessedPath (us2fs(processedPath));
   if (_pathMode != NExtract::NPathMode::kAbsPaths
@@ -1122,7 +1168,11 @@ HRESULT CArchiveExtractCallback::GetExtractStream(CMyComPtr<ISequentialOutStream
     #ifdef SUPPORT_LINKS
     if (_link.linkPath.IsEmpty())
     #endif
+    {
+      if (!isAnti)
+        SetAttrib();
       return S_OK;
+    }
   }
   else if (!_isSplit)
   {
@@ -1151,6 +1201,12 @@ HRESULT CArchiveExtractCallback::GetExtractStream(CMyComPtr<ISequentialOutStream
     {
       bool linkWasSet = false;
       RINOK(SetFromLinkPath(fullProcessedPath, _link, linkWasSet));
+      if (linkWasSet)
+      {
+        _isSymLinkCreated = _link.IsSymLink();
+        SetAttrib();
+        // printf("\nlinkWasSet %s\n", GetAnsiString(_diskFilePath));
+      }
     }
     #endif // UNDER_CE
 
@@ -1183,6 +1239,9 @@ HRESULT CArchiveExtractCallback::GetExtractStream(CMyComPtr<ISequentialOutStream
             return S_OK;
           }
           
+          // printf("\nHard linkWasSet Archive_Get_HardLinkNode %s\n", GetAnsiString(_diskFilePath));
+          // _needSetAttrib = true; // do we need to set attribute ?
+          SetAttrib();
           needExit = false;
           return S_OK;
         }
@@ -1207,22 +1266,25 @@ HRESULT CArchiveExtractCallback::GetExtractStream(CMyComPtr<ISequentialOutStream
     }
   }
   
-  _fileWasExtracted = true;
+  _needSetAttrib = true;
+
+  bool is_SymLink_in_Data = false;
 
   if (_curSizeDefined && _curSize > 0 && _curSize < (1 << 12))
   {
     if (_fi.IsLinuxSymLink())
     {
-      _is_SymLink_in_Data = true;
+      is_SymLink_in_Data = true;
       _is_SymLink_in_Data_Linux = true;
     }
     else if (_fi.IsReparse())
     {
-      _is_SymLink_in_Data = true;
+      is_SymLink_in_Data = true;
       _is_SymLink_in_Data_Linux = false;
     }
   }
-  if (_is_SymLink_in_Data)
+
+  if (is_SymLink_in_Data)
   {
     _outMemBuf.Alloc((size_t)_curSize);
     _bufPtrSeqOutStream_Spec = new CBufPtrSeqOutStream;
@@ -1295,7 +1357,25 @@ HRESULT CArchiveExtractCallback::GetExtractStream(CMyComPtr<ISequentialOutStream
 
 
 
+HRESULT CArchiveExtractCallback::GetItem(UInt32 index)
+{
+  #ifndef _SFX
+  _item._use_baseParentFolder_mode = _use_baseParentFolder_mode;
+  if (_use_baseParentFolder_mode)
+  {
+    _item._baseParentFolder = (int)_baseParentFolder;
+    if (_pathMode == NExtract::NPathMode::kFullPaths ||
+        _pathMode == NExtract::NPathMode::kAbsPaths)
+      _item._baseParentFolder = -1;
+  }
+  #endif // _SFX
 
+  #ifdef SUPPORT_ALT_STREAMS
+  _item.WriteToAltStreamIfColon = _ntOptions.WriteToAltStreamIfColon;
+  #endif
+
+  return _arc->GetItem(index, _item);
+}
 
 
 STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStream **outStream, Int32 askExtractMode)
@@ -1326,35 +1406,39 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStre
   _diskFilePath.Empty();
 
   _isRenamed = false;
+  
   // _fi.Clear();
-  _is_SymLink_in_Data = false;
-  _is_SymLink_in_Data_Linux = false;
 
-  _fileWasExtracted = false;
+  // _is_SymLink_in_Data = false;
+  _is_SymLink_in_Data_Linux = false;
+  
+  _needSetAttrib = false;
+  _isSymLinkCreated = false;
+  _itemFailure = false;
 
   #ifdef SUPPORT_LINKS
   // _CopyFile_Path.Empty();
   _link.Clear();
   #endif
 
+  _extractMode = false;
+
+  switch (askExtractMode)
+  {
+    case NArchive::NExtract::NAskMode::kExtract:
+      if (_testMode)
+      {
+        // askExtractMode = NArchive::NExtract::NAskMode::kTest;
+      }
+      else
+        _extractMode = true;
+      break;
+  };
+
+
   IInArchive *archive = _arc->Archive;
 
-  #ifndef _SFX
-  _item._use_baseParentFolder_mode = _use_baseParentFolder_mode;
-  if (_use_baseParentFolder_mode)
-  {
-    _item._baseParentFolder = (int)_baseParentFolder;
-    if (_pathMode == NExtract::NPathMode::kFullPaths ||
-        _pathMode == NExtract::NPathMode::kAbsPaths)
-      _item._baseParentFolder = -1;
-  }
-  #endif // _SFX
-
-  #ifdef SUPPORT_ALT_STREAMS
-  _item.WriteToAltStreamIfColon = _ntOptions.WriteToAltStreamIfColon;
-  #endif
-
-  RINOK(_arc->GetItem(index, _item));
+  RINOK(GetItem(index));
 
   {
     NCOM::CPropVariant prop;
@@ -1382,6 +1466,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStre
     return S_OK;
   #endif // SUPPORT_ALT_STREAMS
 
+  // we can change (_item.PathParts) in this function
   UStringVector &pathParts = _item.PathParts;
 
   if (_wildcardCensor)
@@ -1825,6 +1910,7 @@ HRESULT CArchiveExtractCallback::SetFromLinkPath(
 
 bool CLinkInfo::Parse(const Byte *data, size_t dataSize, bool isLinuxData)
 {
+  Clear();
   // this->isLinux = isLinuxData;
   
   if (isLinuxData)
@@ -1948,10 +2034,20 @@ HRESULT CArchiveExtractCallback::CloseReparseAndFile()
         RINOK(SendMessageError_with_LastError("can't delete file", _diskFilePath));
       }
       {
+        /*
+        // for DEBUG ONLY: we can extract sym links as WSL links
+        // to elimanate (non-admin) errors for sym links.
+        #ifdef _WIN32
+        if (!linkInfo.isHardLink && !linkInfo.isJunction)
+          linkInfo.isWSL = true;
+        #endif
+        */
         bool linkWasSet = false;
         RINOK(SetFromLinkPath(_diskFilePath, linkInfo, linkWasSet));
-        if (!linkWasSet)
-          _fileWasExtracted = false;
+        if (linkWasSet)
+          _isSymLinkCreated = linkInfo.IsSymLink();
+        else
+          _needSetAttrib = false;
       }
       /*
       if (!NFile::NIO::SetReparseData(_diskFilePath, _item.IsDir, ))
@@ -1967,14 +2063,46 @@ HRESULT CArchiveExtractCallback::CloseReparseAndFile()
 }
 
 
+void CArchiveExtractCallback::SetAttrib()
+{
+  #ifndef _WIN32
+  // Linux now doesn't support permissions for symlinks
+  if (_isSymLinkCreated)
+    return;
+  #endif
+
+  if (_itemFailure
+      || _diskFilePath.IsEmpty()
+      || _stdOutMode
+      || !_extractMode
+      || !_fi.AttribDefined)
+    return;
+  
+  {
+    // const AString s = GetAnsiString(_diskFilePath);
+    // printf("\nSetFileAttrib_PosixHighDetect: %s: hex:%x\n", s.Ptr(), _fi.Attrib);
+    bool res = SetFileAttrib_PosixHighDetect(_diskFilePath, _fi.Attrib);
+    if (!res)
+    {
+      // do we need error message here in Windows and in posix?
+      SendMessageError_with_LastError("Cannot set file attribute", _diskFilePath);
+    }
+  }
+}
+
 
 STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 opRes)
 {
   COM_TRY_BEGIN
 
+  // printf("\nCArchiveExtractCallback::SetOperationResult: %d %s\n", opRes, GetAnsiString(_diskFilePath));
+
   #ifndef _SFX
   if (ExtractToStreamCallback)
-    return ExtractToStreamCallback->SetOperationResult7(opRes, BoolToInt(_encrypted));
+  {
+    GetUnpackSize();
+    return ExtractToStreamCallback->SetOperationResult8(opRes, BoolToInt(_encrypted), _curSize);
+  }
   #endif
 
   #ifndef _SFX
@@ -2042,16 +2170,8 @@ STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 opRes)
   else
     NumFiles++;
 
-  if (_fileWasExtracted)
-  if (!_stdOutMode && _extractMode && _fi.AttribDefined)
-  {
-    bool res = SetFileAttrib_PosixHighDetect(_diskFilePath, _fi.Attrib);
-    if (!res)
-    {
-      // do we need error message here in Windows and in posix?
-      SendMessageError_with_LastError("Cannot set file attribute", _diskFilePath);
-    }
-  }
+  if (_needSetAttrib)
+    SetAttrib();
   
   RINOK(_extractCallback2->SetOperationResult(opRes, BoolToInt(_encrypted)));
   
@@ -2102,6 +2222,82 @@ STDMETHODIMP CArchiveExtractCallback::CryptoGetTextPassword(BSTR *password)
   COM_TRY_END
 }
 
+
+// ---------- HASH functions ----------
+
+FString CArchiveExtractCallback::Hash_GetFullFilePath()
+{
+  // this function changes _item.PathParts.
+  CorrectPathParts();
+  const UStringVector &pathParts = _item.PathParts;
+  const UString processedPath (MakePathFromParts(pathParts));
+  FString fullProcessedPath (us2fs(processedPath));
+  if (_pathMode != NExtract::NPathMode::kAbsPaths
+      || !NName::IsAbsolutePath(processedPath))
+  {
+    fullProcessedPath = MakePath_from_2_Parts(
+        DirPathPrefix_for_HashFiles,
+        // _dirPathPrefix,
+        fullProcessedPath);
+  }
+  return fullProcessedPath;
+}
+
+
+STDMETHODIMP CArchiveExtractCallback::GetDiskProperty(UInt32 index, PROPID propID, PROPVARIANT *value)
+{
+  COM_TRY_BEGIN
+  NCOM::CPropVariant prop;
+  if (propID == kpidSize)
+  {
+    RINOK(GetItem(index));
+    const FString fullProcessedPath = Hash_GetFullFilePath();
+    NFile::NFind::CFileInfo fi;
+    if (fi.Find_FollowLink(fullProcessedPath))
+      if (!fi.IsDir())
+        prop = (UInt64)fi.Size;
+  }
+  prop.Detach(value);
+  return S_OK;
+  COM_TRY_END
+}
+
+
+STDMETHODIMP CArchiveExtractCallback::GetStream2(UInt32 index, ISequentialInStream **inStream, UInt32 mode)
+{
+  COM_TRY_BEGIN
+  *inStream = NULL;
+  // if (index != _index) return E_FAIL;
+  if (mode != NUpdateNotifyOp::kHashRead)
+    return E_FAIL;
+
+  RINOK(GetItem(index));
+  const FString fullProcessedPath = Hash_GetFullFilePath();
+
+  CInFileStream *inStreamSpec = new CInFileStream;
+  CMyComPtr<ISequentialInStream> inStreamRef = inStreamSpec;
+  inStreamSpec->File.PreserveATime = _ntOptions.PreserveATime;
+  if (!inStreamSpec->OpenShared(fullProcessedPath, _ntOptions.OpenShareForWrite))
+  {
+    RINOK(SendMessageError_with_LastError(kCantOpenInFile, fullProcessedPath));
+    return S_OK;
+  }
+  *inStream = inStreamRef.Detach();
+  return S_OK;
+  COM_TRY_END
+}
+
+
+STDMETHODIMP CArchiveExtractCallback::ReportOperation(
+    UInt32 /* indexType */, UInt32 /* index */, UInt32 /* op */)
+{
+  // COM_TRY_BEGIN
+  return S_OK;
+  // COM_TRY_END
+}
+
+
+// ------------ After Extracting functions ------------
 
 void CDirPathSortPair::SetNumSlashes(const FChar *s)
 {

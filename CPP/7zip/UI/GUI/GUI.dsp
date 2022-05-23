@@ -872,6 +872,14 @@ SOURCE=..\..\..\Common\CRC.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\Common\DynLimBuf.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Common\DynLimBuf.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\Common\IntToString.cpp
 # End Source File
 # Begin Source File
@@ -1164,6 +1172,10 @@ SOURCE=..\..\..\Windows\SystemInfo.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\Windows\Thread.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\Windows\TimeUtils.cpp
 # End Source File
 # Begin Source File
@@ -1182,6 +1194,14 @@ SOURCE=..\..\..\Windows\Window.h
 # Begin Group "Archive Common"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\..\Archive\Common\ItemNameUtils.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\Archive\Common\ItemNameUtils.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\Archive\Common\OutStreamWithCRC.cpp

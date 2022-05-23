@@ -8,6 +8,36 @@
 
 using namespace NWindows;
 
+UInt64 Calc_From_Val_Percents(UInt64 val, UInt64 percents)
+{
+  // if (percents == 0) return 0;
+  const UInt64 q = percents / 100;
+  const UInt32 r = (UInt32)(percents % 100);
+  UInt64 res = 0;
+  
+  if (q != 0)
+  {
+    if (val > (UInt64)(Int64)-1 / q)
+      return (UInt64)(Int64)-1;
+    res = val * q;
+  }
+
+  if (r != 0)
+  {
+    UInt64 v2;
+    if (val <= (UInt64)(Int64)-1 / r)
+      v2 = val * r / 100;
+    else
+      v2 = val / 100 * r;
+    res += v2;
+    if (res < v2)
+      return (UInt64)(Int64)-1;
+  }
+  
+  return res;
+}
+
+
 bool StringToBool(const wchar_t *s, bool &res)
 {
   if (s[0] == 0 || (s[0] == '+' && s[1] == 0) || StringsAreEqualNoCase_Ascii(s, "ON"))
@@ -53,7 +83,7 @@ static unsigned ParseStringToUInt64(const UString &srcString, UInt64 &number)
 HRESULT ParsePropToUInt32(const UString &name, const PROPVARIANT &prop, UInt32 &resValue)
 {
   // =VT_UI4
-  // =VT_EMPTY
+  // =VT_EMPTY : it doesn't change (resValue), and returns S_OK
   // {stringUInt32}=VT_EMPTY
 
   if (prop.vt == VT_UI4)
@@ -74,66 +104,151 @@ HRESULT ParsePropToUInt32(const UString &name, const PROPVARIANT &prop, UInt32 &
   return S_OK;
 }
 
-HRESULT ParseMtProp(const UString &name, const PROPVARIANT &prop, UInt32 defaultNumThreads, UInt32 &numThreads)
+
+
+HRESULT ParseMtProp2(const UString &name, const PROPVARIANT &prop, UInt32 &numThreads, bool &force)
 {
+  force = false;
+  UString s;
   if (name.IsEmpty())
   {
-    switch (prop.vt)
+    if (prop.vt == VT_UI4)
     {
-      case VT_UI4:
-        numThreads = prop.ulVal;
-        break;
-      default:
-      {
-        bool val;
-        RINOK(PROPVARIANT_to_bool(prop, val));
-        numThreads = (val ? defaultNumThreads : 1);
-        break;
-      }
+      numThreads = prop.ulVal;
+      force = true;
+      return S_OK;
     }
+    bool val;
+    HRESULT res = PROPVARIANT_to_bool(prop, val);
+    if (res == S_OK)
+    {
+      if (!val)
+      {
+        numThreads = 1;
+        force = true;
+      }
+      // force = true; for debug
+      // "(VT_BOOL = VARIANT_TRUE)" set "force = false" and doesn't change numThreads
+      return S_OK;
+    }
+    if (prop.vt != VT_BSTR)
+      return res;
+    s.SetFromBstr(prop.bstrVal);
+    if (s.IsEmpty())
+      return E_INVALIDARG;
+  }
+  else
+  {
+    if (prop.vt != VT_EMPTY)
+      return E_INVALIDARG;
+    s = name;
+  }
+
+  s.MakeLower_Ascii();
+  const wchar_t *start = s;
+  UInt32 v = numThreads;
+
+  /* we force up, if threads number specified
+     only `d` will force it down */
+  bool force_loc = true;
+  for (;;)
+  {
+    const wchar_t c = *start;
+    if (!c)
+      break;
+    if (c == 'd')
+    {
+      force_loc = false;  // force down
+      start++;
+      continue;
+    }
+    if (c == 'u')
+    {
+      force_loc = true;   // force up
+      start++;
+      continue;
+    }
+    bool isPercent = false;
+    if (c == 'p')
+    {
+      isPercent = true;
+      start++;
+    }
+    const wchar_t *end;
+    v = ConvertStringToUInt32(start, &end);
+    if (end == start)
+      return E_INVALIDARG;
+    if (isPercent)
+      v = numThreads * v / 100;
+    start = end;
+  }
+
+  numThreads = v;
+  force = force_loc;
+  return S_OK;
+}
+
+
+
+static HRESULT SetLogSizeProp(UInt64 number, NCOM::CPropVariant &destProp)
+{
+  if (number >= 64)
+    return E_INVALIDARG;
+  UInt32 val32;
+  if (number < 32)
+    val32 = (UInt32)1 << (unsigned)number;
+  /*
+  else if (number == 32 && reduce_4GB_to_32bits)
+    val32 = (UInt32)(Int32)-1;
+  */
+  else
+  {
+    destProp = (UInt64)((UInt64)1 << (unsigned)number);
     return S_OK;
   }
-  if (prop.vt != VT_EMPTY)
-    return E_INVALIDARG;
-  return ParsePropToUInt32(name, prop, numThreads);
+  destProp = (UInt32)val32;
+  return S_OK;
 }
 
 
 static HRESULT StringToDictSize(const UString &s, NCOM::CPropVariant &destProp)
 {
+  /* if (reduce_4GB_to_32bits) we can reduce (4 GiB) property to (4 GiB - 1).
+     to fit the value to UInt32 for clients that do not support 64-bit values */
+
   const wchar_t *end;
-  UInt32 number = ConvertStringToUInt32(s, &end);
-  unsigned numDigits = (unsigned)(end - s.Ptr());
+  const UInt64 number = ConvertStringToUInt64(s, &end);
+  const unsigned numDigits = (unsigned)(end - s.Ptr());
   if (numDigits == 0 || s.Len() > numDigits + 1)
     return E_INVALIDARG;
   
   if (s.Len() == numDigits)
-  {
-    if (number >= 64)
-      return E_INVALIDARG;
-    if (number < 32)
-      destProp = (UInt32)((UInt32)1 << (unsigned)number);
-    else
-      destProp = (UInt64)((UInt64)1 << (unsigned)number);
-    return S_OK;
-  }
+    return SetLogSizeProp(number, destProp);
   
   unsigned numBits;
   
   switch (MyCharLower_Ascii(s[numDigits]))
   {
-    case 'b': destProp = number; return S_OK;
+    case 'b': numBits =  0; break;
     case 'k': numBits = 10; break;
     case 'm': numBits = 20; break;
     case 'g': numBits = 30; break;
     default: return E_INVALIDARG;
   }
   
-  if (number < ((UInt32)1 << (32 - numBits)))
-    destProp = (UInt32)(number << numBits);
+  const UInt64 range4g = ((UInt64)1 << (32 - numBits));
+  if (number < range4g)
+    destProp = (UInt32)((UInt32)number << numBits);
+  /*
+  else if (number == range4g && reduce_4GB_to_32bits)
+    destProp = (UInt32)(Int32)-1;
+  */
+  else if (numBits == 0)
+    destProp = (UInt64)number;
+  else if (number >= ((UInt64)1 << (64 - numBits)))
+    return E_INVALIDARG;
   else
     destProp = (UInt64)((UInt64)number << numBits);
-  
   return S_OK;
 }
 
@@ -141,16 +256,8 @@ static HRESULT StringToDictSize(const UString &s, NCOM::CPropVariant &destProp)
 static HRESULT PROPVARIANT_to_DictSize(const PROPVARIANT &prop, NCOM::CPropVariant &destProp)
 {
   if (prop.vt == VT_UI4)
-  {
-    UInt32 v = prop.ulVal;
-    if (v >= 64)
-      return E_INVALIDARG;
-    if (v < 32)
-      destProp = (UInt32)((UInt32)1 << (unsigned)v);
-    else
-      destProp = (UInt64)((UInt64)1 << (unsigned)v);
-    return S_OK;
-  }
+    return SetLogSizeProp(prop.ulVal, destProp);
+
   if (prop.vt == VT_BSTR)
   {
     UString s;
@@ -247,9 +354,9 @@ HRESULT CProps::SetCoderProps_DSReduce_Aff(
 
 int CMethodProps::FindProp(PROPID id) const
 {
-  for (int i = (int)Props.Size() - 1; i >= 0; i--)
-    if (Props[(unsigned)i].Id == id)
-      return i;
+  for (unsigned i = Props.Size(); i != 0;)
+    if (Props[--i].Id == id)
+      return (int)i;
   return -1;
 }
 
@@ -494,6 +601,59 @@ HRESULT CMethodProps::ParseParamsFromPROPVARIANT(const UString &realName, const 
   Props.Add(prop);
   return S_OK;
 }
+
+
+static UInt64 GetMemoryUsage_LZMA(UInt32 dict, bool isBt, UInt32 numThreads)
+{
+  UInt32 hs = dict - 1;
+  hs |= (hs >> 1);
+  hs |= (hs >> 2);
+  hs |= (hs >> 4);
+  hs |= (hs >> 8);
+  hs >>= 1;
+  if (hs >= (1 << 24))
+    hs >>= 1;
+  hs |= (1 << 16) - 1;
+  // if (numHashBytes >= 5)
+  if (!isBt)
+    hs |= (256 << 10) - 1;
+  hs++;
+  UInt64 size1 = (UInt64)hs * 4;
+  size1 += (UInt64)dict * 4;
+  if (isBt)
+    size1 += (UInt64)dict * 4;
+  size1 += (2 << 20);
+  
+  if (numThreads > 1 && isBt)
+    size1 += (2 << 20) + (4 << 20);
+  return size1;
+}
+
+static const UInt32 kLzmaMaxDictSize = (UInt32)15 << 28;
+
+UInt64 CMethodProps::Get_Lzma_MemUsage(bool addSlidingWindowSize) const
+{
+  const UInt64 dicSize = Get_Lzma_DicSize();
+  const bool isBt = Get_Lzma_MatchFinder_IsBt();
+  const UInt32 dict32 = (dicSize >= kLzmaMaxDictSize ? kLzmaMaxDictSize : (UInt32)dicSize);
+  const UInt32 numThreads = Get_Lzma_NumThreads();
+  UInt64 size = GetMemoryUsage_LZMA(dict32, isBt, numThreads);
+  
+  if (addSlidingWindowSize)
+  {
+    const UInt32 kBlockSizeMax = (UInt32)0 - (UInt32)(1 << 16);
+    UInt64 blockSize = (UInt64)dict32 + (1 << 16)
+        + (numThreads > 1 ? (1 << 20) : 0);
+    blockSize += (blockSize >> (blockSize < ((UInt32)1 << 30) ? 1 : 2));
+    if (blockSize >= kBlockSizeMax)
+      blockSize = kBlockSizeMax;
+    size += blockSize;
+  }
+  return size;
+}
+
+
+
 
 HRESULT COneMethodInfo::ParseMethodFromString(const UString &s)
 {

@@ -557,7 +557,7 @@ static int CompareEmptyItems(const unsigned *p1, const unsigned *p2, void *param
 }
 
 static const char *g_Exts =
-  " 7z xz lzma ace arc arj bz tbz bz2 tbz2 cab deb gz tgz ha lha lz tlz lz4 tlz4 lzh lzo lzx pak rar rpm sit zoo zst"
+  " 7z xz lzma ace arc arj bz tbz bz2 tbz2 cab deb gz tgz ha lha lzh lzo lzx pak rar rpm sit zoo"
   " zip jar ear war msi"
   " 3gp avi mov mpeg mpg mpe wmv"
   " aac ape fla flac la mp3 m4a mp4 ofr ogg pac ra rm rka shn swa tta wv wma wav"

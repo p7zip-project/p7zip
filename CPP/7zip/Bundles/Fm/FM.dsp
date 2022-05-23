@@ -1016,6 +1016,11 @@ SOURCE=..\..\..\..\C\LzFindMt.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\..\C\LzFindOpt.c
+# SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\..\C\Lzma2Dec.c
 # SUBTRACT CPP /YX /Yc /Yu
 # End Source File
@@ -1079,6 +1084,20 @@ SOURCE=..\..\..\..\C\MtDec.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\..\C\Sha1.c
+# SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\C\Sha1.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\C\Sha1Opt.c
+# SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\..\C\Sha256.c
 
 !IF  "$(CFG)" == "FM - Win32 Release"
@@ -1127,6 +1146,16 @@ SOURCE=..\..\..\..\C\Threads.c
 # Begin Source File
 
 SOURCE=..\..\..\..\C\Threads.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\C\XzCrc64.c
+# SUBTRACT CPP /YX /Yc /Yu
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\C\XzCrc64Opt.c
+# SUBTRACT CPP /YX /Yc /Yu
 # End Source File
 # End Group
 # Begin Group "Windows"
@@ -1478,6 +1507,14 @@ SOURCE=..\..\..\Common\DynamicBuffer.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\Common\DynLimBuf.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Common\DynLimBuf.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\Common\Exception.h
 # End Source File
 # Begin Source File
@@ -1511,6 +1548,10 @@ SOURCE=..\..\..\Common\ListFileUtils.cpp
 # Begin Source File
 
 SOURCE=..\..\..\Common\ListFileUtils.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Common\LzFindPrepare.cpp
 # End Source File
 # Begin Source File
 
@@ -1554,7 +1595,19 @@ SOURCE=..\..\..\Common\Random.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\Common\Sha1Prepare.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Common\Sha1Reg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\Common\Sha256Prepare.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Common\Sha256Reg.cpp
 # End Source File
 # Begin Source File
 
@@ -1591,6 +1644,14 @@ SOURCE=..\..\..\Common\Wildcard.cpp
 # Begin Source File
 
 SOURCE=..\..\..\Common\Wildcard.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Common\XzCrc64Init.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\Common\XzCrc64Reg.cpp
 # End Source File
 # End Group
 # Begin Group "UI"

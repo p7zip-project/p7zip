@@ -18,6 +18,7 @@ else
 
 MT_OBJS = \
   $O/LzFindMt.o \
+  $O/LzFindOpt.o \
   $O/StreamBinder.o \
   $O/Synchronization.o \
   $O/VirtThread.o \
@@ -47,6 +48,7 @@ COMMON_OBJS = \
   $O/CrcReg.o \
   $O/DynLimBuf.o \
   $O/IntToString.o \
+  $O/LzFindPrepare.o \
   $O/MyMap.o \
   $O/MyString.o \
   $O/MyVector.o \
@@ -128,6 +130,7 @@ AR_OBJS = \
   $O/UefiHandler.o \
   $O/VdiHandler.o \
   $O/VhdHandler.o \
+  $O/VhdxHandler.o \
   $O/VmdkHandler.o \
   $O/XarHandler.o \
   $O/XzHandler.o \
@@ -135,7 +138,7 @@ AR_OBJS = \
   $O/ZstdHandler.o \
   $O/LizardHandler.o \
   $O/Lz5Handler.o \
-#  $O/Lz4Handler.o \
+  $O/Lz4Handler.o \
 
 AR_COMMON_OBJS = \
   $O/CoderMixer2.o \
@@ -189,9 +192,13 @@ NSIS_OBJS = \
   $O/NsisIn.o \
   $O/NsisRegister.o \
 
+ifndef DISABLE_RAR
 RAR_OBJS = \
   $O/RarHandler.o \
   $O/Rar5Handler.o \
+
+endif
+
 
 TAR_OBJS = \
   $O/TarHandler.o \
@@ -259,12 +266,6 @@ COMPRESS_OBJS = \
   $O/PpmdRegister.o \
   $O/PpmdZip.o \
   $O/QuantumDecoder.o \
-  $O/Rar1Decoder.o \
-  $O/Rar2Decoder.o \
-  $O/Rar3Decoder.o \
-  $O/Rar3Vm.o \
-  $O/Rar5Decoder.o \
-  $O/RarCodecsRegister.o \
   $O/ShrinkDecoder.o \
   $O/XpressDecoder.o \
   $O/XzDecoder.o \
@@ -287,7 +288,22 @@ COMPRESS_OBJS = \
   $O/Lz5Decoder.o \
   $O/Lz5Encoder.o \
   $O/Lz5Register.o \
+  $O/FastLzma2Register.o \
 
+ifdef DISABLE_RAR
+DISABLE_RAR_COMPRESS=1
+endif
+
+ifndef DISABLE_RAR_COMPRESS
+COMPRESS_OBJS += \
+  $O/Rar1Decoder.o \
+  $O/Rar2Decoder.o \
+  $O/Rar3Decoder.o \
+  $O/Rar3Vm.o \
+  $O/Rar5Decoder.o \
+  $O/RarCodecsRegister.o \
+
+endif
 
 CRYPTO_OBJS = \
   $O/7zAes.o \
@@ -298,13 +314,17 @@ CRYPTO_OBJS = \
   $O/MyAesReg.o \
   $O/Pbkdf2HmacSha1.o \
   $O/RandGen.o \
-  $O/Rar20Crypto.o \
-  $O/Rar5Aes.o \
-  $O/RarAes.o \
   $O/WzAes.o \
   $O/ZipCrypto.o \
   $O/ZipStrong.o \
 
+ifndef DISABLE_RAR
+CRYPTO_OBJS += \
+  $O/Rar20Crypto.o \
+  $O/Rar5Aes.o \
+  $O/RarAes.o \
+
+endif
 
 C_OBJS = \
   $O/7zBuf2.o \
@@ -358,9 +378,10 @@ BROTLI_STATIC_LIB = $O/libbrotlienc-static.a \
   $O/libbrotlicommon-static.a 
 LIZARD_STATIC_LIB = $O/liblizard.a
 LZ5_STATIC_LIB = $O/liblz5.a
+FAST-LZMA2_STATIC_LIB = $O/libfast-lzma2.a
 
 ARC_OBJS = \
-	$(LZMA_DEC_OPT_OBJS) \
+  $(LZMA_DEC_OPT_OBJS) \
   $(C_OBJS) \
   $(MT_OBJS) \
   $(COMMON_OBJS) \
@@ -385,4 +406,6 @@ ARC_OBJS = \
   $(LZ4_STATIC_LIB) \
   $(BROTLI_STATIC_LIB) \
   $(LIZARD_STATIC_LIB) \
-  $(LZ5_STATIC_LIB) 
+  $(LZ5_STATIC_LIB) \
+  $(FAST-LZMA2_STATIC_LIB) 
+

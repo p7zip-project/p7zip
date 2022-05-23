@@ -120,8 +120,10 @@ COMMON_OBJS = \
   $O/CommandLineParser.o \
   $O/CRC.o \
   $O/CrcReg.o \
+  $O/DynLimBuf.o \
   $O/IntToString.o \
   $O/ListFileUtils.o \
+  $O/LzFindPrepare.o \
   $O/MyString.o \
   $O/NewHandler.o \
   $O/StdInStream.o \
@@ -183,7 +185,6 @@ AR_OBJS = \
   $O/LizardHandler.o \
   $O/Lz5Handler.o \
   $O/Lz4Handler.o \
-
 
 AR_COMMON_OBJS = \
   $O/CoderMixer2.o \
@@ -289,6 +290,7 @@ COMPRESS_OBJS = \
   $O/Lz5Decoder.o \
   $O/Lz5Encoder.o \
   $O/Lz5Register.o \
+  $O/FastLzma2Register.o \
 
 CRYPTO_OBJS = \
   $O/7zAes.o \
@@ -315,6 +317,7 @@ C_OBJS = \
   $O/Delta.o \
   $O/HuffEnc.o \
   $O/LzFind.o \
+  $O/LzFindOpt.o \
   $O/Lzma2Dec.o \
   $O/Lzma2DecMt.o \
   $O/Lzma2Enc.o \
@@ -348,12 +351,13 @@ ZSTD_STATIC_LIB = $O/libzstd.a
 LZ4_STATIC_LIB = $O/liblz4.a
 BROTLI_STATIC_LIB = $O/libbrotlienc-static.a \
   $O/libbrotlidec-static.a \
-  $O/libbrotlicommon-static.a 
+  $O/libbrotlicommon-static.a
 LIZARD_STATIC_LIB = $O/liblizard.a
 LZ5_STATIC_LIB = $O/liblz5.a
+FAST-LZMA2_STATIC_LIB = $O/libfast-lzma2.a
 
 OBJS = \
-	$(LZMA_DEC_OPT_OBJS) \
+  $(LZMA_DEC_OPT_OBJS) \
   $(C_OBJS) \
   $(MT_OBJS) \
   $(SYS_OBJS) \
@@ -374,6 +378,7 @@ OBJS = \
   $(LZ4_STATIC_LIB) \
   $(BROTLI_STATIC_LIB) \
   $(LIZARD_STATIC_LIB) \
-  $(LZ5_STATIC_LIB) 
+  $(LZ5_STATIC_LIB) \
+  $(FAST-LZMA2_STATIC_LIB)
 
 include ../../7zip_gcc.mak

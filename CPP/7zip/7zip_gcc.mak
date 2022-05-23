@@ -2,18 +2,23 @@
 # USE_ASM = 1
 # IS_X64 = 1
 # MY_ARCH =
-
+# USE_ASM=
+# USE_JWASM=1
 
 MY_ARCH_2 = $(MY_ARCH)
 
-MY_ASM = jwasm
 MY_ASM = asmc
+ifdef USE_JWASM
+MY_ASM = jwasm
+endif
+
 
 PROGPATH = $(O)/$(PROG)
+PROGPATH_STATIC = $(O)/$(PROG)s
 
 
 ifneq ($(CC), xlc)
-CFLAGS_WARN_WALL = -Wno-maybe-uninitialized -Wall -Werror -Wextra
+CFLAGS_WARN_WALL = -Wno-maybe-uninitialized -Wall -Wextra #-Werror
 endif
 
 # for object file
@@ -22,6 +27,8 @@ CFLAGS_BASE_LIST = -c
 CFLAGS_BASE = -O2 $(CFLAGS_BASE_LIST) $(CFLAGS_WARN_WALL) $(CFLAGS_WARN) \
  -DNDEBUG -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE \
  -fPIC
+
+# -D_7ZIP_AFFINITY_DISABLE
 
 
 ifdef SystemDrive
@@ -86,13 +93,14 @@ endif
 
 
 PROGPATH = $(O)/$(PROG)$(SHARED_EXT)
-
+PROGPATH_STATIC = $(O)/$(PROG)s$(SHARED_EXT)
 	
 ifdef IS_MINGW
 
 RM = del
 MY_MKDIR=mkdir
-LIB2 = -loleaut32 -luuid -ladvapi32 -lUser32
+LIB2_GUI = -lOle32 -lGdi32 -lComctl32 -lComdlg32
+LIB2 = -loleaut32 -luuid -ladvapi32 -lUser32 $(LIB2_GUI)
 
 CXXFLAGS_EXTRA = -DUNICODE -D_UNICODE
 # -Wno-delete-non-virtual-dtor
@@ -112,7 +120,7 @@ LIB2 = -lpthread -ldl
 
 
 
-DEL_OBJ_EXE = -$(RM) $(O) 
+DEL_OBJ_EXE = -$(RM) $(O)
 
 endif
 
@@ -123,7 +131,7 @@ CFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CFLAGS_BASE2) $(CFLAGS_BASE) $(CC_SHARED)
 
 ifdef IS_MINGW
 AFLAGS_ABI = -coff -DABI_CDECL
-AFLAGS = $(AFLAGS_ABI) -Fo$(O)/$(basename $(<F)).o
+AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/$(basename $(<F)).o
 else
 ifdef IS_X64
 AFLAGS_ABI = -elf64 -DABI_LINUX
@@ -133,7 +141,7 @@ AFLAGS_ABI = -elf -DABI_LINUX -DABI_CDECL
 # -DABI_LINUX
 # -DABI_CDECL
 endif
-AFLAGS = $(AFLAGS_ABI) -Fo$(O)/
+AFLAGS = -nologo $(AFLAGS_ABI) -Fo$(O)/
 endif
 
 ifdef USE_ASM
@@ -148,13 +156,23 @@ CXX_WARN_FLAGS =
 
 CXXFLAGS = $(MY_ARCH_2) $(LOCAL_FLAGS) $(CXXFLAGS_BASE2) $(CFLAGS_BASE) $(CXXFLAGS_EXTRA) $(CC_SHARED) -o $@ $(CXX_WARN_FLAGS)
 
-all: $(O) $(PROGPATH)
+STATIC_TARGET=
+ifdef COMPL_STATIC
+STATIC_TARGET=$(PROGPATH_STATIC)
+endif
+
+
+all: $(O) $(PROGPATH) $(STATIC_TARGET)
 
 $(O):
 	$(MY_MKDIR) $(O)
 
+LFLAGS_ALL = -s $(MY_ARCH_2) $(LDFLAGS) $(LD_arch) $(OBJS) $(MY_LIBS) $(LIB2)
 $(PROGPATH): $(OBJS)
-	$(CXX) -o $(PROGPATH) -s $(MY_ARCH_2) $(LDFLAGS) $(LD_arch) $(OBJS) $(MY_LIBS) $(LIB2)
+	$(CXX) -o $(PROGPATH) $(LFLAGS_ALL)
+
+$(PROGPATH_STATIC): $(OBJS)
+	$(CXX) -static -o $(PROGPATH_STATIC) $(LFLAGS_ALL)
 
 #	-s strips debug sections from executable in GCC
 
@@ -185,6 +203,8 @@ $O/IntToString.o: ../../../Common/IntToString.cpp
 $O/Lang.o: ../../../Common/Lang.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/ListFileUtils.o: ../../../Common/ListFileUtils.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/LzFindPrepare.o: ../../../Common/LzFindPrepare.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/MyMap.o: ../../../Common/MyMap.cpp
 	$(CXX) $(CXXFLAGS) $<
@@ -439,6 +459,8 @@ $O/UefiHandler.o: ../../Archive/UefiHandler.cpp
 $O/VdiHandler.o: ../../Archive/VdiHandler.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/VhdHandler.o: ../../Archive/VhdHandler.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/VhdxHandler.o: ../../Archive/VhdxHandler.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/VmdkHandler.o: ../../Archive/VmdkHandler.cpp
 	$(CXX) $(CXXFLAGS) $<
@@ -981,6 +1003,8 @@ $O/TextPairs.o: ../../UI/FileManager/TextPairs.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/UpdateCallback100.o: ../../UI/FileManager/UpdateCallback100.cpp
 	$(CXX) $(CXXFLAGS) $<
+$O/VerCtrl.o: ../../UI/FileManager/VerCtrl.cpp
+	$(CXX) $(CXXFLAGS) $<
 $O/ViewSettings.o: ../../UI/FileManager/ViewSettings.cpp
 	$(CXX) $(CXXFLAGS) $<
 
@@ -1095,6 +1119,7 @@ $O/XzCrc64.o: ../../../../C/XzCrc64.c
 ifdef USE_ASM
 ifdef IS_X64
 USE_X86_ASM=1
+USE_X64_ASM=1
 else
 ifdef IS_X86
 USE_X86_ASM=1
@@ -1107,12 +1132,15 @@ $O/7zCrcOpt.o: ../../../../Asm/x86/7zCrcOpt.asm
 	$(MY_ASM) $(AFLAGS) $<
 $O/XzCrc64Opt.o: ../../../../Asm/x86/XzCrc64Opt.asm
 	$(MY_ASM) $(AFLAGS) $<
-$O/AesOpt.o: ../../../../Asm/x86/AesOpt.asm
-	$(MY_ASM) $(AFLAGS) $<
 $O/Sha1Opt.o: ../../../../Asm/x86/Sha1Opt.asm
 	$(MY_ASM) $(AFLAGS) $<
 $O/Sha256Opt.o: ../../../../Asm/x86/Sha256Opt.asm
 	$(MY_ASM) $(AFLAGS) $<
+
+ifndef USE_JWASM
+USE_X86_ASM_AES=1
+endif
+
 else
 $O/7zCrcOpt.o: ../../../../C/7zCrcOpt.c
 	$(CC) $(CFLAGS) $<
@@ -1122,10 +1150,25 @@ $O/Sha1Opt.o: ../../../../C/Sha1Opt.c
 	$(CC) $(CFLAGS) $<
 $O/Sha256Opt.o: ../../../../C/Sha256Opt.c
 	$(CC) $(CFLAGS) $<
+endif
+
+
+ifdef USE_X86_ASM_AES
+$O/AesOpt.o: ../../../../Asm/x86/AesOpt.asm
+	$(MY_ASM) $(AFLAGS) $<
+else
 $O/AesOpt.o: ../../../../C/AesOpt.c
 	$(CC) $(CFLAGS) $<
 endif
 
+
+ifdef USE_X64_ASM
+$O/LzFindOpt.o: ../../../../Asm/x86/LzFindOpt.asm
+	$(MY_ASM) $(AFLAGS) $<
+else
+$O/LzFindOpt.o: ../../../../C/LzFindOpt.c
+	$(CC) $(CFLAGS) $<
+endif
 
 ifdef USE_LZMA_DEC_ASM
 
@@ -1279,6 +1322,15 @@ $O/Lz5Encoder.o: ../../Compress/Lz5Encoder.cpp
 $O/Lz5Register.o: ../../Compress/Lz5Register.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/Lz5Handler.o: ../../Archive/Lz5Handler.cpp
+	$(CXX) $(CXXFLAGS) $<
+
+
+# Compile FastLzma2 method
+$O/libfast-lzma2.a: ../../../../C/fast-lzma2/fast-lzma2.h
+	make -C ../../../../C/fast-lzma2
+	cp ../../../../C/fast-lzma2/libfast-lzma2.a $O
+
+$O/FastLzma2Register.o: ../../Compress/FastLzma2Register.cpp
 	$(CXX) $(CXXFLAGS) $<
 
 ifneq ($(CC), xlc)

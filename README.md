@@ -165,6 +165,13 @@ Hashers:
      32        A SHA256
       8        4 CRC64
      32      202 BLAKE2sp
+     16      205 MD2
+     16      206 MD4
+     16      207 MD5
+     48      208 SHA384
+     64      209 SHA512
+      4      203 XXH32
+      8      204 XXH64
 
 ```
 

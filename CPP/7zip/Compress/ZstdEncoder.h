@@ -3,21 +3,23 @@
 #define ZSTD_STATIC_LINKING_ONLY
 #include "../../../C/Alloc.h"
 #include "../../../C/Threads.h"
-#include "../../../C/zstd/lib/zstd.h"
+#include "../../../C/zstd/zstd.h"
 
 #include "../../Common/Common.h"
 #include "../../Common/MyCom.h"
-#include "../Common/StreamUtils.h"
 #include "../ICoder.h"
+#include "../Common/StreamUtils.h"
 
 #ifndef EXTRACT_ONLY
 namespace NCompress {
 namespace NZSTD {
 
-struct CProps {
-  CProps() { clear(); }
-  void clear() {
-    memset(this, 0, sizeof(*this));
+struct CProps
+{
+  CProps() { clear (); }
+  void clear ()
+  {
+    memset(this, 0, sizeof (*this));
     _ver_major = ZSTD_VERSION_MAJOR;
     _ver_minor = ZSTD_VERSION_MINOR;
     _level = 3;
@@ -29,23 +31,25 @@ struct CProps {
   Byte _reserved[2];
 };
 
-class CEncoder : public ICompressCoder,
-                 public ICompressSetCoderMt,
-                 public ICompressSetCoderProperties,
-                 public ICompressWriteCoderProperties,
-                 public CMyUnknownImp {
+class CEncoder:
+  public ICompressCoder,
+  public ICompressSetCoderMt,
+  public ICompressSetCoderProperties,
+  public ICompressWriteCoderProperties,
+  public CMyUnknownImp
+{
   CProps _props;
 
-  ZSTD_CCtx *_ctx;
-  void *_srcBuf;
-  void *_dstBuf;
+  ZSTD_CCtx* _ctx;
+  void*  _srcBuf;
+  void*  _dstBuf;
   size_t _srcBufSize;
   size_t _dstBufSize;
 
   UInt64 _processedIn;
   UInt64 _processedOut;
   UInt32 _numThreads;
-  //  HANDLE _hMutex;
+//  HANDLE _hMutex;
 
   /* zstd advanced compression options */
   Int32 _Long;
@@ -71,19 +75,14 @@ public:
   MY_QUERYINTERFACE_END
   MY_ADDREF_RELEASE
 
-  STDMETHOD(Code)
-  (ISequentialInStream *inStream, ISequentialOutStream *outStream,
-   const UInt64 *inSize, const UInt64 *outSize,
-   ICompressProgressInfo *progress);
-  STDMETHOD(SetCoderProperties)
-  (const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
-  STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream);
-  STDMETHOD(SetNumberOfThreads)(UInt32 numThreads);
+  STDMETHOD (Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream, const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
+  STDMETHOD (SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
+  STDMETHOD (WriteCoderProperties)(ISequentialOutStream *outStream);
+  STDMETHOD (SetNumberOfThreads)(UInt32 numThreads);
 
   CEncoder();
   virtual ~CEncoder();
 };
 
-} // namespace NZSTD
-} // namespace NCompress
+}}
 #endif

@@ -11,7 +11,7 @@
 #endif
 
 REGISTER_CODEC_E(
-    LZ5,
-    NCompress::NLZ5::CDecoder(),
-    NCompress::NLZ5::CEncoder(),
-    0x4F71105, "LZ5")
+  LZ5,
+  NCompress::NLZ5::CDecoder(),
+  NCompress::NLZ5::CEncoder(),
+  0x4F71105, "LZ5")

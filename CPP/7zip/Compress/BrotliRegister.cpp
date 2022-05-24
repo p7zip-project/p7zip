@@ -11,7 +11,7 @@
 #endif
 
 REGISTER_CODEC_E(
-    BROTLI,
-    NCompress::NBROTLI::CDecoder(),
-    NCompress::NBROTLI::CEncoder(),
-    0x4F71102, "BROTLI")
+  BROTLI,
+  NCompress::NBROTLI::CDecoder(),
+  NCompress::NBROTLI::CEncoder(),
+  0x4F71102, "BROTLI")

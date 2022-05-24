@@ -356,6 +356,19 @@ LIZARD_STATIC_LIB = $O/liblizard.a
 LZ5_STATIC_LIB = $O/liblz5.a
 FAST-LZMA2_STATIC_LIB = $O/libfast-lzma2.a
 
+ADDED_HASH_OBJS = \
+  $O/md2.o \
+  $O/md4.o \
+  $O/md5.o \
+  $O/sha512.o \
+  $O/Md2Reg.o \
+  $O/Md4Reg.o \
+  $O/Md5Reg.o \
+  $O/Sha384Reg.o \
+  $O/Sha512Reg.o \
+  $O/XXH32Reg.o \
+  $O/XXH64Reg.o \
+
 OBJS = \
   $(LZMA_DEC_OPT_OBJS) \
   $(C_OBJS) \
@@ -379,6 +392,7 @@ OBJS = \
   $(BROTLI_STATIC_LIB) \
   $(LIZARD_STATIC_LIB) \
   $(LZ5_STATIC_LIB) \
-  $(FAST-LZMA2_STATIC_LIB)
+  $(FAST-LZMA2_STATIC_LIB) \
+  $(ADDED_HASH_OBJS)
 
 include ../../7zip_gcc.mak

@@ -248,7 +248,20 @@ $O/XzCrc64Init.o: ../../../Common/XzCrc64Init.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/XzCrc64Reg.o: ../../../Common/XzCrc64Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
-
+$O/Md2Reg.o: ../../../Common/Md2Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Md4Reg.o: ../../../Common/Md4Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Md5Reg.o: ../../../Common/Md5Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Sha384Reg.o: ../../../Common/Sha384Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/Sha512Reg.o: ../../../Common/Sha512Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/XXH32Reg.o: ../../../Common/XXH32Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
+$O/XXH64Reg.o: ../../../Common/XXH64Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
 
 
 $O/Clipboard.o: ../../../Windows/Clipboard.cpp
@@ -1205,6 +1218,16 @@ $O/XzIn.o: ../../../../C/XzIn.c
 $O/7zMain.o: ../../../../C/Util/7z/7zMain.c
 	$(CC) $(CFLAGS) $<
 $O/LzmaUtil.o: ../../../../C/Util/Lzma/LzmaUtil.c
+	$(CC) $(CFLAGS) $<
+
+# Build HASH
+$O/md2.o: ../../../../C/hashes/md2.c
+	$(CC) $(CFLAGS) $<
+$O/md4.o: ../../../../C/hashes/md4.c
+	$(CC) $(CFLAGS) $<
+$O/md5.o: ../../../../C/hashes/md5.c
+	$(CC) $(CFLAGS) $<
+$O/sha512.o: ../../../../C/hashes/sha512.c
 	$(CC) $(CFLAGS) $<
 
 # Build MT API 

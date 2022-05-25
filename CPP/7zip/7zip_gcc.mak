@@ -18,7 +18,7 @@ PROGPATH_STATIC = $(O)/$(PROG)s
 
 
 ifneq ($(CC), xlc)
-CFLAGS_WARN_WALL = -Wno-maybe-uninitialized -Wall -Wextra #-Werror
+CFLAGS_WARN_WALL = -Wall -Wextra -Werror
 endif
 
 # for object file

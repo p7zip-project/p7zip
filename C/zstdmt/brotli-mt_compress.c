@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../brotli/encode.h"
+#include "../brotli/c/include/brotli/encode.h"
 
 #include "brotli-mt.h"
 #include "memmt.h"

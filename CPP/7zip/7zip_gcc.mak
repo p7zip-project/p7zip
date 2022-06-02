@@ -1347,6 +1347,21 @@ $O/Lz5Register.o: ../../Compress/Lz5Register.cpp
 $O/Lz5Handler.o: ../../Archive/Lz5Handler.cpp
 	$(CXX) $(CXXFLAGS) $<
 
+# Build lzham lib static and dynamic
+$O/liblzhamdll_static.a $O/liblzhamcomp_static.a $O/liblzhamdecomp_static.a: ../../../../C/lzham_codec/lzhamdll/lzham_api.cpp
+	$(RM) lzham_build
+	$(MY_MKDIR) -p lzham_build
+	cd lzham_build; \
+	cmake ../../../../../C/lzham_codec/; \
+	make -j; \
+	cd ..; \
+	cp lzham_build/lzhamcomp/liblzhamcomp_static.a $O
+	cp lzham_build/lzhamdecomp/liblzhamdecomp_static.a $O
+	cp lzham_build/lzhamdll/liblzhamdll_static.a $O
+
+# Compile lzham register
+$O/LzhamRegister.o: ../../Compress/LzhamRegister.cpp
+	$(CXX) $(CXXFLAGS) $< -I ../../../../C/lzham_codec/include
 
 # Compile FastLzma2 method
 $O/libfast-lzma2.a: ../../../../C/fast-lzma2/fast-lzma2.h
@@ -1376,5 +1391,6 @@ clean:
 	$(RM) zstd_build
 	$(RM) lz4_build
 	$(RM) brotli_build
+	$(RM) lzham_build
 	make -C ../../../../C/lizard/lib clean
 	make -C ../../../../C/lz5/lib clean

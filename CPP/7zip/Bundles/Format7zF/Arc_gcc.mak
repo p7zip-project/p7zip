@@ -289,6 +289,7 @@ COMPRESS_OBJS = \
   $O/Lz5Encoder.o \
   $O/Lz5Register.o \
   $O/FastLzma2Register.o \
+  $O/LzhamRegister.o \
 
 ifdef DISABLE_RAR
 DISABLE_RAR_COMPRESS=1
@@ -379,6 +380,9 @@ BROTLI_STATIC_LIB = $O/libbrotlienc-static.a \
 LIZARD_STATIC_LIB = $O/liblizard.a
 LZ5_STATIC_LIB = $O/liblz5.a
 FAST-LZMA2_STATIC_LIB = $O/libfast-lzma2.a
+LZHAM_STATIC_LIB = $O/liblzhamdll_static.a \
+  $O/liblzhamdecomp_static.a \
+  $O/liblzhamcomp_static.a
 
 ADDED_HASH_OBJS = \
   $O/md2.o \
@@ -421,5 +425,6 @@ ARC_OBJS = \
   $(LIZARD_STATIC_LIB) \
   $(LZ5_STATIC_LIB) \
   $(FAST-LZMA2_STATIC_LIB) \
+  $(LZHAM_STATIC_LIB) \
   $(ADDED_HASH_OBJS) 
 

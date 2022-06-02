@@ -1,5 +1,8 @@
 *.o
+*.a
+*.so*
 _o
 zstd_build
 lz4_build
 brotli_build
+lzham_build

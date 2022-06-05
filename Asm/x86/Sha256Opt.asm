@@ -167,11 +167,11 @@ endm
 ; pre1 <= 4 && pre2 >= 1 && pre1 > pre2 && (pre1 - pre2) <= 1
 pre1 equ 3
 pre2 equ 2
-   
+	   
 
 
 RND4 macro k
-        movdqa  msg, xmmword ptr [K_CONST + (k) * 16]
+        movdqa  msg, xmmword ptr [rax + (k) * 16]
         paddd   msg, @CatStr(xmm, %(w_regs + ((k + 0) mod 4)))
         MY_sha256rnds2 state0_N, state1_N
         pshufd   msg, msg, 0eH
@@ -212,6 +212,8 @@ MY_PROC Sha256_UpdateBlocks_HW, 3
 
         cmp     rNum, 0
         je      end_c
+
+        lea rax, [K_CONST]
 
         movdqu   state0, [rState]       ; dcba
         movdqu   state1, [rState + 16]  ; hgfe

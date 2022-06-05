@@ -262,6 +262,8 @@ $O/XXH32Reg.o: ../../../Common/XXH32Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
 $O/XXH64Reg.o: ../../../Common/XXH64Reg.cpp
 	$(CXX) $(CXXFLAGS) $<
+$O/Blake3Reg.o: ../../../Common/Blake3Reg.cpp
+	$(CXX) $(CXXFLAGS) $<
 
 
 $O/Clipboard.o: ../../../Windows/Clipboard.cpp
@@ -1228,6 +1230,8 @@ $O/md4.o: ../../../../C/hashes/md4.c
 $O/md5.o: ../../../../C/hashes/md5.c
 	$(CC) $(CFLAGS) $<
 $O/sha512.o: ../../../../C/hashes/sha512.c
+	$(CC) $(CFLAGS) $<
+$O/blake3.o: ../../../../C/hashes/blake3.c
 	$(CC) $(CFLAGS) $<
 
 # Build MT API 

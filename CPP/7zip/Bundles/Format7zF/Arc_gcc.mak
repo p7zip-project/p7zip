@@ -389,6 +389,7 @@ ADDED_HASH_OBJS = \
   $O/md4.o \
   $O/md5.o \
   $O/sha512.o \
+  $O/blake3.o \
   $O/Md2Reg.o \
   $O/Md4Reg.o \
   $O/Md5Reg.o \
@@ -396,6 +397,7 @@ ADDED_HASH_OBJS = \
   $O/Sha512Reg.o \
   $O/XXH32Reg.o \
   $O/XXH64Reg.o \
+  $O/Blake3Reg.o \
 
 ARC_OBJS = \
   $(LZMA_DEC_OPT_OBJS) \

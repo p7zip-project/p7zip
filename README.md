@@ -23,6 +23,8 @@ This is the place for 7zz (Well known as 7zip-21.02 Linux version) to include ma
    - Levels 30..39 (fastLZ4 + Huffman) adds Huffman coding to fastLZ4
    - Levels 40..49 (LIZv1 + Huffman) give the best ratio, comparable to zlib and low levels of zstd/brotli, but with a faster decompression speed
 
+7. [Lzham] v1_0_stable1 is a lossless data compression codec written in C/C++ (specifically C++03), with a compression ratio similar to LZMA but with 1.5x-8x faster decompression speed.
+
 ## Build Binary
 #### (Currently only supports CLI, if you want to do GUI please contact us)
 1. Download src:
@@ -177,7 +179,7 @@ Hashers:
 
 ## Usage
 
-- You can create `.7z` files, with [LZ4] [Fast LZMA2] [Brotli] [LZ5] [Lizard] and [Zstandard] method.
+- You can create `.7z` files, with [LZ4] [Fast LZMA2] [Brotli] [LZ5] [Lizard] [Lzham] and [Zstandard] method.
 ```
 7z a archiv.7z -m0=zstd 
 7z a archiv.7z -m0=zstd -mx3
@@ -202,6 +204,7 @@ Hashers:
   - [Brotli] Version v1.0.9
   - [LZ5] Version v1.5
   - [Lizard] Version 1.0
+  - [Lzham] v1_0_stable1
 
 ## Working Plan
  - [check here]()
@@ -213,3 +216,4 @@ Hashers:
 [Brotli]:https://github.com/google/brotli/
 [LZ5]:https://github.com/inikep/lz5/
 [Lizard]:https://github.com/inikep/lizard/
+[Lzham]:https://github.com/richgel999/lzham_codec

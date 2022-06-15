@@ -24,6 +24,10 @@ This is the place for 7zz (Well known as 7zip-21.02 Linux version) to include ma
    - Levels 40..49 (LIZv1 + Huffman) give the best ratio, comparable to zlib and low levels of zstd/brotli, but with a faster decompression speed
 
 7. [Lzham] v1_0_stable1 is a lossless data compression codec written in C/C++ (specifically C++03), with a compression ratio similar to LZMA but with 1.5x-8x faster decompression speed.
+   - Levels: 1..9
+   - Level: 1 best speed
+   - Level: 9 best compression
+   - Level: 10 best with extreme parsing (can be very slow) NOT RECOMMEND
 
 ## Build Binary
 #### (Currently only supports CLI, if you want to do GUI please contact us)

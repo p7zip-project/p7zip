@@ -27,6 +27,7 @@ protected:
 public:
 
   bool MultiArcMode;
+  FString OutputDir;
 
   void ClosePercents()
   {

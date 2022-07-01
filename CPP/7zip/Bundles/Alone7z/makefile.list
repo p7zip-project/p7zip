@@ -112,11 +112,13 @@ SRCS=\
   ../../../../CPP/7zip/UI/Console/MainAr.cpp \
   ../../../../CPP/7zip/UI/Console/OpenCallbackConsole.cpp \
   ../../../../CPP/7zip/UI/Console/PercentPrinter.cpp \
+  ../../../../CPP/7zip/UI/Console/Sandbox.cpp \
   ../../../../CPP/7zip/UI/Console/UpdateCallbackConsole.cpp \
   ../../../../CPP/7zip/UI/Console/UserInputUtils.cpp \
   ../../../../CPP/Common/CRC.cpp \
   ../../../../CPP/Common/CommandLineParser.cpp \
   ../../../../CPP/Common/CrcReg.cpp \
+  ../../../../CPP/Common/C_FileIO.cpp \
   ../../../../CPP/Common/IntToString.cpp \
   ../../../../CPP/Common/ListFileUtils.cpp \
   ../../../../CPP/Common/MyString.cpp \
@@ -446,6 +448,8 @@ OpenCallbackConsole.o : ../../../../CPP/7zip/UI/Console/OpenCallbackConsole.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/UI/Console/OpenCallbackConsole.cpp
 PercentPrinter.o : ../../../../CPP/7zip/UI/Console/PercentPrinter.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/UI/Console/PercentPrinter.cpp
+Sandbox.o : ../../../../CPP/7zip/UI/Console/Sandbox.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/UI/Console/Sandbox.cpp
 UpdateCallbackConsole.o : ../../../../CPP/7zip/UI/Console/UpdateCallbackConsole.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/UI/Console/UpdateCallbackConsole.cpp
 UserInputUtils.o : ../../../../CPP/7zip/UI/Console/UserInputUtils.cpp
@@ -456,6 +460,8 @@ CommandLineParser.o : ../../../../CPP/Common/CommandLineParser.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/CommandLineParser.cpp
 CrcReg.o : ../../../../CPP/Common/CrcReg.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/CrcReg.cpp
+C_FileIO.o : ../../../../CPP/Common/C_FileIO.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/C_FileIO.cpp
 IntToString.o : ../../../../CPP/Common/IntToString.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/Common/IntToString.cpp
 ListFileUtils.o : ../../../../CPP/Common/ListFileUtils.cpp
@@ -643,11 +649,13 @@ OBJS=\
  MainAr.o \
  OpenCallbackConsole.o \
  PercentPrinter.o \
+ Sandbox.o \
  UpdateCallbackConsole.o \
  UserInputUtils.o \
  CRC.o \
  CommandLineParser.o \
  CrcReg.o \
+ C_FileIO.o \
  IntToString.o \
  ListFileUtils.o \
  MyString.o \

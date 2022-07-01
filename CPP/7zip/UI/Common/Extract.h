@@ -91,4 +91,8 @@ HRESULT Extract(
     UString &errorMessage,
     CDecompressStat &st);
 
+// Returns the existing directory where the archive should be extracted, or an empty Fstring if stdout is used.
+FString GetOutputBaseDir(
+    const CExtractOptions &options);
+
 #endif

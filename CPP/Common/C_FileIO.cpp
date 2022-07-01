@@ -89,4 +89,17 @@ ssize_t COutFile::Write(const void *data, size_t size)
   return write(_handle, data, size);
 }
 
+/////////////////////////
+// CPathFile
+
+bool CPathFile::Open(const char *name)
+{
+  return CFileBase::OpenBinary(name, O_PATH | O_CLOEXEC);
+}
+
+int CPathFile::GetHandle()
+{
+  return _handle;
+}
+
 }}}

@@ -33,7 +33,7 @@ This is the place for 7zz (Well known as 7zip-21.02 Linux version) to include ma
 #### (Currently only supports CLI, if you want to do GUI please contact us)
 1. Download src:
 ```
-   git clone -b 7zip_21.07 https://github.com/jinfeihan57/p7zip.git
+   git clone -b p7zip22.00 https://github.com/jinfeihan57/p7zip.git
 ```
 2. Use makefile to compile and build the binary 7zz:
 ```
@@ -65,74 +65,77 @@ or build 7z.so:
 ```
 4. The output should look like this:
 ```
-XXX@ubuntu:~/github/p7zip/CPP/7zip/Bundles/Alone2$ ./_o/7zz i
+XXX@ubuntu:~/p7zip/CPP/7zip/Bundles/Alone2$ ./_o/7zz i
 
-7-Zip (z) 21.07 (x64) : Copyright (c) 1999-2021 Igor Pavlov : 2021-12-26
+7-Zip (z) 22.00 (x64) : Copyright (c) 1999-2022 Igor Pavlov : 2022-06-15
  64-bit locale=en_US.utf8 Threads:2
 
 
 Formats:
-   C   F           7z       7z            7 z BC AF ' 1C
-                   APM      apm           E R
-                   Ar       ar a deb udeb lib ! < a r c h > 0A
-                   Arj      arj           ` EA
-    K     O     X  Base64   b64
-          O        COFF     obj
-       F           Cab      cab           M S C F 00 00 00 00
-                   Chm      chm chi chq chw I T S F 03 00 00 00 ` 00 00 00
-                   Compound msi msp doc xls ppt D0 CF 11 E0 A1 B1 1A E1
-        M          Cpio     cpio          0 7 0 7 0  ||  C7 q  ||  q C7
-                   CramFS   cramfs        offset=16 C o m p r e s s e d 20 R O M F S
-         G  B      Dmg      dmg           k o l y 00 00 00 04 00 00 02 00
-             E     ELF      elf           E L F
-                   Ext      ext ext2 ext3 ext4 img offset=1080 S EF
-                   FAT      fat img       offset=510 U AA
-                   FLV      flv           F L V 01
-                   GPT      gpt mbr       offset=512 E F I 20 P A R T 00 00 01 00
-        M          HFS      hfs hfsx      offset=1024 B D  ||  H + 00 04  ||  H X 00 05
-       F           Hxs      hxs hxi hxr hxq hxw lit I T O L I T L S 01 00 00 00 ( 00 00 00
-          O        IHex     ihex
-                   Iso      iso img       offset=32769 C D 0 0 1
-                   Lzh      lzh lha       offset=2 - l h
-           P       MBR      mbr
-        M    E     MachO    macho         CE FA ED FE  ||  CF FA ED FE  ||  FE ED FA CE  ||  FE ED FA CF
-                   MsLZ     mslz          S Z D D 88 F0 ' 3 A
-        M          Mub      mub           CA FE BA BE 00 00 00  ||  B9 FA F1 0E
-                   NTFS     ntfs img      offset=3 N T F S 20 20 20 20 00
-       F G         Nsis     nsis          offset=4 EF BE AD DE N u l l s o f t I n s t
-             E     PE       exe dll sys   M Z
-                   Ppmd     pmd           8F AF AC 84
-                   QCOW     qcow qcow2 qcow2c Q F I FB 00 00 00
-       F           Rar      rar r00       R a r ! 1A 07 00
-       F           Rar5     rar r00       R a r ! 1A 07 01 00
-                   Rpm      rpm           ED AB EE DB
-    K              SWF      swf           F W S
-        M          SWFc     swf (~.swf)   C W S  ||  Z W S
-                   Split    001
-        M          SquashFS squashfs      h s q s  ||  s q s h  ||  s h s q  ||  q s h s
-             E     TE       te            V Z
-       FM          UEFIc    scap          BD 86 f ; v 0D 0 @ B7 0E B5 Q 9E / C5 A0  ||  8B A6 < J # w FB H 80 = W 8C C1 FE C4 M  ||  B9 82 91 S B5 AB 91 C B6 9A E3 A9 C F7 / CC
-       FM          UEFIf    uefif         offset=16 D9 T 93 z h 04 J D 81 CE 0B F6 17 D8 90 DF  ||  x E5 8C 8C = 8A 1C O 99 5 89 a 85 C3 - D3
-          O        Udf      udf iso img   offset=32768 01 C D 0 0 1
-                   VDI      vdi           offset=64 10 DA BE
-         G         VHD      vhd           c o n e c t i x 00 00
-                   VHDX     vhdx avhdx    v h d x f i l e
-                   VMDK     vmdk          K D M V
-                   Xar      xar pkg xip   x a r ! 00 1C
-                   Z        z taz (.tar)  1F 9D
-   CK              bzip2    bz2 bzip2 tbz2 (.tar) tbz (.tar) B Z h
-   CK              gzip     gz gzip tgz (.tar) tpz (.tar) apk (.tar) 1F 8B 08
-   CK              lizard   liz tliz (.tar) 0 x 1 8 4 D 2 2 0 6 00
-   CK              lz4      lz4 tlz4 (.tar) 0 x 1 8 4 D 2 2 0 4 00
-   CK              lz5      lz5 tlz5 (.tar) 0 x 1 8 4 D 2 2 0 5 00
-    K     O        lzma     lzma
-    K              lzma86   lzma86
-   C      O   LH   tar      tar ova       offset=257 u s t a r
-   C SN       LH   wim      wim swm esd ppkg M S W I M 00 00 00
-   CK              xz       xz txz (.tar) FD 7 z X Z 00
-   C   FMG         zip      zip z01 zipx jar xpi odt ods docx xlsx epub ipa apk appx P K 03 04  ||  P K 05 06  ||  P K 06 06  ||  P K 07 08 P K  ||  P K 0 0 P K
-   CK              zstd     zst tzstd (.tar) 0 x F D 2 F B 5 2 2 . . 2 8 00
-   CK     O     XC Hash     sha256 sha512 sha224 sha384 sha1 sha md5 crc32 crc64 asc cksum
+   C...F..........c.a.m+..  7z       7z            7 z BC AF ' 1C
+    ......................  APFS     apfs img      offset=32 N X S B 00
+    ......................  APM      apm           E R
+    ......................  Ar       ar a deb udeb lib ! < a r c h > 0A
+    ......................  Arj      arj           ` EA
+    K.....O.....X.........  Base64   b64
+    ......O...............  COFF     obj
+    ...F..................  Cab      cab           M S C F 00 00 00 00
+    ......................  Chm      chm chi chq chw I T S F 03 00 00 00 ` 00 00 00
+    ......................  Compound msi msp doc xls ppt D0 CF 11 E0 A1 B1 1A E1
+    ....M.................  Cpio     cpio          0 7 0 7 0  ||  C7 q  ||  q C7
+    ......................  CramFS   cramfs        offset=16 C o m p r e s s e d 20 R O M F S
+    .....G..B.............  Dmg      dmg           k o l y 00 00 00 04 00 00 02 00
+    .........E............  ELF      elf           E L F
+    ......................  Ext      ext ext2 ext3 ext4 img offset=1080 S EF
+    ......................  FAT      fat img       offset=510 U AA
+    ......................  FLV      flv           F L V 01
+    ......................  GPT      gpt mbr       offset=512 E F I 20 P A R T 00 00 01 00
+    ....M.................  HFS      hfs hfsx      offset=1024 B D  ||  H + 00 04  ||  H X 00 05
+    ...F..................  Hxs      hxs hxi hxr hxq hxw lit I T O L I T L S 01 00 00 00 ( 00 00 00
+    ......O...............  IHex     ihex
+    ......................  Iso      iso img       offset=32769 C D 0 0 1
+    ......................  LP       lpimg img     offset=4096 g D l a 4 00 00 00
+    ......................  Lzh      lzh lha       offset=2 - l h
+    .......P..............  MBR      mbr
+    ....M....E............  MachO    macho         CE FA ED FE  ||  CF FA ED FE  ||  FE ED FA CE  ||  FE ED FA CF
+    ......................  MsLZ     mslz          S Z D D 88 F0 ' 3 A
+    ....M.................  Mub      mub           CA FE BA BE 00 00 00  ||  B9 FA F1 0E
+    ......................  NTFS     ntfs img      offset=3 N T F S 20 20 20 20 00
+    ...F.G................  Nsis     nsis          offset=4 EF BE AD DE N u l l s o f t I n s t
+    .........E............  PE       exe dll sys   M Z
+    ......................  Ppmd     pmd           8F AF AC 84
+    ......................  QCOW     qcow qcow2 qcow2c Q F I FB 00 00 00
+    ...F..................  Rar      rar r00       R a r ! 1A 07 00
+    ...F..................  Rar5     rar r00       R a r ! 1A 07 01 00
+    ......................  Rpm      rpm           ED AB EE DB
+    K.....................  SWF      swf           F W S
+    ....M.................  SWFc     swf (~.swf)   C W S  ||  Z W S
+    ......................  Sparse   simg img      : FF & ED 01 00
+    ......................  Split    001
+    ....M.................  SquashFS squashfs      h s q s  ||  s q s h  ||  s h s q  ||  q s h s
+    .........E............  TE       te            V Z
+    ...FM.................  UEFIc    scap          BD 86 f ; v 0D 0 @ B7 0E B5 Q 9E / C5 A0  ||  8B A6 < J # w FB H 80 = W 8C C1 FE C4 M  ||  B9 82 91 S B5 AB 91 C B6 9A E3 A9 C F7 / CC
+    ...FM.................  UEFIf    uefif         offset=16 D9 T 93 z h 04 J D 81 CE 0B F6 17 D8 90 DF  ||  x E5 8C 8C = 8A 1C O 99 5 89 a 85 C3 - D3
+    ......O...............  Udf      udf iso img   offset=32768 01 C D 0 0 1
+    ......................  VDI      vdi           offset=64 10 DA BE
+    .....G................  VHD      vhd           c o n e c t i x 00 00
+    ......................  VHDX     vhdx avhdx    v h d x f i l e
+    ......................  VMDK     vmdk          K D M V
+    ......................  Xar      xar pkg xip   x a r ! 00 1C
+    ......................  Z        z taz (.tar)  1F 9D
+   CK.....................  bzip2    bz2 bzip2 tbz2 (.tar) tbz (.tar) B Z h
+   CK.................m+..  gzip     gz gzip tgz (.tar) tpz (.tar) apk (.tar) 1F 8B 08
+   CK.....................  lizard   liz tliz (.tar) 0 x 1 8 4 D 2 2 0 6 00
+   CK.....................  lz4      lz4 tlz4 (.tar) 0 x 1 8 4 D 2 2 0 4 00
+   CK.....................  lz5      lz5 tlz5 (.tar) 0 x 1 8 4 D 2 2 0 5 00
+    K.....O...............  lzma     lzma
+    K.....................  lzma86   lzma86
+   C......O...LH......m+..  tar      tar ova       offset=257 u s t a r
+   C.SN.......LH..c.a.m+..  wim      wim swm esd ppkg M S W I M 00 00 00
+   CK.....................  xz       xz txz (.tar) FD 7 z X Z 00
+   C...FMG........c.a.m+..  zip      zip z01 zipx jar xpi odt ods docx xlsx epub ipa apk appx P K 03 04  ||  P K 05 06  ||  P K 06 06  ||  P K 07 08 P K  ||  P K 0 0 P K
+   CK.....................  zstd     zst tzstd (.tar) 0 x F D 2 F B 5 2 2 . . 2 8 00
+   CK.....O.....XC........  Hash     sha256 sha512 sha224 sha384 sha1 sha md5 crc32 crc64 asc cksum
 
 Codecs:
    4ED   303011B BCJ2
@@ -158,6 +161,7 @@ Codecs:
     ED   4F71106 LIZARD
     ED   4F71105 LZ5
     ED        21 FLZMA2
+    ED   4F71001 LZHAM
      D     40301 Rar1
      D     40302 Rar2
      D     40303 Rar3
@@ -178,7 +182,7 @@ Hashers:
      64      209 SHA512
       4      203 XXH32
       8      204 XXH64
-
+     32      20A BLAKE3
 ```
 
 ## Usage
@@ -201,7 +205,7 @@ Hashers:
 
 ## Version Information
 
-- 7zz Version 21.02 alpha
+- 7zz Version 22.00
   - [LZ4] Version 1.9.3
   - [Zstandard] Version 1.5.2
   - [Fast LZMA2] Version v1.0.1

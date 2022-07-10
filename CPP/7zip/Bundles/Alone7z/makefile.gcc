@@ -249,6 +249,7 @@ C_OBJS = \
   $O/Aes.o \
   $O/AesOpt.o \
 
+FAST-LZMA2_STATIC_LIB = $O/libfast-lzma2.a
 
 OBJS = \
 	$(LZMA_DEC_OPT_OBJS) \
@@ -265,5 +266,6 @@ OBJS = \
   $(7Z_OBJS) \
   $(UI_COMMON_OBJS) \
   $(CONSOLE_OBJS) \
+  $(FAST-LZMA2_STATIC_LIB) \
 
 include ../../7zip_gcc.mak

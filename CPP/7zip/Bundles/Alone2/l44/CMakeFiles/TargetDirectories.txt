@@ -1,0 +1,12 @@
+/home/ubuntu/github/p7zip/CPP/7zip/Bundles/Alone2/lz4_build/CMakeFiles/install/strip.dir
+/home/ubuntu/github/p7zip/CPP/7zip/Bundles/Alone2/lz4_build/CMakeFiles/edit_cache.dir
+/home/ubuntu/github/p7zip/CPP/7zip/Bundles/Alone2/lz4_build/CMakeFiles/package_source.dir
+/home/ubuntu/github/p7zip/CPP/7zip/Bundles/Alone2/lz4_build/CMakeFiles/install.dir
+/home/ubuntu/github/p7zip/CPP/7zip/Bundles/Alone2/lz4_build/CMakeFiles/list_install_components.dir
+/home/ubuntu/github/p7zip/CPP/7zip/Bundles/Alone2/lz4_build/CMakeFiles/rebuild_cache.dir
+/home/ubuntu/github/p7zip/CPP/7zip/Bundles/Alone2/lz4_build/CMakeFiles/package.dir
+/home/ubuntu/github/p7zip/CPP/7zip/Bundles/Alone2/lz4_build/CMakeFiles/install/local.dir
+/home/ubuntu/github/p7zip/CPP/7zip/Bundles/Alone2/lz4_build/CMakeFiles/lz4c.dir
+/home/ubuntu/github/p7zip/CPP/7zip/Bundles/Alone2/lz4_build/CMakeFiles/lz4cli.dir
+/home/ubuntu/github/p7zip/CPP/7zip/Bundles/Alone2/lz4_build/CMakeFiles/lz4_static.dir
+/home/ubuntu/github/p7zip/CPP/7zip/Bundles/Alone2/lz4_build/CMakeFiles/lz4_shared.dir

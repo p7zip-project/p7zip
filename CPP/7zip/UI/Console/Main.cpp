@@ -909,6 +909,8 @@ int Main2(
       eo.Properties = options.Properties;
       #endif
 
+      ecs->OutputDir = GetOutputBaseDir(eo);
+
       UString errorMessage;
       CDecompressStat stat;
       CHashBundle hb;

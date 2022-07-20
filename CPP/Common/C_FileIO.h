@@ -48,6 +48,13 @@ public:
   ssize_t Write(const void *data, size_t size);
 };
 
+class CPathFile: public CFileBase
+{
+public:
+  bool Open(const char *name);
+  int GetHandle();
+};
+
 }}}
 
 #endif

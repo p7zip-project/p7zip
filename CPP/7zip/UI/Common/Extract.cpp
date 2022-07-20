@@ -19,6 +19,56 @@ using namespace NWindows;
 using namespace NFile;
 using namespace NDir;
 
+// Base directories according to options.OutputDir examples:
+// - "/f*" => /
+// - "/*" => /
+// - "" => ./
+// - "/f/" => /f
+// - "/f/*" => /f
+// - "/f/*/*" => /f
+// - "/tmp/x/*/y" => /tmp
+FString GetOutputBaseDir(
+    const CExtractOptions &options)
+{
+  // TODO: make -oX and -so mutually exclusive to avoid useless dir creation and then access error
+  if (options.StdOutMode)
+    return FString();
+
+  FString baseDir = options.OutputDir;
+
+  // Removes everything after the first mask, if any.
+  int end = baseDir.Find(FSTRING_ANY_MASK);
+  if (end > 0) {
+    baseDir.ReleaseBuf_SetEnd(end);
+
+    // Removes the left part of the mask, if any.
+    end = baseDir.ReverseFind(FCHAR_PATH_SEPARATOR);
+    if (end < 0)
+      baseDir = FString();
+    else if (end == 0)
+      baseDir.ReleaseBuf_SetEnd(1);
+    else
+      baseDir.ReleaseBuf_SetEnd(end);
+  }
+
+  // Looks for the deepest existing directory to sandbox as much as possible
+  // before trying to make directories.
+  NFind::CFileInfo fi;
+  while (!baseDir.IsEmpty() && baseDir != FCHAR_PATH_SEPARATOR && !(fi.Find(baseDir) && fi.IsDir()))
+  {
+    end = baseDir.ReverseFind(FCHAR_PATH_SEPARATOR);
+    if (end == -1)
+      baseDir = FString();
+    else if (end > 0)
+      baseDir = baseDir.Left(end);
+  }
+
+  if (baseDir.IsEmpty())
+    return FTEXT(".") FSTRING_PATH_SEPARATOR;
+
+  return baseDir;
+}
+
 static HRESULT DecompressArchive(
     CCodecs *codecs,
     const CArchiveLink &arcLink,

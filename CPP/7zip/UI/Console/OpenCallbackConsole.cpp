@@ -6,6 +6,7 @@
 
 #include "ConsoleClose.h"
 #include "UserInputUtils.h"
+#include "Sandbox.h"
 
 static HRESULT CheckBreak2()
 {
@@ -19,6 +20,11 @@ HRESULT COpenCallbackConsole::Open_CheckBreak()
 
 HRESULT COpenCallbackConsole::Open_SetTotal(const UInt64 *files, const UInt64 *bytes)
 {
+  Sandbox sb;
+  sb.ErrorStream = _se;
+  sb.WritableDir = &OutputDir;
+  sb.Enforce();
+
   if (!MultiArcMode && NeedPercents())
   {
     if (files)

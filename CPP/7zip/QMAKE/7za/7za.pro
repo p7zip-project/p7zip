@@ -335,11 +335,13 @@ SOURCES +=  \
   ../../../../CPP/7zip/UI/Console/MainAr.cpp \
   ../../../../CPP/7zip/UI/Console/OpenCallbackConsole.cpp \
   ../../../../CPP/7zip/UI/Console/PercentPrinter.cpp \
+  ../../../../CPP/7zip/UI/Console/Sandbox.cpp \
   ../../../../CPP/7zip/UI/Console/UpdateCallbackConsole.cpp \
   ../../../../CPP/7zip/UI/Console/UserInputUtils.cpp \
   ../../../../CPP/Common/CRC.cpp \
   ../../../../CPP/Common/CommandLineParser.cpp \
   ../../../../CPP/Common/CrcReg.cpp \
+  ../../../../CPP/Common/C_FileIO.cpp \
   ../../../../CPP/Common/IntToString.cpp \
   ../../../../CPP/Common/ListFileUtils.cpp \
   ../../../../CPP/Common/MyString.cpp \

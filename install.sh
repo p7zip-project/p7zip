@@ -10,7 +10,7 @@ installShared()
     chmod 755 "${DEST_DIR}${DEST_SHARE}/${prg}"
     strip     "${DEST_DIR}${DEST_SHARE}/${prg}"
     echo "#! /bin/sh" > "${DEST_DIR}${DEST_BIN}/${prg}"
-    echo "\"${DEST_SHARE}/${prg}\" \"\$@\"" >> "${DEST_DIR}${DEST_BIN}/${prg}"
+    echo "exec \"${DEST_SHARE}/${prg}\" \"\$@\"" >> "${DEST_DIR}${DEST_BIN}/${prg}"
     chmod 755 "${DEST_DIR}${DEST_BIN}/${prg}"
   fi
 }

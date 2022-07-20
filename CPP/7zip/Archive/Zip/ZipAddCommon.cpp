@@ -19,6 +19,7 @@
 #include "../../Compress/PpmdZip.h"
 #include "../../Compress/XzEncoder.h"
 #include "../../Compress/ZstdEncoder.h"
+#include "../../Compress/PKImplodeEncoder.h"
 
 #include "../Common/InStreamWithCRC.h"
 
@@ -181,6 +182,7 @@ HRESULT CAddCommon::Set_Pre_CompressionResult(bool inSeqMode, bool outSeqMode, U
     case NCompressionMethod::kPPMd : ver = NCompressionMethod::kExtractVersion_PPMd; break;
     case NCompressionMethod::kBZip2: ver = NCompressionMethod::kExtractVersion_BZip2; break;
     case NCompressionMethod::kZstd: ver = NCompressionMethod::kExtractVersion_Zstd; break;
+    case NCompressionMethod::kPKImploding: ver = NCompressionMethod::kExtractVersion_PKImploding; break;
     case NCompressionMethod::kLZMA :
     {
       ver = NCompressionMethod::kExtractVersion_LZMA;
@@ -374,6 +376,12 @@ HRESULT CAddCommon::Compress(
           {
             _compressExtractVersion = NCompressionMethod::kExtractVersion_PPMd;
             NCompress::NPpmdZip::CEncoder *encoder = new NCompress::NPpmdZip::CEncoder();
+            _compressEncoder = encoder;
+          }
+          else if (method == NCompressionMethod::kPKImploding)
+          {
+            _compressExtractVersion = NCompressionMethod::kExtractVersion_PKImploding;
+            NCompress::NPKImplode::NEncoder::CEncoder *encoder = new NCompress::NPKImplode::NEncoder::CEncoder();
             _compressEncoder = encoder;
           }
           else

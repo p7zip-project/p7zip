@@ -72,6 +72,7 @@ namespace NFileHeader
     const Byte kExtractVersion_ZipCrypto = 20;
     const Byte kExtractVersion_Deflate = 20;
     const Byte kExtractVersion_Deflate64 = 21;
+    const Byte kExtractVersion_PKImploding = 25;
     const Byte kExtractVersion_Zip64 = 45;
     const Byte kExtractVersion_BZip2 = 46;
     const Byte kExtractVersion_Aes = 51;

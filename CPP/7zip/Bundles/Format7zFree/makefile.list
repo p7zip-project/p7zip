@@ -210,6 +210,9 @@ SRCS=\
   ../../../../CPP/7zip/Compress/BrotliDecoder.cpp \
   ../../../../CPP/7zip/Compress/BrotliEncoder.cpp \
   ../../../../CPP/7zip/Compress/BrotliRegister.cpp \
+  ../../../../CPP/7zip/Compress/PKImplodeEncoder.cpp \
+  ../../../../CPP/7zip/Compress/PKImplodeDecoder.cpp \
+  ../../../../CPP/7zip/Compress/PKImplodeRegister.cpp \
   ../../../../CPP/7zip/Crypto/7zAes.cpp \
   ../../../../CPP/7zip/Crypto/7zAesRegister.cpp \
   ../../../../CPP/7zip/Crypto/HmacSha1.cpp \
@@ -395,6 +398,8 @@ SRCS_C=\
   ../../../../C/brotli/br_static_dict.c \
   ../../../../C/brotli/br_transform.c \
   ../../../../C/brotli/br_utf8_util.c \
+  ../../../../C/pklib/explode.c \
+  ../../../../C/pklib/implode.c \
   ../../../../C/hashes/md2.c \
   ../../../../C/hashes/md4.c \
   ../../../../C/hashes/md5.c \
@@ -671,6 +676,10 @@ br_transform.o : ../../../../C/brotli/br_transform.c
 	$(CC) $(CFLAGS) ../../../../C/brotli/br_transform.c
 br_utf8_util.o : ../../../../C/brotli/br_utf8_util.c
 	$(CC) $(CFLAGS) ../../../../C/brotli/br_utf8_util.c
+explode.o : ../../../../C/pklib/explode.c
+	$(CC) $(CFLAGS) ../../../../C/pklib/explode.c
+implode.o : ../../../../C/pklib/implode.c
+	$(CC) $(CFLAGS) ../../../../C/pklib/implode.c
 md2.o : ../../../../C/hashes/md2.c
 	$(CC) $(CFLAGS) ../../../../C/hashes/md2.c
 md4.o : ../../../../C/hashes/md4.c
@@ -1057,6 +1066,12 @@ BrotliEncoder.o : ../../../../CPP/7zip/Compress/BrotliEncoder.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/BrotliEncoder.cpp
 BrotliRegister.o : ../../../../CPP/7zip/Compress/BrotliRegister.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/BrotliRegister.cpp
+PKImplodeEncoder.o : ../../../../CPP/7zip/Compress/PKImplodeEncoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/PKImplodeEncoder.cpp
+PKImplodeDecoder.o : ../../../../CPP/7zip/Compress/PKImplodeDecoder.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/PKImplodeDecoder.cpp
+PKImplodeRegister.o : ../../../../CPP/7zip/Compress/PKImplodeRegister.cpp
+	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Compress/PKImplodeRegister.cpp
 7zAes.o : ../../../../CPP/7zip/Crypto/7zAes.cpp
 	$(CXX) $(CXXFLAGS) ../../../../CPP/7zip/Crypto/7zAes.cpp
 7zAesRegister.o : ../../../../CPP/7zip/Crypto/7zAesRegister.cpp
@@ -1291,6 +1306,8 @@ OBJS=\
  br_static_dict.o \
  br_transform.o \
  br_utf8_util.o \
+ explode.o \
+ implode.o \
  md2.o \
  md4.o \
  md5.o \
@@ -1484,6 +1501,9 @@ OBJS=\
  BrotliDecoder.o \
  BrotliEncoder.o \
  BrotliRegister.o \
+ PKImplodeEncoder.o \
+ PKImplodeDecoder.o \
+ PKImplodeRegister.o \
  7zAes.o \
  7zAesRegister.o \
  HmacSha1.o \

@@ -2,9 +2,7 @@
 
 #include "StdAfx.h"
 
-#ifdef __APPLE_CC__
-#include <mach-o/dyld.h>
-#elif ENV_BEOS
+#ifdef ENV_BEOS
 #include <kernel/image.h>
 #include <Path.h>
 #else
@@ -34,9 +32,7 @@ TRACEN((printf("CLibrary::Free(this=%p,%p)\n",(void *)this,(void *)_module)))
   if (_module == 0)
     return true;
 
-#ifdef __APPLE_CC__
-  int ret = NSUnLinkModule ((NSModule)_module, 0);
-#elif ENV_BEOS
+#ifdef ENV_BEOS
   int ret = unload_add_on((image_id)_module);
 #else
   int ret = dlclose(_module);
@@ -52,19 +48,7 @@ static FARPROC local_GetProcAddress(HMODULE module,LPCSTR lpProcName)
   void *ptr = 0;
   TRACEN((printf("local_GetProcAddress(%p,%s)\n",(void *)module,lpProcName)))
   if (module) {
-#ifdef __APPLE_CC__
-    char name[MAX_PATHNAME_LEN];
-    snprintf(name,sizeof(name),"_%s",lpProcName);
-    name[sizeof(name)-1] = 0;
-    TRACEN((printf("NSLookupSymbolInModule(%p,%s)\n",(void *)module,name)))
-    NSSymbol sym;
-    sym = NSLookupSymbolInModule((NSModule)module, name);
-    if (sym) {
-      ptr = NSAddressOfSymbol(sym);
-    } else {
-      ptr = 0;
-    }
-#elif ENV_BEOS
+#ifdef ENV_BEOS
     if (get_image_symbol((image_id)module, lpProcName, B_SYMBOL_TYPE_TEXT, &ptr) != B_OK)
       ptr = 0;
 #else
@@ -103,19 +87,7 @@ bool CLibrary::Load(LPCTSTR lpLibFileName)
 
   TRACEN((printf("CLibrary::Load(this=%p,%ls) => %s\n",(void *)this,lpLibFileName,name)))
 
-#ifdef __APPLE_CC__
-  NSObjectFileImage image;
-  NSObjectFileImageReturnCode nsret;
-
-  nsret = NSCreateObjectFileImageFromFile (name, &image);
-  if (nsret == NSObjectFileImageSuccess) {
-     TRACEN((printf("NSCreateObjectFileImageFromFile(%s) : OK\n",name)))
-     handler = (HMODULE)NSLinkModule(image,name,NSLINKMODULE_OPTION_RETURN_ON_ERROR
-           | NSLINKMODULE_OPTION_PRIVATE | NSLINKMODULE_OPTION_BINDNOW);
-  } else {
-     TRACEN((printf("NSCreateObjectFileImageFromFile(%s) : ERROR\n",name)))
-  }
-#elif ENV_BEOS
+#ifdef ENV_BEOS
   // normalize path (remove things like "./", "..", etc..), otherwise it won't work
   BPath p(name, NULL, true);
   status_t err = B_OK;
@@ -143,7 +115,7 @@ TRACEN((printf("load_add_on(%s)=%d\n",p.Path(),(int)image)))
 #endif
   TRACEN((printf("CLibrary::Load - dlopen(%s,0x%d)\n",name,options_dlopen)))
   handler = dlopen(name,options_dlopen);
-#endif // __APPLE_CC__
+#endif // ENV_BEOS
   TRACEN((printf("CLibrary::Load(%s) => %p\n",name,handler)))
   if (handler) {
 
@@ -161,13 +133,7 @@ TRACEN((printf("load_add_on(%s)=%d\n",p.Path(),(int)image)))
     if (fctTest) fctTest();
 
   } else {
-#ifdef __APPLE_CC__
-    NSLinkEditErrors c;
-    int num_err;
-    const char *file,*err;
-    NSLinkEditError(&c,&num_err,&file,&err);
-    printf("Can't load '%ls' (%s)\n", lpLibFileName,err);  // lpLibFileName to name 
-#elif ENV_BEOS
+#ifdef ENV_BEOS
     printf("Can't load '%ls' (%s)\n", lpLibFileName,strerror(err));
 #else
     printf("Can't load '%ls' (%s)\n", lpLibFileName,dlerror());

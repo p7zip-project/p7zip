@@ -1,0 +1,26 @@
+{ 
+    global :
+        ZSTD_createCCtx;
+        ZSTD_freeCCtx;
+        ZSTD_CStreamInSize;
+        ZSTD_CStreamOutSize;
+        ZSTD_maxCLevel;
+        ZSTD_CCtx_setParameter;
+        ZSTD_compressStream2;
+        ZSTD_isError;
+
+        ZSTD_createDCtx;
+        ZSTD_freeDCtx;
+        ZSTD_DStreamInSize;
+        ZSTD_DStreamOutSize;
+        ZSTD_DCtx_setParameter;
+        ZSTD_resetDStream;
+        ZSTD_decompressStream;
+        ZSTD_getErrorCode;
+
+        ZSTD_outBuffer;
+        ZSTD_inBuffer;
+        ZSTD_cParameter;
+        ZSTD_EndDirective;
+    local : *;
+};

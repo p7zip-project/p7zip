@@ -376,17 +376,17 @@ C_OBJS = \
   $O/Sha1.o \
   $O/Sha1Opt.o \
 
-ZSTD_STATIC_LIB = $O/libzstd.a
-LZ4_STATIC_LIB = $O/liblz4.a
-BROTLI_STATIC_LIB = $O/libbrotlienc-static.a \
-  $O/libbrotlidec-static.a \
-  $O/libbrotlicommon-static.a 
-LIZARD_STATIC_LIB = $O/liblizard.a
-LZ5_STATIC_LIB = $O/liblz5.a
-FAST-LZMA2_STATIC_LIB = $O/libfast-lzma2.a
-LZHAM_STATIC_LIB = $O/liblzhamdll_static.a \
-  $O/liblzhamdecomp_static.a \
-  $O/liblzhamcomp_static.a
+ZSTD_LIB = $O/libzstd.so
+LZ4_LIB = $O/liblz4.so
+BROTLI_LIB = $O/libbrotlienc.so \
+  $O/libbrotlidec.so \
+  $O/libbrotlicommon.so
+LIZARD_LIB = $O/liblizard.so
+LZ5_LIB = $O/liblz5.so
+FAST-LZMA2_LIB = $O/libfast-lzma2.so
+LZHAM_LIB = $O/liblzhamdll.so \
+  $O/liblzhamdecomp.so \
+  $O/liblzhamcomp.so
 
 ADDED_HASH_OBJS = \
   $O/md2.o \
@@ -425,12 +425,5 @@ ARC_OBJS = \
   $(COMPRESS_OBJS) \
   $(CRYPTO_OBJS) \
   $(7ZIP_COMMON_OBJS) \
-  $(ZSTD_STATIC_LIB) \
-  $(LZ4_STATIC_LIB) \
-  $(BROTLI_STATIC_LIB) \
-  $(LIZARD_STATIC_LIB) \
-  $(LZ5_STATIC_LIB) \
-  $(FAST-LZMA2_STATIC_LIB) \
-  $(LZHAM_STATIC_LIB) \
   $(ADDED_HASH_OBJS) 
 

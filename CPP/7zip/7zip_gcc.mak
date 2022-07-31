@@ -168,28 +168,34 @@ ifndef 7Z_ADDON_CODEC
 7Z_ADDON_CODEC = 7z_addon_codec
 endif
 
-all: $(O) $(7Z_ADDON_CODEC) $(PROGPATH) $(STATIC_TARGET)
-
-$(O):
-	$(MY_MKDIR) $(O)
-
-$(7Z_ADDON_CODEC):
-	$(MY_MKDIR) $(O)/$(7Z_ADDON_CODEC)
-
 7z_ADDON_LIB =
 7z_ADDON_LIB_FLAG =
+7z_BIN = bin
+7z_LIB = lib
 ifeq ($(PROG), 7za)
 7z_ADDON_LIB = -lzstd -llz4 -lbrotlienc -lbrotlidec -lbrotlicommon -llizard -llz5 -lfast-lzma2 -llzhamcomp -llzhamdecomp -llzhamdll
-7z_ADDON_LIB_FLAG = -L./$(O)/$(7Z_ADDON_CODEC) -Wl,-rpath='$$ORIGIN/'$(7Z_ADDON_CODEC)
+7z_ADDON_LIB_FLAG = -L./$(O)/$(7z_LIB)/$(7Z_ADDON_CODEC) -Wl,-rpath='$$ORIGIN'/../$(7z_LIB)/$(7Z_ADDON_CODEC)
+PROGPATH = $(O)/$(7z_BIN)/$(PROG)$(SHARED_EXT)
 else ifeq ($(PROG), 7zz)
 7z_ADDON_LIB = -lzstd -llz4 -lbrotlienc -lbrotlidec -lbrotlicommon -llizard -llz5 -lfast-lzma2 -llzhamcomp -llzhamdecomp -llzhamdll
-7z_ADDON_LIB_FLAG = -L./$(O)/$(7Z_ADDON_CODEC) -Wl,-rpath='$$ORIGIN/'$(7Z_ADDON_CODEC)
+7z_ADDON_LIB_FLAG = -L./$(O)/$(7z_LIB)/$(7Z_ADDON_CODEC) -Wl,-rpath='$$ORIGIN'/../$(7z_LIB)/$(7Z_ADDON_CODEC)
+PROGPATH = $(O)/$(7z_BIN)/$(PROG)$(SHARED_EXT)
 else ifeq ($(PROG), 7z)
 7z_ADDON_LIB = -lzstd -llz4 -lbrotlienc -lbrotlidec -lbrotlicommon -llizard -llz5 -lfast-lzma2 -llzhamcomp -llzhamdecomp -llzhamdll
-7z_ADDON_LIB_FLAG = -L./$(O)/$(7Z_ADDON_CODEC) -Wl,-rpath='$$ORIGIN/'$(7Z_ADDON_CODEC)
+7z_ADDON_LIB_FLAG = -L./$(O)/$(7z_LIB)/$(7Z_ADDON_CODEC) -Wl,-rpath='$$ORIGIN'/$(7Z_ADDON_CODEC)
+PROGPATH = $(O)/$(7z_LIB)/$(PROG)$(SHARED_EXT)
 else
 # do nothing
 endif
+
+all: $(O) $(7z_BIN) $(7Z_ADDON_CODEC) $(PROGPATH) $(STATIC_TARGET)
+
+$(O):
+	$(MY_MKDIR) $(O)
+$(7z_BIN):
+	$(MY_MKDIR) $(O)/$(7z_BIN)
+$(7Z_ADDON_CODEC):
+	$(MY_MKDIR) $(O)/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
 LFLAGS_ALL = -s $(MY_ARCH_2) $(LDFLAGS) $(LD_arch) $(OBJS) $(MY_LIBS) $(LIB2)
 $(PROGPATH): $(ZSTD_LIB) $(LZ4_LIB) $(BROTLI_LIB) $(LIZARD_LIB) $(LZ5_LIB) $(FAST-LZMA2_LIB) $(LZHAM_LIB) $(OBJS)
@@ -1299,7 +1305,7 @@ $O/libzstd.so: ../../../../C/zstd/lib/zstd.h
 	cmake ../../../../../C/zstd/build/cmake; \
 	make -j; \
 	$(CD) $$OLDPWD; \
-	$(CP) zstd_build/lib/libzstd.so* $O/$(7Z_ADDON_CODEC)
+	$(CP) zstd_build/lib/libzstd.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
 # Compile zstd method and Handler
 $O/ZstdDecoder.o: ../../Compress/ZstdDecoder.cpp
@@ -1319,7 +1325,7 @@ $O/liblz4.so: ../../../../C/lz4/lib/lz4.h
 	cmake ../../../../../C/lz4/build/cmake; \
 	make -j; \
 	$(CD) $$OLDPWD; \
-	$(CP) lz4_build/liblz4.so* $O/$(7Z_ADDON_CODEC)
+	$(CP) lz4_build/liblz4.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
 # Compile lz4 method and Handler
 $O/Lz4Decoder.o: ../../Compress/Lz4Decoder.cpp
@@ -1339,11 +1345,11 @@ $O/libbrotlicommon.so $O/libbrotlienc.so $O/libbrotlidec.so: ../../../../C/brotl
 	cmake ../../../../../C/brotli/; \
 	make -j; \
 	$(CD) $$OLDPWD; \
-	$(CP) brotli_build/libbrotlicommon.so* $O/$(7Z_ADDON_CODEC)
-	$(CP) brotli_build/libbrotlidec.so* $O/$(7Z_ADDON_CODEC)
-	$(CP) brotli_build/libbrotlienc.so* $O/$(7Z_ADDON_CODEC)
-	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7Z_ADDON_CODEC)/libbrotlidec.so*
-	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7Z_ADDON_CODEC)/libbrotlienc.so*
+	$(CP) brotli_build/libbrotlicommon.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CP) brotli_build/libbrotlidec.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CP) brotli_build/libbrotlienc.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/libbrotlidec.so*
+	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/libbrotlienc.so*
 
 # Compile brotli method and Handler 
 $O/BrotliDecoder.o: ../../Compress/BrotliDecoder.cpp
@@ -1356,7 +1362,7 @@ $O/BrotliRegister.o: ../../Compress/BrotliRegister.cpp
 # Build lizard lib static and dynamic
 $O/liblizard.so: ../../../../C/lizard/lib/lizard_frame.h
 	make -C ../../../../C/lizard/lib
-	$(CP) ../../../../C/lizard/lib/liblizard.so* $O/$(7Z_ADDON_CODEC)
+	$(CP) ../../../../C/lizard/lib/liblizard.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
 # Compile lizard method and Handler
 $O/LizardDecoder.o: ../../Compress/LizardDecoder.cpp
@@ -1371,7 +1377,7 @@ $O/LizardHandler.o: ../../Archive/LizardHandler.cpp
 # Build lz5 lib static and dynamic
 $O/liblz5.so: ../../../../C/lz5/lib/lz5frame.h
 	make -C ../../../../C/lz5/lib
-	$(CP) ../../../../C/lz5/lib/liblz5.so* $O/$(7Z_ADDON_CODEC)
+	$(CP) ../../../../C/lz5/lib/liblz5.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
 # Compile lz5 method and Handler
 $O/Lz5Decoder.o: ../../Compress/Lz5Decoder.cpp
@@ -1391,10 +1397,10 @@ $O/liblzhamdll.so $O/liblzhamcomp.so $O/liblzhamdecomp.so: ../../../../C/lzham_c
 	cmake ../../../../../C/lzham_codec/; \
 	make -j; \
 	$(CD) $$OLDPWD; \
-	$(CP) lzham_build/lzhamcomp/liblzhamcomp.so* $O/$(7Z_ADDON_CODEC)
-	$(CP) lzham_build/lzhamdecomp/liblzhamdecomp.so* $O/$(7Z_ADDON_CODEC)
-	$(CP) lzham_build/lzhamdll/liblzhamdll.so* $O/$(7Z_ADDON_CODEC)
-	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7Z_ADDON_CODEC)/liblzhamdll.so*
+	$(CP) lzham_build/lzhamcomp/liblzhamcomp.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CP) lzham_build/lzhamdecomp/liblzhamdecomp.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CP) lzham_build/lzhamdll/liblzhamdll.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/liblzhamdll.so*
 
 # Compile lzham register
 $O/LzhamRegister.o: ../../Compress/LzhamRegister.cpp
@@ -1403,8 +1409,8 @@ $O/LzhamRegister.o: ../../Compress/LzhamRegister.cpp
 # Compile FastLzma2 method
 $O/libfast-lzma2.so: ../../../../C/fast-lzma2/fast-lzma2.h
 	make -C ../../../../C/fast-lzma2
-	$(CP) ../../../../C/fast-lzma2/libfast-lzma2.so* $O/$(7Z_ADDON_CODEC)
-	$(CD) $O/$(7Z_ADDON_CODEC); \
+	$(CP) ../../../../C/fast-lzma2/libfast-lzma2.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CD) $O/$(7z_LIB)/$(7Z_ADDON_CODEC); \
 	ln -sf libfast-lzma2.so.1.0 libfast-lzma2.so.1; \
 	ln -sf libfast-lzma2.so.1 libfast-lzma2.so; \
 	$(CD) $$OLDPWD

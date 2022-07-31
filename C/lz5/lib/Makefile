@@ -41,7 +41,7 @@ DESTDIR?=
 PREFIX ?= /usr/local
 CPPFLAGS= -DXXH_NAMESPACE=LZ5_
 CFLAGS ?= -O3
-CFLAGS += -std=c99 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual -Wstrict-prototypes -pedantic -Wno-implicit-fallthrough
+CFLAGS += -std=c99 -Wall -Wextra -Wundef -Wshadow -Wcast-align -Wcast-qual -Wstrict-prototypes -pedantic
 FLAGS   = $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)
 
 LIBDIR?= $(PREFIX)/lib
@@ -68,8 +68,7 @@ all: liblz5
 
 liblz5: lz5.c lz5hc.c lz5frame.c xxhash.c   # need to compile once with -fPIC, and once without -fPIC
 	@echo compiling static library
-	@$(CC) $(FLAGS) -c $^ -fPIC
-	@$(AR) rcs $@.a *.o
+	@$(AR) rcs $@.a $^
 	@echo compiling dynamic library $(LIBVER)
 	@$(CC) $(FLAGS) -shared $^ -fPIC $(SONAME_FLAGS) -o $@.$(SHARED_EXT_VER)
 	@echo creating versioned links

@@ -56,9 +56,9 @@ namespace NFileHeader
       
       kTerse = 18,
       kLz77 = 19,
-      kZstdPk = 20,
+      kZstdPk = 20, // deprecated (use method 93 for zstd)
       
-      kZstdWz = 93,
+      kZstd = 93, // https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
       kMP3 = 94,
       kXz = 95,
       kJpeg = 96,
@@ -80,6 +80,7 @@ namespace NFileHeader
     const Byte kExtractVersion_LZMA = 63;
     const Byte kExtractVersion_PPMd = 63;
     const Byte kExtractVersion_Xz = 20; // test it
+    const Byte kExtractVersion_Zstd = 20; // WinZip mark it
   }
 
   namespace NExtraID

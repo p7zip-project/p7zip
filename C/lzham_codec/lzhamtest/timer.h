@@ -1,5 +1,5 @@
 // File: timer.h
-// This software is in the Public Domain. Please see the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #pragma once
 
 typedef unsigned long long timer_ticks;

@@ -1,5 +1,5 @@
 // File: stream_common.h
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #pragma once
 
 #include <stdlib.h>
@@ -32,12 +32,12 @@ namespace lzham_ex
    typedef signed __int64 int64;
    typedef unsigned __int64 uint64;
 
-   const uint16 LZHAM_UINT16_MIN = 0;
-   const uint16 LZHAM_UINT16_MAX = 0xFFFFU;
-   const uint64 LZHAM_UINT64_MIN = 0;
-   const uint64 LZHAM_UINT64_MAX = 0xFFFFFFFFFFFFFFFFULL;    //0xFFFFFFFFFFFFFFFFui64;
-   const int64 LZHAM_INT64_MIN = (int64)0x8000000000000000ULL; //(-9223372036854775807i64 - 1);
-   const int64 LZHAM_INT64_MAX = (int64)0x7FFFFFFFFFFFFFFFULL; //9223372036854775807i64;
+   const uint16 UINT16_MIN = 0;
+   const uint16 UINT16_MAX = 0xFFFFU;
+   const uint64 UINT64_MIN = 0;
+   const uint64 UINT64_MAX = 0xFFFFFFFFFFFFFFFFULL;    //0xFFFFFFFFFFFFFFFFui64;
+   const int64 INT64_MIN = (int64)0x8000000000000000ULL; //(-9223372036854775807i64 - 1);
+   const int64 INT64_MAX = (int64)0x7FFFFFFFFFFFFFFFULL; //9223372036854775807i64;
 
    template<typename T> inline void zero_object(T& obj) { memset(&obj, 0, sizeof(obj)); }
 } // namespace lzham_ex

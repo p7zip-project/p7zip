@@ -1,5 +1,5 @@
 // File: lzham_lzcomp.cpp
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #include "lzham_core.h"
 #include "lzham.h"
 #include "lzham_comp.h"
@@ -315,7 +315,7 @@ namespace lzham
 
       if (sizeof(size_t) > sizeof(uint32))
       {
-         if (src_len > LZHAM_UINT32_MAX)
+         if (src_len > UINT32_MAX)
             return LZHAM_COMP_STATUS_INVALID_PARAMETER;
       }
 

@@ -1,5 +1,5 @@
 // File: lzham_core.h
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #pragma once
 
 #if defined(_MSC_VER)

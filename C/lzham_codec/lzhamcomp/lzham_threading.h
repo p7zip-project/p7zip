@@ -1,5 +1,5 @@
 // File: lzham_threading.h
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 
 #if LZHAM_USE_WIN32_API
    #include "lzham_win32_threading.h"

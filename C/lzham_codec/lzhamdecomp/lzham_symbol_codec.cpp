@@ -1,5 +1,5 @@
 // File: lzham_symbol_codec.cpp
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #include "lzham_core.h"
 #include "lzham_symbol_codec.h"
 #include "lzham_huffman_codes.h"
@@ -1265,8 +1265,8 @@ namespace lzham
       {
          uint32 t = pTables->m_lookup[m_bit_buf >> (cBitBufSize - pTables->m_table_bits)];
 
-         LZHAM_ASSERT(t != LZHAM_UINT32_MAX);
-         sym = t & LZHAM_UINT16_MAX;
+         LZHAM_ASSERT(t != UINT32_MAX);
+         sym = t & UINT16_MAX;
          len = t >> 16;
 
          LZHAM_ASSERT(model.m_code_sizes[sym] == len);

@@ -1,5 +1,5 @@
 // File: lzham_traits.h
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #pragma once
 
 namespace lzham
@@ -116,7 +116,7 @@ namespace lzham
       {
          if (LZHAM_IS_SCALAR_TYPE(T))
          {
-            memset((void *)p, 0, sizeof(T) * n);
+            memset(p, 0, sizeof(T) * n);
          }
          else
          {

@@ -1,5 +1,5 @@
 // File: lzham_task_pool_win32.cpp
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #include "lzham_core.h"
 #include "lzham_win32_threading.h"
 #include "lzham_timer.h"

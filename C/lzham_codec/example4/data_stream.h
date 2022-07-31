@@ -1,5 +1,5 @@
 // File: data_stream.h
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #pragma once
 #include "stream_common.h"
 
@@ -12,8 +12,8 @@ namespace lzham_ex
       cDataStreamSeekable = 4
    };
    
-   const int64 DATA_STREAM_SIZE_UNKNOWN = LZHAM_INT64_MAX;
-   const int64 DATA_STREAM_SIZE_INFINITE = LZHAM_UINT64_MAX;
+   const int64 DATA_STREAM_SIZE_UNKNOWN = INT64_MAX;
+   const int64 DATA_STREAM_SIZE_INFINITE = UINT64_MAX;
    
    class data_stream
    {

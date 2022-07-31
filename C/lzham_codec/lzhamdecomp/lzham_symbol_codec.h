@@ -1,5 +1,5 @@
 // File: lzham_symbol_codec.h
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #pragma once
 #include "lzham_prefix_coding.h"
 
@@ -19,7 +19,7 @@ namespace lzham
    typedef uint64 bit_cost_t;
    const uint32 cBitCostScaleShift = 24;
    const uint32 cBitCostScale = (1U << cBitCostScaleShift);
-   const bit_cost_t cBitCostMax = LZHAM_UINT64_MAX;
+   const bit_cost_t cBitCostMax = UINT64_MAX;
 
    inline bit_cost_t convert_to_scaled_bitcost(uint bits) { LZHAM_ASSERT(bits <= 255); uint32 scaled_bits = bits << cBitCostScaleShift; return static_cast<bit_cost_t>(scaled_bits); }
 
@@ -338,7 +338,7 @@ namespace lzham
       bit_count += 8; \
       bit_buf |= (static_cast<symbol_codec::bit_buf_t>(r) << (symbol_codec::cBitBufSize - bit_count)); \
    } \
-   result = ((num_bits) != (0)) ? static_cast<uint>(bit_buf >> (symbol_codec::cBitBufSize - (num_bits))) : 0; \
+   result = (num_bits) ? static_cast<uint>(bit_buf >> (symbol_codec::cBitBufSize - (num_bits))) : 0; \
    bit_buf <<= (num_bits); \
    bit_count -= (num_bits); \
 }
@@ -444,7 +444,7 @@ namespace lzham
    if (LZHAM_BUILTIN_EXPECT(k <= pTables->m_table_max_code, 1)) \
    { \
       uint32 t = pTables->m_lookup[bit_buf >> (symbol_codec::cBitBufSize - pTables->m_table_bits)]; \
-      result = t & LZHAM_UINT16_MAX; \
+      result = t & UINT16_MAX; \
       len = t >> 16; \
    } \
    else \

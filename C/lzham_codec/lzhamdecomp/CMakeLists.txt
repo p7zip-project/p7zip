@@ -24,11 +24,11 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wextra -O3 -fomit
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -Wextra")
 
 set(SRC_LIST 
-	../include/lzham_dynamic_lib.h
-	../include/lzham_static_lib.h
-	../include/lzham.h
-	../include/lzham_exports.inc
-	../include/zlib.h
+    ../include/lzham_dynamic_lib.h
+    ../include/lzham_static_lib.h
+    ../include/lzham.h
+    ../include/lzham_exports.inc
+    ../include/zlib.h
     lzham_assert.cpp       
     lzham_assert.h         
     lzham_checksum.cpp     
@@ -57,8 +57,7 @@ set(SRC_LIST
     lzham_types.h          
     lzham_utils.h          
     lzham_vector.cpp       
-    lzham_vector.h
-    )
+    lzham_vector.h)
 
 # -fno-strict-aliasing is *required* to compile LZHAM
 set(GCC_COMPILE_FLAGS "-fno-strict-aliasing -D_LARGEFILE64_SOURCE=1 -D_FILE_OFFSET_BITS=64")
@@ -83,6 +82,5 @@ include_directories(
 
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin_linux)
 
-add_library(${PROJECT_NAME}_static STATIC ${SRC_LIST})
-add_library(${PROJECT_NAME} SHARED ${SRC_LIST})
+add_library(${PROJECT_NAME} ${SRC_LIST})
 install(TARGETS ${PROJECT_NAME} LIBRARY DESTINATION lib${LIB_SUFFIX} ARCHIVE DESTINATION lib${LIB_SUFFIX} RUNTIME DESTINATION bin)

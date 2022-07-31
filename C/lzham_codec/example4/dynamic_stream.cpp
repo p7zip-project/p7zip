@@ -1,5 +1,5 @@
 // File: dynamic_stream.cpp
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #include "dynamic_stream.h"      
 
 namespace lzham_ex

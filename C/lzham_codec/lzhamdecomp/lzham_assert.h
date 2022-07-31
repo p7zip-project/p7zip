@@ -1,5 +1,5 @@
 // File: lzham_assert.h
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #pragma once
 
 const unsigned int LZHAM_FAIL_EXCEPTION_CODE = 256U;

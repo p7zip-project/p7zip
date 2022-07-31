@@ -1,5 +1,5 @@
 // File: lzham_math.h
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #pragma once
 
 #if defined(LZHAM_USE_MSVC_INTRINSICS) && !defined(__MINGW32__)

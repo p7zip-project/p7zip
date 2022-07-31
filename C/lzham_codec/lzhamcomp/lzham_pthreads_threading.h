@@ -1,5 +1,5 @@
 // File: lzham_task_pool_pthreads.h
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #pragma once
 
 #if LZHAM_USE_PTHREADS_API
@@ -160,10 +160,10 @@ namespace lzham
          }
       }
 
-      inline bool wait(uint32 milliseconds = LZHAM_UINT32_MAX)
+      inline bool wait(uint32 milliseconds = UINT32_MAX)
       {
          int status;
-         if (milliseconds == LZHAM_UINT32_MAX)
+         if (milliseconds == UINT32_MAX)
          {
             status = sem_wait(&m_sem);
          }

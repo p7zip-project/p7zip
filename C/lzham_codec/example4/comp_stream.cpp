@@ -1,5 +1,5 @@
 // File: comp_stream.cpp
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #include "comp_stream.h"
 
 namespace lzham_ex
@@ -95,8 +95,8 @@ namespace lzham_ex
       if (!out_buf_size)
          return true;
          
-      assert(out_buf_size <= LZHAM_UINT16_MAX);
-      assert(cBufSize <= LZHAM_UINT16_MAX);
+      assert(out_buf_size <= UINT16_MAX);
+      assert(cBufSize <= UINT16_MAX);
 
       if (!m_pOutput_stream->is_seekable())
       {
@@ -385,7 +385,7 @@ namespace lzham_ex
          }
       }
                        
-      m_buf.resize(LZHAM_UINT16_MAX);
+      m_buf.resize(UINT16_MAX);
       
       m_opened = true;
 

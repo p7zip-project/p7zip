@@ -4,7 +4,7 @@
 // See the decompress_file() function to see how to use the decompression API, and the compress_file() function for the compression API.
 // See include/lzham.h for documentation on the public LZHAM API.
 // Tested on Windows, Linux, and OSX. On iOS, I use a small "Hello World" test app to test the codec.
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #if defined(__GNUC__)
 #define _FILE_OFFSET_BITS 64
 #endif

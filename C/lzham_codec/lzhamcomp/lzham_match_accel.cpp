@@ -1,5 +1,5 @@
 // File: lzham_match_accel.cpp
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #include "lzham_core.h"
 #include "lzham_match_accel.h"
 #include "lzham_timer.h"
@@ -153,7 +153,7 @@ namespace lzham
          c0 = c1;
          c1 = c2;
 
-         LZHAM_ASSERT(!m_hash_thread_index.size() || (m_hash_thread_index[h] != LZHAM_UINT8_MAX));
+         LZHAM_ASSERT(!m_hash_thread_index.size() || (m_hash_thread_index[h] != UINT8_MAX));
 
          // Only process those strings that this worker thread was assigned to - this allows us to manipulate multiple trees in parallel with no worries about synchronization.
          if (m_hash_thread_index.size() && (m_hash_thread_index[h] != thread_index))
@@ -449,7 +449,7 @@ namespace lzham
 
                pDict++;
 
-               if (m_hash_thread_index[t] == LZHAM_UINT8_MAX)
+               if (m_hash_thread_index[t] == UINT8_MAX)
                {
                   num_unique_trigrams++;
 

@@ -1,5 +1,5 @@
 // File: lzham_vector.h
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #pragma once
 
 namespace lzham
@@ -99,7 +99,7 @@ namespace lzham
          }
 
          if (LZHAM_IS_BITWISE_COPYABLE(T))
-            memcpy((void *)m_p, other.m_p, other.m_size * sizeof(T));
+            memcpy(m_p, other.m_p, other.m_size * sizeof(T));
          else
          {
             T* pDst = m_p;

@@ -1,5 +1,5 @@
 // File: data_stream.cpp
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #include "data_stream.h"
 #include <stdarg.h>
 

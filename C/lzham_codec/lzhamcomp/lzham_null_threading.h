@@ -1,5 +1,5 @@
 // File: lzham_task_pool_null.h
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #pragma once
 
 namespace lzham
@@ -23,7 +23,7 @@ namespace lzham
          (void)releaseCount, (void)pPreviousCount;
       }
 
-      inline bool wait(uint32 milliseconds = LZHAM_UINT32_MAX)
+      inline bool wait(uint32 milliseconds = UINT32_MAX)
       {
          (void)milliseconds;
          return true;

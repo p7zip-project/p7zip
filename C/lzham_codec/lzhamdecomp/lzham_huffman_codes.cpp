@@ -1,5 +1,5 @@
 // File: huffman_codes.cpp
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #include "lzham_core.h"
 #include "lzham_huffman_codes.h"
 
@@ -224,7 +224,7 @@ namespace lzham
             
             sym_freq& sf = state.syms0[num_used_syms];
             sf.m_left = (uint16)i;
-            sf.m_right = LZHAM_UINT16_MAX;
+            sf.m_right = UINT16_MAX;
             sf.m_freq = freq;
             num_used_syms++;
          }            

@@ -1,5 +1,5 @@
 // File: lzham_lzcomp_internal.cpp
-// LZHAM is in the Public Domain. Please see the Public Domain declaration at the end of include/lzham.h
+// See Copyright Notice and license at the end of include/lzham.h
 #include "lzham_core.h"
 #include "lzham_lzcomp_internal.h"
 #include "lzham_checksum.h"
@@ -979,7 +979,7 @@ namespace lzham
          pNodes[i].clear();
       }
 #else
-      memset((void *)&pNodes[1], 0xFF, cMaxParseGraphNodes * sizeof(node_state));
+      memset( &pNodes[1], 0xFF, cMaxParseGraphNodes * sizeof(node_state));
 #endif
 
       state &approx_state = parse_state.m_initial_state;

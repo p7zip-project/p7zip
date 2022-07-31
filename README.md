@@ -188,6 +188,17 @@ Hashers:
      32      20A BLAKE3
 ```
 
+## Check
+
+[p7zip_test_utils] is a separate project.
+- Check Usage
+```
+  git clone https://github.com/jinfeihan57/p7zip_test_utils.git
+  cd p7zip_test_utils/check
+  // check 7zz program
+  bash check.sh */7zz
+```
+
 ## Usage
 
 - You can create `.7z` files, with [LZ4] [Fast LZMA2] [Brotli] [LZ5] [Lizard] [Lzham] and [Zstandard] method.
@@ -225,8 +236,9 @@ Hashers:
 [7-Zip-zstd]:https://github.com/mcmilk/7-Zip-zstd/
 [LZ4]:https://github.com/lz4/lz4/
 [Zstandard]:https://github.com/facebook/zstd/
-[Fast LZMA2]:https://github.com/conor42/fast-lzma2
+[Fast LZMA2]:https://github.com/conor42/fast-lzma2/
 [Brotli]:https://github.com/google/brotli/
 [LZ5]:https://github.com/inikep/lz5/
 [Lizard]:https://github.com/inikep/lizard/
-[Lzham]:https://github.com/richgel999/lzham_codec
+[Lzham]:https://github.com/richgel999/lzham_codec/
+[p7zip_test_utils]:https://github.com/jinfeihan57/p7zip_test_utils/

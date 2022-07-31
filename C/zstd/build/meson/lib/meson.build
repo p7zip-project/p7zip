@@ -45,6 +45,15 @@ libzstd_sources = [join_paths(zstd_rootdir, 'lib/common/entropy_common.c'),
   join_paths(zstd_rootdir, 'lib/dictBuilder/divsufsort.c'),
   join_paths(zstd_rootdir, 'lib/dictBuilder/zdict.c')]
 
+# really we need anything that defines __GNUC__ as that is what ZSTD_ASM_SUPPORTED is gated on
+# but these are the two compilers that are supported in tree and actually handle this correctly
+# Otherwise, explicitly disable assmebly.
+if [compiler_gcc, compiler_clang].contains(cc_id)
+  libzstd_sources += join_paths(zstd_rootdir, 'lib/decompress/huf_decompress_amd64.S')
+else
+  add_project_arguments('-DZSTD_DISABLE_ASM', language: 'c')
+endif
+
 # Explicit define legacy support
 add_project_arguments('-DZSTD_LEGACY_SUPPORT=@0@'.format(legacy_level),
   language: 'c')
@@ -108,6 +117,7 @@ libzstd = library('zstd',
   libzstd_sources,
   include_directories: libzstd_includes,
   c_args: libzstd_c_args,
+  gnu_symbol_visibility: 'hidden',
   dependencies: libzstd_deps,
   install: true,
   version: zstd_libversion)

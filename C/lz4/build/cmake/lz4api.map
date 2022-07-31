@@ -1,0 +1,13 @@
+{ 
+  global :
+    LZ4F_isError;
+    LZ4F_getErrorName;
+    LZ4F_preferences_t;
+    LZ4F_compressFrameBound;
+    LZ4F_compressFrame;
+    LZ4F_decompressionContext_t;
+    LZ4F_createDecompressionContext;
+    LZ4F_decompress;
+    LZ4F_freeDecompressionContext;
+  local : *;
+};

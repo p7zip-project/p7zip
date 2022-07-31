@@ -201,7 +201,7 @@ Hashers:
 
 ## Usage
 
-- You can create `.7z` files, with [LZ4] [Fast LZMA2] [Brotli] [LZ5] [Lizard] [Lzham] and [Zstandard] method.
+- You can create `.7z` files, with [LZ4]、[Fast LZMA2]、[Brotli]、[LZ5]、[Lizard]、[Lzham] and [Zstandard] method.
 ```
 7z a archiv.7z -m0=zstd 
 7z a archiv.7z -m0=zstd -mx3

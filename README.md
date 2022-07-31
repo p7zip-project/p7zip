@@ -1,3 +1,6 @@
+# p7zip-zstd
+The original intention of p7zip is to make 7z run on unix-like systems. The latest [7zip] already supports unix systems, so the new version of this project is not just a derivative of p7zip. It is also a derivative of 7zip. To distinguish it from the 7zip project, I decided to use p7zip-zstd to name the new version (since this project is also a derivative of the [7-Zip-zstd] project). Thanks to Igor Pavlov, author of 7zip, and Tino Reichardt, author of 7-Zip-zstd. and all 7zip community contributors and users.
+
 # 7zz with extension method
 This is the place for 7zz (Well known as 7zip-22.00 Linux version) to include major modern codecs such as Brotli, Fast LZMA2, LZ4, LZ5, Lizard and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
 
@@ -67,7 +70,7 @@ or build 7z.so:
 ```
 XXX@ubuntu:~/p7zip/CPP/7zip/Bundles/Alone2$ ./_o/7zz i
 
-7-Zip (z) 22.00 (x64) : Copyright (c) 1999-2022 Igor Pavlov : 2022-06-15
+7-Zip (z) 22.00 ZS v1.5.2 (x64) : Copyright (c) 1999-2022 Igor Pavlov : 2022-06-15
  64-bit locale=en_US.utf8 Threads:2
 
 
@@ -218,6 +221,8 @@ Hashers:
  - [check here]()
 
 [7-Zip]:https://www.7-zip.org/
+[7zip]:https://sourceforge.net/projects/sevenzip/
+[7-Zip-zstd]:https://github.com/mcmilk/7-Zip-zstd/
 [LZ4]:https://github.com/lz4/lz4/
 [Zstandard]:https://github.com/facebook/zstd/
 [Fast LZMA2]:https://github.com/conor42/fast-lzma2

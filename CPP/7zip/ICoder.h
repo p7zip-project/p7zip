@@ -156,7 +156,8 @@ namespace NCoderPropID
                        // (default: 64).
     kLdmBucketSizeLog, // VT_UI4 The minimum ldmblog is 0 and the maximum is 8
                        // (default: 3).
-    kLdmHashRateLog    // VT_UI4 The default value is wlog - ldmhlog.
+    kLdmHashRateLog,   // VT_UI4 The default value is wlog - ldmhlog.
+    kEndOfProp
   };
 }
 

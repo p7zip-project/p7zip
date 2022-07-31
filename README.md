@@ -196,7 +196,7 @@ Hashers:
   git clone https://github.com/jinfeihan57/p7zip_test_utils.git
   cd p7zip_test_utils/check
   // check 7zz program
-  bash check.sh */7zz
+  bash check.sh path_of_7zz/7zz
 ```
 
 ## Usage

@@ -4,14 +4,12 @@ DEP = $(OBJ:.o=.d)
 
 CFLAGS:=-Wall -O2 -pthread -fPIC
 CC:=gcc
-AR:=ar -rcs
 
 ASFLAGS :=
 
 SONAME:=libfast-lzma2.so.1
 REAL_NAME:=libfast-lzma2.so.1.0
 LINKER_NAME=libfast-lzma2.so
-STATIC_LIBNAME=libfast-lzma2.a
 
 x86_64:=0
 
@@ -41,10 +39,7 @@ ifeq ($(x86_64),1)
 endif
 
 libfast-lzma2 : $(OBJ)
-	@echo "Build static & dynamic library."
 	$(CC) -shared -pthread -Wl,-soname,$(SONAME) -o $(REAL_NAME) $(OBJ)
-	$(AR) $(STATIC_LIBNAME) $(OBJ)
-	@echo "Library build SUCCESS."
 
 -include $(DEP)
 
@@ -91,4 +86,4 @@ test:
 
 .PHONY: clean
 clean:
-	rm -f $(REAL_NAME) $(OBJ) $(DEP) $(STATIC_LIBNAME)
+	rm -f $(REAL_NAME) $(OBJ) $(DEP)

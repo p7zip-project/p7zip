@@ -135,7 +135,7 @@ static const char * const kHelpString =
     #endif
     "  -r[-|0] : Recurse subdirectories for name search\n"
     "  -sa{a|e|s} : set Archive name mode\n"
-    "  -scc{UTF-8|WIN|DOS} : set charset for for console input/output\n"
+    "  -scc{UTF-8|WIN|DOS} : set charset for console input/output\n"
     "  -scs{UTF-8|UTF-16LE|UTF-16BE|WIN|DOS|{id}} : set charset for list files\n"
     "  -scrc[CRC32|CRC64|SHA1|SHA256|*] : set hash function for x, e, h commands\n"
     "  -sdel : delete files after compression\n"

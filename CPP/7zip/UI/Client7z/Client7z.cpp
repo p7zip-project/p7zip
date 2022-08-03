@@ -31,6 +31,10 @@
 HINSTANCE g_hInstance = 0;
 #endif
 
+#ifdef ENV_HAVE_LOCALE
+#include <locale.h>
+#endif
+
 // Tou can find the list of all GUIDs in Guid.txt file.
 // use another CLSIDs, if you want to support other formats (zip, rar, ...).
 // {23170F69-40C1-278A-1000-000110070000}
@@ -718,6 +722,8 @@ STDMETHODIMP CArchiveUpdateCallback::CryptoGetTextPassword2(Int32 *passwordIsDef
 
 // Main function
 
+extern int global_use_utf16_conversion;
+
 #define NT_CHECK_FAIL_ACTION PrintError("Unsupported Windows version"); return 1;
 
 int MY_CDECL main(int numArgs, const char *args[])
@@ -732,6 +738,12 @@ int MY_CDECL main(int numArgs, const char *args[])
     return 1;
   }
   
+  #ifdef ENV_HAVE_LOCALE
+  // set the program's current locale from the user's environment variables
+  setlocale(LC_ALL,"");
+  global_use_utf16_conversion = 1;
+  #endif
+
   NDLL::CLibrary lib;
   if (!lib.Load(NDLL::GetModuleDirPrefix() + FTEXT(kDllName)))
   {

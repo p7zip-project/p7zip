@@ -112,7 +112,8 @@ else
 RM = rm -rf
 MY_MKDIR=mkdir -p
 CD = cd
-CP = cp -d
+CP = cp -drf
+MAKE = make
 # CFLAGS_BASE := $(CFLAGS_BASE) -D_7ZIP_ST
 # CXXFLAGS_EXTRA = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
 
@@ -120,7 +121,9 @@ CP = cp -d
 # LOCAL_LIBS_DLL=$(LOCAL_LIBS) -ldl
 LIB2 = -lpthread -ldl
 
-
+ifndef INSTALL_PREFIX
+INSTALL_PREFIX = /usr/local
+endif
 
 DEL_OBJ_EXE = -$(RM) $(O)
 
@@ -1303,7 +1306,7 @@ $O/libzstd.so: ../../../../C/zstd/lib/zstd.h
 	$(MY_MKDIR) -p zstd_build
 	$(CD) zstd_build; \
 	cmake ../../../../../C/zstd/build/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
-	make -j; \
+	$(MAKE) -j; \
 	$(CD) $$OLDPWD; \
 	$(CP) zstd_build/lib/libzstd.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
@@ -1323,7 +1326,7 @@ $O/liblz4.so: ../../../../C/lz4/lib/lz4.h
 	$(MY_MKDIR) -p lz4_build
 	$(CD) lz4_build; \
 	cmake ../../../../../C/lz4/build/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
-	make -j; \
+	$(MAKE) -j; \
 	$(CD) $$OLDPWD; \
 	$(CP) lz4_build/liblz4.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
@@ -1343,7 +1346,7 @@ $O/libbrotlicommon.so $O/libbrotlienc.so $O/libbrotlidec.so: ../../../../C/brotl
 	$(MY_MKDIR) -p brotli_build
 	$(CD) brotli_build; \
 	cmake ../../../../../C/brotli/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
-	make -j; \
+	$(MAKE) -j; \
 	$(CD) $$OLDPWD; \
 	$(CP) brotli_build/libbrotlicommon.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 	$(CP) brotli_build/libbrotlidec.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
@@ -1361,7 +1364,7 @@ $O/BrotliRegister.o: ../../Compress/BrotliRegister.cpp
 
 # Build lizard lib static and dynamic
 $O/liblizard.so: ../../../../C/lizard/lib/lizard_frame.h
-	make -C ../../../../C/lizard/lib
+	$(MAKE) -C ../../../../C/lizard/lib
 	$(CP) ../../../../C/lizard/lib/liblizard.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
 # Compile lizard method and Handler
@@ -1376,7 +1379,7 @@ $O/LizardHandler.o: ../../Archive/LizardHandler.cpp
 
 # Build lz5 lib static and dynamic
 $O/liblz5.so: ../../../../C/lz5/lib/lz5frame.h
-	make -C ../../../../C/lz5/lib
+	$(MAKE) -C ../../../../C/lz5/lib
 	$(CP) ../../../../C/lz5/lib/liblz5.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
 # Compile lz5 method and Handler
@@ -1395,7 +1398,7 @@ $O/liblzhamdll.so $O/liblzhamcomp.so $O/liblzhamdecomp.so: ../../../../C/lzham_c
 	$(MY_MKDIR) -p lzham_build
 	$(CD) lzham_build; \
 	cmake ../../../../../C/lzham_codec/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
-	make -j; \
+	$(MAKE) -j; \
 	$(CD) $$OLDPWD; \
 	$(CP) lzham_build/lzhamcomp/liblzhamcomp.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 	$(CP) lzham_build/lzhamdecomp/liblzhamdecomp.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
@@ -1408,7 +1411,7 @@ $O/LzhamRegister.o: ../../Compress/LzhamRegister.cpp
 
 # Compile FastLzma2 method
 $O/libfast-lzma2.so: ../../../../C/fast-lzma2/fast-lzma2.h
-	make -C ../../../../C/fast-lzma2
+	$(MAKE) -C ../../../../C/fast-lzma2
 	$(CP) ../../../../C/fast-lzma2/libfast-lzma2.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 	$(CD) $O/$(7z_LIB)/$(7Z_ADDON_CODEC); \
 	ln -sf libfast-lzma2.so.1.0 libfast-lzma2.so.1; \
@@ -1416,7 +1419,7 @@ $O/libfast-lzma2.so: ../../../../C/fast-lzma2/fast-lzma2.h
 	$(CD) $$OLDPWD
 # only for 7zr
 $O/libfast-lzma2.a: ../../../../C/fast-lzma2/fast-lzma2.h
-	make -C ../../../../C/fast-lzma2
+	$(MAKE) -C ../../../../C/fast-lzma2
 	$(CP) ../../../../C/fast-lzma2/libfast-lzma2.a $O
 
 $O/FastLzma2Register.o: ../../Compress/FastLzma2Register.cpp
@@ -1436,6 +1439,15 @@ predef_cxx:
 
 predef: predef_cc predef_cxx
 
+install: all
+	$(MY_MKDIR) $(INSTALL_PREFIX)/bin
+	$(CP) $(O)/$(7z_BIN)/* $(INSTALL_PREFIX)/bin 2>/dev/null || :
+	$(MY_MKDIR) $(INSTALL_PREFIX)/lib
+	$(CP) $(O)/$(7z_LIB)/* $(INSTALL_PREFIX)/lib 2>/dev/null || :
+
+uninstall:
+	$(RM) $(INSTALL_PREFIX)/bin/7z*
+	$(RM) $(INSTALL_PREFIX)/lib/7z*
 
 clean:
 	-$(DEL_OBJ_EXE)
@@ -1443,5 +1455,5 @@ clean:
 	$(RM) lz4_build
 	$(RM) brotli_build
 	$(RM) lzham_build
-	make -C ../../../../C/lizard/lib clean
-	make -C ../../../../C/lz5/lib clean
+	$(MAKE) -C ../../../../C/lizard/lib clean
+	$(MAKE) -C ../../../../C/lz5/lib clean

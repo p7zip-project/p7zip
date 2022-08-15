@@ -62,11 +62,22 @@ or build 7z.so:
    OR
    cd p7zip/CPP/7zip/Bundles/Format7zF && make -j -f ../../cmpl_gcc.mak
 ```
-3. Test:
+3. Install & Uninstall
+```
+Install:
+   cd p7zip/CPP/7zip/Bundles/Alone2 && sudo make -f makefile.gcc install
+   OR
+   cd p7zip/CPP/7zip/Bundles/Alone2 && sudo make -j -f ../../cmpl_gcc.mak install
+Unstall:
+   cd p7zip/CPP/7zip/Bundles/Alone2 && sudo make -f makefile.gcc uninstall
+   OR
+   cd p7zip/CPP/7zip/Bundles/Alone2 && sudo make -j -f ../../cmpl_gcc.mak uninstall
+```
+4. Test:
 ```
    ./_o/7zz i
 ```
-4. The output should look like this:
+5. The output should look like this:
 ```
 XXX@ubuntu:~/p7zip/CPP/7zip/Bundles/Alone2$ ./_o/7zz i
 

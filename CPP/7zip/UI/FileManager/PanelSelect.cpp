@@ -22,7 +22,7 @@ void CPanel::OnShiftSelectMessage()
     return;
   int startItem = MyMin(focusedItem, _prevFocusedItem);
   int finishItem = MyMax(focusedItem, _prevFocusedItem);
-
+    
   int numItems = _listView.GetItemCount();
   for (int i = 0; i < numItems; i++)
   {
@@ -32,8 +32,6 @@ void CPanel::OnShiftSelectMessage()
     if (i >= startItem && i <= finishItem)
       if (_selectedStatusVector[realIndex] != _selectMark)
       {
-          printf("CPanel::OnShiftSelectMessage : __selectedStatusVector[%d]=%d => %d\n",
-          realIndex,_selectedStatusVector[realIndex] , _selectMark);
         _selectedStatusVector[realIndex] = _selectMark;
         _listView.RedrawItem(i);
       }
@@ -42,7 +40,6 @@ void CPanel::OnShiftSelectMessage()
   _prevFocusedItem = focusedItem;
 }
 
-#ifdef _WIN32
 void CPanel::OnArrowWithShift()
 {
   if (!_mySelectMode)
@@ -51,7 +48,7 @@ void CPanel::OnArrowWithShift()
   if (focusedItem < 0)
     return;
   int realIndex = GetRealItemIndex(focusedItem);
-
+  
   if (_selectionIsDefined)
   {
     if (realIndex != kParentIndex)
@@ -71,9 +68,9 @@ void CPanel::OnArrowWithShift()
       _selectedStatusVector[realIndex] = _selectMark;
     }
   }
-
+  
   _prevFocusedItem = focusedItem;
-  PostMessage(kShiftSelectMessage);
+  PostMsg(kShiftSelectMessage);
   _listView.RedrawItem(focusedItem);
 }
 
@@ -85,20 +82,21 @@ void CPanel::OnInsert()
       LVIS_CUT : 0;
   _listView.SetItemState(focusedItem, state, LVIS_CUT);
   // _listView.SetItemState_Selected(focusedItem);
-
   */
+
   int focusedItem = _listView.GetFocusedItem();
   if (focusedItem < 0)
     return;
+  
   int realIndex = GetRealItemIndex(focusedItem);
-  bool isSelected = !_selectedStatusVector[realIndex];
   if (realIndex != kParentIndex)
+  {
+    bool isSelected = !_selectedStatusVector[realIndex];
     _selectedStatusVector[realIndex] = isSelected;
-
-  if (!_mySelectMode)
-    _listView.SetItemState_Selected(focusedItem, isSelected);
-
-  _listView.RedrawItem(focusedItem);
+    if (!_mySelectMode)
+      _listView.SetItemState_Selected(focusedItem, isSelected);
+    _listView.RedrawItem(focusedItem);
+  }
 
   int nextIndex = focusedItem + 1;
   if (nextIndex < _listView.GetItemCount())
@@ -107,7 +105,6 @@ void CPanel::OnInsert()
     _listView.EnsureVisible(nextIndex, false);
   }
 }
-#endif
 
 /*
 void CPanel::OnUpWithShift()
@@ -116,6 +113,8 @@ void CPanel::OnUpWithShift()
   if (focusedItem < 0)
     return;
   int index = GetRealItemIndex(focusedItem);
+  if (index == kParentIndex)
+    return;
   _selectedStatusVector[index] = !_selectedStatusVector[index];
   _listView.RedrawItem(index);
 }
@@ -126,6 +125,8 @@ void CPanel::OnDownWithShift()
   if (focusedItem < 0)
     return;
   int index = GetRealItemIndex(focusedItem);
+  if (index == kParentIndex)
+    return;
   _selectedStatusVector[index] = !_selectedStatusVector[index];
   _listView.RedrawItem(index);
 }
@@ -155,17 +156,13 @@ void CPanel::SelectSpec(bool selectMode)
   CComboDialog dlg;
   LangString(selectMode ? IDS_SELECT : IDS_DESELECT, dlg.Title );
   LangString(IDS_SELECT_MASK, dlg.Static);
-  dlg.Value = L'*';
+  dlg.Value = '*';
   if (dlg.Create(GetParent()) != IDOK)
     return;
   const UString &mask = dlg.Value;
   FOR_VECTOR (i, _selectedStatusVector)
     if (DoesWildcardMatchName(mask, GetItemName(i)))
-    {
-      printf("CPanel::SelectSpec : __selectedStatusVector[%d]=%d => %d\n",
-          i,_selectedStatusVector[i] , selectMode);
        _selectedStatusVector[i] = selectMode;
-    }
   UpdateSelection();
 }
 
@@ -182,10 +179,7 @@ void CPanel::SelectByType(bool selectMode)
   {
     FOR_VECTOR (i, _selectedStatusVector)
       if (IsItem_Folder(i) == isItemFolder)
-      {
-        printf("CPanel::SelectByType : __selectedStatusVector[%d]=%d => %d\n",i,_selectedStatusVector[i] , selectMode);
         _selectedStatusVector[i] = selectMode;
-      }
   }
   else
   {
@@ -194,21 +188,15 @@ void CPanel::SelectByType(bool selectMode)
     {
       FOR_VECTOR (i, _selectedStatusVector)
         if (IsItem_Folder(i) == isItemFolder && GetItemName(i).ReverseFind_Dot() < 0)
-        {
-            printf("CPanel::SelectByType-2 : __selectedStatusVector[%d]=%d => %d\n",i,_selectedStatusVector[i] , selectMode);
           _selectedStatusVector[i] = selectMode;
-        }
     }
     else
     {
-      UString mask = L'*';
-      mask += name.Ptr(pos);
+      UString mask ('*');
+      mask += name.Ptr((unsigned)pos);
       FOR_VECTOR (i, _selectedStatusVector)
         if (IsItem_Folder(i) == isItemFolder && DoesWildcardMatchName(mask, GetItemName(i)))
-        {
-            printf("CPanel::SelectByType-3 : __selectedStatusVector[%d]=%d => %d\n",i,_selectedStatusVector[i] , selectMode);
           _selectedStatusVector[i] = selectMode;
-      }
     }
   }
 
@@ -217,7 +205,6 @@ void CPanel::SelectByType(bool selectMode)
 
 void CPanel::SelectAll(bool selectMode)
 {
-    printf("CPanel::SelectAll\n");
   FOR_VECTOR (i, _selectedStatusVector)
     _selectedStatusVector[i] = selectMode;
   UpdateSelection();
@@ -225,13 +212,14 @@ void CPanel::SelectAll(bool selectMode)
 
 void CPanel::InvertSelection()
 {
-    printf("CPanel::InvertSelection\n");
   if (!_mySelectMode)
   {
     unsigned numSelected = 0;
     FOR_VECTOR (i, _selectedStatusVector)
       if (_selectedStatusVector[i])
         numSelected++;
+    // 17.02: fixed : now we invert item even, if single item is selected
+    /*
     if (numSelected == 1)
     {
       int focused = _listView.GetFocusedItem();
@@ -243,6 +231,7 @@ void CPanel::InvertSelection()
             _selectedStatusVector[realIndex] = false;
       }
     }
+    */
   }
   FOR_VECTOR (i, _selectedStatusVector)
     _selectedStatusVector[i] = !_selectedStatusVector[i];
@@ -252,6 +241,9 @@ void CPanel::InvertSelection()
 void CPanel::KillSelection()
 {
   SelectAll(false);
+  // ver 20.01: now we don't like that focused will be selected item.
+  //   So the following code was disabled:
+  /*
   if (!_mySelectMode)
   {
     int focused = _listView.GetFocusedItem();
@@ -261,17 +253,13 @@ void CPanel::KillSelection()
       // so we change _selectedStatusVector[realIndex] here.
       int realIndex = GetRealItemIndex(focused);
       if (realIndex != kParentIndex)
-      {
-          printf("CPanel::KillSelection _selectedStatusVector[%d]=%d => true\n",realIndex,_selectedStatusVector[realIndex]);
-
         _selectedStatusVector[realIndex] = true;
-       }
       _listView.SetItemState_Selected(focused);
     }
   }
+  */
 }
 
-#ifdef _WIN32
 void CPanel::OnLeftClick(MY_NMLISTVIEW_NMITEMACTIVATE *itemActivate)
 {
   if (itemActivate->hdr.hwndFrom != HWND(_listView))
@@ -280,7 +268,7 @@ void CPanel::OnLeftClick(MY_NMLISTVIEW_NMITEMACTIVATE *itemActivate)
   int indexInList = itemActivate->iItem;
   if (indexInList < 0)
     return;
-
+  
   #ifndef UNDER_CE
   if ((itemActivate->uKeyFlags & LVKF_SHIFT) != 0)
   {
@@ -309,7 +297,7 @@ void CPanel::OnLeftClick(MY_NMLISTVIEW_NMITEMACTIVATE *itemActivate)
   #endif
   {
     _startGroupSelect = indexInList;
-
+  
     #ifndef UNDER_CE
     if ((itemActivate->uKeyFlags & LVKF_CONTROL) != 0)
     {
@@ -325,5 +313,3 @@ void CPanel::OnLeftClick(MY_NMLISTVIEW_NMITEMACTIVATE *itemActivate)
 
   return;
 }
-#endif
-

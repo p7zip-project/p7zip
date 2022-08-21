@@ -4,27 +4,42 @@
 #define __WINDOWS_FILE_DIR_H
 
 #include "../Common/MyString.h"
-#include "../Common/MyVector.h"
 
 #include "FileIO.h"
-
-#ifdef ENV_UNIX
-#include <sys/stat.h> // ino_t
-#endif
 
 namespace NWindows {
 namespace NFile {
 namespace NDir {
 
-class CDelayedSymLink;
-
 bool GetWindowsDir(FString &path);
 bool GetSystemDir(FString &path);
 
-bool SetDirTime(CFSTR path, const FILETIME *cTime, const FILETIME *aTime, const FILETIME *mTime);
-bool SetFileAttrib(CFSTR path, DWORD attrib, CObjectVector<CDelayedSymLink> *delayedSymLinks = 0);
+/*
+WIN32 API : SetFileTime() doesn't allow to set zero timestamps in file
+but linux : allows unix time = 0 in filesystem
+*/
 
-bool SetTarFileSymLink(CFSTR fileName, CObjectVector<CDelayedSymLink> *delayedSymLinks);
+bool SetDirTime(CFSTR path, const CFiTime *cTime, const CFiTime *aTime, const CFiTime *mTime);
+
+
+#ifdef _WIN32
+
+bool SetFileAttrib(CFSTR path, DWORD attrib);
+
+/*
+  Some programs store posix attributes in high 16 bits of windows attributes field.
+  Also some programs use additional flag markers: 0x8000 or 0x4000.
+  SetFileAttrib_PosixHighDetect() tries to detect posix field, and it extracts only attribute
+  bits that are related to current system only.
+*/
+#else
+
+int my_chown(CFSTR path, uid_t owner, gid_t group);
+
+#endif
+
+bool SetFileAttrib_PosixHighDetect(CFSTR path, DWORD attrib);
+
 
 bool MyMoveFile(CFSTR existFileName, CFSTR newFileName);
 
@@ -58,7 +73,7 @@ bool GetCurrentDir(FString &resultPath);
 
 bool MyGetTempPath(FString &resultPath);
 
-class CTempFile
+class CTempFile  MY_UNCOPYABLE
 {
   bool _mustBeDeleted;
   FString _path;
@@ -73,7 +88,9 @@ public:
   bool MoveTo(CFSTR name, bool deleteDestBefore);
 };
 
-class CTempDir
+
+#ifdef _WIN32
+class CTempDir  MY_UNCOPYABLE
 {
   bool _mustBeDeleted;
   FString _path;
@@ -85,35 +102,11 @@ public:
   bool Create(CFSTR namePrefix) ;
   bool Remove();
 };
-
-// Symbolic links must be created last so that they can't be used to
-// create or overwrite files above the extraction directory.
-class CDelayedSymLink
-{
-#ifdef ENV_UNIX
-  // Where the symlink should be created.  The target is specified in
-  // the placeholder file.
-  AString _source;
-
-  // Device and inode of the placeholder file.  Before creating the
-  // symlink, we must check that these haven't been changed by creation
-  // of another symlink.
-  dev_t _dev;
-  ino_t _ino;
-
-public:
-  explicit CDelayedSymLink(const char * source);
-  bool Create();
-#else // !ENV_UNIX
-public:
-  CDelayedSymLink(const char * source) {}
-  bool Create() { return true; }
-#endif // ENV_UNIX
-};
+#endif
 
 
 #if !defined(UNDER_CE)
-class CCurrentDirRestorer
+class CCurrentDirRestorer  MY_UNCOPYABLE
 {
   FString _path;
 public:

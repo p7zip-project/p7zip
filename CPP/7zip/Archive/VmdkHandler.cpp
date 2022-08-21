@@ -41,7 +41,7 @@ namespace NVmdk {
 static const Byte k_Signature[] = SIGNATURE;
 
 static const UInt32 k_Flags_NL         = (UInt32)1 << 0;
-static const UInt32 k_Flags_RGD        = (UInt32)1 << 1;
+// static const UInt32 k_Flags_RGD        = (UInt32)1 << 1;
 static const UInt32 k_Flags_ZeroGrain  = (UInt32)1 << 2;
 static const UInt32 k_Flags_Compressed = (UInt32)1 << 16;
 static const UInt32 k_Flags_Marker     = (UInt32)1 << 17;
@@ -138,7 +138,7 @@ static bool Str_to_ValName(const AString &s, AString &name, AString &val)
   int eq = s.Find('=');
   if (eq < 0 || (qu >= 0 && eq > qu))
     return false;
-  name = s.Left(eq);
+  name.SetFrom(s.Ptr(), eq);
   name.Trim();
   val = s.Ptr(eq + 1);
   val.Trim();
@@ -855,11 +855,13 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
     }
     
     case kpidId:
+    {
       if (desc && !desc->CID.IsEmpty())
       {
         prop = desc->CID;
-        break;
       }
+      break;
+    }
 
     case kpidName:
     {
@@ -1428,7 +1430,6 @@ HRESULT CExtent::Open3(IInStream *stream, IArchiveOpenCallback *openCallback,
 STDMETHODIMP CHandler::Close()
 {
   _phySize = 0;
-  _size = 0;
   
   _cacheCluster = (UInt64)(Int64)-1;
   _cacheExtent = (unsigned)(int)-1;
@@ -1448,8 +1449,10 @@ STDMETHODIMP CHandler::Close()
   _descriptorBuf.Free();
   _descriptor.Clear();
 
-  _imgExt = NULL;
-  Stream.Release(); // Stream vriable is unused
+  // CHandlerImg:
+  Clear_HandlerImg_Vars();
+  Stream.Release();
+
   _extents.Clear();
   return S_OK;
 }

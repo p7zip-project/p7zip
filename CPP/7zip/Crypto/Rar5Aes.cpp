@@ -9,6 +9,7 @@
 #endif
 
 #include "Rar5Aes.h"
+#include "HmacSha256.h"
 
 namespace NCrypto {
 namespace NRar5 {
@@ -30,14 +31,13 @@ CDecoder::CDecoder(): CAesCbcDecoder(kAesKeySize) {}
 
 static unsigned ReadVarInt(const Byte *p, unsigned maxSize, UInt64 *val)
 {
-  unsigned i;
   *val = 0;
 
-  for (i = 0; i < maxSize;)
+  for (unsigned i = 0; i < maxSize && i < 10;)
   {
     Byte b = p[i];
-    if (i < 10)
-      *val |= (UInt64)(b & 0x7F) << (7 * i++);
+    *val |= (UInt64)(b & 0x7F) << (7 * i);
+    i++;
     if ((b & 0x80) == 0)
       return i;
   }
@@ -123,6 +123,7 @@ void CDecoder::SetPassword(const Byte *data, size_t size)
   if (size != _password.Size() || memcmp(data, _password, size) != 0)
   {
     _needCalc = true;
+    _password.Wipe();
     _password.CopyFrom(data, size);
   }
 }
@@ -133,28 +134,31 @@ STDMETHODIMP CDecoder::Init()
   CalcKey_and_CheckPassword();
   RINOK(SetKey(_key, kAesKeySize));
   RINOK(SetInitVector(_iv, AES_BLOCK_SIZE));
-  return CAesCbcCoder::Init();
+  return CAesCoder::Init();
 }
 
 
 UInt32 CDecoder::Hmac_Convert_Crc32(UInt32 crc) const
 {
+  MY_ALIGN (16)
   NSha256::CHmac ctx;
   ctx.SetKey(_hashKey, NSha256::kDigestSize);
-  Byte v[4];
-  SetUi32(v, crc);
-  ctx.Update(v, 4);
-  Byte h[NSha256::kDigestSize];
-  ctx.Final(h);
+  UInt32 v;
+  SetUi32(&v, crc);
+  ctx.Update((const Byte *)&v, 4);
+  MY_ALIGN (16)
+  UInt32 h[SHA256_NUM_DIGEST_WORDS];
+  ctx.Final((Byte *)h);
   crc = 0;
-  for (unsigned i = 0; i < NSha256::kDigestSize; i++)
-    crc ^= (UInt32)h[i] << ((i & 3) * 8);
+  for (unsigned i = 0; i < SHA256_NUM_DIGEST_WORDS; i++)
+    crc ^= (UInt32)GetUi32(h + i);
   return crc;
 };
 
 
 void CDecoder::Hmac_Convert_32Bytes(Byte *data) const
 {
+  MY_ALIGN (16)
   NSha256::CHmac ctx;
   ctx.SetKey(_hashKey, NSha256::kDigestSize);
   ctx.Update(data, NSha256::kDigestSize);
@@ -162,8 +166,9 @@ void CDecoder::Hmac_Convert_32Bytes(Byte *data) const
 };
 
 
+static CKey g_Key;
+
 #ifndef _7ZIP_ST
-  static CKey g_Key;
   static NWindows::NSynchronization::CCriticalSection g_GlobalKeyCacheCriticalSection;
   #define MT_LOCK NWindows::NSynchronization::CCriticalSectionLock lock(g_GlobalKeyCacheCriticalSection);
 #else
@@ -190,13 +195,16 @@ bool CDecoder::CalcKey_and_CheckPassword()
       {
         // Pbkdf HMAC-SHA-256
 
+        MY_ALIGN (16)
         NSha256::CHmac baseCtx;
         baseCtx.SetKey(_password, _password.Size());
         
         NSha256::CHmac ctx = baseCtx;
         ctx.Update(_salt, sizeof(_salt));
         
+        MY_ALIGN (16)
         Byte u[NSha256::kDigestSize];
+        MY_ALIGN (16)
         Byte key[NSha256::kDigestSize];
         
         u[0] = 0;

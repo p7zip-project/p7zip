@@ -12,7 +12,7 @@ struct CProxyFile
   bool NeedDeleteName;
   
   CProxyFile(): Name(NULL), NameLen(0), NeedDeleteName(false)  {}
-  ~CProxyFile() { if (NeedDeleteName) delete [](wchar_t *)Name; }
+  ~CProxyFile() { if (NeedDeleteName) delete [](wchar_t *)(void *)Name; } // delete [](wchar_t *)Name;
 };
 
 const unsigned k_Proxy_RootDirIndex = 0;
@@ -35,10 +35,10 @@ struct CProxyDir
   bool CrcIsDefined;
 
   CProxyDir(): Name(NULL), NameLen(0), ParentDir(-1) {};
-  ~CProxyDir() { delete [](wchar_t *)Name; }
+  ~CProxyDir() { delete [](wchar_t *)(void *)Name; }
 
   void Clear();
-  bool IsLeaf() const { return ArcIndex >= 0; }
+  bool IsLeaf() const { return ArcIndex != -1; }
 };
 
 class CProxyArc
@@ -82,7 +82,7 @@ struct CProxyFile2
   
   int GetDirIndex(bool forAltStreams) const { return forAltStreams ? AltDirIndex : DirIndex; }
 
-  bool IsDir() const { return DirIndex >= 0; }
+  bool IsDir() const { return DirIndex != -1; }
   CProxyFile2():
       DirIndex(-1), AltDirIndex(-1), Parent(-1),
       Name(NULL), NameLen(0),
@@ -93,7 +93,7 @@ struct CProxyFile2
   ~CProxyFile2()
   {
     if (NeedDeleteName)
-      delete [](wchar_t *)Name;
+      delete [](wchar_t *)(void *)Name;
   }
 };
 
@@ -145,7 +145,7 @@ public:
   {
     const CProxyFile2 &file = Files[arcIndex];
     
-    if (file.Parent < 0)
+    if (file.Parent == -1)
       return file.IsAltStream ?
           k_Proxy2_AltRootDirIndex :
           k_Proxy2_RootDirIndex;

@@ -1,5 +1,5 @@
 /* XzEnc.c -- Xz Encode
-2017-08-25 : Igor Pavlov : Public domain */
+2021-04-01 : Igor Pavlov : Public domain */
 
 #include "Precomp.h"
 
@@ -27,11 +27,6 @@
 #define MTCODER__BLOCKS_MAX 1
 #endif
 
-//#ifndef PRI
-#include <stdio.h>
-#define PRI(x) //x
-//#endif 
-
 #define XZ_GET_PAD_SIZE(dataSize) ((4 - ((unsigned)(dataSize) & 3)) & 3)
 
 /* max pack size for LZMA2 block + check-64bytrs: */
@@ -41,7 +36,7 @@
 
 
 #define XzBlock_ClearFlags(p)       (p)->flags = 0;
-#define XzBlock_SetNumFilters(p, n) (p)->flags |= ((n) - 1);
+#define XzBlock_SetNumFilters(p, n) (p)->flags = (Byte)((p)->flags | ((n) - 1));
 #define XzBlock_SetHasPackSize(p)   (p)->flags |= XZ_BF_PACK_SIZE;
 #define XzBlock_SetHasUnpackSize(p) (p)->flags |= XZ_BF_UNPACK_SIZE;
 
@@ -141,7 +136,7 @@ static void XzEncIndex_Free(CXzEncIndex *p, ISzAllocPtr alloc)
 
 static SRes XzEncIndex_ReAlloc(CXzEncIndex *p, size_t newSize, ISzAllocPtr alloc)
 {
-  Byte *blocks = ISzAlloc_Alloc(alloc, newSize);
+  Byte *blocks = (Byte *)ISzAlloc_Alloc(alloc, newSize);
   if (!blocks)
     return SZ_ERROR_MEM;
   if (p->size != 0)
@@ -334,7 +329,7 @@ static SRes SeqInFilter_Init(CSeqInFilter *p, const CXzFilter *props, ISzAllocPt
 {
   if (!p->buf)
   {
-    p->buf = ISzAlloc_Alloc(alloc, FILTER_BUF_SIZE);
+    p->buf = (Byte *)ISzAlloc_Alloc(alloc, FILTER_BUF_SIZE);
     if (!p->buf)
       return SZ_ERROR_MEM;
   }
@@ -367,13 +362,16 @@ static SRes SeqInFilter_Read(const ISeqInStream *pp, void *data, size_t *size)
     }
     {
       SizeT srcLen = p->endPos - p->curPos;
-      int wasFinished;
+      ECoderStatus status;
       SRes res;
       *size = sizeOriginal;
-      res = p->StateCoder.Code(p->StateCoder.p, data, size, p->buf + p->curPos, &srcLen,
-        p->srcWasFinished, CODER_FINISH_ANY, &wasFinished);
+      res = p->StateCoder.Code2(p->StateCoder.p,
+          (Byte *)data, size,
+          p->buf + p->curPos, &srcLen,
+          p->srcWasFinished, CODER_FINISH_ANY,
+          &status);
       p->curPos += srcLen;
-      if (*size != 0 || srcLen == 0 || res != 0)
+      if (*size != 0 || srcLen == 0 || res != SZ_OK)
         return res;
     }
   }
@@ -382,11 +380,17 @@ static SRes SeqInFilter_Read(const ISeqInStream *pp, void *data, size_t *size)
 static void SeqInFilter_Construct(CSeqInFilter *p)
 {
   p->buf = NULL;
+  p->StateCoder.p = NULL;
   p->p.Read = SeqInFilter_Read;
 }
 
 static void SeqInFilter_Free(CSeqInFilter *p, ISzAllocPtr alloc)
 {
+  if (p->StateCoder.p)
+  {
+    p->StateCoder.Free(p->StateCoder.p, alloc);
+    p->StateCoder.p = NULL;
+  }
   if (p->buf)
   {
     ISzAlloc_Free(alloc, p->buf);
@@ -548,7 +552,7 @@ static void XzEncProps_Normalize_Fixed(CXzProps *p)
         numBlocks++;
       if (numBlocks < (unsigned)t2)
       {
-        t2r = (unsigned)numBlocks;
+        t2r = (int)numBlocks;
         if (t2r == 0)
           t2r = 1;
         t3 = t1 * t2r;
@@ -747,7 +751,8 @@ static SRes Xz_CompressBlock(
     }
     else if (fp->ipDefined)
     {
-      SetUi32(filter->props, fp->ip);
+      Byte *ptr = filter->props;
+      SetUi32(ptr, fp->ip);
       filter->propsSize = 4;
     }
   }
@@ -810,7 +815,7 @@ static SRes Xz_CompressBlock(
     SRes res;
     Byte *outBuf = NULL;
     size_t outSize = 0;
-    Bool useStream = (fp || inStream);
+    BoolInt useStream = (fp || inStream);
     // useStream = True;
     
     if (!useStream)
@@ -936,7 +941,7 @@ typedef struct
   #ifndef _7ZIP_ST
   unsigned checkType;
   ISeqOutStream *outStream;
-  Bool mtCoder_WasConstructed;
+  BoolInt mtCoder_WasConstructed;
   CMtCoder mtCoder;
   CXzEncBlockInfo EncBlocks[MTCODER__BLOCKS_MAX];
   #endif
@@ -1060,7 +1065,7 @@ static SRes XzEnc_MtCallback_Code(void *pp, unsigned coderIndex, unsigned outBuf
 
   if (!dest)
   {
-    dest = ISzAlloc_Alloc(me->alloc, me->outBufSize);
+    dest = (Byte *)ISzAlloc_Alloc(me->alloc, me->outBufSize);
     if (!dest)
       return SZ_ERROR_MEM;
     me->outBufs[outBufIndex] = dest;
@@ -1068,7 +1073,7 @@ static SRes XzEnc_MtCallback_Code(void *pp, unsigned coderIndex, unsigned outBuf
   
   MtProgressThunk_CreateVTable(&progressThunk);
   progressThunk.mtProgress = &me->mtCoder.mtProgress;
-  progressThunk.index = coderIndex;
+  MtProgressThunk_Init(&progressThunk);
 
   {
     CXzEncBlockInfo blockSizes;
@@ -1123,8 +1128,6 @@ static SRes XzEnc_MtCallback_Write(void *pp, unsigned outBufIndex)
 
 SRes XzEnc_Encode(CXzEncHandle pp, ISeqOutStream *outStream, ISeqInStream *inStream, ICompressProgress *progress)
 {
-  PRI(printf("\n####### %s %d #######\n", __FILE__, __LINE__));
-
   CXzEnc *p = (CXzEnc *)pp;
 
   const CXzProps *props = &p->xzProps;
@@ -1194,7 +1197,7 @@ SRes XzEnc_Encode(CXzEncHandle pp, ISeqOutStream *outStream, ISeqInStream *inStr
       p->outBufSize = destBlockSize;
     }
 
-    p->mtCoder.numThreadsMax = props->numBlockThreads_Max;
+    p->mtCoder.numThreadsMax = (unsigned)props->numBlockThreads_Max;
     p->mtCoder.expectedDataSize = p->expectedDataSize;
     
     RINOK(MtCoder_Code(&p->mtCoder));
@@ -1231,7 +1234,7 @@ SRes XzEnc_Encode(CXzEncHandle pp, ISeqOutStream *outStream, ISeqInStream *inStr
         if (!p->outBufs[0] || t2 != p->outBufSize)
         {
           XzEnc_FreeOutBufs(p);
-          p->outBufs[0] = ISzAlloc_Alloc(p->alloc, t2);
+          p->outBufs[0] = (Byte *)ISzAlloc_Alloc(p->alloc, t2);
           if (!p->outBufs[0])
             return SZ_ERROR_MEM;
           p->outBufSize = t2;
@@ -1252,6 +1255,8 @@ SRes XzEnc_Encode(CXzEncHandle pp, ISeqOutStream *outStream, ISeqInStream *inStr
           && props->reduceSize >= progress2.inOffset)
         rem = props->reduceSize - progress2.inOffset;
       */
+
+      blockSizes.headerSize = 0; // for GCC
       
       RINOK(Xz_CompressBlock(
           &p->lzmaf_Items[0],

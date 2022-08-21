@@ -295,29 +295,24 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
 
     case kpidMTime:
     {
-      FILETIME localFileTime, utcFileTime;
-      if (NTime::DosTimeToFileTime(item.Time, localFileTime))
-      {
-        if (!LocalFileTimeToFileTime(&localFileTime, &utcFileTime))
-          utcFileTime.dwHighDateTime = utcFileTime.dwLowDateTime = 0;
-      }
-      else
-        utcFileTime.dwHighDateTime = utcFileTime.dwLowDateTime = 0;
-      prop = utcFileTime;
+      PropVariant_SetFrom_DosTime(prop, item.Time);
       break;
     }
 
     case kpidMethod:
     {
-      UInt32 realFolderIndex = item.GetFolderIndex(db.Folders.Size());
-      const CFolder &folder = db.Folders[realFolderIndex];
-      char s[kMethodNameBufSize];;
-      SetMethodName(s, folder.GetMethod(), folder.MethodMinor);
-      prop = s;
+      const int realFolderIndex = item.GetFolderIndex(db.Folders.Size());
+      if (realFolderIndex >= 0)
+      {
+        const CFolder &folder = db.Folders[(unsigned)realFolderIndex];
+        char s[kMethodNameBufSize];;
+        SetMethodName(s, folder.GetMethod(), folder.MethodMinor);
+        prop = s;
+      }
       break;
     }
 
-    case kpidBlock:  prop = (Int32)m_Database.GetFolderIndex(&mvItem); break;
+    case kpidBlock:  prop.Set_Int32((Int32)m_Database.GetFolderIndex(&mvItem)); break;
     
     #ifdef _CAB_DETAILS
     
@@ -341,7 +336,8 @@ STDMETHODIMP CHandler::Open(IInStream *inStream,
 
   CInArchive archive;
   CMyComPtr<IArchiveOpenVolumeCallback> openVolumeCallback;
-  callback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void **)&openVolumeCallback);
+  if (callback)
+    callback->QueryInterface(IID_IArchiveOpenVolumeCallback, (void **)&openVolumeCallback);
   
   CMyComPtr<IInStream> nextStream = inStream;
   bool prevChecked = false;
@@ -420,7 +416,10 @@ STDMETHODIMP CHandler::Open(IInStream *inStream,
         }
       }
 
-      RINOK(callback->SetCompleted(&numItems, NULL));
+      if (callback)
+      {
+        RINOK(callback->SetCompleted(&numItems, NULL));
+      }
         
       nextStream = NULL;
       
@@ -549,9 +548,9 @@ private:
   
   Byte *TempBuf;
   UInt32 TempBufSize;
+  UInt32 TempBufWritten;
   unsigned NumIdenticalFiles;
   bool TempBufMode;
-  UInt32 m_BufStartFolderOffset;
 
   unsigned m_StartIndex;
   unsigned m_CurrentIndex;
@@ -575,7 +574,6 @@ private:
   HRESULT OpenFile();
   HRESULT CloseFileWithResOp(Int32 resOp);
   HRESULT CloseFile();
-  HRESULT Write2(const void *data, UInt32 size, UInt32 *processedSize, bool isOK);
 public:
   HRESULT WriteEmptyFiles();
 
@@ -672,11 +670,11 @@ HRESULT CFolderOutStream::OpenFile()
         FreeTempBuf();
         TempBuf = (Byte *)MyAlloc(item.Size);
         TempBufSize = item.Size;
-        if (TempBuf == NULL)
+        if (!TempBuf)
           return E_OUTOFMEMORY;
       }
       TempBufMode = true;
-      m_BufStartFolderOffset = item.Offset;
+      TempBufWritten = 0;
     }
     else if (numExtractItems == 1)
     {
@@ -725,8 +723,9 @@ HRESULT CFolderOutStream::WriteEmptyFiles()
 }
 
 
-HRESULT CFolderOutStream::Write2(const void *data, UInt32 size, UInt32 *processedSize, bool isOK)
+HRESULT CFolderOutStream::Write(const void *data, UInt32 size, UInt32 *processedSize)
 {
+  // (data == NULL) means Error_Data for solid folder flushing
   COM_TRY_BEGIN
   
   UInt32 realProcessed = 0;
@@ -741,21 +740,34 @@ HRESULT CFolderOutStream::Write2(const void *data, UInt32 size, UInt32 *processe
       HRESULT res = S_OK;
       if (numBytesToWrite != 0)
       {
-        if (!isOK)
+        if (!data)
           m_IsOk = false;
+        
         if (m_RealOutStream)
         {
           UInt32 processedSizeLocal = 0;
-          res = m_RealOutStream->Write((const Byte *)data, numBytesToWrite, &processedSizeLocal);
+          // 18.01 : we don't want ZEROs instead of missing data
+          if (data)
+            res = m_RealOutStream->Write((const Byte *)data, numBytesToWrite, &processedSizeLocal);
+          else
+            processedSizeLocal = numBytesToWrite;
           numBytesToWrite = processedSizeLocal;
         }
+        
         if (TempBufMode && TempBuf)
-          memcpy(TempBuf + (m_PosInFolder - m_BufStartFolderOffset), data, numBytesToWrite);
+        {
+          if (data)
+          {
+            memcpy(TempBuf + TempBufWritten, data, numBytesToWrite);
+            TempBufWritten += numBytesToWrite;
+          }
+        }
       }
       realProcessed += numBytesToWrite;
       if (processedSize)
         *processedSize = realProcessed;
-      data = (const void *)((const Byte *)data + numBytesToWrite);
+      if (data)
+        data = (const void *)((const Byte *)data + numBytesToWrite);
       size -= numBytesToWrite;
       m_RemainFileSize -= numBytesToWrite;
       m_PosInFolder += numBytesToWrite;
@@ -773,7 +785,7 @@ HRESULT CFolderOutStream::Write2(const void *data, UInt32 size, UInt32 *processe
           m_FileIsOpen = true;
           m_CurrentIndex++;
           if (result == S_OK && m_RealOutStream && TempBuf)
-            result = WriteStream(m_RealOutStream, TempBuf, (size_t)(m_PosInFolder - m_BufStartFolderOffset));
+            result = WriteStream(m_RealOutStream, TempBuf, TempBufWritten);
           
           if (!TempBuf && TempBufMode && m_RealOutStream)
           {
@@ -822,7 +834,8 @@ HRESULT CFolderOutStream::Write2(const void *data, UInt32 size, UInt32 *processe
         realProcessed += numBytesToWrite;
         if (processedSize)
           *processedSize = realProcessed;
-        data = (const void *)((const Byte *)data + numBytesToWrite);
+        if (data)
+          data = (const void *)((const Byte *)data + numBytesToWrite);
         size -= numBytesToWrite;
         m_PosInFolder += numBytesToWrite;
       }
@@ -843,12 +856,6 @@ HRESULT CFolderOutStream::Write2(const void *data, UInt32 size, UInt32 *processe
 }
 
 
-STDMETHODIMP CFolderOutStream::Write(const void *data, UInt32 size, UInt32 *processedSize)
-{
-  return Write2(data, size, processedSize, true);
-}
-
-
 HRESULT CFolderOutStream::FlushCorrupted(unsigned folderIndex)
 {
   if (!NeedMoreWrite())
@@ -862,19 +869,16 @@ HRESULT CFolderOutStream::FlushCorrupted(unsigned folderIndex)
     return S_OK;
   }
 
-  const unsigned kBufSize = (1 << 12);
-  Byte buf[kBufSize];
-  for (unsigned i = 0; i < kBufSize; i++)
-    buf[i] = 0;
-  
   for (;;)
   {
     if (!NeedMoreWrite())
       return S_OK;
     UInt64 remain = GetRemain();
-    UInt32 size = (remain < kBufSize ? (UInt32)remain : (UInt32)kBufSize);
+    UInt32 size = (UInt32)1 << 20;
+    if (size > remain)
+      size = (UInt32)remain;
     UInt32 processedSizeLocal = 0;
-    RINOK(Write2(buf, size, &processedSizeLocal, false));
+    RINOK(Write(NULL, size, &processedSizeLocal));
   }
 }
 
@@ -1002,7 +1006,7 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
       continue;
     }
     
-    unsigned startIndex2 = m_Database.FolderStartFileIndex[folderIndex];
+    const unsigned startIndex2 = m_Database.FolderStartFileIndex[(unsigned)folderIndex];
     unsigned startIndex = startIndex2;
     extractStatuses.Clear();
     for (; startIndex < index; startIndex++)
@@ -1032,8 +1036,10 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
     CFolderOutStream *cabFolderOutStream = new CFolderOutStream;
     CMyComPtr<ISequentialOutStream> outStream(cabFolderOutStream);
 
-    unsigned folderIndex2 = item.GetFolderIndex(db.Folders.Size());
-    const CFolder &folder = db.Folders[folderIndex2];
+    const int folderIndex2 = item.GetFolderIndex(db.Folders.Size());
+    if (folderIndex2 < 0)
+      return E_FAIL;
+    const CFolder &folder = db.Folders[(unsigned)folderIndex2];
 
     cabFolderOutStream->Init(&m_Database, &extractStatuses, startIndex2,
         curUnpack, extractCallback, testMode);
@@ -1102,12 +1108,14 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
         }
 
         const CDatabaseEx &db2 = m_Database.Volumes[volIndex];
-        const CFolder &folder2 = db2.Folders[locFolderIndex];
+        if (locFolderIndex < 0)
+          return E_FAIL;
+        const CFolder &folder2 = db2.Folders[(unsigned)locFolderIndex];
         
         if (bl == 0)
         {
           cabBlockInStreamSpec->ReservedSize = db2.ArcInfo.GetDataBlockReserveSize();
-          RINOK(db2.Stream->Seek(db2.StartPosition + folder2.DataStart, STREAM_SEEK_SET, NULL));
+          RINOK(db2.Stream->Seek((Int64)(db2.StartPosition + folder2.DataStart), STREAM_SEEK_SET, NULL));
         }
         
         if (bl == folder2.NumDataBlocks)
@@ -1237,7 +1245,7 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
 
     if (res != S_OK || cabFolderOutStream->NeedMoreWrite())
     {
-      RINOK(cabFolderOutStream->FlushCorrupted(folderIndex2));
+      RINOK(cabFolderOutStream->FlushCorrupted((unsigned)folderIndex2));
     }
 
     totalUnPacked += curUnpack;

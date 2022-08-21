@@ -51,7 +51,6 @@ bool CSplitDialog::OnInit()
 
 bool CSplitDialog::OnSize(WPARAM /* wParam */, int xSize, int ySize)
 {
-#ifdef _WIN32
   int mx, my;
   GetMargins(8, mx, my);
   int bx1, bx2, by;
@@ -72,7 +71,7 @@ bool CSplitDialog::OnSize(WPARAM /* wParam */, int xSize, int ySize)
 
   MoveItem(IDCANCEL, xPos, yPos, bx1, by);
   MoveItem(IDOK, xPos - mx - bx2, yPos, bx2, by);
-#endif
+
   return false;
 }
 
@@ -91,7 +90,7 @@ void CSplitDialog::OnButtonSetPath()
 {
   UString currentPath;
   _pathCombo.GetText(currentPath);
-  // UString title = L"Specify a location for output folder";
+  // UString title = "Specify a location for output folder";
   UString title = LangString(IDS_SET_FOLDER);
 
   UString resultPath;

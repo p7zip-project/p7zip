@@ -3,177 +3,134 @@
 #ifndef __WINDOWS_CONTROL_LISTVIEW_H
 #define __WINDOWS_CONTROL_LISTVIEW_H
 
-#include "Windows/Window.h"
-#include "Windows/Defs.h"
+#include "../../Common/MyWindows.h"
 
-/*
-#include <commctrl.h>
-*/
+#include <CommCtrl.h>
 
-#ifndef _WIN32
-
-#define LVCF_FMT                0x0001
-#define LVCF_WIDTH              0x0002
-#define LVCF_TEXT               0x0004
-#define LVCF_SUBITEM            0x0008
-#define LVCF_IMAGE              0x0010
-#define LVCF_ORDER              0x0020
-
-#define LVCFMT_LEFT             0x0000
-#define LVCFMT_RIGHT            0x0001
-#define LVCFMT_CENTER           0x0002
-#define LVCFMT_JUSTIFYMASK      0x0003
-
-
-// state
-#define  LVIS_FOCUSED       0x0002 /* wxLIST_STATE_FOCUSED  */
-#define  LVIS_SELECTED      0x0004 /* wxLIST_STATE_SELECTED */
-
-#define  LVNI_SELECTED      0x0004 /* wxLIST_STATE_SELECTED */
-
-typedef INT (CALLBACK *PFNLVCOMPARE)(LPARAM, LPARAM, LPARAM);
-
-typedef struct tagLVCOLUMNW
-{
-    UINT mask;
-    int fmt;
-    int cx;
-    LPWSTR pszText;
-    int cchTextMax;
-    int iSubItem;
-    // FIXME int iOrder; // not available
-} LVCOLUMNW;
-
-#define  LVCOLUMN   LVCOLUMNW
-#define LV_COLUMNW  LVCOLUMNW  /* FIXME */
-
-
-
-typedef struct tagLVITEMW
-{
-    UINT mask;
-    int iItem;
-    int iSubItem;
-    UINT state;
-    UINT stateMask;
-    LPWSTR pszText;
-    int cchTextMax;
-    int iImage;
-    LPARAM lParam;
-#if (_WIN32_IE >= 0x0300)
-    int iIndent;
-#endif
-#if (_WIN32_WINNT >= 0x501)
-    int iGroupId;
-    UINT cColumns; // tile view columns
-    PUINT puColumns;
-#endif
-} LVITEMW;
-
-#define LVITEM    LVITEMW
-
-#define LVIF_TEXT   0x0001
-// FIXME - mask
-#define LVIF_PARAM 2
-#define LVIF_IMAGE 4
-#define LVIF_STATE 8
-
-#endif
-
-class wxListCtrl;
+#include "../Window.h"
 
 namespace NWindows {
 namespace NControl {
 
-class CListView // : public NWindows::CWindow
+class CListView: public NWindows::CWindow
 {
-    wxListCtrl *_list;
 public:
-    CListView() : _list(0) {}
-    void Attach(wxWindow * newWindow);
+  bool CreateEx(DWORD exStyle, DWORD style,
+      int x, int y, int width, int height,
+      HWND parentWindow, HMENU idOrHMenu,
+      HINSTANCE instance, LPVOID createParam);
 
-    operator HWND() const;
+  void SetUnicodeFormat()
+  {
+    #ifndef UNDER_CE
+    ListView_SetUnicodeFormat(_window, TRUE);
+    #endif
+  }
+ 
+  bool DeleteAllItems() { return BOOLToBool(ListView_DeleteAllItems(_window)); }
+  bool DeleteColumn(int columnIndex) { return BOOLToBool(ListView_DeleteColumn(_window, columnIndex)); }
 
-        void SetUnicodeFormat() { /* FIXME */ ; }
+  int InsertColumn(int columnIndex, const LVCOLUMN *columnInfo) { return ListView_InsertColumn(_window, columnIndex, columnInfo); }
+  int InsertColumn(int columnIndex, LPCTSTR text, int width);
+  bool SetColumnOrderArray(int count, const int *columns)
+    { return BOOLToBool(ListView_SetColumnOrderArray(_window, count, (int *)(void *)columns)); }
 
+  /*
+  int GetNumColumns()
+  {
+    HWND header = ListView_GetHeader(_window);
+    if (!header)
+      return -1;
+    return Header_GetItemCount(header);
+  }
+  */
 
-    int GetItemCount() const;
+  int InsertItem(const LVITEM* item) { return ListView_InsertItem(_window, item); }
+  int InsertItem(int index, LPCTSTR text);
+  bool SetItem(const LVITEM* item) { return BOOLToBool(ListView_SetItem(_window, item)); }
+  int SetSubItem(int index, int subIndex, LPCTSTR text);
 
-    int InsertItem(int index, LPCTSTR text);
-    int InsertItem(const LVITEM* item);
+  #ifndef _UNICODE
 
-    void SetItem(const LVITEM* item);
+  int InsertColumn(int columnIndex, const LVCOLUMNW *columnInfo) { return (int)SendMsg(LVM_INSERTCOLUMNW, (WPARAM)columnIndex, (LPARAM)columnInfo); }
+  int InsertColumn(int columnIndex, LPCWSTR text, int width);
+  int InsertItem(const LV_ITEMW* item) { return (int)SendMsg(LVM_INSERTITEMW, 0, (LPARAM)item); }
+  int InsertItem(int index, LPCWSTR text);
+  bool SetItem(const LV_ITEMW* item) { return BOOLToBool((BOOL)SendMsg(LVM_SETITEMW, 0, (LPARAM)item)); }
+  int SetSubItem(int index, int subIndex, LPCWSTR text);
 
-    int SetSubItem(int index, int subIndex, LPCTSTR text);
+  #endif
 
-    void SetUnicodeFormat(bool fUnicode) { return ;  }
+  bool DeleteItem(int itemIndex) { return BOOLToBool(ListView_DeleteItem(_window, itemIndex)); }
 
-    void InsertColumn(int columnIndex, LPCTSTR text, int width);
+  UINT GetSelectedCount() const { return ListView_GetSelectedCount(_window); }
+  int GetItemCount() const { return ListView_GetItemCount(_window); }
 
-    void InsertColumn(int columnIndex, const LVCOLUMNW *columnInfo);
+  INT GetSelectionMark() const { return ListView_GetSelectionMark(_window); }
 
-    void DeleteAllItems();
+  void SetItemCount(int numItems) { ListView_SetItemCount(_window, numItems); }
+  void SetItemCountEx(int numItems, DWORD flags) {  ListView_SetItemCountEx(_window, numItems, flags); }
 
-    void SetRedraw(bool);
+  int GetNextItem(int startIndex, UINT flags) const { return ListView_GetNextItem(_window, startIndex, flags); }
+  int GetNextSelectedItem(int startIndex) const { return GetNextItem(startIndex, LVNI_SELECTED); }
+  int GetFocusedItem() const { return GetNextItem(-1, LVNI_FOCUSED); }
+  
+  bool GetItem(LVITEM* item) const { return BOOLToBool(ListView_GetItem(_window, item)); }
+  bool GetItemParam(int itemIndex, LPARAM &param) const;
+  void GetItemText(int itemIndex, int subItemIndex, LPTSTR text, int textSizeMax) const
+    { ListView_GetItemText(_window, itemIndex, subItemIndex, text, textSizeMax); }
+  bool SortItems(PFNLVCOMPARE compareFunction, LPARAM dataParam)
+    { return BOOLToBool(ListView_SortItems(_window, compareFunction, dataParam)); }
 
-    void SetItemCount(int );
+  void SetItemState(int index, UINT state, UINT mask) { ListView_SetItemState(_window, index, state, mask); }
+  void SetItemState_Selected(int index, bool select) { SetItemState(index, select ? LVIS_SELECTED : 0, LVIS_SELECTED); }
+  void SetItemState_Selected(int index) { SetItemState(index, LVIS_SELECTED, LVIS_SELECTED); }
+  void SelectAll() { SetItemState_Selected(-1); }
+  void SetItemState_FocusedSelected(int index) { SetItemState(index, LVIS_FOCUSED | LVIS_SELECTED, LVIS_FOCUSED | LVIS_SELECTED); }
+  UINT GetItemState(int index, UINT mask) const { return ListView_GetItemState(_window, index, mask); }
+  bool IsItemSelected(int index) const { return GetItemState(index, LVIS_SELECTED) == LVIS_SELECTED; }
 
-    void InvalidateRect(void *, bool);
+  bool GetColumn(int columnIndex, LVCOLUMN* columnInfo) const
+    { return BOOLToBool(ListView_GetColumn(_window, columnIndex, columnInfo)); }
 
-    int GetSelectedCount() const;
+  HIMAGELIST SetImageList(HIMAGELIST imageList, int imageListType)
+    { return ListView_SetImageList(_window, imageList, imageListType); }
 
-    void /* bool */ EnsureVisible(int index, bool partialOK);
+  // version 4.70: NT5 | (NT4 + ie3) | w98 | (w95 + ie3)
+  DWORD GetExtendedListViewStyle() { return ListView_GetExtendedListViewStyle(_window); }
+  void SetExtendedListViewStyle(DWORD exStyle) { ListView_SetExtendedListViewStyle(_window, exStyle); }
+  void SetExtendedListViewStyle(DWORD exMask, DWORD exStyle) { ListView_SetExtendedListViewStyleEx(_window, exMask, exStyle); }
 
-    void SetItemState(int index, UINT state, UINT mask);
+  void SetCheckState(UINT index, bool checkState) { ListView_SetCheckState(_window, index, BoolToBOOL(checkState)); }
+  bool GetCheckState(UINT index) { return BOOLToBool(ListView_GetCheckState(_window, index)); }
 
-    void SetItemState_FocusedSelected(int index) { SetItemState(index, LVIS_FOCUSED | LVIS_SELECTED, LVIS_FOCUSED | LVIS_SELECTED); }
+  bool EnsureVisible(int index, bool partialOK) { return BOOLToBool(ListView_EnsureVisible(_window, index, BoolToBOOL(partialOK))); }
 
-    void SetItemState_Selected(int index, bool select) { SetItemState(index, select ? LVIS_SELECTED : 0, LVIS_SELECTED); }
-    void SetItemState_Selected(int index) { SetItemState(index, LVIS_SELECTED, LVIS_SELECTED); }
+  bool GetItemRect(int index, RECT *rect, int code) { return BOOLToBool(ListView_GetItemRect(_window, index, rect, code)); }
 
-    UINT GetItemState(int index, UINT mask) const;
+  HWND GetEditControl() { return ListView_GetEditControl(_window) ; }
+  HWND EditLabel(int itemIndex) { return ListView_EditLabel(_window, itemIndex) ; }
 
-    bool IsItemSelected(int index) const { return GetItemState(index, LVIS_SELECTED) == LVIS_SELECTED; }
-
-    void /* bool */  Update();
-
-    bool DeleteColumn(int columnIndex);
-
-    bool GetItemParam(int itemIndex, LPARAM &param) const;
-
-    int GetNextItem(int startIndex, UINT flags) const;
-
-    int GetFocusedItem() const;
-
-    void RedrawAllItems();
-      // FIXME added
-    int GetColumnCount();
-
-    void SetFocus();
-
-    void RedrawItem(int item);
-
-    bool SortItems(PFNLVCOMPARE compareFunction, LPARAM dataParam);
-
-    bool GetColumn(int columnIndex, LVCOLUMN* columnInfo);
-
-    // HWND EditLabel(int itemIndex)
-    void EditLabel(int itemIndex);
-
-    bool SetColumnWidthAuto(int iCol) {
-        return true; // FIXME SetColumnWidth(iCol, LVSCW_AUTOSIZE);
-    }
-
-private:
-    void _InsertColumn(int columnIndex, LPCTSTR text, int format, int width);
-
+  bool RedrawItems(int firstIndex, int lastIndex) { return BOOLToBool(ListView_RedrawItems(_window, firstIndex, lastIndex)); }
+  bool RedrawAllItems()
+  {
+    if (GetItemCount() > 0)
+      return RedrawItems(0, GetItemCount() - 1);
+    return true;
+  }
+  bool RedrawItem(int index) { return RedrawItems(index, index); }
+ 
+  int HitTest(LPLVHITTESTINFO info) { return ListView_HitTest(_window, info); }
+  COLORREF GetBkColor() { return ListView_GetBkColor(_window); }
+  bool SetColumnWidth(int iCol, int cx) { return BOOLToBool(ListView_SetColumnWidth(_window, iCol, cx)); }
+  bool SetColumnWidthAuto(int iCol) { return SetColumnWidth(iCol, LVSCW_AUTOSIZE); }
 };
 
 class CListView2: public CListView
 {
-// FIXME   WNDPROC _origWindowProc;
+  WNDPROC _origWindowProc;
 public:
-  // void SetWindowProc();
+  void SetWindowProc();
   virtual LRESULT OnMessage(UINT message, WPARAM wParam, LPARAM lParam);
 };
 
@@ -186,5 +143,5 @@ public:
 */
 
 }}
-#endif
 
+#endif

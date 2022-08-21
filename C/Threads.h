@@ -1,74 +1,196 @@
 /* Threads.h -- multithreading library
-2008-11-22 : Igor Pavlov : Public domain */
+2021-12-21 : Igor Pavlov : Public domain */
 
-#ifndef __7Z_THRESDS_H
-#define __7Z_THRESDS_H
+#ifndef __7Z_THREADS_H
+#define __7Z_THREADS_H
 
-#include "7zTypes.h"
-#include "windows.h"
-
-#ifdef ENV_BEOS
-#include <kernel/OS.h>
-#define MAX_THREAD 256
+#ifdef _WIN32
+#include <Windows.h>
 #else
-#include <pthread.h>
+
+#if defined(__linux__)
+#if !defined(__APPLE__) && !defined(_AIX) && !defined(__ANDROID__)
+#ifndef _7ZIP_AFFINITY_DISABLE
+#define _7ZIP_AFFINITY_SUPPORTED
+// #pragma message(" ==== _7ZIP_AFFINITY_SUPPORTED")
+// #define _GNU_SOURCE
+#endif
+#endif
 #endif
 
-/* #define DEBUG_SYNCHRO 1 */
+#include <pthread.h>
+
+#endif
+
+#include "7zTypes.h"
+
+EXTERN_C_BEGIN
+
+#ifdef _WIN32
+
+WRes HandlePtr_Close(HANDLE *h);
+WRes Handle_WaitObject(HANDLE h);
+
+typedef HANDLE CThread;
+
+#define Thread_Construct(p) { *(p) = NULL; }
+#define Thread_WasCreated(p) (*(p) != NULL)
+#define Thread_Close(p) HandlePtr_Close(p)
+// #define Thread_Wait(p) Handle_WaitObject(*(p))
+
+#ifdef UNDER_CE
+  // if (USE_THREADS_CreateThread is      defined), we use _beginthreadex()
+  // if (USE_THREADS_CreateThread is not definned), we use CreateThread()
+  #define USE_THREADS_CreateThread
+#endif
+
+typedef
+    #ifdef USE_THREADS_CreateThread
+      DWORD
+    #else
+      unsigned
+    #endif
+    THREAD_FUNC_RET_TYPE;
+
+typedef DWORD_PTR CAffinityMask;
+typedef DWORD_PTR CCpuSet;
+
+#define CpuSet_Zero(p) { *(p) = 0; }
+#define CpuSet_Set(p, cpu) { *(p) |= ((DWORD_PTR)1 << (cpu)); }
+
+#else //  _WIN32
 
 typedef struct _CThread
 {
-#ifdef ENV_BEOS
-	thread_id _tid;
-#else
-	pthread_t _tid;
-#endif
-	int _created;
-
+  pthread_t _tid;
+  int _created;
 } CThread;
 
-#define Thread_Construct(thread) (thread)->_created = 0
-#define Thread_WasCreated(thread) ((thread)->_created != 0)
+#define Thread_Construct(p) { (p)->_tid = 0; (p)->_created = 0; }
+#define Thread_WasCreated(p) ((p)->_created != 0)
+WRes Thread_Close(CThread *p);
+// #define Thread_Wait Thread_Wait_Close
 
-typedef unsigned THREAD_FUNC_RET_TYPE;
+typedef void * THREAD_FUNC_RET_TYPE;
+
+typedef UInt64 CAffinityMask;
+
+#ifdef _7ZIP_AFFINITY_SUPPORTED
+
+typedef cpu_set_t CCpuSet;
+#define CpuSet_Zero(p) CPU_ZERO(p)
+#define CpuSet_Set(p, cpu) CPU_SET(cpu, p)
+#define CpuSet_IsSet(p, cpu) CPU_ISSET(cpu, p)
+
+#else
+
+typedef UInt64 CCpuSet;
+#define CpuSet_Zero(p) { *(p) = 0; }
+#define CpuSet_Set(p, cpu) { *(p) |= ((UInt64)1 << (cpu)); }
+#define CpuSet_IsSet(p, cpu) ((*(p) & ((UInt64)1 << (cpu))) != 0)
+
+#endif
+
+
+#endif //  _WIN32
+
+
 #define THREAD_FUNC_CALL_TYPE MY_STD_CALL
-#define THREAD_FUNC_DECL THREAD_FUNC_RET_TYPE THREAD_FUNC_CALL_TYPE
+
+#if defined(_WIN32) && defined(__GNUC__)
+/* GCC compiler for x86 32-bit uses the rule:
+   the stack is 16-byte aligned before CALL instruction for function calling.
+   But only root function main() contains instructions that
+   set 16-byte alignment for stack pointer. And another functions
+   just keep alignment, if it was set in some parent function.
+   
+   The problem:
+    if we create new thread in MinGW (GCC) 32-bit x86 via _beginthreadex() or CreateThread(),
+       the root function of thread doesn't set 16-byte alignment.
+       And stack frames in all child functions also will be unaligned in that case.
+   
+   Here we set (force_align_arg_pointer) attribute for root function of new thread.
+   Do we need (force_align_arg_pointer) also for another systems?  */
+  
+  #define THREAD_FUNC_ATTRIB_ALIGN_ARG __attribute__((force_align_arg_pointer))
+  // #define THREAD_FUNC_ATTRIB_ALIGN_ARG // for debug : bad alignment in SSE functions
+#else
+  #define THREAD_FUNC_ATTRIB_ALIGN_ARG
+#endif
+
+#define THREAD_FUNC_DECL  THREAD_FUNC_ATTRIB_ALIGN_ARG THREAD_FUNC_RET_TYPE THREAD_FUNC_CALL_TYPE
 
 typedef THREAD_FUNC_RET_TYPE (THREAD_FUNC_CALL_TYPE * THREAD_FUNC_TYPE)(void *);
+WRes Thread_Create(CThread *p, THREAD_FUNC_TYPE func, LPVOID param);
+WRes Thread_Create_With_Affinity(CThread *p, THREAD_FUNC_TYPE func, LPVOID param, CAffinityMask affinity);
+WRes Thread_Wait_Close(CThread *p);
 
-WRes Thread_Create(CThread *thread, THREAD_FUNC_TYPE startAddress, LPVOID parameter);
-WRes Thread_Wait(CThread *thread);
-WRes Thread_Close(CThread *thread);
+#ifdef _WIN32
+#define Thread_Create_With_CpuSet(p, func, param, cs) \
+  Thread_Create_With_Affinity(p, func, param, *cs)
+#else
+WRes Thread_Create_With_CpuSet(CThread *p, THREAD_FUNC_TYPE func, LPVOID param, const CCpuSet *cpuSet);
+#endif
+
+
+#ifdef _WIN32
+
+typedef HANDLE CEvent;
+typedef CEvent CAutoResetEvent;
+typedef CEvent CManualResetEvent;
+#define Event_Construct(p) *(p) = NULL
+#define Event_IsCreated(p) (*(p) != NULL)
+#define Event_Close(p) HandlePtr_Close(p)
+#define Event_Wait(p) Handle_WaitObject(*(p))
+WRes Event_Set(CEvent *p);
+WRes Event_Reset(CEvent *p);
+WRes ManualResetEvent_Create(CManualResetEvent *p, int signaled);
+WRes ManualResetEvent_CreateNotSignaled(CManualResetEvent *p);
+WRes AutoResetEvent_Create(CAutoResetEvent *p, int signaled);
+WRes AutoResetEvent_CreateNotSignaled(CAutoResetEvent *p);
+
+typedef HANDLE CSemaphore;
+#define Semaphore_Construct(p) *(p) = NULL
+#define Semaphore_IsCreated(p) (*(p) != NULL)
+#define Semaphore_Close(p) HandlePtr_Close(p)
+#define Semaphore_Wait(p) Handle_WaitObject(*(p))
+WRes Semaphore_Create(CSemaphore *p, UInt32 initCount, UInt32 maxCount);
+WRes Semaphore_OptCreateInit(CSemaphore *p, UInt32 initCount, UInt32 maxCount);
+WRes Semaphore_ReleaseN(CSemaphore *p, UInt32 num);
+WRes Semaphore_Release1(CSemaphore *p);
+
+typedef CRITICAL_SECTION CCriticalSection;
+WRes CriticalSection_Init(CCriticalSection *p);
+#define CriticalSection_Delete(p) DeleteCriticalSection(p)
+#define CriticalSection_Enter(p) EnterCriticalSection(p)
+#define CriticalSection_Leave(p) LeaveCriticalSection(p)
+
+
+#else // _WIN32
 
 typedef struct _CEvent
 {
   int _created;
   int _manual_reset;
   int _state;
-#ifdef ENV_BEOS
-  thread_id _waiting[MAX_THREAD];
-  int       _index_waiting;
-  sem_id    _sem;
-#else
   pthread_mutex_t _mutex;
-  pthread_cond_t  _cond;
-#endif
+  pthread_cond_t _cond;
 } CEvent;
 
 typedef CEvent CAutoResetEvent;
 typedef CEvent CManualResetEvent;
 
-#define Event_Construct(event) (event)->_created = 0
-#define Event_IsCreated(event) ((event)->_created)
+#define Event_Construct(p) (p)->_created = 0
+#define Event_IsCreated(p) ((p)->_created)
 
-WRes ManualResetEvent_Create(CManualResetEvent *event, int initialSignaled);
-WRes ManualResetEvent_CreateNotSignaled(CManualResetEvent *event);
-WRes AutoResetEvent_Create(CAutoResetEvent *event, int initialSignaled);
-WRes AutoResetEvent_CreateNotSignaled(CAutoResetEvent *event);
-WRes Event_Set(CEvent *event);
-WRes Event_Reset(CEvent *event);
-WRes Event_Wait(CEvent *event);
-WRes Event_Close(CEvent *event);
+WRes ManualResetEvent_Create(CManualResetEvent *p, int signaled);
+WRes ManualResetEvent_CreateNotSignaled(CManualResetEvent *p);
+WRes AutoResetEvent_Create(CAutoResetEvent *p, int signaled);
+WRes AutoResetEvent_CreateNotSignaled(CAutoResetEvent *p);
+WRes Event_Set(CEvent *p);
+WRes Event_Reset(CEvent *p);
+WRes Event_Wait(CEvent *p);
+WRes Event_Close(CEvent *p);
 
 
 typedef struct _CSemaphore
@@ -76,50 +198,35 @@ typedef struct _CSemaphore
   int _created;
   UInt32 _count;
   UInt32 _maxCount;
-#ifdef ENV_BEOS
-  thread_id _waiting[MAX_THREAD];
-  int       _index_waiting;
-  sem_id    _sem;
-#else
   pthread_mutex_t _mutex;
-  pthread_cond_t  _cond;
-#endif
+  pthread_cond_t _cond;
 } CSemaphore;
 
 #define Semaphore_Construct(p) (p)->_created = 0
+#define Semaphore_IsCreated(p) ((p)->_created)
 
-#define Semaphore_IsCreated(p) ((p)->_created != 0)
-
-WRes Semaphore_Create(CSemaphore *p, UInt32 initiallyCount, UInt32 maxCount);
+WRes Semaphore_Create(CSemaphore *p, UInt32 initCount, UInt32 maxCount);
+WRes Semaphore_OptCreateInit(CSemaphore *p, UInt32 initCount, UInt32 maxCount);
 WRes Semaphore_ReleaseN(CSemaphore *p, UInt32 num);
 #define Semaphore_Release1(p) Semaphore_ReleaseN(p, 1)
 WRes Semaphore_Wait(CSemaphore *p);
 WRes Semaphore_Close(CSemaphore *p);
 
-typedef struct {
-#ifdef ENV_BEOS
-	sem_id _sem;
-#else
-        pthread_mutex_t _mutex;
-#endif
+
+typedef struct _CCriticalSection
+{
+  pthread_mutex_t _mutex;
 } CCriticalSection;
 
 WRes CriticalSection_Init(CCriticalSection *p);
-#ifdef ENV_BEOS
-#define CriticalSection_Delete(p) delete_sem((p)->_sem)
-#define CriticalSection_Enter(p)  acquire_sem((p)->_sem)
-#define CriticalSection_Leave(p)  release_sem((p)->_sem)
-#else
-#ifdef DEBUG_SYNCHRO
-void CriticalSection_Delete(CCriticalSection *);
-void CriticalSection_Enter(CCriticalSection *);
-void CriticalSection_Leave(CCriticalSection *);
-#else
-#define CriticalSection_Delete(p) pthread_mutex_destroy(&((p)->_mutex))
-#define CriticalSection_Enter(p)  pthread_mutex_lock(&((p)->_mutex))
-#define CriticalSection_Leave(p)  pthread_mutex_unlock(&((p)->_mutex))
-#endif
-#endif
+void CriticalSection_Delete(CCriticalSection *cs);
+void CriticalSection_Enter(CCriticalSection *cs);
+void CriticalSection_Leave(CCriticalSection *cs);
+
+LONG InterlockedIncrement(LONG volatile *addend);
+
+#endif  // _WIN32
+
+EXTERN_C_END
 
 #endif
-

@@ -1,584 +1,414 @@
-// Dialog.cpp
+// Windows/Control/Dialog.cpp
 
 #include "StdAfx.h"
 
-// For compilers that support precompilation, includes "wx/wx.h".
-#include "wx/wxprec.h"
+// #include "../../Windows/DLL.h"
 
-#ifdef __BORLANDC__
-    #pragma hdrstop
+#ifndef _UNICODE
+#include "../../Common/StringConvert.h"
 #endif
 
-// for all others, include the necessary headers (this file is usually all you
-// need because it includes almost all "standard" wxWidgets headers)
-#ifndef WX_PRECOMP
-    #include "wx/wx.h"
-#endif 
+#include "Dialog.h"
 
-#include  <wx/filename.h>
-
-
-#undef _WIN32
- 
-#include "Windows/Control/DialogImpl.h"
-#include "Windows/Synchronization.h"
-
-// FIXME
-class MyApp : public wxApp
-{
-public:
-    virtual bool OnInit();
-};
-
-DECLARE_APP(MyApp)
-
-// #include "../GUI/p7zip_32.xpm"
-extern const char * p7zip_32_xpm[];
-
-const TCHAR * nameWindowToUnix(const TCHAR * lpFileName) {
-  if ((lpFileName[0] == wxT('c')) && (lpFileName[1] == wxT(':'))) return lpFileName+2;
-  return lpFileName;
-}
-
-
-extern time_t g_T0; // FIXME
-
-#define DIALOG_ID_MESSAGEBOX  8100
-#define DIALOG_ID_DIR_DIALOG  8101
-#define DIALOG_ID_FILE_DIALOG 8102
-#define DIALOG_ID_POST_DIALOG 8190
-#define DIALOG_ID_END_DIALOG  8199
-
-static struct
-{
-	bool busy;
-
-	int id;
-	wxWindow *parentWindow;
-
-	// CreateDialog
-	NWindows::NControl::CModalDialog * dialog;
-
-	// EndModal
-	int value;
-	NWindows::NControl::CModalDialogImpl * window;
-
-	// MessageBox
-	const TCHAR * msg;
-	const TCHAR * title;
-	int flag;
-
-	// 
-	LPCWSTR initialFolderOrFile;
-
-	wxSemaphore * sem;
-	int ret;
-
-	UString resultPath;
-	
-#define MAX_CREATE 16
-} g_tabCreate[MAX_CREATE];
-
-static int myCreateHandle2(int n);
-
-static int findFreeInd()
-{
-static NWindows::NSynchronization::CCriticalSection g_CriticalSection;
-
-	g_CriticalSection.Enter();
-	int ind = 0;
-	while (ind < MAX_CREATE)
-	{
-		if (g_tabCreate[ind].busy == false)
-		{
-			g_tabCreate[ind].busy = true;
-			break;
-		}
-		ind++;
-	}
-	g_CriticalSection.Leave();
-
-	return ind;
-}
-
-static int WaitInd(wxWindow * destWindow, int ind,int id,wxWindow * parent,UString &resultPath)
-{
-	int ret = 0;
-
-	g_tabCreate[ind].id           = id;
-	g_tabCreate[ind].parentWindow = parent;
-	g_tabCreate[ind].ret          = 0;
-	g_tabCreate[ind].resultPath   = wxEmptyString;
-
-	if (wxThread::IsMain())
-	{
-		ret = myCreateHandle2(ind);
-		resultPath = g_tabCreate[ind].resultPath;
-	}
-	else
-	{
-		if (destWindow == 0) {
-			extern wxWindow * g_window;
-        		if (g_window == 0)
-			{
-				printf("INTERNAL ERROR : g_window and destWindow == NULL\n"); abort();
-			}
-			destWindow = g_window;
-		}
-		g_tabCreate[ind].sem = new wxSemaphore(0);
-
-		// create any type of command event here
-		wxCommandEvent event( wxEVT_COMMAND_MENU_SELECTED, WORKER_EVENT );
-		event.SetInt( ind );
-
-		// send in a thread-safe way
-		// DEBUG printf("T=0x%lx - %d : WaitInd(%d,%p): BEGIN\n", wxThread::GetCurrentId(),time(0)-g_T0,g_tabCreate[ind].id,g_tabCreate[ind].parentWindow);
-		wxPostEvent( destWindow, event );
-
-		g_tabCreate[ind].sem->Wait();
-
-		ret = g_tabCreate[ind].ret;
-		resultPath = g_tabCreate[ind].resultPath;
-		// DEBUG printf("T=0x%lx - %d : WaitInd(%d,%p): ret=%d\n", wxThread::GetCurrentId(),time(0)-g_T0,g_tabCreate[ind].id,g_tabCreate[ind].parentWindow,ret);
-		delete g_tabCreate[ind].sem;
-		g_tabCreate[ind].sem = 0;
-	}
-
-	g_tabCreate[ind].busy = false;
-
-	return ret;
-}
-
-static int WaitInd(wxWindow * destWindow,int ind,int id,wxWindow * parent)
-{
-	UString resultPath;
-	return WaitInd(destWindow,ind,id,parent,resultPath);
-}
-
-void verify_main_thread(void);
-
-class LockGUI
-{
-	bool _IsMain;
-	public:
-		LockGUI() {
-			
-			verify_main_thread();
-			
-			_IsMain = wxThread::IsMain();
-			if (!_IsMain) {
-				// DEBUG
-				printf("GuiEnter-Dialog(0x%lx)\n",wxThread::GetCurrentId());
-				abort(); // FIXME wxMutexGuiEnter();
-			}
-	       	}
-		~LockGUI() { 
-			if (!_IsMain) {
-				wxMutexGuiLeave();
-				// DEBUG printf("GuiLeave(0x%lx)\n",wxThread::GetCurrentId());
-			}
-	       	}
-};
-
-static const unsigned int kNumDialogsMax = 32;
-static unsigned int g_NumDialogs = 0;
-static const CDialogInfo *g_Dialogs[kNumDialogsMax]; 
-
-void RegisterDialog(const CDialogInfo *dialogInfo) 
-{ 
-  // DEBUG printf("RegisterDialog : %d\n",dialogInfo->id);
-  if (g_NumDialogs < kNumDialogsMax)
-    g_Dialogs[g_NumDialogs++] = dialogInfo; 
-}
+extern HINSTANCE g_hInstance;
+#ifndef _UNICODE
+extern bool g_IsNT;
+#endif
 
 namespace NWindows {
+namespace NControl {
 
-	UString MyLoadString(UINT resourceID)
-	{
-		for(unsigned i=0; i < g_NumDialogs; i++) {
-			if (g_Dialogs[i]->stringTable) {
-				int j = 0;
-				while(g_Dialogs[i]->stringTable[j].str) {
-					if (resourceID == g_Dialogs[i]->stringTable[j].id) {
-						return g_Dialogs[i]->stringTable[j].str;
-					}
-
-					j++;
-				}
-			}
-		}
-		printf("MyLoadString(resourceID=%u) : NOT FOUND\n",(unsigned)resourceID);
-		return L"FIXME-MyLoadStringW-";
-	}
-
-	void MyLoadString(UINT resourceID, UString &dest)
-	{
-		dest = MyLoadString(resourceID);
-	}
-
-	namespace NControl {
-
-/////////////////////////////////////////// CModalDialog //////////////////////////////////
-
-			bool CModalDialog::CheckButton(int buttonID, UINT checkState)
-			{
-				LockGUI lock;
-				wxCheckBox* w = (wxCheckBox*)_window->FindWindow(buttonID);
-				if (w)
-				{
-					w->SetValue(checkState == BST_CHECKED);
-					return true;
-				}
-				return false;
-			}
-
-			UINT CModalDialog::IsButtonChecked(int buttonID) const
-			{ 
-				LockGUI lock;
-				wxCheckBox* w = (wxCheckBox*)_window->FindWindow(buttonID);
-				if (w)
-				{
-					bool bret = w->GetValue();
-					if (bret) return BST_CHECKED;
-				}
-				return BST_UNCHECKED;
-			}
-
-			void CModalDialog::EnableItem(int id, bool state)
-			{
-				LockGUI lock;
-				wxWindow* w = _window->FindWindow(id);
-				if (w) w->Enable(state);
-			}
-
-			void CModalDialog::SetItemText(int id, const TCHAR *txt)
-			{
-				LockGUI lock;
-				wxWindow* w = _window->FindWindow(id);
-				if (w)
-				{
-					wxString label(txt);
-					w->SetLabel(label);
-				}
-			}
-
-			wxWindow * CModalDialog::GetItem(long id) const
-			{
-				LockGUI lock;
-				wxWindow * w = _window->FindWindow(id);
-				if (w == 0) printf("@@WARNING :GetItem(%ld)=NULL\n",id);
-				return w;
-			}
-
-			void CModalDialog::ShowItem(int itemID, int cmdShow) const
-			{
-				LockGUI lock;
-				// cmdShow = SW_HIDE or SW_SHOW (sometimes false or true !)
-				wxWindow* w = _window->FindWindow(itemID);
-				if (w)
-				{
-// FIXME					w->Show(cmdShow != SW_HIDE);
-					w->Enable(cmdShow != SW_HIDE);
-				}
-			}
-
-			UINT_PTR CModalDialog::SetTimer(UINT_PTR idEvent , unsigned milliseconds)
-			{
-				LockGUI lock;
-				return _window->SetTimer(idEvent , milliseconds);
-			}
-
-			void CModalDialog::KillTimer(UINT_PTR idEvent)
-			{
-				LockGUI lock;
-				_window->KillTimer(idEvent);
-			}
-
-			void CModalDialog::SetText(const TCHAR *_title) {
-				LockGUI lock;
-			      	_window->SetTitle(_title);
-		       	}
-
-
-			bool CModalDialog::GetText(CSysString &s) {
-				wxString str;
-				{
-					LockGUI lock;
-	  				str = _window->GetTitle();
-				}
-	  			s = str;
-	  			return true;
-		       	}
-
-			INT_PTR CModalDialog::Create(int id , HWND parentWindow)
-			{
-				int ind = findFreeInd();
-
-				g_tabCreate[ind].dialog = this;
-
-				return WaitInd(0,  ind,id,parentWindow);
-			}
-
-			void CModalDialog::End(int result)
-			{ 
-				int ind = findFreeInd();
-
-				g_tabCreate[ind].window  = _window;
-				g_tabCreate[ind].value   = result;
-
-				WaitInd(this->_window,ind,DIALOG_ID_END_DIALOG,0);
-			}
-
-			void CModalDialog::PostMsg(UINT message)
-			{
-				int ind = findFreeInd();
-
-				g_tabCreate[ind].dialog  = this;
-				g_tabCreate[ind].value   = message;
-
-				WaitInd(this->_window,ind,DIALOG_ID_POST_DIALOG,0);
-			}
-
-/////////////////////////////////////////// CModalDialogImpl ///////////////////////////////////////
-
-			CModalDialogImpl::CModalDialogImpl(CDialog *dialog, wxWindow* parent, wxWindowID id, 
-					 const wxString& title, const wxPoint& pos,
-					 const wxSize& size, long style) :
-			   		wxDialog(parent, id, title , pos , size, style /* | wxDIALOG_NO_PARENT */ ) ,
-				       	_timer(this, TIMER_ID_IMPL), _dialog(dialog)
-			{
-				// set the frame icon
-				this->SetIcon(wxICON(p7zip_32));
-			}
-
-			void CModalDialogImpl::OnAnyButton(wxCommandEvent& event)
-			{
-				int id = event.GetId();
-				if (id == wxID_OK)
-				{
-					if (_dialog) _dialog->OnOK();
-					// event.Skip(true);
-				}
-				else if (id == wxID_CANCEL)
-				{
-					if (_dialog) _dialog->OnCancel();
-					// event.Skip(true);
-				}
-				else if (id == wxID_HELP)
-				{
-					if (_dialog) _dialog->OnHelp();
-				}
-				else
-				{
-					if (_dialog)
-					{
-						/* bool bret = */ _dialog->OnButtonClicked(id, FindWindow(id) );
-					}
-				}
-			}
-
-			void CModalDialogImpl::OnAnyChoice(wxCommandEvent &event)
-			{
-				int itemID =  event.GetId();
-				if (_dialog) _dialog->OnCommand(CBN_SELCHANGE, itemID, 0);
-			}
-
-			void CModalDialogImpl::OnAnyTimer(wxTimerEvent &event)
-			{
-				int timerID =  event.GetId();
-				if (_dialog) _dialog->OnTimer(timerID , 0);
-			}
-	}
-}
-
-///////////////////////// myCreateHandle
-
-
-static int myCreateHandle2(int n)
-{ 
-	unsigned int                           id           = g_tabCreate[n].id;
-	wxWindow *                             parentWindow = g_tabCreate[n].parentWindow;
-	NWindows::NControl::CModalDialogImpl * window       = 0;
-
-	// DEBUG printf("T=0x%lx - %d : myCreateHandle(%d): BEGIN\n", wxThread::GetCurrentId(),time(0)-g_T0,n);
-
-	if (id == DIALOG_ID_END_DIALOG)
-	{
-		/* FIXME : the dialog must be shown before ending it ?
-		while (!g_tabCreate[n].window->IsShownOnScreen()) Sleep(200);
-		Sleep(200);
-		*/
-		g_tabCreate[n].window->EndModal(g_tabCreate[n].value);
-		return 0;
-	}
-
-	if (id == DIALOG_ID_POST_DIALOG)
-	{
-		g_tabCreate[n].dialog->OnMessage(g_tabCreate[n].value, 0, 0);
-		return 0;
-	}
-
-	if (id == DIALOG_ID_MESSAGEBOX)
-	{
-		long style = g_tabCreate[n].flag;
-		long decorated_style = style;
-		if ( ( style & ( wxICON_EXCLAMATION | wxICON_HAND | wxICON_INFORMATION |
-				wxICON_QUESTION ) ) == 0 )
-		{
-			decorated_style |= ( style & wxYES ) ? wxICON_QUESTION : wxICON_INFORMATION ;
-		}
-		wxMessageDialog dialog(parentWindow, g_tabCreate[n].msg, g_tabCreate[n].title, decorated_style);
-		// FIXME dialog.SetIcon(wxICON(p7zip_32));
-		int ret = dialog.ShowModal();
-
-		return ret;
-	}
-
-	if (id == DIALOG_ID_DIR_DIALOG)
-	{
-		wxString defaultDir = g_tabCreate[n].initialFolderOrFile;
-		wxDirDialog dirDialog(g_tabCreate[n].parentWindow,
-			       	g_tabCreate[n].title, defaultDir);
-		dirDialog.SetIcon(wxICON(p7zip_32));
-		int ret = dirDialog.ShowModal();
-		if (ret == wxID_OK) g_tabCreate[n].resultPath = dirDialog.GetPath();
-		return ret;
-	}
-
-	if (id == DIALOG_ID_FILE_DIALOG)
-	{
-		wxString defaultFilename = g_tabCreate[n].initialFolderOrFile;
-		
-		wxFileName filename(defaultFilename);
-		
-		wxString dir = filename.GetPath();
-		wxString name = filename.GetFullName();
-		
-		
-		// printf("DIALOG_ID_FILE_DIALOG = '%ls' => '%ls'  '%ls'\n",&defaultFilename[0],&dir[0],&name[0]);
-		
-		
-		wxFileDialog fileDialog(g_tabCreate[n].parentWindow, g_tabCreate[n].title,
-				dir, name, wxT("All Files (*.*)|*.*"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-		fileDialog.SetIcon(wxICON(p7zip_32));
-		int ret = fileDialog.ShowModal();
-		if (ret == wxID_OK) g_tabCreate[n].resultPath = fileDialog.GetPath();
-		return ret;
-	}
-
-	for(unsigned  i=0; i < g_NumDialogs; i++) {
-		if (id == g_Dialogs[i]->id) {
-			// DEBUG printf("%d : Create(%d,%p): CreateDialog-1\n",time(0)-g_T0,id,parentWindow);
-			window = (g_Dialogs[i]->createDialog)(g_tabCreate[n].dialog,g_tabCreate[n].parentWindow);
-			// DEBUG printf("%d : Create(%d,%p): CreateDialog-2\n",time(0)-g_T0,id,parentWindow);
-			break;
-		}
-	}
-
-	if (window) {
-
-		// DEBUG printf("%d : Create(%d,%p): %p->ShowModal()\n",time(0)-g_T0,id,parentWindow,window);
-
-		// window->Show(true);
-		// wxGetApp().ProcessPendingEvents();
-
-		INT_PTR ret = window->ShowModal();
-
-		// DEBUG printf("%d : Create(%d,%p): %p->ShowModal() - ret=%d\n",time(0)-g_T0,id,parentWindow,window,ret);
-		window->Detach();
-		window->Destroy();
-
-		// DEBUG printf("%d : Create(%d,%p): END\n",time(0)-g_T0,id,parentWindow,window);
-
-		return ret;
-	}
-
-	// FIXME
-	printf("INTERNAL ERROR : cannot find dialog %d\n",id);
-
-	return 0;
-}
-
-void myCreateHandle(int n)
+static INT_PTR APIENTRY DialogProcedure(HWND dialogHWND, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	int ret = myCreateHandle2(n);
-	g_tabCreate[n].ret = ret;
-	g_tabCreate[n].sem->Post();
+  CWindow tempDialog(dialogHWND);
+  if (message == WM_INITDIALOG)
+    tempDialog.SetUserDataLongPtr(lParam);
+  CDialog *dialog = (CDialog *)(tempDialog.GetUserDataLongPtr());
+  if (dialog == NULL)
+    return FALSE;
+  if (message == WM_INITDIALOG)
+    dialog->Attach(dialogHWND);
+
+  /* MSDN: The dialog box procedure should return
+       TRUE  - if it processed the message
+       FALSE - if it did not process the message
+     If the dialog box procedure returns FALSE,
+     the dialog manager performs the default dialog operation in response to the message.
+  */
+
+  try { return BoolToBOOL(dialog->OnMessage(message, wParam, lParam)); }
+  catch(...) { return TRUE; }
 }
 
-int MessageBoxW(wxWindow * parent, const TCHAR * msg, const TCHAR * title,int flag)
+bool CDialog::OnMessage(UINT message, WPARAM wParam, LPARAM lParam)
 {
-	int ind = findFreeInd();
-
-	g_tabCreate[ind].msg          = msg;
-	g_tabCreate[ind].title        = title;
-	g_tabCreate[ind].flag         = flag;
-	
-	return WaitInd(parent,ind,DIALOG_ID_MESSAGEBOX,parent); // FIXME
+  switch (message)
+  {
+    case WM_INITDIALOG: return OnInit();
+    case WM_COMMAND: return OnCommand(wParam, lParam);
+    case WM_NOTIFY: return OnNotify((UINT)wParam, (LPNMHDR) lParam);
+    case WM_TIMER: return OnTimer(wParam, lParam);
+    case WM_SIZE: return OnSize(wParam, LOWORD(lParam), HIWORD(lParam));
+    case WM_DESTROY: return OnDestroy();
+    case WM_HELP: OnHelp(); return true;
+    /*
+        OnHelp(
+          #ifdef UNDER_CE
+          (void *)
+          #else
+          (LPHELPINFO)
+          #endif
+          lParam);
+        return true;
+    */
+    default: return false;
+  }
 }
 
-
-
-// FIXME : should be in Windows/Shell.cpp
-
-namespace NWindows{
-namespace NShell{
-
-bool BrowseForFolder(HWND owner, LPCWSTR title, LPCWSTR initialFolder, UString &resultPath)
+bool CDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 {
-	int ind = findFreeInd();
-
-	g_tabCreate[ind].title               = title;
-	g_tabCreate[ind].initialFolderOrFile = nameWindowToUnix(initialFolder);
-	
-	UString resTmp;
-	int ret = WaitInd(0,ind,DIALOG_ID_DIR_DIALOG,owner,resTmp); // FIXME
-	if(ret == wxID_OK)
-	{
-		resultPath = resTmp;
-		return true;
-	}
-	return false;
+  return OnCommand(HIWORD(wParam), LOWORD(wParam), lParam);
 }
 
-}}
-
-/////////////////////////// CPP/Windows/CommonDialog.cpp
-namespace NWindows
+bool CDialog::OnCommand(int code, int itemID, LPARAM lParam)
 {
-
-	// OLD bool MyGetOpenFileName(HWND hwnd, LPCWSTR title, LPCWSTR /* FIXME initialDir */ , LPCWSTR fullFileName, LPCWSTR s, UString &resPath)
-	bool MyGetOpenFileName(HWND hwnd, LPCWSTR title,
-		LPCWSTR /* FIXME initialDir */  ,  // can be NULL, so dir prefix in filePath will be used
-		LPCWSTR filePath,    // full path
-		LPCWSTR /* FIXME filterDescription */ ,  // like "All files (*.*)"
-		LPCWSTR filter,             // like "*.exe"
-		UString &resPath
-		#ifdef UNDER_CE
-		, bool openFolder = false
-		#endif
-		)
-	{
-		int ind = findFreeInd();
-
-		g_tabCreate[ind].title               = title;
-		g_tabCreate[ind].initialFolderOrFile = nameWindowToUnix(filePath);
-	
-		UString resTmp;
-		int ret = WaitInd(0,ind,DIALOG_ID_FILE_DIALOG,hwnd,resTmp); // FIXME
-		if(ret == wxID_OK)
-		{
-			resPath = resTmp;
-			return true;
-		}
-		return false;
-	}
+  if (code == BN_CLICKED)
+    return OnButtonClicked(itemID, (HWND)lParam);
+  return false;
 }
 
-// From CPP/7zip/UI/FileManager/BrowseDialog.cpp
-bool CorrectFsPath(const UString & /* relBase */, const UString &path, UString &result)
+bool CDialog::OnButtonClicked(int buttonID, HWND /* buttonHWND */)
 {
-  result = path;
+  switch (buttonID)
+  {
+    case IDOK: OnOK(); break;
+    case IDCANCEL: OnCancel(); break;
+    case IDCLOSE: OnClose(); break;
+    case IDHELP: OnHelp(); break;
+    default: return false;
+  }
   return true;
 }
 
+
+static bool GetWorkAreaRect(RECT *rect, HWND hwnd)
+{
+  if (hwnd)
+  {
+    #ifndef UNDER_CE
+    /* MonitorFromWindow() is supported in Win2000+
+       MonitorFromWindow() : retrieves a handle to the display monitor that has the
+         largest area of intersection with the bounding rectangle of a specified window.
+       dwFlags: Determines the function's return value if the window does not intersect any display monitor.
+         MONITOR_DEFAULTTONEAREST : Returns display that is nearest to the window.
+         MONITOR_DEFAULTTONULL    : Returns NULL.
+         MONITOR_DEFAULTTOPRIMARY : Returns the primary display monitor.
+    */
+    const HMONITOR hmon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY);
+    if (hmon)
+    {
+      MONITORINFO mi;
+      memset(&mi, 0, sizeof(mi));
+      mi.cbSize = sizeof(mi);
+      if (GetMonitorInfoA(hmon, &mi))
+      {
+        *rect = mi.rcWork;
+        return true;
+      }
+    }
+    #endif
+  }
+
+  /* Retrieves the size of the work area on the primary display monitor.
+     The work area is the portion of the screen not obscured
+     by the system taskbar or by application desktop toolbars.
+     Any DPI virtualization mode of the caller has no effect on this output. */
+
+  return BOOLToBool(::SystemParametersInfo(SPI_GETWORKAREA, 0, rect, 0));
+}
+
+
+bool IsDialogSizeOK(int xSize, int ySize, HWND hwnd)
+{
+  // it returns for system font. Real font uses another values
+  const LONG v = GetDialogBaseUnits();
+  const int x = LOWORD(v);
+  const int y = HIWORD(v);
+
+  RECT rect;
+  GetWorkAreaRect(&rect, hwnd);
+  const int wx = RECT_SIZE_X(rect);
+  const int wy = RECT_SIZE_Y(rect);
+  return
+    xSize / 4 * x <= wx &&
+    ySize / 8 * y <= wy;
+}
+
+bool CDialog::GetMargins(int margin, int &x, int &y)
+{
+  x = margin;
+  y = margin;
+  RECT rect;
+  rect.left = 0;
+  rect.top = 0;
+  rect.right = margin;
+  rect.bottom = margin;
+  if (!MapRect(&rect))
+    return false;
+  x = rect.right - rect.left;
+  y = rect.bottom - rect.top;
+  return true;
+}
+
+int CDialog::Units_To_Pixels_X(int units)
+{
+  RECT rect;
+  rect.left = 0;
+  rect.top = 0;
+  rect.right = units;
+  rect.bottom = units;
+  if (!MapRect(&rect))
+    return units * 3 / 2;
+  return rect.right - rect.left;
+}
+
+bool CDialog::GetItemSizes(int id, int &x, int &y)
+{
+  RECT rect;
+  if (!::GetWindowRect(GetItem(id), &rect))
+    return false;
+  x = RECT_SIZE_X(rect);
+  y = RECT_SIZE_Y(rect);
+  return true;
+}
+
+void CDialog::GetClientRectOfItem(int id, RECT &rect)
+{
+  ::GetWindowRect(GetItem(id), &rect);
+  ScreenToClient(&rect);
+}
+
+bool CDialog::MoveItem(int id, int x, int y, int width, int height, bool repaint)
+{
+  return BOOLToBool(::MoveWindow(GetItem(id), x, y, width, height, BoolToBOOL(repaint)));
+}
+
+
+/*
+typedef BOOL (WINAPI * Func_DwmGetWindowAttribute)(
+    HWND hwnd, DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute);
+
+static bool GetWindowsRect_DWM(HWND hwnd, RECT *rect)
+{
+  // dll load and free is too slow : 300 calls in second.
+  NDLL::CLibrary dll;
+  if (!dll.Load(FTEXT("dwmapi.dll")))
+    return false;
+  Func_DwmGetWindowAttribute f = (Func_DwmGetWindowAttribute)dll.GetProc("DwmGetWindowAttribute" );
+  if (f)
+  {
+    #define MY__DWMWA_EXTENDED_FRAME_BOUNDS 9
+    // 30000 per second
+    RECT r;
+    if (f(hwnd, MY__DWMWA_EXTENDED_FRAME_BOUNDS, &r, sizeof(RECT)) == S_OK)
+    {
+      *rect = r;
+      return true;
+    }
+  }
+  return false;
+}
+*/
+
+
+static bool IsRect_Small_Inside_Big(const RECT &sm, const RECT &big)
+{
+  return sm.left   >= big.left
+      && sm.right  <= big.right
+      && sm.top    >= big.top
+      && sm.bottom <= big.bottom;
+}
+
+
+static bool AreRectsOverlapped(const RECT &r1, const RECT &r2)
+{
+  return r1.left   < r2.right
+      && r1.right  > r2.left
+      && r1.top    < r2.bottom
+      && r1.bottom > r2.top;
+}
+
+
+static bool AreRectsEqual(const RECT &r1, const RECT &r2)
+{
+  return r1.left   == r2.left
+      && r1.right  == r2.right
+      && r1.top    == r2.top
+      && r1.bottom == r2.bottom;
+}
+
+
+void CDialog::NormalizeSize(bool fullNormalize)
+{
+  RECT workRect;
+  if (!GetWorkAreaRect(&workRect, *this))
+    return;
+  RECT rect;
+  if (!GetWindowRect(&rect))
+    return;
+  int xs = RECT_SIZE_X(rect);
+  int ys = RECT_SIZE_Y(rect);
+
+  // we don't want to change size using workRect, if window is outside of WorkArea
+  if (!AreRectsOverlapped(rect, workRect))
+    return;
+
+  /* here rect and workRect are overlapped, but it can be false
+     overlapping of small shadow when window in another display. */
+
+  const int xsW = RECT_SIZE_X(workRect);
+  const int ysW = RECT_SIZE_Y(workRect);
+  if (xs <= xsW && ys <= ysW)
+    return; // size of window is OK
+  if (fullNormalize)
+  {
+    Show(SW_SHOWMAXIMIZED);
+    return;
+  }
+  int x = workRect.left;
+  int y = workRect.top;
+  if (xs < xsW)  x += (xsW - xs) / 2;  else xs = xsW;
+  if (ys < ysW)  y += (ysW - ys) / 2;  else ys = ysW;
+  Move(x, y, xs, ys, true);
+}
+
+
+void CDialog::NormalizePosition()
+{
+  RECT workRect;
+  if (!GetWorkAreaRect(&workRect, *this))
+    return;
+
+  RECT rect2 = workRect;
+  bool useWorkArea = true;
+  const HWND parentHWND = GetParent();
+
+  if (parentHWND)
+  {
+    RECT workRectParent;
+    if (!GetWorkAreaRect(&workRectParent, parentHWND))
+      return;
+
+    // if windows are in different monitors, we use only workArea of current window
+
+    if (AreRectsEqual(workRectParent, workRect))
+    {
+      // RECT rect3; if (GetWindowsRect_DWM(parentHWND, &rect3)) {}
+      CWindow wnd(parentHWND);
+      if (wnd.GetWindowRect(&rect2))
+      {
+        // it's same monitor. So we try to use parentHWND rect.
+        /* we don't want to change position, if parent window is not inside work area.
+           In Win10 : parent window rect is 8 pixels larger for each corner than window size for shadow.
+           In maximize mode : window is outside of workRect.
+           if parent window is inside workRect, we will use parent window instead of workRect */
+        if (IsRect_Small_Inside_Big(rect2, workRect))
+          useWorkArea = false;
+      }
+    }
+  }
+
+  RECT rect;
+  if (!GetWindowRect(&rect))
+    return;
+
+  if (useWorkArea)
+  {
+    // we don't want to move window, if it's already inside.
+    if (IsRect_Small_Inside_Big(rect, workRect))
+      return;
+    // we don't want to move window, if it's outside of workArea
+    if (!AreRectsOverlapped(rect, workRect))
+      return;
+    rect2 = workRect;
+  }
+
+  {
+    const int xs = RECT_SIZE_X(rect);
+    const int ys = RECT_SIZE_Y(rect);
+    const int xs2 = RECT_SIZE_X(rect2);
+    const int ys2 = RECT_SIZE_Y(rect2);
+    // we don't want to change position if parent is smaller.
+    if (xs <= xs2 && ys <= ys2)
+    {
+      const int x = rect2.left + (xs2 - xs) / 2;
+      const int y = rect2.top  + (ys2 - ys) / 2;
+
+      if (x != rect.left || y != rect.top)
+        Move(x, y, xs, ys, true);
+      // SetWindowPos(*this, HWND_TOP, x, y, 0, 0, SWP_NOSIZE);
+      return;
+    }
+  }
+}
+
+
+
+bool CModelessDialog::Create(LPCTSTR templateName, HWND parentWindow)
+{
+  HWND aHWND = CreateDialogParam(g_hInstance, templateName, parentWindow, DialogProcedure, (LPARAM)this);
+  if (aHWND == 0)
+    return false;
+  Attach(aHWND);
+  return true;
+}
+
+INT_PTR CModalDialog::Create(LPCTSTR templateName, HWND parentWindow)
+{
+  return DialogBoxParam(g_hInstance, templateName, parentWindow, DialogProcedure, (LPARAM)this);
+}
+
+#ifndef _UNICODE
+
+bool CModelessDialog::Create(LPCWSTR templateName, HWND parentWindow)
+{
+  HWND aHWND;
+  if (g_IsNT)
+    aHWND = CreateDialogParamW(g_hInstance, templateName, parentWindow, DialogProcedure, (LPARAM)this);
+  else
+  {
+    AString name;
+    LPCSTR templateNameA;
+    if (IS_INTRESOURCE(templateName))
+      templateNameA = (LPCSTR)templateName;
+    else
+    {
+      name = GetSystemString(templateName);
+      templateNameA = name;
+    }
+    aHWND = CreateDialogParamA(g_hInstance, templateNameA, parentWindow, DialogProcedure, (LPARAM)this);
+  }
+  if (aHWND == 0)
+    return false;
+  Attach(aHWND);
+  return true;
+}
+
+INT_PTR CModalDialog::Create(LPCWSTR templateName, HWND parentWindow)
+{
+  if (g_IsNT)
+    return DialogBoxParamW(g_hInstance, templateName, parentWindow, DialogProcedure, (LPARAM)this);
+  AString name;
+  LPCSTR templateNameA;
+  if (IS_INTRESOURCE(templateName))
+    templateNameA = (LPCSTR)templateName;
+  else
+  {
+    name = GetSystemString(templateName);
+    templateNameA = name;
+  }
+  return DialogBoxParamA(g_hInstance, templateNameA, parentWindow, DialogProcedure, (LPARAM)this);
+}
+#endif
+
+}}

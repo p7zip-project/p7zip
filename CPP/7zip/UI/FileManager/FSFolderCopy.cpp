@@ -4,9 +4,7 @@
 
 #include "../../../Common/MyWindows.h"
 
-#ifdef _WIN32
-#include <Winbase.h>
-#endif
+#include <WinBase.h>
 
 #include "../../../Common/Defs.h"
 #include "../../../Common/StringConvert.h"
@@ -33,7 +31,7 @@ extern bool g_IsNT;
 
 namespace NFsFolder {
 
-HRESULT CCopyStateIO::MyCopyFile(CFSTR inPath, CFSTR outPath)
+HRESULT CCopyStateIO::MyCopyFile(CFSTR inPath, CFSTR outPath, DWORD attrib)
 {
   ErrorFileIndex = -1;
   ErrorMessage.Empty();
@@ -77,7 +75,7 @@ HRESULT CCopyStateIO::MyCopyFile(CFSTR inPath, CFSTR outPath)
       }
       if (written != num)
       {
-        ErrorMessage = L"Write error";
+        ErrorMessage = "Write error";
         return S_OK;
       }
       CurrentSize += num;
@@ -88,6 +86,9 @@ HRESULT CCopyStateIO::MyCopyFile(CFSTR inPath, CFSTR outPath)
       }
     }
   }
+
+  if (attrib != INVALID_FILE_ATTRIBUTES)
+    SetFileAttrib(outPath, attrib);
 
   if (DeleteSrcFile)
   {
@@ -125,8 +126,6 @@ struct CProgressInfo
   void Init() { ProgressResult = S_OK; }
 };
 
-#ifdef _WIN32
-
 #ifndef PROGRESS_CONTINUE
 
 #define PROGRESS_CONTINUE 0
@@ -162,8 +161,6 @@ static DWORD CALLBACK CopyProgressRoutine(
   LPVOID lpData                         // from CopyFileEx
 )
 {
-  TotalFileSize = TotalFileSize;
-  // TotalBytesTransferred = TotalBytesTransferred;
   // StreamSize = StreamSize;
   // StreamBytesTransferred = StreamBytesTransferred;
   // dwStreamNumber = dwStreamNumber;
@@ -212,7 +209,6 @@ struct CCopyState
 {
   CProgressInfo ProgressInfo;
   IFolderOperationsExtractCallback *Callback;
-  UInt64 TotalSize;
   bool MoveMode;
   bool UseReadWriteMode;
 
@@ -233,34 +229,14 @@ struct CCopyState
 
   bool IsCallbackProgressError() { return ProgressInfo.ProgressResult != S_OK; }
 };
-#else
-struct CCopyState
-{
-  CProgressInfo ProgressInfo;
-  IFolderOperationsExtractCallback *Callback;
-  UInt64 TotalSize;
-  bool MoveMode;
-  bool UseReadWriteMode;
-  HRESULT CallProgress();
-
-  void Prepare();
-  bool CopyFile_NT(const wchar_t *oldFile, const wchar_t *newFile);
-  bool CopyFile_Sys(CFSTR oldFile, CFSTR newFile);
-  bool MoveFile_Sys(CFSTR oldFile, CFSTR newFile);
-
-  bool IsCallbackProgressError() { return ProgressInfo.ProgressResult != S_OK; }
-};
-#endif
 
 HRESULT CCopyState::CallProgress()
 {
   return ProgressInfo.Progress->SetCompleted(&ProgressInfo.StartPos);
 }
 
-
 void CCopyState::Prepare()
 {
-#ifdef _WIN32
   my_CopyFileExW = NULL;
   #ifndef UNDER_CE
   my_MoveFileWithProgressW = NULL;
@@ -286,7 +262,6 @@ void CCopyState::Prepare()
     my_MoveFileWithProgressW = (Func_MoveFileWithProgressW)My_GetProcAddress(module, "MoveFileWithProgressW");
     #endif
   }
-#endif
 }
 
 /* WinXP-64:
@@ -297,24 +272,15 @@ void CCopyState::Prepare()
 
 bool CCopyState::CopyFile_NT(const wchar_t *oldFile, const wchar_t *newFile)
 {
-#ifdef _WIN32
   BOOL cancelFlag = FALSE;
   if (my_CopyFileExW)
     return BOOLToBool(my_CopyFileExW(oldFile, newFile, CopyProgressRoutine,
         &ProgressInfo, &cancelFlag, COPY_FILE_FAIL_IF_EXISTS));
   return BOOLToBool(::CopyFileW(oldFile, newFile, TRUE));
-#else
-
-  extern bool wxw_CopyFile(LPCWSTR existingFile, LPCWSTR newFile, bool overwrite);
-  return wxw_CopyFile(oldFile, newFile, true);
-
-#endif
 }
-
 
 bool CCopyState::CopyFile_Sys(CFSTR oldFile, CFSTR newFile)
 {
-#ifdef _WIN32
   #ifndef _UNICODE
   if (!g_IsNT)
   {
@@ -351,17 +317,11 @@ bool CCopyState::CopyFile_Sys(CFSTR oldFile, CFSTR newFile)
     #endif
     return false;
   }
-#else
-
-  extern bool wxw_CopyFile(LPCWSTR existingFile, LPCWSTR newFile, bool overwrite);
-  return wxw_CopyFile(oldFile, newFile, true);
-
-#endif
 }
 
 bool CCopyState::MoveFile_Sys(CFSTR oldFile, CFSTR newFile)
 {
-  #if 0 // FIXME #ifndef UNDER_CE
+  #ifndef UNDER_CE
   // if (IsItWindows2000orHigher())
   // {
     if (my_MoveFileWithProgressW)
@@ -398,7 +358,7 @@ static HRESULT SendMessageError(IFolderOperationsExtractCallback *callback,
     const wchar_t *message, const FString &fileName)
 {
   UString s = message;
-  s += L" : ";
+  s += " : ";
   s += fs2us(fileName);
   return callback->ShowMessage(s);
 }
@@ -437,8 +397,8 @@ static HRESULT CopyFile_Ask(
   {
     RINOK(SendMessageError(state.Callback,
         state.MoveMode ?
-          "can not move file onto itself" :
-          "can not copy file onto itself"
+          "Cannot move file onto itself" :
+          "Cannot copy file onto itself"
         , destPath));
     return E_ABORT;
   }
@@ -463,9 +423,11 @@ static HRESULT CopyFile_Ask(
       NFsFolder::CCopyStateIO state2;
       state2.Progress = state.Callback;
       state2.DeleteSrcFile = state.MoveMode;
-      state2.TotalSize = state.TotalSize;
+      state2.TotalSize = state.ProgressInfo.TotalSize;
       state2.StartPos = state.ProgressInfo.StartPos;
-      RINOK(state2.MyCopyFile(srcPath, destPathNew));
+
+      RINOK(state2.MyCopyFile(srcPath, destPathNew, srcFileInfo.Attrib));
+      
       if (state2.ErrorFileIndex >= 0)
       {
         if (state2.ErrorMessage.IsEmpty())
@@ -500,10 +462,10 @@ static HRESULT CopyFile_Ask(
   }
   else
   {
-    if (state.TotalSize >= srcFileInfo.Size)
+    if (state.ProgressInfo.TotalSize >= srcFileInfo.Size)
     {
-      state.TotalSize -= srcFileInfo.Size;
-      RINOK(state.ProgressInfo.Progress->SetTotal(state.TotalSize));
+      state.ProgressInfo.TotalSize -= srcFileInfo.Size;
+      RINOK(state.ProgressInfo.Progress->SetTotal(state.ProgressInfo.TotalSize));
     }
   }
   return state.CallProgress();
@@ -511,7 +473,10 @@ static HRESULT CopyFile_Ask(
 
 static FString CombinePath(const FString &folderPath, const FString &fileName)
 {
-  return folderPath + FCHAR_PATH_SEPARATOR + fileName;
+  FString s (folderPath);
+  s.Add_PathSepar(); // FCHAR_PATH_SEPARATOR
+  s += fileName;
+  return s;
 }
 
 static bool IsDestChild(const FString &src, const FString &dest)
@@ -535,8 +500,8 @@ static HRESULT CopyFolder(
   {
     RINOK(SendMessageError(state.Callback,
         state.MoveMode ?
-          "can not copy folder onto itself" :
-          "can not move folder onto itself"
+          "Cannot copy folder onto itself" :
+          "Cannot move folder onto itself"
         , destPath));
     return E_ABORT;
   }
@@ -551,11 +516,12 @@ static HRESULT CopyFolder(
 
   if (!CreateComplexDir(destPath))
   {
-    RINOK(SendMessageError(state.Callback, "can not create folder", destPath));
+    RINOK(SendMessageError(state.Callback, "Cannot create folder", destPath));
     return E_ABORT;
   }
 
-  CEnumerator enumerator(CombinePath(srcPath, FSTRING_ANY_MASK));
+  CEnumerator enumerator;
+  enumerator.SetDirPrefix(CombinePath(srcPath, FString()));
   
   for (;;)
   {
@@ -584,7 +550,7 @@ static HRESULT CopyFolder(
   {
     if (!RemoveDir(srcPath))
     {
-      RINOK(SendMessageError(state.Callback, "can not remove folder", srcPath));
+      RINOK(SendMessageError(state.Callback, "Cannot remove folder", srcPath));
       return E_ABORT;
     }
   }
@@ -603,7 +569,7 @@ STDMETHODIMP CFSFolder::CopyTo(Int32 moveMode, const UInt32 *indices, UInt32 num
   if (destPath.IsEmpty())
     return E_INVALIDARG;
 
-  bool isAltDest = false; // FIXME NName::IsAltPathPrefix(destPath);;
+  bool isAltDest = NName::IsAltPathPrefix(destPath);
   bool isDirectPath = (!isAltDest && !IsPathSepar(destPath.Back()));
 
   if (isDirectPath)

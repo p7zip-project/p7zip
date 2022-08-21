@@ -53,7 +53,7 @@ public:
       unsigned numNewBits = MyMin(numBits, _bitPos);
       numBits -= numNewBits;
       
-      _curByte <<= numNewBits;
+      _curByte = (Byte)(_curByte << numNewBits);
       UInt32 newBits = value >> numBits;
       _curByte |= Byte(newBits);
       value -= (newBits << numBits);
@@ -129,15 +129,15 @@ public:
   // it's not member of this thread. We just need one event per thread
   NWindows::NSynchronization::CAutoResetEvent CanWriteEvent;
 
-  UInt64 m_PackSize;
+  UInt64 m_UnpackSize;
 
   Byte MtPad[1 << 8]; // It's pad for Multi-Threading. Must be >= Cache_Line_Size.
   HRESULT Create();
   void FinishStream(bool needLeave);
-  DWORD ThreadFunc();
+  THREAD_FUNC_RET_TYPE ThreadFunc();
   #endif
 
-  CThreadInfo(): m_BlockSorterIndex(0), m_Block(0) {}
+  CThreadInfo(): m_Block(NULL), m_BlockSorterIndex(NULL)  {}
   ~CThreadInfo() { Free(); }
   bool Alloc();
   void Free();
@@ -149,11 +149,13 @@ struct CEncProps
 {
   UInt32 BlockSizeMult;
   UInt32 NumPasses;
+  UInt64 Affinity;
   
   CEncProps()
   {
     BlockSizeMult = (UInt32)(Int32)-1;
     NumPasses = (UInt32)(Int32)-1;
+    Affinity = 0;
   }
   void Normalize(int level);
   bool DoOptimizeNumTables() const { return NumPasses > 1; }
@@ -192,6 +194,10 @@ public:
   #else
   CThreadInfo ThreadsInfo;
   #endif
+
+  UInt64 NumBlocks;
+
+  UInt64 GetInProcessedSize() const { return m_InStream.GetProcessedSize(); }
 
   UInt32 ReadRleBlock(Byte *buf);
   void WriteBytes(const Byte *data, UInt32 sizeInBits, Byte lastByte);

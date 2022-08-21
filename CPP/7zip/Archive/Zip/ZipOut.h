@@ -18,11 +18,25 @@ public:
   FILETIME Ntfs_MTime;
   FILETIME Ntfs_ATime;
   FILETIME Ntfs_CTime;
-  bool NtfsTimeIsDefined;
+  bool Write_NtfsTime;
+  bool Write_UnixTime;
 
   // It's possible that NtfsTime is not defined, but there is NtfsTime in Extra.
+  
+  CByteBuffer Name_Utf; // for Info-Zip (kIzUnicodeName) Extra
 
-  CItemOut(): NtfsTimeIsDefined(false) {}
+  size_t Get_UtfName_ExtraSize() const
+  {
+    const size_t size = Name_Utf.Size();
+    if (size == 0)
+      return 0;
+    return 4 + 5 + size;
+  }
+
+  CItemOut():
+      Write_NtfsTime(false),
+      Write_UnixTime(false)
+      {}
 };
 
 
@@ -52,6 +66,8 @@ class COutArchive
     Write32(ft.dwHighDateTime);
   }
 
+  void WriteTimeExtra(const CItemOut &item, bool writeNtfs);
+  void WriteUtfName(const CItemOut &item);
   void WriteExtra(const CExtraBlock &extra);
   void WriteCommonItemInfo(const CLocalItem &item, bool isZip64);
   void WriteCentralHeader(const CItemOut &item);

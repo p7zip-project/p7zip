@@ -208,7 +208,7 @@ enum
    Posix name can be after or before Win32 name
 */
 
-static const Byte kFileNameType_Posix     = 0; // for hard links
+// static const Byte kFileNameType_Posix     = 0; // for hard links
 static const Byte kFileNameType_Win32     = 1; // after Dos name
 static const Byte kFileNameType_Dos       = 2; // short name
 static const Byte kFileNameType_Win32Dos  = 3; // short and full name are same
@@ -278,7 +278,7 @@ struct CSiAttr
 {
   UInt64 CTime;
   UInt64 MTime;
-  // UInt64 ThisRecMTime;
+  UInt64 ThisRecMTime;
   UInt64 ATime;
   UInt32 Attrib;
 
@@ -300,7 +300,7 @@ bool CSiAttr::Parse(const Byte *p, unsigned size)
     return false;
   G64(p + 0x00, CTime);
   G64(p + 0x08, MTime);
-  // G64(p + 0x10, ThisRecMTime);
+  G64(p + 0x10, ThisRecMTime);
   G64(p + 0x18, ATime);
   G32(p + 0x20, Attrib);
   SecurityId = 0;
@@ -386,8 +386,8 @@ struct CAttr
 
 static int CompareAttr(void *const *elem1, void *const *elem2, void *)
 {
-  const CAttr &a1 = *(*((const CAttr **)elem1));
-  const CAttr &a2 = *(*((const CAttr **)elem2));
+  const CAttr &a1 = *(*((const CAttr *const *)elem1));
+  const CAttr &a2 = *(*((const CAttr *const *)elem2));
   RINOZ(MyCompare(a1.Type, a2.Type));
   if (a1.Name.IsEmpty())
   {
@@ -717,12 +717,16 @@ static size_t Lznt1Dec(Byte *dest, size_t outBufLim, size_t destLen, const Byte 
             UInt32 dist = (v >> (16 - numDistBits));
             if (dist >= sbOffset)
               return 0;
-            Int32 offs = -1 - dist;
-            Byte *p = dest + destSize;
-            for (UInt32 t = 0; t < len; t++)
-              p[t] = p[t + offs];
+            const size_t offs = 1 + dist;
+            Byte *p = dest + destSize - offs;
             destSize += len;
             sbOffset += len;
+            const Byte *lim = p + len;
+            p[offs] = *p; ++p;
+            p[offs] = *p; ++p;
+            do
+              p[offs] = *p;
+            while (++p != lim);
           }
         }
       }
@@ -1094,7 +1098,7 @@ struct CMftRec
 void CMftRec::ParseDataNames()
 {
   DataRefs.Clear();
-  DataAttrs.Sort(CompareAttr, 0);
+  DataAttrs.Sort(CompareAttr, NULL);
 
   for (unsigned i = 0; i < DataAttrs.Size();)
   {
@@ -1475,6 +1479,21 @@ void CDatabase::ClearAndClose()
   InStream.Release();
 }
 
+
+static void CopyName(wchar_t *dest, const wchar_t *src)
+{
+  for (;;)
+  {
+    wchar_t c = *src++;
+    // 18.06
+    if (c == '\\' || c == '/')
+      c = '_';
+    *dest++ = c;
+    if (c == 0)
+      return;
+  }
+}
+
 void CDatabase::GetItemPath(unsigned index, NCOM::CPropVariant &path) const
 {
   const CItem *item = &Items[index];
@@ -1492,7 +1511,7 @@ void CDatabase::GetItemPath(unsigned index, NCOM::CPropVariant &path) const
       wchar_t *s = path.AllocBstr(data.Name.Len() + 1);
       s[0] = L':';
       if (!data.Name.IsEmpty())
-        MyStringCopy(s + 1, data.Name.GetRawPtr());
+        CopyName(s + 1, data.Name.GetRawPtr());
       return;
     }
 
@@ -1541,7 +1560,7 @@ void CDatabase::GetItemPath(unsigned index, NCOM::CPropVariant &path) const
     if (!name.IsEmpty())
     {
       size -= name.Len();
-      MyStringCopy(s + size, name.GetRawPtr());
+      CopyName(s + size, name.GetRawPtr());
     }
     s[--size] = ':';
     needColon = true;
@@ -1551,7 +1570,7 @@ void CDatabase::GetItemPath(unsigned index, NCOM::CPropVariant &path) const
     const UString2 &name = rec.FileNames[item->NameIndex].Name;
     unsigned len = name.Len();
     if (len != 0)
-      MyStringCopy(s + size - len, name.GetRawPtr());
+      CopyName(s + size - len, name.GetRawPtr());
     if (needColon)
       s[size] =  ':';
     size -= len;
@@ -1575,7 +1594,7 @@ void CDatabase::GetItemPath(unsigned index, NCOM::CPropVariant &path) const
         if (len != 0)
         {
           size -= len;
-          MyStringCopy(s + size, name.GetRawPtr());
+          CopyName(s + size, name.GetRawPtr());
         }
         s[size + len] = WCHAR_PATH_SEPARATOR;
         continue;
@@ -2173,7 +2192,7 @@ STDMETHODIMP CHandler::GetRawProp(UInt32 index, PROPID propID, const void **data
       *data = (const wchar_t *)EmptyString;
     else
       *data = s->GetRawPtr();
-    *dataSize = (s->Len() + 1) * sizeof(wchar_t);
+    *dataSize = (s->Len() + 1) * (UInt32)sizeof(wchar_t);
     *propType = PROP_DATA_TYPE_wchar_t_PTR_Z_LE;
     #endif
     return S_OK;
@@ -2282,6 +2301,7 @@ static const Byte kProps[] =
   kpidMTime,
   kpidCTime,
   kpidATime,
+  kpidChangeTime,
   kpidAttrib,
   kpidLinks,
   kpidINode,
@@ -2558,7 +2578,7 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
     case kpidMTime: NtfsTimeToProp(rec.SiAttr.MTime, prop); break;
     case kpidCTime: NtfsTimeToProp(rec.SiAttr.CTime, prop); break;
     case kpidATime: NtfsTimeToProp(rec.SiAttr.ATime, prop); break;
-    // case kpidRecMTime: if (fn) NtfsTimeToProp(rec.SiAttr.ThisRecMTime, prop); break;
+    case kpidChangeTime: NtfsTimeToProp(rec.SiAttr.ThisRecMTime, prop); break;
 
     /*
     case kpidMTime2: if (fn) NtfsTimeToProp(fn->MTime, prop); break;

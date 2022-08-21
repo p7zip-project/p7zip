@@ -22,10 +22,10 @@ STDMETHODIMP COpenArchiveCallback::SetTotal(const UInt64 *numFiles, const UInt64
   RINOK(ProgressDialog.Sync.CheckStop());
   {
     // NSynchronization::CCriticalSectionLock lock(_criticalSection);
-    if (numFiles)
+    ProgressDialog.Sync.Set_NumFilesTotal(numFiles ? *numFiles : (UInt64)(Int64)-1);
+    // if (numFiles)
     {
-      ProgressDialog.Sync.Set_NumFilesTotal(*numFiles);
-      ProgressDialog.Sync.Set_BytesProgressMode(false);
+      ProgressDialog.Sync.Set_BytesProgressMode(numFiles == NULL);
     }
     if (numBytes)
       ProgressDialog.Sync.Set_NumBytesTotal(*numBytes);
@@ -69,7 +69,7 @@ STDMETHODIMP COpenArchiveCallback::GetProperty(PROPID propID, PROPVARIANT *value
   {
     switch (propID)
     {
-      case kpidName:  prop = _fileInfo.Name; break;
+      case kpidName:  prop = fs2us(_fileInfo.Name); break;
       case kpidIsDir:  prop = _fileInfo.IsDir(); break;
       case kpidSize:  prop = _fileInfo.Size; break;
       case kpidAttrib:  prop = (UInt32)_fileInfo.Attrib; break;
@@ -92,7 +92,7 @@ STDMETHODIMP COpenArchiveCallback::GetStream(const wchar_t *name, IInStream **in
   FString fullPath;
   if (!NFile::NName::GetFullPath(_folderPrefix, us2fs(name), fullPath))
     return S_FALSE;
-  if (!_fileInfo.Find(fullPath))
+  if (!_fileInfo.Find_FollowLink(fullPath))
     return S_FALSE;
   if (_fileInfo.IsDir())
     return S_FALSE;

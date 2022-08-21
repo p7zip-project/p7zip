@@ -3,8 +3,8 @@
 #ifndef __APP_H
 #define __APP_H
 
-// #include "../../../Windows/Control/CommandBar.h"
-// #include "../../../Windows/Control/ImageList.h"
+#include "../../../Windows/Control/CommandBar.h"
+#include "../../../Windows/Control/ImageList.h"
 
 #include "AppState.h"
 #include "Panel.h"
@@ -14,12 +14,13 @@ class CApp;
 extern CApp g_App;
 extern HWND g_HWND;
 
-const int kNumPanelsMax = 2;
+const unsigned kNumPanelsMax = 2;
 
 extern bool g_IsSmallScreen;
 
-const int kMenuCmdID_Plugin_Start = 10000; // must be large them context menu IDs and above all IDM_ABOUT
-const int kMenuCmdID_Toolbar_Start = 15000;
+// must be larger than context menu IDs
+const int kMenuCmdID_Toolbar_Start = 1070;
+const int kMenuCmdID_Plugin_Start = 1100;
 
 enum
 {
@@ -32,15 +33,15 @@ enum
 class CPanelCallbackImp: public CPanelCallback
 {
   CApp *_app;
-  int _index;
+  unsigned _index;
 public:
-  void Init(CApp *app, int index)
+  void Init(CApp *app, unsigned index)
   {
     _app = app;
     _index = index;
   }
   virtual void OnTab();
-  virtual void SetFocusToPath(int index);
+  virtual void SetFocusToPath(unsigned index);
   virtual void OnCopy(bool move, bool copyToSame);
   virtual void OnSetSameFolder();
   virtual void OnSetSubFolder();
@@ -52,7 +53,6 @@ public:
 
 class CApp;
 
-#ifdef _WIN32
 class CDropTarget:
   public IDropTarget,
   public CMyUnknownImp
@@ -90,22 +90,23 @@ public:
   STDMETHOD(Drop)(IDataObject * dataObject, DWORD keyState, POINTL pt, DWORD *effect);
 
   CDropTarget():
-      TargetPanelIndex(-1),
-      SrcPanelIndex(-1),
-      m_IsAppTarget(false),
-      m_Panel(0),
-      App(0),
-      m_PanelDropIsAllowed(false),
-      m_DropIsAllowed(false),
       m_SelectionIndex(-1),
+      m_DropIsAllowed(false),
+      m_PanelDropIsAllowed(false),
       m_SubFolderIndex(-1),
-      m_SetPathIsOK(false) {}
+      m_Panel(NULL),
+      m_IsAppTarget(false),
+      m_SetPathIsOK(false),
+      App(NULL),
+      SrcPanelIndex(-1),
+      TargetPanelIndex(-1)
+      {}
 
   CApp *App;
   int SrcPanelIndex;              // index of D&D source_panel
   int TargetPanelIndex;           // what panel to use as target_panel of Application
 };
-#endif
+
 
 class CApp
 {
@@ -113,8 +114,8 @@ public:
   NWindows::CWindow _window;
   bool ShowSystemMenu;
   // bool ShowDeletedFiles;
-  int NumPanels;
-  int LastFocusedPanel;
+  unsigned NumPanels;
+  unsigned LastFocusedPanel;
 
   bool ShowStandardToolbar;
   bool ShowArchiveToolbar;
@@ -124,9 +125,7 @@ public:
   CAppState AppState;
   CPanelCallbackImp m_PanelCallbackImp[kNumPanelsMax];
   CPanel Panels[kNumPanelsMax];
-  bool PanelsCreated[kNumPanelsMax];
 
-#ifdef _WIN32
   NWindows::NControl::CImageList _buttonsImageList;
 
   #ifdef UNDER_CE
@@ -136,7 +135,6 @@ public:
 
   CDropTarget *_dropTargetSpec;
   CMyComPtr<IDropTarget> _dropTarget;
-#endif
 
   UString LangString_N_SELECTED_ITEMS;
   
@@ -148,23 +146,20 @@ public:
     SetPanels_AutoRefresh_Mode();
   }
 
-#ifdef _WIN32
   void CreateDragTarget()
   {
     _dropTargetSpec = new CDropTarget();
     _dropTarget = _dropTargetSpec;
     _dropTargetSpec->App = (this);
   }
-#endif
 
-  void SetFocusedPanel(int index)
+  void SetFocusedPanel(unsigned index)
   {
     LastFocusedPanel = index;
-    // FIXME _dropTargetSpec->TargetPanelIndex = LastFocusedPanel;
+    _dropTargetSpec->TargetPanelIndex = LastFocusedPanel;
   }
 
-#ifdef _WIN32
-  void DragBegin(int panelIndex)
+  void DragBegin(unsigned panelIndex)
   {
     _dropTargetSpec->TargetPanelIndex = (NumPanels > 1) ? 1 - panelIndex : panelIndex;
     _dropTargetSpec->SrcPanelIndex = panelIndex;
@@ -175,23 +170,22 @@ public:
     _dropTargetSpec->TargetPanelIndex = LastFocusedPanel;
     _dropTargetSpec->SrcPanelIndex = -1;
   }
-#endif
 
   
   void OnCopy(bool move, bool copyToSame, int srcPanelIndex);
   void OnSetSameFolder(int srcPanelIndex);
   void OnSetSubFolder(int srcPanelIndex);
 
-  HRESULT CreateOnePanel(int panelIndex, const UString &mainPath, const UString &arcFormat, bool &archiveIsOpened, bool &encrypted);
-  HRESULT Create(HWND hwnd, const UString &mainPath, const UString &arcFormat, int xSizes[2], bool &archiveIsOpened, bool &encrypted);
+  HRESULT CreateOnePanel(int panelIndex, const UString &mainPath, const UString &arcFormat, bool needOpenArc, COpenResult &openRes);
+  HRESULT Create(HWND hwnd, const UString &mainPath, const UString &arcFormat, int xSizes[2], bool needOpenArc, COpenResult &openRes);
   void Read();
   void Save();
   void Release();
 
   // void SetFocus(int panelIndex) { Panels[panelIndex].SetFocusToList(); }
-  // FIXME void SetFocusToLastItem() { Panels[LastFocusedPanel].SetFocusToLastRememberedItem(); }
-  int GetFocusedPanelIndex() const { return LastFocusedPanel; }
-  bool IsPanelVisible(int index) const { return (NumPanels > 1 || index == LastFocusedPanel); }
+  void SetFocusToLastItem() { Panels[LastFocusedPanel].SetFocusToLastRememberedItem(); }
+  unsigned GetFocusedPanelIndex() const { return LastFocusedPanel; }
+  bool IsPanelVisible(unsigned index) const { return (NumPanels > 1 || index == LastFocusedPanel); }
   CPanel &GetFocusedPanel() { return Panels[GetFocusedPanelIndex()]; }
 
   // File Menu
@@ -204,8 +198,13 @@ public:
   void MoveTo() { OnCopy(true, false, GetFocusedPanelIndex()); }
   void Delete(bool toRecycleBin) { GetFocusedPanel().DeleteItems(toRecycleBin); }
   HRESULT CalculateCrc2(const UString &methodName);
-  void CalculateCrc(const UString &methodName);
+  void CalculateCrc(const char *methodName);
+
+  void DiffFiles(const UString &path1, const UString &path2);
   void DiffFiles();
+  
+  void VerCtrl(unsigned id);
+
   void Split();
   void Combine();
   void Properties() { GetFocusedPanel().Properties(); }
@@ -229,7 +228,7 @@ public:
   void SelectSpec(bool selectMode) { GetFocusedPanel().SelectSpec(selectMode); }
   void SelectByType(bool selectMode) { GetFocusedPanel().SelectByType(selectMode); }
 
-  void Refresh_StatusBar() { /* FIXME GetFocusedPanel().Refresh_StatusBar() */ ; }
+  void Refresh_StatusBar() { GetFocusedPanel().Refresh_StatusBar(); }
 
   void SetListViewMode(UInt32 index) { GetFocusedPanel().SetListViewMode(index); }
   UInt32 GetListViewMode() { return GetFocusedPanel().GetListViewMode(); }
@@ -243,9 +242,9 @@ public:
   void RefreshView() { GetFocusedPanel().OnReload(); }
   void RefreshAllPanels()
   {
-    for (int i = 0; i < NumPanels; i++)
+    for (unsigned i = 0; i < NumPanels; i++)
     {
-      int index = i;
+      unsigned index = i;
       if (NumPanels == 1)
         index = LastFocusedPanel;
       Panels[index].OnReload();
@@ -255,9 +254,9 @@ public:
   /*
   void SysIconsWereChanged()
   {
-    for (int i = 0; i < NumPanels; i++)
+    for (unsigned i = 0; i < NumPanels; i++)
     {
-      int index = i;
+      unsigned index = i;
       if (NumPanels == 1)
         index = LastFocusedPanel;
       Panels[index].SysIconsWereChanged();
@@ -266,10 +265,25 @@ public:
   */
 
   void SetListSettings();
-  void SetShowSystemMenu();
   HRESULT SwitchOnOffOnePanel();
   
+  CIntVector _timestampLevels;
+
   bool GetFlatMode() { return Panels[LastFocusedPanel].GetFlatMode(); }
+
+  int GetTimestampLevel() const { return Panels[LastFocusedPanel]._timestampLevel; }
+  void SetTimestampLevel(int level)
+  {
+    unsigned i;
+    for (i = 0; i < kNumPanelsMax; i++)
+    {
+      CPanel &panel = Panels[i];
+      panel._timestampLevel = level;
+      if (panel.PanelCreated)
+        panel.RedrawListItems();
+    }
+  }
+
   // bool Get_ShowNtfsStrems_Mode() { return Panels[LastFocusedPanel].Get_ShowNtfsStrems_Mode(); }
   
   void ChangeFlatMode() { Panels[LastFocusedPanel].ChangeFlatMode(); }
@@ -289,7 +303,7 @@ public:
   }
   void SetPanels_AutoRefresh_Mode()
   {
-    for (int i = 0; i < kNumPanelsMax; i++)
+    for (unsigned i = 0; i < kNumPanelsMax; i++)
       Panels[i].Set_AutoRefresh_Mode(AutoRefresh_Mode);
   }
 
@@ -351,12 +365,12 @@ public:
   void ExtractArchives() { GetFocusedPanel().ExtractArchives(); }
   void TestArchives() { GetFocusedPanel().TestArchives(); }
 
-  // void OnNotify(int ctrlID, LPNMHDR pnmh);
+  void OnNotify(int ctrlID, LPNMHDR pnmh);
 
   UString PrevTitle;
   void RefreshTitle(bool always = false);
   void RefreshTitleAlways() { RefreshTitle(true); }
-  void RefreshTitle(int panelIndex, bool always = false);
+  void RefreshTitlePanel(unsigned panelIndex, bool always = false);
 
   void MoveSubWindows();
 };

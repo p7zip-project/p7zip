@@ -3,28 +3,29 @@
 #ifndef __MY_LOAD_MENU_H
 #define __MY_LOAD_MENU_H
 
-class myHMENU; // FIXME
-typedef myHMENU * HMENU; // FIXME
-
 void OnMenuActivating(HWND hWnd, HMENU hMenu, int position);
 // void OnMenuUnActivating(HWND hWnd, HMENU hMenu, int id);
 // void OnMenuUnActivating(HWND hWnd);
 
-bool OnMenuCommand(HWND hWnd, int id);
+bool OnMenuCommand(HWND hWnd, unsigned id);
 void MyLoadMenu();
 
 struct CFileMenu
 {
   bool programMenu;
   bool readOnly;
+  bool isHashFolder;
   bool isFsFolder;
   bool allAreFiles;
   bool isAltStreamsSupported;
   int numItems;
   
+  FString FilePath;
+
   CFileMenu():
       programMenu(false),
       readOnly(false),
+      isHashFolder(false),
       isFsFolder(false),
       allAreFiles(false),
       isAltStreamsSupported(true),
@@ -34,6 +35,6 @@ struct CFileMenu
   void Load(HMENU hMenu, unsigned startPos);
 };
 
-bool ExecuteFileCommand(int id);
+bool ExecuteFileCommand(unsigned id);
 
 #endif

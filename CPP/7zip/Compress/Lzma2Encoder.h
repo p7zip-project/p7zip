@@ -10,6 +10,13 @@
 
 #include "../ICoder.h"
 
+#ifndef max
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#endif
 
 namespace NCompress {
 namespace NLzma2 {
@@ -23,24 +30,23 @@ class CEncoder:
 {
   CLzma2EncHandle _encoder;
 public:
-  //MY_UNKNOWN_IMP3(ICompressCoder, ICompressSetCoderProperties, ICompressWriteCoderProperties)
- 
   MY_UNKNOWN_IMP4(
       ICompressCoder,
       ICompressSetCoderProperties,
       ICompressWriteCoderProperties,
       ICompressSetCoderPropertiesOpt)
-
+ 
   STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
       const UInt64 *inSize, const UInt64 *outSize, ICompressProgressInfo *progress);
   STDMETHOD(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
   STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream);
-  STDMETHOD(SetCoderPropertiesOpt)(const PROPID *propIDs, const PROPVARIANT *coderProps, UInt32 numProps);
+  STDMETHOD(SetCoderPropertiesOpt)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps);
 
   CEncoder();
   virtual ~CEncoder();
 };
 
+// fast lzma2 encode class`
 class CFastEncoder :
   public ICompressCoder,
   public ICompressSetCoderProperties,

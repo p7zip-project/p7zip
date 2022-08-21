@@ -39,13 +39,13 @@ static const UInt64 kFileNameLengthTotalMax = (UInt64)1 << 33;
 static const UInt64 kInlineExtentsSizeMax = (UInt64)1 << 33;
 
 #define CRC16_INIT_VAL 0
-#define CRC16_GET_DIGEST(crc) (crc)
+// #define CRC16_GET_DIGEST(crc) (crc)
 #define CRC16_UPDATE_BYTE(crc, b) ((UInt16)(g_Crc16Table[(((crc) >> 8) ^ (b)) & 0xFF] ^ ((crc) << 8)))
 
 #define kCrc16Poly 0x1021
 static UInt16 g_Crc16Table[256];
 
-void MY_FAST_CALL Crc16GenerateTable(void)
+static void MY_FAST_CALL Crc16GenerateTable(void)
 {
   UInt32 i;
   for (i = 0; i < 256; i++)
@@ -57,7 +57,7 @@ void MY_FAST_CALL Crc16GenerateTable(void)
   }
 }
 
-UInt32 MY_FAST_CALL Crc16_Update(UInt32 v, const void *data, size_t size)
+static UInt32 MY_FAST_CALL Crc16_Update(UInt32 v, const void *data, size_t size)
 {
   const Byte *p = (const Byte *)data;
   for (; size > 0 ; size--, p++)
@@ -65,7 +65,7 @@ UInt32 MY_FAST_CALL Crc16_Update(UInt32 v, const void *data, size_t size)
   return v;
 }
 
-UInt32 MY_FAST_CALL Crc16Calc(const void *data, size_t size)
+static UInt32 MY_FAST_CALL Crc16Calc(const void *data, size_t size)
 {
   return Crc16_Update(CRC16_INIT_VAL, data, size);
 }
@@ -109,7 +109,7 @@ static UString ParseDString(const Byte *data, unsigned size)
       }
     }
     else
-      return UString("[unknow]");
+      return UString("[unknown]");
     *p = 0;
     res.ReleaseBuf_SetLen((unsigned)(p - (const wchar_t *)res));
   }
@@ -333,7 +333,7 @@ void CItem::Parse(const Byte *p)
   NumLogBlockRecorded = Get64(p + 64);
   ATime.Parse(p + 72);
   MTime.Parse(p + 84);
-  // AttrtTime.Parse(p + 96);
+  AttribTime.Parse(p + 96);
   // CheckPoint = Get32(p + 108);
   // ExtendedAttrIcb.Parse(p + 112);
   // ImplId.Parse(p + 128);

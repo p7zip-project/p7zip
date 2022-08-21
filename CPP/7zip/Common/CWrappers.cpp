@@ -1,4 +1,4 @@
-// CWrappers.h
+// CWrappers.c
 
 #include "StdAfx.h"
 
@@ -28,36 +28,40 @@ HRESULT SResToHRESULT(SRes res) throw()
   switch (res)
   {
     case SZ_OK: return S_OK;
-    case SZ_ERROR_DATA: return S_FALSE;
-    case SZ_ERROR_CRC: return S_FALSE;
+    
+    case SZ_ERROR_DATA:
+    case SZ_ERROR_CRC:
+    case SZ_ERROR_INPUT_EOF:
+      return S_FALSE;
+    
     case SZ_ERROR_MEM: return E_OUTOFMEMORY;
     case SZ_ERROR_PARAM: return E_INVALIDARG;
     case SZ_ERROR_PROGRESS: return E_ABORT;
     case SZ_ERROR_UNSUPPORTED: return E_NOTIMPL;
-    // case SZ_ERROR_THREAD: return E_FAIL;
-    // case SZ_ERROR_READ: return E_FAIL;
+    // case SZ_ERROR_OUTPUT_EOF:
+    // case SZ_ERROR_READ:
+    // case SZ_ERROR_WRITE:
+    // case SZ_ERROR_THREAD:
+    // case SZ_ERROR_ARCHIVE:
+    // case SZ_ERROR_NO_ARCHIVE:
+    // return E_FAIL;
   }
   if (res < 0)
     return res;
   return E_FAIL;
 }
 
+
 #define PROGRESS_UNKNOWN_VALUE ((UInt64)(Int64)-1)
 
 #define CONVERT_PR_VAL(x) (x == PROGRESS_UNKNOWN_VALUE ? NULL : &x)
+
 
 static SRes CompressProgress(const ICompressProgress *pp, UInt64 inSize, UInt64 outSize) throw()
 {
   CCompressProgressWrap *p = CONTAINER_FROM_VTBL(pp, CCompressProgressWrap, vt);
   p->Res = p->Progress->SetRatioInfo(CONVERT_PR_VAL(inSize), CONVERT_PR_VAL(outSize));
   return HRESULT_To_SRes(p->Res, SZ_ERROR_PROGRESS);
-}
-
-CCompressProgressWrap::CCompressProgressWrap(ICompressProgressInfo *progress) throw()
-{
-  vt.Progress = CompressProgress;
-  Progress = progress;
-  Res = SZ_OK;
 }
 
 void CCompressProgressWrap::Init(ICompressProgressInfo *progress) throw()
@@ -96,20 +100,6 @@ static size_t MyWrite(const ISeqOutStream *pp, const void *data, size_t size) th
   return size;
 }
 
-CSeqInStreamWrap::CSeqInStreamWrap(ISequentialInStream *stream) throw()
-{
-  vt.Read = MyRead;
-  Stream = stream;
-  Processed = 0;
-}
-
-CSeqOutStreamWrap::CSeqOutStreamWrap(ISequentialOutStream *stream) throw()
-{
-  vt.Write = MyWrite;
-  Stream = stream;
-  Res = SZ_OK;
-  Processed = 0;
-}
 
 void CSeqInStreamWrap::Init(ISequentialInStream *stream) throw()
 {
@@ -154,14 +144,6 @@ static SRes InStreamWrap_Seek(const ISeekInStream *pp, Int64 *offset, ESzSeek or
   return (p->Res == S_OK) ? SZ_OK : SZ_ERROR_READ;
 }
 
-CSeekInStreamWrap::CSeekInStreamWrap(IInStream *stream) throw()
-{
-  Stream = stream;
-  vt.Read = InStreamWrap_Read;
-  vt.Seek = InStreamWrap_Seek;
-  Res = S_OK;
-}
-
 void CSeekInStreamWrap::Init(IInStream *stream) throw()
 {
   Stream = stream;
@@ -176,27 +158,27 @@ void CSeekInStreamWrap::Init(IInStream *stream) throw()
 void CByteInBufWrap::Free() throw()
 {
   ::MidFree(Buf);
-  Buf = 0;
+  Buf = NULL;
 }
 
 bool CByteInBufWrap::Alloc(UInt32 size) throw()
 {
-  if (Buf == 0 || size != Size)
+  if (!Buf || size != Size)
   {
     Free();
     Lim = Cur = Buf = (Byte *)::MidAlloc((size_t)size);
     Size = size;
   }
-  return (Buf != 0);
+  return (Buf != NULL);
 }
 
 Byte CByteInBufWrap::ReadByteFromNewBlock() throw()
 {
-  if (Res == S_OK)
+  if (!Extra && Res == S_OK)
   {
     UInt32 avail;
-    Processed += (Cur - Buf);
     Res = Stream->Read(Buf, Size, &avail);
+    Processed += (size_t)(Cur - Buf);
     Cur = Buf;
     Lim = Buf + avail;
     if (avail != 0)
@@ -214,10 +196,56 @@ static Byte Wrap_ReadByte(const IByteIn *pp) throw()
   return p->ReadByteFromNewBlock();
 }
 
-CByteInBufWrap::CByteInBufWrap(): Buf(0)
+CByteInBufWrap::CByteInBufWrap(): Buf(NULL)
 {
-  p.Read = Wrap_ReadByte;
+  vt.Read = Wrap_ReadByte;
 }
+
+
+
+/* ---------- CByteOutBufWrap ---------- */
+
+/*
+void CLookToSequentialWrap::Free() throw()
+{
+  ::MidFree(BufBase);
+  BufBase = NULL;
+}
+
+bool CLookToSequentialWrap::Alloc(UInt32 size) throw()
+{
+  if (!BufBase || size != Size)
+  {
+    Free();
+    BufBase = (Byte *)::MidAlloc((size_t)size);
+    Size = size;
+  }
+  return (BufBase != NULL);
+}
+*/
+
+/*
+EXTERN_C_BEGIN
+
+void CLookToSequentialWrap_Look(ILookInSeqStream *pp)
+{
+  CLookToSequentialWrap *p = (CLookToSequentialWrap *)pp->Obj;
+
+  if (p->Extra || p->Res != S_OK)
+    return;
+  {
+    UInt32 avail;
+    p->Res = p->Stream->Read(p->BufBase, p->Size, &avail);
+    p->Processed += avail;
+    pp->Buf = p->BufBase;
+    pp->Limit = pp->Buf + avail;
+    if (avail == 0)
+      p->Extra = true;
+  }
+}
+
+EXTERN_C_END
+*/
 
 
 /* ---------- CByteOutBufWrap ---------- */
@@ -225,30 +253,31 @@ CByteInBufWrap::CByteInBufWrap(): Buf(0)
 void CByteOutBufWrap::Free() throw()
 {
   ::MidFree(Buf);
-  Buf = 0;
+  Buf = NULL;
 }
 
 bool CByteOutBufWrap::Alloc(size_t size) throw()
 {
-  if (Buf == 0 || size != Size)
+  if (!Buf || size != Size)
   {
     Free();
     Buf = (Byte *)::MidAlloc(size);
     Size = size;
   }
-  return (Buf != 0);
+  return (Buf != NULL);
 }
 
 HRESULT CByteOutBufWrap::Flush() throw()
 {
   if (Res == S_OK)
   {
-    size_t size = (Cur - Buf);
+    const size_t size = (size_t)(Cur - Buf);
     Res = WriteStream(Stream, Buf, size);
     if (Res == S_OK)
       Processed += size;
-    Cur = Buf;
+    // else throw 11;
   }
+  Cur = Buf; // reset pointer for later Wrap_WriteByte()
   return Res;
 }
 
@@ -262,7 +291,57 @@ static void Wrap_WriteByte(const IByteOut *pp, Byte b) throw()
     p->Flush();
 }
 
-CByteOutBufWrap::CByteOutBufWrap() throw(): Buf(0)
+CByteOutBufWrap::CByteOutBufWrap() throw(): Buf(NULL), Size(0)
 {
-  p.Write = Wrap_WriteByte;
+  vt.Write = Wrap_WriteByte;
 }
+
+
+/* ---------- CLookOutWrap ---------- */
+
+/*
+void CLookOutWrap::Free() throw()
+{
+  ::MidFree(Buf);
+  Buf = NULL;
+}
+
+bool CLookOutWrap::Alloc(size_t size) throw()
+{
+  if (!Buf || size != Size)
+  {
+    Free();
+    Buf = (Byte *)::MidAlloc(size);
+    Size = size;
+  }
+  return (Buf != NULL);
+}
+
+static size_t LookOutWrap_GetOutBuf(const ILookOutStream *pp, void **buf) throw()
+{
+  CLookOutWrap *p = CONTAINER_FROM_VTBL_CLS(pp, CLookOutWrap, vt);
+  *buf = p->Buf;
+  return p->Size;
+}
+
+static size_t LookOutWrap_Write(const ILookOutStream *pp, size_t size) throw()
+{
+  CLookOutWrap *p = CONTAINER_FROM_VTBL_CLS(pp, CLookOutWrap, vt);
+  if (p->Res == S_OK && size != 0)
+  {
+    p->Res = WriteStream(p->Stream, p->Buf, size);
+    if (p->Res == S_OK)
+    {
+      p->Processed += size;
+      return size;
+    }
+  }
+  return 0;
+}
+
+CLookOutWrap::CLookOutWrap() throw(): Buf(NULL), Size(0)
+{
+  vt.GetOutBuf = LookOutWrap_GetOutBuf;
+  vt.Write = LookOutWrap_Write;
+}
+*/

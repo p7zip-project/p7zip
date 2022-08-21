@@ -5,7 +5,7 @@
 #include "../../C/CpuArch.h"
 
 #define XXH_STATIC_LINKING_ONLY
-#include "../../C/zstd/xxhash.h"
+#include "../../C/fast-lzma2/xxhash.h"
 
 #include "../Common/MyCom.h"
 #include "../7zip/Common/RegisterCodec.h"

@@ -1,9 +1,9 @@
-7-Zip 17.04 Sources
+7-Zip 21.07 Sources
 -------------------
 
 7-Zip is a file archiver for Windows. 
 
-7-Zip Copyright (C) 1999-2016 Igor Pavlov.
+7-Zip Copyright (C) 1999-2021 Igor Pavlov.
 
 
 License Info
@@ -42,36 +42,149 @@ You can download LZMA SDK from:
 LZMA SDK is written and placed in the public domain by Igor Pavlov.
 
 
-How to compile
---------------
-To compile sources you need Visual C++ 6.0.
-For compiling some files you also need 
-new Platform SDK from Microsoft' Site:
-http://www.microsoft.com/msdownload/platformsdk/sdkupdate/psdk-full.htm
-or
-http://www.microsoft.com/msdownload/platformsdk/sdkupdate/XPSP2FULLInstall.htm
-or
-http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
+How to compile in Windows
+-------------------------
 
-If you use MSVC6, specify SDK directories at top of directories lists:
+To compile the sources to Windows binaries you need Visual Studio compiler and/or Windows SDK.
+You can use latest Windows Studio 2017/2019 to compile binaries for x86, x64 and arm64 platforms.
+Also you can use old compilers for some platforms:
+  x86   : Visual C++ 6.0 with Platform SDK
+  x64   : Windows Server 2003 R2 Platform SDK
+  arm64 : Windows Studio 2017
+  arm   : Windows Studio 2017
+  ia64 (itanium)     : Windows Server 2003 R2 Platform SDK
+  arm for Windows CE : Standard SDK for Windows CE 5.0
+
+If you use MSVC6, specify also Platform SDK directories at top of directories lists:
 Tools / Options / Directories
   - Include files
   - Library files
 
-
-To compile 7-Zip for AMD64 and IA64 you need:
-  Windows Server 2003 SP1 Platform SDK from microsoft.com
-
 Also you need Microsoft Macro Assembler:
   - ml.exe for x86 
-  - ml64.exe for AMD64
-You can use ml.exe from Windows SDK for Windows Vista or some other version.
+  - ml64.exe for x64
+You can use ml.exe from Windows SDK for Windows Vista or some later versions.
+
+There are two ways to compile 7-Zip binaries:
+1) via makefile in command line.
+2) via dsp file in Visual Studio.
+
+The dsp file compiling can be used for development and debug purposes.
+The final 7-Zip binaries are compiled via makefiles, that provide best 
+optimization options.
 
 
-Compiling under Unix/Linux
---------------------------
-Check this site for Posix/Linux version:
-http://sourceforge.net/projects/p7zip/
+How to compile with makefile
+----------------------------
+
+Some macronames can be defined for compiling with makefile:
+
+PLATFORM
+  with possible values: x64, x86, arm64, arm, ia64
+
+OLD_COMPILER
+  for old VC compiler, like MSCV 6.0.
+
+MY_DYNAMIC_LINK
+  for dynamic linking to the run-time library (msvcrt.dll). 
+  The default makefile option is static linking to the run-time library.
+
+
+
+Compiling 7-Zip for Unix/Linux
+------------------------------
+
+There are several otpions to compile 7-Zip with different compilers: gcc and clang.
+Also 7-Zip code contains two versions for some critical parts of code: in C and in Assembeler.
+So if you compile the version with Assembeler code, you will get faster 7-Zip binary.
+
+7-Zip's assembler code uses the following syntax for different platforms:
+
+1) x86 and x86-64 (AMD64): MASM syntax. 
+   There are 2 programs that supports MASM syntax in Linux.
+'    'Asmc Macro Assembler and JWasm. But JWasm now doesn't support some 
+      cpu instructions used in 7-Zip.
+   So you must install Asmc Macro Assembler in Linux, if you want to compile fastest version
+   of 7-Zip  x86 and x86-64:
+     https://github.com/nidud/asmc
+
+2) arm64: GNU assembler for ARM64 with preprocessor. 
+   That systax of that arm64 assembler code in 7-Zip is supported by GCC and CLANG for ARM64.
+
+There are different binaries that can be compiled from 7-Zip source.
+There are 2 main files in folder for compiling:
+  makefile        - that can be used for compiling Windows version of 7-Zip with nmake command
+  makefile.gcc    - that can be used for compiling Linux/macOS versions of 7-Zip with make command
+
+At first you must change the current folder to folder that contains `makefile.gcc`:
+
+  cd CPP/7zip/Bundles/Alone2
+
+Then you can compile `makefile.gcc` with the command:
+
+  make -j -f makefile.gcc
+
+Also there are additional "*.mak" files in folder "CPP/7zip/" that can be used to compile 
+7-Zip binaries with optimized code and optimzing options.
+
+To compile with GCC without assembler:
+  cd CPP/7zip/Bundles/Alone2
+  make -j -f ../../cmpl_gcc.mak
+
+To compile with CLANG without assembler:
+  make -j -f ../../cmpl_clang.mak
+
+To compile 7-Zip for x86-64 with asmc assembler:
+  make -j -f ../../cmpl_gcc_x64.mak
+
+To compile 7-Zip for arm64 with assembler:
+  make -j -f ../../cmpl_gcc_arm64.mak
+
+To compile 7-Zip for arm64 for macOS:
+  make -j -f ../../cmpl_mac_arm64.mak
+
+Also you can change some compiler options in the mak files:
+  cmpl_gcc.mak
+  var_gcc.mak
+  warn_gcc.mak
+
+makefile.gcc supports some variables that can change compile options
+
+USE_JWASM=1
+  use JWasm assembler instead of Asmc.
+  Note that JWasm doesn't support AES instructions. So AES code from C version AesOpt.c 
+  will be used instead of assembler code from AesOpt.asm.
+
+DISABLE_RAR=1
+  removes whole RAR related code from compilation.
+
+DISABLE_RAR_COMPRESS=1
+  removes "not fully free" code of RAR decompression codecs from compilation.
+
+RAR decompression codecs in 7-Zip code has some additional license restrictions, 
+that can be treated as not fully compatible with free-software licenses.
+DISABLE_RAR_COMPRESS=1 allows to exclude such "not-fully-free" RAR code from compilation.
+if DISABLE_RAR_COMPRESS=1 is specified, 7-zip will not be able to decompress files 
+from rar archives, but 7-zip still will be able to open rar archives to get list of 
+files or to extract files that are stored without compression.
+if DISABLE_RAR=1 is specified, 7-zip will not be able to work with RAR archives.
+
+
+
+7-Zip and p7zip
+===============
+Now there are two different ports of 7-Zip for Linux/macOS:
+
+1) p7zip - another port of 7-Zip for Linux, made by an independent developer.
+   The latest version of p7zip now is 16.02, and that p7zip 16.02 is outdated now.
+   http://sourceforge.net/projects/p7zip/ 
+
+2) 7-Zip for Linux/macOS - this package - it's new code with all changes from latest 7-Zip for Windows.
+
+These two ports are not identical. 
+Note also that some Linux specific things can be implemented better in p7zip than in new 7-Zip for Linux.
+
+
 
 
 Notes:
@@ -105,7 +218,7 @@ DOC                Documentation
   7zip.wix       - installer script for WIX
 
 
-Asm - Source code in Assembler (optimized code for CRC calculation and Intel-AES encryption)
+Asm - Source code in Assembler : optimized code for CRC, SHA, AES, LZMA decoding.
 
 C   - Source code in C
 
@@ -123,7 +236,8 @@ Windows           common files for Windows related code
 
   Bundle          Modules that are bundles of other modules (files)
 
-    Alone         7za.exe: Standalone version of 7-Zip console that supports only 7z/xz/cab/zip/gzip/bzip2/lzip/tar.
+    Alone         7za.exe: Standalone version of 7-Zip console that supports only 7z/xz/cab/zip/gzip/bzip2/tar.
+    Alone2        7zz.exe: Standalone version of 7-Zip console that supports all formats.
     Alone7z       7zr.exe: Standalone version of 7-Zip console that supports only 7z (reduced version)
     Fm            Standalone version of 7-Zip File Manager
     Format7z            7za.dll:  .7z support

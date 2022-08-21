@@ -1,32 +1,63 @@
+PROG = lzma.exe
+MY_CONSOLE = 1
 
-# TARGET_FLAGS=-D_7ZIP_ST
+CURRENT_OBJS = \
+  $O\LzmaAlone.obj \
 
-include ../../../../makefile.crc32
-include ../../../../makefile.machine
+COMPRESS_OBJS = \
+  $O\LzmaDecoder.obj \
+  $O\LzmaEncoder.obj \
+  $O\LzmaRegister.obj \
 
-TARGET_FLAGS=$(CC_EXE)
-LOCAL_LINK=$(LINK_EXE)
-LIBS=$(LOCAL_LIBS)
+COMMON_OBJS = \
+  $O\CommandLineParser.obj \
+  $O\CRC.obj \
+  $O\CrcReg.obj \
+  $O\IntToString.obj \
+  $O\LzFindPrepare.obj \
+  $O\MyString.obj \
+  $O\MyVector.obj \
+  $O\NewHandler.obj \
+  $O\StringConvert.obj \
+  $O\StringToInt.obj \
 
-include ../../../../makefile.glb
+WIN_OBJS = \
+  $O\FileIO.obj \
+  $O\PropVariant.obj \
+  $O\Registry.obj \
+  $O\System.obj \
+  $O\SystemInfo.obj \
 
-test: $(PROG)
-	echo TOOLS=$(TOOLS)
-	cp LzmaAlone.cpp testfile
-	$(TOOLS) ./$(PROG) e testfile testfile.lzma
-	$(TOOLS) ./$(PROG) d testfile.lzma testfile.lzma.d 
-	diff -s testfile testfile.lzma.d
-	$(TOOLS) ./$(PROG) e testfile testfile.lzma
-	$(TOOLS) ./$(PROG) d testfile.lzma testfile.lzma.d 
-	diff -s testfile testfile.lzma.d
-	$(TOOLS) ./$(PROG) e -si -so < testfile > testfile.lzma.2
-	$(TOOLS) ./$(PROG) d -si -so < testfile.lzma.2 > testfile.lzma.2.d 
-	diff -s testfile testfile.lzma.2.d
-	@echo =========
-	@echo All Done 
-	@echo =========
+7ZIP_COMMON_OBJS = \
+  $O\CreateCoder.obj \
+  $O\CWrappers.obj \
+  $O\FileStreams.obj \
+  $O\FilterCoder.obj \
+  $O\MethodProps.obj \
+  $O\StreamObjects.obj \
+  $O\StreamUtils.obj \
 
+UI_COMMON_OBJS = \
+  $O\Bench.obj \
 
-clean2: clean
-	rm -f testfile*
+CONSOLE_OBJS = \
+  $O\ConsoleClose.obj \
+  $O\BenchCon.obj \
 
+C_OBJS = \
+  $O\Alloc.obj \
+  $O\Bra86.obj \
+  $O\CpuArch.obj \
+  $O\LzFind.obj \
+  $O\LzFindMt.obj \
+  $O\Lzma86Dec.obj \
+  $O\Lzma86Enc.obj \
+  $O\LzmaDec.obj \
+  $O\LzmaEnc.obj \
+  $O\Threads.obj \
+
+!include "../../Crc.mak"
+!include "../../LzFindOpt.mak"
+!include "../../LzmaDec.mak"
+
+!include "../../7zip.mak"

@@ -47,6 +47,11 @@
 #define IDM_LINK                 558
 #define IDM_ALT_STREAMS          559
 
+#define IDM_VER_EDIT             580
+#define IDM_VER_COMMIT           581
+#define IDM_VER_REVERT           582
+#define IDM_VER_DIFF             583
+
 #define IDM_OPEN_INSIDE_ONE      590
 #define IDM_OPEN_INSIDE_PARSER   591
 
@@ -85,6 +90,8 @@
 #define IDM_VIEW_TOOLBARS_LARGE_BUTTONS     752
 #define IDM_VIEW_TOOLBARS_SHOW_BUTTONS_TEXT 753
 
+#define IDM_VIEW_TIME            761
+
 #define IDS_BOOKMARK             801
 
 #define IDM_OPTIONS              900
@@ -92,7 +99,7 @@
 #define IDM_BENCHMARK2           902
 
 #define IDM_HELP_CONTENTS        960
-#define IDM_ABOUT                5014  /* FIXME 961   5014 = wxID_ABOUT */
+#define IDM_ABOUT                961
 
 #define IDS_OPTIONS                     2100
 

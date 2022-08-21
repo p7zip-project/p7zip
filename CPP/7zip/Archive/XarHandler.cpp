@@ -82,11 +82,13 @@ struct CFile
 
   int Parent;
 
-  CFile(): IsDir(false), HasData(false), ModeDefined(false), Sha1IsDefined(false),
-      /* packSha1IsDefined(false), */
-      Parent(-1),
+  CFile():
       Size(0), PackSize(0), Offset(0),
-      CTime(0), MTime(0), ATime(0), Mode(0) {}
+      CTime(0), MTime(0), ATime(0), Mode(0),
+      IsDir(false), HasData(false), ModeDefined(false), Sha1IsDefined(false),
+      /* packSha1IsDefined(false), */
+      Parent(-1)
+      {}
 
   bool IsCopyMethod() const
   {
@@ -149,7 +151,8 @@ IMP_IInArchive_ArcProps
 
 #define PARSE_NUM(_num_, _dest_) \
     { const char *end; _dest_ = ConvertStringToUInt32(p, &end); \
-    if ((unsigned)(end - p) != _num_) return 0; p += _num_ + 1; }
+    if ((unsigned)(end - p) != _num_) return 0; \
+    p += _num_ + 1; }
 
 static bool ParseUInt64(const CXmlItem &item, const char *name, UInt64 &res)
 {
@@ -435,8 +438,8 @@ static void Utf8StringToProp(const AString &s, NCOM::CPropVariant &prop)
   if (!s.IsEmpty())
   {
     UString us;
-    if (ConvertUTF8ToUnicode(s, us))
-      prop = us;
+    ConvertUTF8ToUnicode(s, us);
+    prop = us;
   }
 }
 

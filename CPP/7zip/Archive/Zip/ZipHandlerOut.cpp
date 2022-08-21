@@ -30,7 +30,7 @@ namespace NZip {
 
 STDMETHODIMP CHandler::GetFileTimeType(UInt32 *timeType)
 {
-  *timeType = NFileTimeType::kDOS;
+  *timeType = TimeOptions.Prec;
   return S_OK;
 }
 
@@ -53,7 +53,7 @@ static int FindZipMethod(const char *s, const char * const *names, unsigned num)
   {
     const char *name = names[i];
     if (name && StringsAreEqualNoCase_Ascii(s, name))
-      return i;
+      return (int)i;
   }
   return -1;
 }
@@ -65,7 +65,7 @@ static int FindZipMethod(const char *s)
     return k;
   k = FindZipMethod(s, kMethodNames2, kNumMethodNames2);
   if (k >= 0)
-    return kMethodNames2Start + k;
+    return (int)kMethodNames2Start + k;
   return -1;
 }
 
@@ -75,7 +75,7 @@ static int FindZipMethod(const char *s)
 catch(const CSystemException &e) { return e.ErrorCode; } \
 catch(...) { return E_OUTOFMEMORY; }
 
-static HRESULT GetTime(IArchiveUpdateCallback *callback, int index, PROPID propID, FILETIME &filetime)
+static HRESULT GetTime(IArchiveUpdateCallback *callback, unsigned index, PROPID propID, FILETIME &filetime)
 {
   filetime.dwHighDateTime = filetime.dwLowDateTime = 0;
   NCOM::CPropVariant prop;
@@ -106,6 +106,10 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
   UInt64 largestSize = 0;
   bool largestSizeDefined = false;
 
+  #ifdef _WIN32
+  const UINT oemCP = GetOEMCP();
+  #endif
+
   UString name;
   CUpdateItem ui;
 
@@ -125,7 +129,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
 
     ui.NewProps = IntToBool(newProps);
     ui.NewData = IntToBool(newData);
-    ui.IndexInArc = indexInArc;
+    ui.IndexInArc = (int)indexInArc;
     ui.IndexInClient = i;
     
     bool existInArchive = (indexInArc != (UInt32)(Int32)-1);
@@ -136,6 +140,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
         thereAreAesUpdates = true;
       if (!IntToBool(newProps))
         ui.IsDir = inputItem.IsDir();
+      // ui.IsAltStream = inputItem.IsAltStream();
     }
 
     if (IntToBool(newProps))
@@ -175,26 +180,84 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
           ui.IsDir = (prop.boolVal != VARIANT_FALSE);
       }
 
+      /*
+      {
+        bool isAltStream = false;
+        {
+          NCOM::CPropVariant prop;
+          RINOK(callback->GetProperty(i, kpidIsAltStream, &prop));
+          if (prop.vt == VT_BOOL)
+            isAltStream = (prop.boolVal != VARIANT_FALSE);
+          else if (prop.vt != VT_EMPTY)
+            return E_INVALIDARG;
+        }
+      
+        if (isAltStream)
+        {
+          if (ui.IsDir)
+            return E_INVALIDARG;
+          int delim = name.ReverseFind(L':');
+          if (delim >= 0)
+          {
+            name.Delete(delim, 1);
+            name.Insert(delim, UString(k_SpecName_NTFS_STREAM));
+            ui.IsAltStream = true;
+          }
+        }
+      }
+      */
+
+      // 22.00 : kpidTimeType is useless here : the code was disabled
+      /*
       {
         CPropVariant prop;
         RINOK(callback->GetProperty(i, kpidTimeType, &prop));
         if (prop.vt == VT_UI4)
-          ui.NtfsTimeIsDefined = (prop.ulVal == NFileTimeType::kWindows);
+          ui.NtfsTime_IsDefined = (prop.ulVal == NFileTimeType::kWindows);
         else
-          ui.NtfsTimeIsDefined = m_WriteNtfsTimeExtra;
+          ui.NtfsTime_IsDefined = _Write_NtfsTime;
       }
-      RINOK(GetTime(callback, i, kpidMTime, ui.Ntfs_MTime));
-      RINOK(GetTime(callback, i, kpidATime, ui.Ntfs_ATime));
-      RINOK(GetTime(callback, i, kpidCTime, ui.Ntfs_CTime));
+      */
 
+      if (TimeOptions.Write_MTime.Val) RINOK (GetTime (callback, i, kpidMTime, ui.Ntfs_MTime));
+      if (TimeOptions.Write_ATime.Val) RINOK (GetTime (callback, i, kpidATime, ui.Ntfs_ATime));
+      if (TimeOptions.Write_CTime.Val) RINOK (GetTime (callback, i, kpidCTime, ui.Ntfs_CTime));
+
+      if (TimeOptions.Prec != k_PropVar_TimePrec_DOS)
       {
-        FILETIME localFileTime = { 0, 0 };
-        if (ui.Ntfs_MTime.dwHighDateTime != 0 ||
-            ui.Ntfs_MTime.dwLowDateTime != 0)
-          if (!FileTimeToLocalFileTime(&ui.Ntfs_MTime, &localFileTime))
-            return E_INVALIDARG;
-        FileTimeToDosTime(localFileTime, ui.Time);
+        if (TimeOptions.Prec == k_PropVar_TimePrec_Unix ||
+            TimeOptions.Prec == k_PropVar_TimePrec_Base)
+          ui.Write_UnixTime = ! FILETIME_IsZero (ui.Ntfs_MTime);
+        else
+        {
+          /*
+          // if we want to store zero timestamps as zero timestamp, use the following:
+            ui.Write_NtfsTime =
+            _Write_MTime ||
+            _Write_ATime ||
+            _Write_CTime;
+          */
+          
+          // We treat zero timestamp as no timestamp
+          ui.Write_NtfsTime =
+            ! FILETIME_IsZero (ui.Ntfs_MTime) ||
+            ! FILETIME_IsZero (ui.Ntfs_ATime) ||
+            ! FILETIME_IsZero (ui.Ntfs_CTime);
+        }
       }
+
+      /*
+        how 0 in dos time works:
+            win10 explorer extract : some random date 1601-04-25.
+            winrar 6.10 : write time.
+            7zip : MTime of archive is used
+          how 0 in tar works:
+            winrar 6.10 : 1970
+        0 in dos field can show that there is no timestamp.
+        we write correct 1970-01-01 in dos field, to support correct extraction in Win10.
+      */
+
+      UtcFileTime_To_LocalDosTime(ui.Ntfs_MTime, ui.Time);
 
       NItemName::ReplaceSlashes_OsToUnix(name);
       
@@ -212,30 +275,52 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
       if (needSlash)
         name += kSlash;
 
-      UINT codePage = _forceCodePage ? _specifiedCodePage : CP_OEMCP;
-
+      const UINT codePage = _forceCodePage ? _specifiedCodePage : CP_OEMCP;
       bool tryUtf8 = true;
-      if ((m_ForceLocal || !m_ForceUtf8) && codePage != CP_UTF8)
+
+      /*
+        Windows 10 allows users to set UTF-8 in Region Settings via option:
+        "Beta: Use Unicode UTF-8 for worldwide language support"
+        In that case Windows uses CP_UTF8 when we use CP_OEMCP.
+        21.02 fixed:
+          we set UTF-8 mark for non-latin files for such UTF-8 mode in Windows.
+          we write additional Info-Zip Utf-8 FileName Extra for non-latin names/
+      */
+
+      if ((codePage != CP_UTF8) &&
+        #ifdef _WIN32
+          (m_ForceLocal || !m_ForceUtf8) && (oemCP != CP_UTF8)
+        #else
+          (m_ForceLocal && !m_ForceUtf8)
+        #endif
+        )
       {
-#ifdef _WIN32
         bool defaultCharWasUsed;
         ui.Name = UnicodeStringToMultiByte(name, codePage, '_', defaultCharWasUsed);
         tryUtf8 = (!m_ForceLocal && (defaultCharWasUsed ||
           MultiByteToUnicodeString(ui.Name, codePage) != name));
-#else
-	// FIXME
-        ui.Name = UnicodeStringToMultiByte(name, CP_OEMCP);
-        tryUtf8 = (!m_ForceLocal);
-#endif
       }
+
+      const bool isNonLatin = !name.IsAscii();
 
       if (tryUtf8)
       {
-        ui.IsUtf8 = !name.IsAscii();
+        ui.IsUtf8 = isNonLatin;
         ConvertUnicodeToUTF8(name, ui.Name);
-      }
 
-      if (ui.Name.Len() >= (1 << 16))
+        #ifndef _WIN32
+        if (ui.IsUtf8 && !CheckUTF8_AString(ui.Name))
+        {
+          // if it's non-Windows and there are non-UTF8 characters we clear UTF8-flag
+          ui.IsUtf8 = false;
+        }
+        #endif
+      }
+      else if (isNonLatin)
+        Convert_Unicode_To_UTF8_Buf(name, ui.Name_Utf);
+
+      if (ui.Name.Len() >= (1 << 16)
+          || ui.Name_Utf.Size() >= (1 << 16) - 128)
         return E_INVALIDARG;
 
       {
@@ -256,7 +341,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
           else
           {
             bool defaultCharWasUsed;
-            a = UnicodeStringToMultiByte(s, codePage);   // , '_', defaultCharWasUsed);
+            a = UnicodeStringToMultiByte(s, codePage, '_', defaultCharWasUsed);
           }
           if (a.Len() >= (1 << 16))
             return E_INVALIDARG;
@@ -315,10 +400,10 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
   options._dataSizeReduceDefined = largestSizeDefined;
 
   options.PasswordIsDefined = false;
-  options.Password.Empty();
+  options.Password.Wipe_and_Empty();
   if (getTextPassword)
   {
-    CMyComBSTR password;
+    CMyComBSTR_Wipe password;
     Int32 passwordIsDefined;
     RINOK(getTextPassword->CryptoGetTextPassword2(&passwordIsDefined, &password));
     options.PasswordIsDefined = IntToBool(passwordIsDefined);
@@ -330,7 +415,7 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
       if (!IsSimpleAsciiString(password))
         return E_INVALIDARG;
       if (password)
-        options.Password = UnicodeStringToMultiByte((LPCOLESTR)password, CP_OEMCP);
+        UnicodeStringToMultiByte2(options.Password, (LPCOLESTR)password, CP_OEMCP);
       if (options.IsAesMode)
       {
         if (options.Password.Len() > NCrypto::NWzAes::kPasswordSizeMax)
@@ -354,7 +439,8 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
         {
           CMethodId methodId;
           UInt32 numStreams;
-          if (!FindMethod(EXTERNAL_CODECS_VARS methodName, methodId, numStreams))
+          if (FindMethod_Index(EXTERNAL_CODECS_VARS methodName, true,
+              methodId, numStreams) < 0)
             return E_NOTIMPL;
           if (numStreams != 1)
             return E_NOTIMPL;
@@ -386,11 +472,21 @@ STDMETHODIMP CHandler::UpdateItems(ISequentialOutStream *outStream, UInt32 numIt
   if (mainMethod != NFileHeader::NCompressionMethod::kStore)
     options.MethodSequence.Add(NFileHeader::NCompressionMethod::kStore);
 
+  CUpdateOptions uo;
+  uo.Write_MTime = TimeOptions.Write_MTime.Val;
+  uo.Write_ATime = TimeOptions.Write_ATime.Val;
+  uo.Write_CTime = TimeOptions.Write_CTime.Val;
+  /*
+  uo.Write_NtfsTime = _Write_NtfsTime &&
+    (_Write_MTime || _Write_ATime  || _Write_CTime);
+  uo.Write_UnixTime = _Write_UnixTime;
+  */
+
   return Update(
       EXTERNAL_CODECS_VARS
       m_Items, updateItems, outStream,
       m_Archive.IsOpen() ? &m_Archive : NULL, _removeSfxBlock,
-      options, callback);
+      uo, options, callback);
  
   COM_TRY_END2
 }
@@ -439,10 +535,9 @@ STDMETHODIMP CHandler::SetProperties(const wchar_t * const *names, const PROPVAR
           return E_INVALIDARG;
       }
     }
-    else if (name.IsEqualTo("tc"))
-    {
-      RINOK(PROPVARIANT_to_bool(prop, m_WriteNtfsTimeExtra));
-    }
+    
+
+   
     else if (name.IsEqualTo("cl"))
     {
       RINOK(PROPVARIANT_to_bool(prop, m_ForceLocal));
@@ -473,11 +568,16 @@ STDMETHODIMP CHandler::SetProperties(const wchar_t * const *names, const PROPVAR
         UInt32 id = prop.ulVal;
         if (id > 0xFF)
           return E_INVALIDARG;
-        m_MainMethod = id;
+        m_MainMethod = (int)id;
       }
       else
       {
-        RINOK(_props.SetProperty(name, prop));
+        bool processed = false;
+        RINOK(TimeOptions.Parse(name, prop, processed));
+        if (!processed)
+        {
+          RINOK(_props.SetProperty(name, prop));
+        }
       }
       // RINOK(_props.MethodInfo.ParseParamsFromPROPVARIANT(name, prop));
     }
@@ -495,7 +595,7 @@ STDMETHODIMP CHandler::SetProperties(const wchar_t * const *names, const PROPVAR
       const char *end;
       UInt32 id = ConvertStringToUInt32(methodName, &end);
       if (*end == 0 && id <= 0xFF)
-        m_MainMethod = id;
+        m_MainMethod = (int)id;
       else if (methodName.IsEqualTo_Ascii_NoCase("Copy")) // it's alias for "Store"
         m_MainMethod = 0;
     }

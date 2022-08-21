@@ -16,9 +16,8 @@ struct CCompressProgressWrap
   HRESULT Res;
   
   void Init(ICompressProgressInfo *progress) throw();
-  CCompressProgressWrap(ICompressProgressInfo *progress) throw();
-  CCompressProgressWrap() throw(){};
 };
+
 
 struct CSeqInStreamWrap
 {
@@ -28,9 +27,8 @@ struct CSeqInStreamWrap
   UInt64 Processed;
   
   void Init(ISequentialInStream *stream) throw();
-  CSeqInStreamWrap(ISequentialInStream *stream) throw();
-  CSeqInStreamWrap() throw(){};
 };
+
 
 struct CSeekInStreamWrap
 {
@@ -39,9 +37,8 @@ struct CSeekInStreamWrap
   HRESULT Res;
   
   void Init(IInStream *stream) throw();
-  CSeekInStreamWrap(IInStream *stream) throw();
-  CSeekInStreamWrap() throw(){};
 };
+
 
 struct CSeqOutStreamWrap
 {
@@ -51,14 +48,12 @@ struct CSeqOutStreamWrap
   UInt64 Processed;
   
   void Init(ISequentialOutStream *stream) throw();
-  CSeqOutStreamWrap(ISequentialOutStream *stream) throw();
-  CSeqOutStreamWrap() throw(){};
 };
 
 
 struct CByteInBufWrap
 {
-  IByteIn p;
+  IByteIn vt;
   const Byte *Cur;
   const Byte *Lim;
   Byte *Buf;
@@ -79,7 +74,7 @@ struct CByteInBufWrap
     Extra = false;
     Res = S_OK;
   }
-  UInt64 GetProcessed() const { return Processed + (Cur - Buf); }
+  UInt64 GetProcessed() const { return Processed + (size_t)(Cur - Buf); }
   Byte ReadByteFromNewBlock() throw();
   Byte ReadByte()
   {
@@ -89,9 +84,49 @@ struct CByteInBufWrap
   }
 };
 
+
+/*
+struct CLookToSequentialWrap
+{
+  Byte *BufBase;
+  UInt32 Size;
+  ISequentialInStream *Stream;
+  UInt64 Processed;
+  bool Extra;
+  HRESULT Res;
+  
+  CLookToSequentialWrap(): BufBase(NULL) {}
+  ~CLookToSequentialWrap() { Free(); }
+  void Free() throw();
+  bool Alloc(UInt32 size) throw();
+  void Init()
+  {
+    // Lim = Cur = Buf;
+    Processed = 0;
+    Extra = false;
+    Res = S_OK;
+  }
+  // UInt64 GetProcessed() const { return Processed + (Cur - Buf); }
+
+  Byte ReadByteFromNewBlock() throw();
+  Byte ReadByte()
+  {
+    if (Cur != Lim)
+      return *Cur++;
+    return ReadByteFromNewBlock();
+  }
+};
+
+EXTERN_C_BEGIN
+// void CLookToSequentialWrap_Look(ILookInSeqStream *pp);
+EXTERN_C_END
+*/
+
+
+
 struct CByteOutBufWrap
 {
-  IByteOut p;
+  IByteOut vt;
   Byte *Cur;
   const Byte *Lim;
   Byte *Buf;
@@ -111,7 +146,7 @@ struct CByteOutBufWrap
     Processed = 0;
     Res = S_OK;
   }
-  UInt64 GetProcessed() const { return Processed + (Cur - Buf); }
+  UInt64 GetProcessed() const { return Processed + (size_t)(Cur - Buf); }
   HRESULT Flush() throw();
   void WriteByte(Byte b)
   {
@@ -120,5 +155,28 @@ struct CByteOutBufWrap
       Flush();
   }
 };
+
+
+/*
+struct CLookOutWrap
+{
+  ILookOutStream vt;
+  Byte *Buf;
+  size_t Size;
+  ISequentialOutStream *Stream;
+  UInt64 Processed;
+  HRESULT Res;
+  
+  CLookOutWrap() throw();
+  ~CLookOutWrap() { Free(); }
+  void Free() throw();
+  bool Alloc(size_t size) throw();
+  void Init()
+  {
+    Processed = 0;
+    Res = S_OK;
+  }
+};
+*/
 
 #endif

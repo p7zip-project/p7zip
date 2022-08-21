@@ -3,10 +3,8 @@
 #include "StdAfx.h"
 
 #include "../../../Common/ComTry.h"
+#include "../../../Common/MyLinux.h"
 #include "../../../Common/StringConvert.h"
-
-#include "../../../Windows/PropVariant.h"
-#include "../../../Windows/TimeUtils.h"
 
 #include "../../Common/LimitedStreams.h"
 #include "../../Common/ProgressUtils.h"
@@ -33,8 +31,8 @@ static const Byte kProps[] =
   // kpidCTime,
   // kpidATime,
   kpidPosixAttrib,
-  // kpidUser,
-  // kpidGroup,
+  // kpidUserId,
+  // kpidGroupId,
   // kpidLinks,
   kpidSymLink
 };
@@ -126,8 +124,8 @@ STDMETHODIMP CHandler::GetArchiveProperty(PROPID propID, PROPVARIANT *value)
       prop = s;
       break;
     }
-    case kpidCTime: { FILETIME utc; if (vol.CTime.GetFileTime(utc)) prop = utc; break; }
-    case kpidMTime: { FILETIME utc; if (vol.MTime.GetFileTime(utc)) prop = utc; break; }
+    case kpidCTime: { vol.CTime.GetFileTime(prop); break; }
+    case kpidMTime: { vol.MTime.GetFileTime(prop); break; }
   }
   }
 
@@ -221,16 +219,15 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
       case kpidSymLink:
         if (_archive.IsSusp)
         {
-          UString s;
           UInt32 mode;
           if (item.GetPx(_archive.SuspSkipSize, k_Px_Mode, mode))
           {
-            if (((mode >> 12) & 0xF) == 10)
+            if (MY_LIN_S_ISLNK(mode))
             {
               AString s8;
               if (item.GetSymLink(_archive.SuspSkipSize, s8))
               {
-                s = MultiByteToUnicodeString(s8, CP_OEMCP);
+                UString s = MultiByteToUnicodeString(s8, CP_OEMCP);
                 prop = s;
               }
             }
@@ -242,8 +239,8 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
       case kpidPosixAttrib:
       /*
       case kpidLinks:
-      case kpidUser:
-      case kpidGroup:
+      case kpidUserId:
+      case kpidGroupId:
       */
       {
         if (_archive.IsSusp)
@@ -254,8 +251,8 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
             case kpidPosixAttrib: t = k_Px_Mode; break;
             /*
             case kpidLinks: t = k_Px_Links; break;
-            case kpidUser: t = k_Px_User; break;
-            case kpidGroup: t = k_Px_Group; break;
+            case kpidUserId: t = k_Px_User; break;
+            case kpidGroupId: t = k_Px_Group; break;
             */
           }
           UInt32 v;
@@ -276,9 +273,8 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
       // case kpidCTime:
       // case kpidATime:
       {
-        FILETIME utc;
-        if (/* propID == kpidMTime && */ item.DateTime.GetFileTime(utc))
-          prop = utc;
+        // if
+        item.DateTime.GetFileTime(prop);
         /*
         else
         {

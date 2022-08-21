@@ -14,6 +14,11 @@
 namespace NArchive {
 namespace NZip {
 
+/*
+extern const char *k_SpecName_NTFS_STREAM;
+extern const char *k_SpecName_MAC_RESOURCE_FORK;
+*/
+
 struct CVersion
 {
   Byte Version;
@@ -26,25 +31,11 @@ struct CExtraSubBlock
   CByteBuffer Data;
 
   bool ExtractNtfsTime(unsigned index, FILETIME &ft) const;
-  bool ExtractUnixTime(bool isCentral, unsigned index, UInt32 &res) const;
-  bool ExtractUnixExtraTime(unsigned index, UInt32 &res) const;
-  
-  bool ExtractIzUnicode(UInt32 crc, AString &name) const
-  {
-    unsigned size = (unsigned)Data.Size();
-    if (size < 1 + 4)
-      return false;
-    const Byte *p = (const Byte *)Data;
-    if (p[0] > 1)
-      return false;
-    if (crc != GetUi32(p + 1))
-      return false;
-    size -= 5;
-    name.SetFrom_CalcLen((const char *)p + 5, size);
-    if (size != name.Len())
-      return false;
-    return CheckUTF8(name, false);
-  }
+  bool Extract_UnixTime(bool isCentral, unsigned index, UInt32 &res) const;
+  bool Extract_Unix01_Time(unsigned index, UInt32 &res) const;
+  // bool Extract_Unix_Time(unsigned index, UInt32 &res) const;
+
+  bool CheckIzUnicode(const AString &s) const;
 
   void PrintInfo(AString &s) const;
 };
@@ -197,8 +188,14 @@ struct CExtraBlock
     for (unsigned i = SubBlocks.Size(); i != 0;)
     {
       i--;
-      if (SubBlocks[i].ID != NFileHeader::NExtraID::kWzAES)
-        SubBlocks.Delete(i);
+      switch (SubBlocks[i].ID)
+      {
+        case NFileHeader::NExtraID::kStrongEncrypt:
+        case NFileHeader::NExtraID::kWzAES:
+          break;
+        default:
+          SubBlocks.Delete(i);
+      }
     }
   }
 };
@@ -209,6 +206,12 @@ class CLocalItem
 public:
   UInt16 Flags;
   UInt16 Method;
+  
+  /*
+    Zip specification doesn't mention that ExtractVersion field uses HostOS subfield.
+    18.06: 7-Zip now doesn't use ExtractVersion::HostOS to detect codePage
+  */
+
   CVersion ExtractVersion;
 
   UInt64 Size;
@@ -233,6 +236,7 @@ public:
   bool IsAesEncrypted() const { return IsEncrypted() && (IsStrongEncrypted() || Method == NFileHeader::NCompressionMethod::kWzAES); }
   bool IsLzmaEOS() const { return (Flags & NFileHeader::NFlags::kLzmaEOS) != 0; }
   bool HasDescriptor() const { return (Flags & NFileHeader::NFlags::kDescriptorUsedMask) != 0; }
+  // bool IsAltStream() const { return (Flags & NFileHeader::NFlags::kAltStream) != 0; }
 
   unsigned GetDeflateLevel() const { return (Flags >> 1) & 3; }
   
@@ -254,9 +258,9 @@ private:
   void SetFlag(unsigned bitMask, bool enable)
   {
     if (enable)
-      Flags |= bitMask;
+      Flags = (UInt16)(Flags | bitMask);
     else
-      Flags &= ~bitMask;
+      Flags = (UInt16)(Flags & ~bitMask);
   }
 
 public:
@@ -264,9 +268,15 @@ public:
   void ClearFlags() { Flags = 0; }
   void SetEncrypted(bool encrypted) { SetFlag(NFileHeader::NFlags::kEncrypted, encrypted); }
   void SetUtf8(bool isUtf8) { SetFlag(NFileHeader::NFlags::kUtf8, isUtf8); }
+  // void SetFlag_AltStream(bool isAltStream) { SetFlag(NFileHeader::NFlags::kAltStream, isAltStream); }
   void SetDescriptorMode(bool useDescriptor) { SetFlag(NFileHeader::NFlags::kDescriptorUsedMask, useDescriptor); }
 
-  UINT GetCodePage() const { return CP_OEMCP; }
+  UINT GetCodePage() const
+  {
+    if (IsUtf8())
+      return CP_UTF8;
+    return CP_OEMCP;
+  }
 };
 
 
@@ -302,7 +312,8 @@ public:
   UInt32 GetWinAttrib() const;
   bool GetPosixAttrib(UInt32 &attrib) const;
 
-  Byte GetHostOS() const { return FromCentral ? MadeByVersion.HostOS : ExtractVersion.HostOS; }
+  // 18.06: 0 instead of ExtractVersion.HostOS for local item
+  Byte GetHostOS() const { return FromCentral ? MadeByVersion.HostOS : (Byte)0; }
 
   void GetUnicodeString(UString &res, const AString &s, bool isComment, bool useSpecifiedCodePage, UINT codePage) const;
 
@@ -316,10 +327,22 @@ public:
     }
     return (Crc != 0 || !IsDir());
   }
+
+  bool Is_MadeBy_Unix() const
+  {
+    if (!FromCentral)
+      return false;
+    return (MadeByVersion.HostOS == NFileHeader::NHostOS::kUnix);
+  }
   
   UINT GetCodePage() const
   {
-    Byte hostOS = GetHostOS();
+    // 18.06: now we use HostOS only from Central::MadeByVersion
+    if (IsUtf8())
+      return CP_UTF8;
+    if (!FromCentral)
+      return CP_OEMCP;
+    Byte hostOS = MadeByVersion.HostOS;
     return (UINT)((
            hostOS == NFileHeader::NHostOS::kFAT
         || hostOS == NFileHeader::NHostOS::kNTFS

@@ -2,7 +2,10 @@
 
 #include "StdAfx.h"
 
+#include "../../../../C/CpuArch.h"
+
 #include "../../../Common/IntToString.h"
+#include "../../../Common/StringToInt.h"
 
 #include "../../../Windows/FileDir.h"
 #include "../../../Windows/Registry.h"
@@ -16,9 +19,9 @@ using namespace NRegistry;
 static NSynchronization::CCriticalSection g_CS;
 #define CS_LOCK NSynchronization::CCriticalSectionLock lock(g_CS);
 
-static const TCHAR *kCuPrefix = TEXT("Software") TEXT(STRING_PATH_SEPARATOR) TEXT("7-Zip") TEXT(STRING_PATH_SEPARATOR);
+static LPCTSTR const kCuPrefix = TEXT("Software") TEXT(STRING_PATH_SEPARATOR) TEXT("7-Zip") TEXT(STRING_PATH_SEPARATOR);
 
-static CSysString GetKeyPath(const CSysString &path) { return kCuPrefix + path; }
+static CSysString GetKeyPath(LPCTSTR path) { return kCuPrefix + (CSysString)path; }
 
 static LONG OpenMainKey(CKey &key, LPCTSTR keyName)
 {
@@ -30,10 +33,43 @@ static LONG CreateMainKey(CKey &key, LPCTSTR keyName)
   return key.Create(HKEY_CURRENT_USER, GetKeyPath(keyName));
 }
 
+static void Key_Set_UInt32(CKey &key, LPCTSTR name, UInt32 value)
+{
+  if (value == (UInt32)(Int32)-1)
+    key.DeleteValue(name);
+  else
+    key.SetValue(name, value);
+}
+
+
+static void Key_Get_UInt32(CKey &key, LPCTSTR name, UInt32 &value)
+{
+  if (key.QueryValue(name, value) != ERROR_SUCCESS)
+    value = (UInt32)(Int32)-1;
+}
+
+
 static void Key_Set_BoolPair(CKey &key, LPCTSTR name, const CBoolPair &b)
 {
   if (b.Def)
     key.SetValue(name, b.Val);
+}
+
+static void Key_Set_bool_if_Changed(CKey &key, LPCTSTR name, bool val)
+{
+  bool oldVal = false;
+  if (key.GetValue_IfOk(name, oldVal) == ERROR_SUCCESS)
+    if (val == oldVal)
+      return;
+  key.SetValue(name, val);
+}
+
+static void Key_Set_BoolPair_Delete_IfNotDef(CKey &key, LPCTSTR name, const CBoolPair &b)
+{
+  if (b.Def)
+    Key_Set_bool_if_Changed(key, name, b.Val);
+  else
+    key.DeleteValue(name);
 }
 
 static void Key_Get_BoolPair(CKey &key, LPCTSTR name, CBoolPair &b)
@@ -51,16 +87,16 @@ static void Key_Get_BoolPair_true(CKey &key, LPCTSTR name, CBoolPair &b)
 namespace NExtract
 {
 
-static const TCHAR *kKeyName = TEXT("Extraction");
+static LPCTSTR const kKeyName = TEXT("Extraction");
 
-static const TCHAR *kExtractMode = TEXT("ExtractMode");
-static const TCHAR *kOverwriteMode = TEXT("OverwriteMode");
-static const TCHAR *kShowPassword = TEXT("ShowPassword");
-static const TCHAR *kPathHistory = TEXT("PathHistory");
-static const TCHAR *kSplitDest = TEXT("SplitDest");
-static const TCHAR *kElimDup = TEXT("ElimDup");
-// static const TCHAR *kAltStreams = TEXT("AltStreams");
-static const TCHAR *kNtSecur = TEXT("Security");
+static LPCTSTR const kExtractMode = TEXT("ExtractMode");
+static LPCTSTR const kOverwriteMode = TEXT("OverwriteMode");
+static LPCTSTR const kShowPassword = TEXT("ShowPassword");
+static LPCTSTR const kPathHistory = TEXT("PathHistory");
+static LPCTSTR const kSplitDest = TEXT("SplitDest");
+static LPCTSTR const kElimDup = TEXT("ElimDup");
+// static LPCTSTR const kAltStreams = TEXT("AltStreams");
+static LPCTSTR const kNtSecur = TEXT("Security");
 
 void CInfo::Save() const
 {
@@ -144,30 +180,37 @@ bool Read_ShowPassword()
 namespace NCompression
 {
 
-static const TCHAR *kKeyName = TEXT("Compression");
+static LPCTSTR const kKeyName = TEXT("Compression");
 
-static const TCHAR *kArcHistory = TEXT("ArcHistory");
-static const WCHAR *kArchiver = L"Archiver";
-static const TCHAR *kShowPassword = TEXT("ShowPassword");
-static const TCHAR *kEncryptHeaders = TEXT("EncryptHeaders");
+static LPCTSTR const kArcHistory = TEXT("ArcHistory");
+static LPCWSTR const kArchiver = L"Archiver";
+static LPCTSTR const kShowPassword = TEXT("ShowPassword");
+static LPCTSTR const kEncryptHeaders = TEXT("EncryptHeaders");
 
-static const TCHAR *kOptionsKeyName = TEXT("Options");
+static LPCTSTR const kOptionsKeyName = TEXT("Options");
 
-static const TCHAR *kLevel = TEXT("Level");
-static const TCHAR *kDictionary = TEXT("Dictionary");
-static const TCHAR *kOrder = TEXT("Order");
-static const TCHAR *kBlockSize = TEXT("BlockSize");
-static const TCHAR *kNumThreads = TEXT("NumThreads");
-static const WCHAR *kMethod = L"Method";
-static const WCHAR *kOptions = L"Options";
-static const WCHAR *kEncryptionMethod = L"EncryptionMethod";
+static LPCTSTR const kLevel = TEXT("Level");
+static LPCTSTR const kDictionary = TEXT("Dictionary");
+static LPCTSTR const kOrder = TEXT("Order");
+static LPCTSTR const kBlockSize = TEXT("BlockSize");
+static LPCTSTR const kNumThreads = TEXT("NumThreads");
+static LPCWSTR const kMethod = L"Method";
+static LPCWSTR const kOptions = L"Options";
+static LPCWSTR const kEncryptionMethod = L"EncryptionMethod";
 
-static const TCHAR *kNtSecur = TEXT("Security");
-static const TCHAR *kAltStreams = TEXT("AltStreams");
-static const TCHAR *kHardLinks = TEXT("HardLinks");
-static const TCHAR *kSymLinks = TEXT("SymLinks");
+static LPCTSTR const kNtSecur = TEXT("Security");
+static LPCTSTR const kAltStreams = TEXT("AltStreams");
+static LPCTSTR const kHardLinks = TEXT("HardLinks");
+static LPCTSTR const kSymLinks = TEXT("SymLinks");
+static LPCTSTR const kPreserveATime = TEXT("PreserveATime");
 
-static void SetRegString(CKey &key, const WCHAR *name, const UString &value)
+static LPCTSTR const kTimePrec = TEXT("TimePrec");
+static LPCTSTR const kMTime = TEXT("MTime");
+static LPCTSTR const kATime = TEXT("ATime");
+static LPCTSTR const kCTime = TEXT("CTime");
+static LPCTSTR const kSetArcMTime = TEXT("SetArcMTime");
+
+static void SetRegString(CKey &key, LPCWSTR name, const UString &value)
 {
   if (value.IsEmpty())
     key.DeleteValue(name);
@@ -175,25 +218,18 @@ static void SetRegString(CKey &key, const WCHAR *name, const UString &value)
     key.SetValue(name, value);
 }
 
-static void SetRegUInt32(CKey &key, const TCHAR *name, UInt32 value)
-{
-  if (value == (UInt32)(Int32)-1)
-    key.DeleteValue(name);
-  else
-    key.SetValue(name, value);
-}
-
-static void GetRegString(CKey &key, const WCHAR *name, UString &value)
+static void GetRegString(CKey &key, LPCWSTR name, UString &value)
 {
   if (key.QueryValue(name, value) != ERROR_SUCCESS)
     value.Empty();
 }
 
-static void GetRegUInt32(CKey &key, const TCHAR *name, UInt32 &value)
-{
-  if (key.QueryValue(name, value) != ERROR_SUCCESS)
-    value = (UInt32)(Int32)-1;
-}
+static LPCWSTR const kMemUse = L"MemUse"
+    #if defined(MY_CPU_SIZEOF_POINTER) && (MY_CPU_SIZEOF_POINTER == 4)
+      L"32";
+    #else
+      L"64";
+    #endif
 
 void CInfo::Save() const
 {
@@ -202,10 +238,11 @@ void CInfo::Save() const
   CKey key;
   CreateMainKey(key, kKeyName);
 
-  Key_Set_BoolPair(key, kNtSecur, NtSecurity);
-  Key_Set_BoolPair(key, kAltStreams, AltStreams);
-  Key_Set_BoolPair(key, kHardLinks, HardLinks);
-  Key_Set_BoolPair(key, kSymLinks, SymLinks);
+  Key_Set_BoolPair_Delete_IfNotDef (key, kNtSecur, NtSecurity);
+  Key_Set_BoolPair_Delete_IfNotDef (key, kAltStreams, AltStreams);
+  Key_Set_BoolPair_Delete_IfNotDef (key, kHardLinks, HardLinks);
+  Key_Set_BoolPair_Delete_IfNotDef (key, kSymLinks, SymLinks);
+  Key_Set_BoolPair_Delete_IfNotDef (key, kPreserveATime, PreserveATime);
   
   key.SetValue(kShowPassword, ShowPassword);
   key.SetValue(kLevel, (UInt32)Level);
@@ -225,15 +262,22 @@ void CInfo::Save() const
       CKey fk;
       fk.Create(optionsKey, fo.FormatID);
       
-      SetRegUInt32(fk, kLevel, fo.Level);
-      SetRegUInt32(fk, kDictionary, fo.Dictionary);
-      SetRegUInt32(fk, kOrder, fo.Order);
-      SetRegUInt32(fk, kBlockSize, fo.BlockLogSize);
-      SetRegUInt32(fk, kNumThreads, fo.NumThreads);
-
       SetRegString(fk, kMethod, fo.Method);
       SetRegString(fk, kOptions, fo.Options);
       SetRegString(fk, kEncryptionMethod, fo.EncryptionMethod);
+      SetRegString(fk, kMemUse, fo.MemUse);
+
+      Key_Set_UInt32(fk, kLevel, fo.Level);
+      Key_Set_UInt32(fk, kDictionary, fo.Dictionary);
+      Key_Set_UInt32(fk, kOrder, fo.Order);
+      Key_Set_UInt32(fk, kBlockSize, fo.BlockLogSize);
+      Key_Set_UInt32(fk, kNumThreads, fo.NumThreads);
+
+      Key_Set_UInt32(fk, kTimePrec, fo.TimePrec);
+      Key_Set_BoolPair_Delete_IfNotDef (fk, kMTime, fo.MTime);
+      Key_Set_BoolPair_Delete_IfNotDef (fk, kATime, fo.ATime);
+      Key_Set_BoolPair_Delete_IfNotDef (fk, kCTime, fo.CTime);
+      Key_Set_BoolPair_Delete_IfNotDef (fk, kSetArcMTime, fo.SetArcMTime);
     }
   }
 }
@@ -258,6 +302,7 @@ void CInfo::Load()
   Key_Get_BoolPair(key, kAltStreams, AltStreams);
   Key_Get_BoolPair(key, kHardLinks, HardLinks);
   Key_Get_BoolPair(key, kSymLinks, SymLinks);
+  Key_Get_BoolPair(key, kPreserveATime, PreserveATime);
 
   key.GetValue_Strings(kArcHistory, ArcPaths);
   
@@ -274,15 +319,22 @@ void CInfo::Load()
         fo.FormatID = formatIDs[i];
         if (fk.Open(optionsKey, fo.FormatID, KEY_READ) == ERROR_SUCCESS)
         {
-          GetRegString(fk, kOptions, fo.Options);
           GetRegString(fk, kMethod, fo.Method);
+          GetRegString(fk, kOptions, fo.Options);
           GetRegString(fk, kEncryptionMethod, fo.EncryptionMethod);
+          GetRegString(fk, kMemUse, fo.MemUse);
 
-          GetRegUInt32(fk, kLevel, fo.Level);
-          GetRegUInt32(fk, kDictionary, fo.Dictionary);
-          GetRegUInt32(fk, kOrder, fo.Order);
-          GetRegUInt32(fk, kBlockSize, fo.BlockLogSize);
-          GetRegUInt32(fk, kNumThreads, fo.NumThreads);
+          Key_Get_UInt32(fk, kLevel, fo.Level);
+          Key_Get_UInt32(fk, kDictionary, fo.Dictionary);
+          Key_Get_UInt32(fk, kOrder, fo.Order);
+          Key_Get_UInt32(fk, kBlockSize, fo.BlockLogSize);
+          Key_Get_UInt32(fk, kNumThreads, fo.NumThreads);
+
+          Key_Get_UInt32(fk, kTimePrec, fo.TimePrec);
+          Key_Get_BoolPair(fk, kMTime, fo.MTime);
+          Key_Get_BoolPair(fk, kATime, fo.ATime);
+          Key_Get_BoolPair(fk, kCTime, fo.CTime);
+          Key_Get_BoolPair(fk, kSetArcMTime, fo.SetArcMTime);
 
           Formats.Add(fo);
         }
@@ -298,15 +350,125 @@ void CInfo::Load()
   key.GetValue_IfOk(kEncryptHeaders, EncryptHeaders);
 }
 
+
+static bool ParseMemUse(const wchar_t *s, CMemUse &mu)
+{
+  mu.Clear();
+
+  bool percentMode = false;
+  {
+    const wchar_t c = *s;
+    if (MyCharLower_Ascii(c) == 'p')
+    {
+      percentMode = true;
+      s++;
+    }
+  }
+  const wchar_t *end;
+  UInt64 number = ConvertStringToUInt64(s, &end);
+  if (end == s)
+    return false;
+  
+  wchar_t c = *end;
+
+  if (percentMode)
+  {
+    if (c != 0)
+      return false;
+    mu.IsPercent = true;
+    mu.Val = number;
+    return true;
+  }
+
+  if (c == 0)
+  {
+    mu.Val = number;
+    return true;
+  }
+
+  c = MyCharLower_Ascii(c);
+
+  const wchar_t c1 = end[1];
+  
+  if (c == '%')
+  {
+    if (c1 != 0)
+      return false;
+    mu.IsPercent = true;
+    mu.Val = number;
+    return true;
+  }
+
+  if (c == 'b')
+  {
+    if (c1 != 0)
+      return false;
+    mu.Val = number;
+    return true;
+  }
+  
+  if (c1 != 0)
+    if (MyCharLower_Ascii(c1) != 'b' || end[2] != 0)
+      return false;
+  
+  unsigned numBits;
+  switch (c)
+  {
+    case 'k': numBits = 10; break;
+    case 'm': numBits = 20; break;
+    case 'g': numBits = 30; break;
+    case 't': numBits = 40; break;
+    default: return false;
+  }
+  if (number >= ((UInt64)1 << (64 - numBits)))
+    return false;
+  mu.Val = number << numBits;
+  return true;
 }
 
-static const TCHAR *kOptionsInfoKeyName = TEXT("Options");
+
+void CMemUse::Parse(const UString &s)
+{
+  IsDefined = ParseMemUse(s, *this);
+}
+
+/*
+void MemLimit_Save(const UString &s)
+{
+  CS_LOCK
+  CKey key;
+  CreateMainKey(key, kKeyName);
+  SetRegString(key, kMemUse, s);
+}
+
+bool MemLimit_Load(NCompression::CMemUse &mu)
+{
+  mu.Clear();
+  UString a;
+  {
+    CS_LOCK
+    CKey key;
+    if (OpenMainKey(key, kKeyName) != ERROR_SUCCESS)
+      return false;
+    if (key.QueryValue(kMemUse, a) != ERROR_SUCCESS)
+      return false;
+  }
+  if (a.IsEmpty())
+    return false;
+  mu.Parse(a);
+  return mu.IsDefined;
+}
+*/
+
+}
+
+static LPCTSTR const kOptionsInfoKeyName = TEXT("Options");
 
 namespace NWorkDir
 {
-static const TCHAR *kWorkDirType = TEXT("WorkDirType");
-static const WCHAR *kWorkDirPath = L"WorkDirPath";
-static const TCHAR *kTempRemovableOnly = TEXT("TempRemovableOnly");
+static LPCTSTR const kWorkDirType = TEXT("WorkDirType");
+static LPCWSTR const kWorkDirPath = L"WorkDirPath";
+static LPCTSTR const kTempRemovableOnly = TEXT("TempRemovableOnly");
 
 
 void CInfo::Save()const
@@ -352,10 +514,11 @@ void CInfo::Load()
 
 }
 
-static const TCHAR *kCascadedMenu = TEXT("CascadedMenu");
-static const TCHAR *kContextMenu = TEXT("ContextMenu");
-static const TCHAR *kMenuIcons = TEXT("MenuIcons");
-static const TCHAR *kElimDup = TEXT("ElimDupExtract");
+static LPCTSTR const kCascadedMenu = TEXT("CascadedMenu");
+static LPCTSTR const kContextMenu = TEXT("ContextMenu");
+static LPCTSTR const kMenuIcons = TEXT("MenuIcons");
+static LPCTSTR const kElimDup = TEXT("ElimDupExtract");
+static LPCTSTR const kWriteZoneId = TEXT("WriteZoneIdExtract");
 
 void CContextMenuInfo::Save() const
 {
@@ -366,6 +529,8 @@ void CContextMenuInfo::Save() const
   Key_Set_BoolPair(key, kCascadedMenu, Cascaded);
   Key_Set_BoolPair(key, kMenuIcons, MenuIcons);
   Key_Set_BoolPair(key, kElimDup, ElimDup);
+
+  Key_Set_UInt32(key, kWriteZoneId, WriteZone);
   
   if (Flags_Def)
     key.SetValue(kContextMenu, Flags);
@@ -382,6 +547,8 @@ void CContextMenuInfo::Load()
   ElimDup.Val = true;
   ElimDup.Def = false;
 
+  WriteZone = (UInt32)(Int32)-1;
+
   Flags = (UInt32)(Int32)-1;
   Flags_Def = false;
   
@@ -394,6 +561,8 @@ void CContextMenuInfo::Load()
   Key_Get_BoolPair_true(key, kCascadedMenu, Cascaded);
   Key_Get_BoolPair_true(key, kElimDup, ElimDup);
   Key_Get_BoolPair(key, kMenuIcons, MenuIcons);
+
+  Key_Get_UInt32(key, kWriteZoneId, WriteZone);
 
   Flags_Def = (key.GetValue_IfOk(kContextMenu, Flags) == ERROR_SUCCESS);
 }

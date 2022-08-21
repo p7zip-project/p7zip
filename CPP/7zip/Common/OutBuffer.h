@@ -47,7 +47,7 @@ public:
 
   void WriteByte(Byte b)
   {
-   UInt32 pos = _pos;
+    UInt32 pos = _pos;
     _buf[pos] = b;
     pos++;
     _pos = pos;

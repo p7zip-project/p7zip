@@ -61,7 +61,6 @@ bool CMessagesDialog::OnInit()
 
 bool CMessagesDialog::OnSize(WPARAM /* wParam */, int xSize, int ySize)
 {
-#ifdef _WIN32
   int mx, my;
   GetMargins(8, mx, my);
   int bx, by;
@@ -73,6 +72,5 @@ bool CMessagesDialog::OnSize(WPARAM /* wParam */, int xSize, int ySize)
 
   MoveItem(IDOK, x, y, bx, by);
   _messageList.Move(mx, my, xSize - mx * 2, y - my * 2);
-#endif
   return false;
 }

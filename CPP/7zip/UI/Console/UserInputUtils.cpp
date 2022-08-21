@@ -7,21 +7,6 @@
 
 #include "UserInputUtils.h"
 
-#ifdef USE_FLTK
-// the programs like file-roller or xarchiver do not support archives with password
-// these programs freeze because p7zip is waiting for a password
-// defining USE_FLTK allows p7zip to use a popup in order to ask the password.
-#include <FL/Fl.H>
-#include <FL/Fl_Window.H>
-#include <FL/fl_ask.H>
-#else
-#ifdef ENV_HAVE_GETPASS
-#include <pwd.h>
-#include <unistd.h>
-#include "Common/MyException.h"
-#endif
-#endif
-
 static const char kYes = 'y';
 static const char kNo = 'n';
 static const char kYesAll = 'a';
@@ -29,8 +14,8 @@ static const char kNoAll = 's';
 static const char kAutoRenameAll = 'u';
 static const char kQuit = 'q';
 
-static const char *kFirstQuestionMessage = "? ";
-static const char *kHelpQuestionMessage =
+static const char * const kFirstQuestionMessage = "? ";
+static const char * const kHelpQuestionMessage =
   "(Y)es / (N)o / (A)lways / (S)kip all / A(u)to rename all / (Q)uit? ";
 
 // return true if pressed Quite;
@@ -46,10 +31,17 @@ NUserAnswerMode::EEnum ScanUserYesNoAllQuit(CStdOutStream *outStream)
       *outStream << kHelpQuestionMessage;
       outStream->Flush();
     }
-    AString scannedString = g_StdIn.ScanStringUntilNewLine();
+    AString scannedString;
+    if (!g_StdIn.ScanAStringUntilNewLine(scannedString))
+      return NUserAnswerMode::kError;
+    if (g_StdIn.Error())
+      return NUserAnswerMode::kError;
     scannedString.Trim();
-    if (!scannedString.IsEmpty())
-      switch(::MyCharLower_Ascii(scannedString[0]))
+    if (scannedString.IsEmpty() && g_StdIn.Eof())
+      return NUserAnswerMode::kEof;
+
+    if (scannedString.Len() == 1)
+      switch (::MyCharLower_Ascii(scannedString[0]))
       {
         case kYes:    return NUserAnswerMode::kYes;
         case kNo:     return NUserAnswerMode::kNo;
@@ -67,18 +59,8 @@ NUserAnswerMode::EEnum ScanUserYesNoAllQuit(CStdOutStream *outStream)
 #endif
 #endif
 
-#ifdef ENV_HAVE_GETPASS
-#define MY_DISABLE_ECHO
-#endif
-
-UString GetPassword(CStdOutStream *outStream,bool verify)
+static bool GetPassword(CStdOutStream *outStream, UString &psw)
 {
-#ifdef USE_FLTK 
-  const char *r = fl_password("Enter password", 0);
-  AString oemPassword = "";
-  if (r) oemPassword = r;
-  return MultiByteToUnicodeString(oemPassword, CP_OEMCP);
-#else /* USE_FLTK */
   if (outStream)
   {
     *outStream << "\nEnter password"
@@ -88,18 +70,41 @@ UString GetPassword(CStdOutStream *outStream,bool verify)
       ":";
     outStream->Flush();
   }
-#ifdef ENV_HAVE_GETPASS
-  AString oemPassword = getpass("");
-  if ( (verify) && (outStream) )
+
+  #ifdef MY_DISABLE_ECHO
+  
+  HANDLE console = GetStdHandle(STD_INPUT_HANDLE);
+  bool wasChanged = false;
+  DWORD mode = 0;
+  if (console != INVALID_HANDLE_VALUE && console != 0)
+    if (GetConsoleMode(console, &mode))
+      wasChanged = (SetConsoleMode(console, mode & ~(DWORD)ENABLE_ECHO_INPUT) != 0);
+  bool res = g_StdIn.ScanUStringUntilNewLine(psw);
+  if (wasChanged)
+    SetConsoleMode(console, mode);
+  
+  #else
+  
+  bool res = g_StdIn.ScanUStringUntilNewLine(psw);
+  
+  #endif
+
+  if (outStream)
   {
-    (*outStream) << "Verify password (will not be echoed) :";
+    *outStream << endl;
     outStream->Flush();
-    AString oemPassword2 = getpass("");
-    if (oemPassword != oemPassword2) throw "password verification failed";
   }
-  return MultiByteToUnicodeString(oemPassword, CP_OEMCP);
-#else
-  return g_StdIn.ScanUStringUntilNewLine();
-#endif
-#endif /* USE_FLTK */
+
+  return res;
+}
+
+HRESULT GetPassword_HRESULT(CStdOutStream *outStream, UString &psw)
+{
+  if (!GetPassword(outStream, psw))
+    return E_INVALIDARG;
+  if (g_StdIn.Error())
+    return E_FAIL;
+  if (g_StdIn.Eof() && psw.IsEmpty())
+    return E_ABORT;
+  return S_OK;
 }

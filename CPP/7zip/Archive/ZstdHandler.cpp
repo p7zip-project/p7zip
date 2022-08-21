@@ -388,6 +388,7 @@ REGISTER_ARC_IO(
   k_Signature,
   0,
   NArcInfoFlags::kKeepName,
+  0,
   IsArc_zstd)
 
 }}

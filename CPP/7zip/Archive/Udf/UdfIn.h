@@ -243,7 +243,7 @@ struct CItem
   UInt64 NumLogBlockRecorded;
   CTime ATime;
   CTime MTime;
-  // CTime AttrtTime;
+  CTime AttribTime; // Attribute time : most recent date and time of the day of file creation or modification of the attributes of.
   // UInt32 CheckPoint;
   // CLongAllocDesc ExtendedAttrIcb;
   // CRegId ImplId;
@@ -351,7 +351,7 @@ class CInArchive
   UInt64 _processedProgressBytes;
 
   UInt64 _fileNameLengthTotal;
-  int _numRefs;
+  unsigned _numRefs;
   UInt32 _numExtents;
   UInt64 _inlineExtentsSize;
   bool CheckExtent(int volIndex, int partitionRef, UInt32 blockPos, UInt32 len) const;

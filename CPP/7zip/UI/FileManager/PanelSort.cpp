@@ -83,9 +83,9 @@ static inline const wchar_t *GetExtensionPtr(const UString &name)
 void CPanel::SetSortRawStatus()
 {
   _isRawSortProp = false;
-  FOR_VECTOR (i, _properties)
+  FOR_VECTOR (i, _columns)
   {
-    const CItemProperty &prop = _properties[i];
+    const CPropColumn &prop = _columns[i];
     if (prop.ID == _sortID)
     {
       _isRawSortProp = prop.IsRawProp ? 1 : 0;
@@ -95,7 +95,7 @@ void CPanel::SetSortRawStatus()
 }
 
 
-int CALLBACK CompareItems2(LPARAM lParam1, LPARAM lParam2, LPARAM lpData)
+static int CALLBACK CompareItems2(LPARAM lParam1, LPARAM lParam2, LPARAM lpData)
 {
   if (lpData == 0)
     return 0;
@@ -124,7 +124,6 @@ int CALLBACK CompareItems2(LPARAM lParam1, LPARAM lParam2, LPARAM lpData)
       return 1;
     if (propType1 != NPropDataType::kRaw) return 0;
     if (propType2 != NPropDataType::kRaw) return 0;
-#ifdef _WIN32
     if (propID == kpidNtReparse)
     {
       NFile::CReparseShortInfo r1; r1.Parse((const Byte *)data1, dataSize1);
@@ -133,7 +132,6 @@ int CALLBACK CompareItems2(LPARAM lParam1, LPARAM lParam2, LPARAM lpData)
           (const Byte *)data1 + r1.Offset, r1.Size,
           (const Byte *)data2 + r2.Offset, r2.Size);
     }
-#endif
   }
 
   if (panel->_folderCompare)
@@ -171,24 +169,20 @@ int CALLBACK CompareItems2(LPARAM lParam1, LPARAM lParam2, LPARAM lpData)
   return ::CompareFileTime(&file1.MTime, &file2.MTime);
   */
 
-  // PROPID propID = panel->_properties[panel->_sortIndex].ID;
+  // PROPID propID = panel->_columns[panel->_sortIndex].ID;
 
   NCOM::CPropVariant prop1, prop2;
   // Name must be first property
   panel->_folder->GetProperty((UInt32)lParam1, propID, &prop1);
   panel->_folder->GetProperty((UInt32)lParam2, propID, &prop2);
   if (prop1.vt != prop2.vt)
-  {
     return MyCompare(prop1.vt, prop2.vt);
-  }
   if (prop1.vt == VT_BSTR)
-  {
-    return _wcsicmp(prop1.bstrVal, prop2.bstrVal);
-  }
+    return MyStringCompareNoCase(prop1.bstrVal, prop2.bstrVal);
   return prop1.Compare(prop2);
-  // return 0;
 }
 
+int CALLBACK CompareItems(LPARAM lParam1, LPARAM lParam2, LPARAM lpData);
 int CALLBACK CompareItems(LPARAM lParam1, LPARAM lParam2, LPARAM lpData)
 {
   if (lpData == 0) return 0;
@@ -207,15 +201,6 @@ int CALLBACK CompareItems(LPARAM lParam1, LPARAM lParam2, LPARAM lpData)
   return panel->_ascending ? result: (-result);
 }
 
-int 
-#if defined(__WIN32__) && !defined(__WXMICROWIN__) // FIXME
-  wxCALLBACK
-#endif
- CompareItems_WX(long item1, long item2, long sortData)
-{
-        return CompareItems(item1,item2,sortData);
-}
-
 
 /*
 void CPanel::SortItems(int index)
@@ -226,7 +211,7 @@ void CPanel::SortItems(int index)
   {
     _sortIndex = index;
     _ascending = true;
-    switch (_properties[_sortIndex].ID)
+    switch (_columns[_sortIndex].ID)
     {
       case kpidSize:
       case kpidPackedSize:
@@ -240,13 +225,15 @@ void CPanel::SortItems(int index)
   _listView.SortItems(CompareItems, (LPARAM)this);
   _listView.EnsureVisible(_listView.GetFocusedItem(), false);
 }
+
 void CPanel::SortItemsWithPropID(PROPID propID)
 {
-  int index = _properties.FindItemWithID(propID);
+  int index = _columns.FindItem_for_PropID(propID);
   if (index >= 0)
     SortItems(index);
 }
 */
+
 void CPanel::SortItemsWithPropID(PROPID propID)
 {
   if (propID == _sortID)
@@ -267,11 +254,7 @@ void CPanel::SortItemsWithPropID(PROPID propID)
     }
   }
   SetSortRawStatus();
-  if (sizeof(long) != sizeof(LPARAM)) {
-    printf("INTERNAL ERROR : sizeof(long) != sizeof(LPARAM)\n");
-    exit(-1);
-  }
-  _listView.SortItems(CompareItems_WX, (LPARAM)this); // FIXED _listView.SortItems(CompareItems, (LPARAM)this);
+  _listView.SortItems(CompareItems, (LPARAM)this);
   _listView.EnsureVisible(_listView.GetFocusedItem(), false);
 }
 
@@ -279,8 +262,8 @@ void CPanel::SortItemsWithPropID(PROPID propID)
 void CPanel::OnColumnClick(LPNMLISTVIEW info)
 {
   /*
-  int index = _properties.FindItemWithID(_visibleProperties[info->iSubItem].ID);
+  int index = _columns.FindItem_for_PropID(_visibleColumns[info->iSubItem].ID);
   SortItems(index);
   */
-  SortItemsWithPropID(_visibleProperties[info->iSubItem].ID);
+  SortItemsWithPropID(_visibleColumns[info->iSubItem].ID);
 }

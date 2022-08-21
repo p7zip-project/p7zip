@@ -13,11 +13,6 @@
 #include "LangUtils.h"
 #endif
 
-#ifndef _WIN32
-extern const TCHAR * nameWindowToUnix(const TCHAR * lpFileName);
-#endif
-
-
 using namespace NWindows;
 
 bool CCopyDialog::OnInit()
@@ -37,10 +32,6 @@ bool CCopyDialog::OnInit()
   #endif
   FOR_VECTOR (i, Strings)
     _path.AddString(Strings[i]);
-#ifndef _WIN32
-  UString tmp = nameWindowToUnix(Value);
-  Value = tmp;
-#endif
   _path.SetText(Value);
   SetItemText(IDT_COPY_INFO, Info);
   NormalizeSize(true);
@@ -49,7 +40,6 @@ bool CCopyDialog::OnInit()
 
 bool CCopyDialog::OnSize(WPARAM /* wParam */, int xSize, int ySize)
 {
-#ifdef _WIN32
   int mx, my;
   GetMargins(8, mx, my);
   int bx1, bx2, by;
@@ -79,7 +69,7 @@ bool CCopyDialog::OnSize(WPARAM /* wParam */, int xSize, int ySize)
 
   MoveItem(IDCANCEL, x, y, bx1, by);
   MoveItem(IDOK, x - mx - bx2, y, bx2, by);
-#endif
+
   return false;
 }
 

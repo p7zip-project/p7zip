@@ -17,9 +17,8 @@ namespace NFsFolder {
 
 class CFSFolder;
 
-#ifdef _WIN32
 #define FS_SHOW_LINKS_INFO
-#endif
+// #define FS_SHOW_CHANGE_TIME
 
 struct CDirItem: public NWindows::NFile::NFind::CFileInfo
 {
@@ -28,10 +27,13 @@ struct CDirItem: public NWindows::NFile::NFind::CFileInfo
   #endif
 
   #ifdef FS_SHOW_LINKS_INFO
+  FILETIME ChangeTime;
   UInt64 FileIndex;
   UInt32 NumLinks;
   bool FileInfo_Defined;
   bool FileInfo_WasRequested;
+  bool ChangeTime_Defined;
+  bool ChangeTime_WasRequested;
   #endif
 
   #ifndef UNDER_CE
@@ -144,7 +146,9 @@ private:
   // bool _scanAltStreams;
   bool _flatMode;
 
-  // FIXME NWindows::NFile::NFind::CFindChangeNotification _findChangeNotification;
+  #ifdef _WIN32
+  NWindows::NFile::NFind::CFindChangeNotification _findChangeNotification;
+  #endif
 
   HRESULT GetItemsFullSize(const UInt32 *indices, UInt32 numItems, CFsFolderStat &stat);
 
@@ -158,12 +162,13 @@ private:
   
   #ifdef FS_SHOW_LINKS_INFO
   bool ReadFileInfo(CDirItem &di);
+  void ReadChangeTime(CDirItem &di);
   #endif
 
 public:
   HRESULT Init(const FString &path /* , IFolderFolder *parentFolder */);
   #if !defined(_WIN32) || defined(UNDER_CE)
-  HRESULT InitToRoot() { return Init(FSTRING_PATH_SEPARATOR /* , NULL */); }
+  HRESULT InitToRoot() { return Init((FString) FSTRING_PATH_SEPARATOR /* , NULL */); }
   #endif
 
   CFSFolder() : _flatMode(false)
@@ -203,9 +208,9 @@ struct CCopyStateIO
   int ErrorFileIndex;
   UString ErrorMessage;
 
-  CCopyStateIO(): DeleteSrcFile(false), TotalSize(0), StartPos(0) {}
+  CCopyStateIO(): TotalSize(0), StartPos(0), DeleteSrcFile(false) {}
 
-  HRESULT MyCopyFile(CFSTR inPath, CFSTR outPath);
+  HRESULT MyCopyFile(CFSTR inPath, CFSTR outPath, DWORD attrib = INVALID_FILE_ATTRIBUTES);
 };
 
 HRESULT SendLastErrorMessage(IFolderOperationsExtractCallback *callback, const FString &fileName);

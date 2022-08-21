@@ -97,9 +97,9 @@ HRESULT CUpdateCallbackGUI::Finalize()
 }
 */
 
-HRESULT CUpdateCallbackGUI::SetNumItems(UInt64 numItems)
+HRESULT CUpdateCallbackGUI::SetNumItems(const CArcToDoStat &stat)
 {
-  ProgressDialog->Sync.Set_NumFilesTotal(numItems);
+  ProgressDialog->Sync.Set_NumFilesTotal(stat.Get_NumDataItems_Total());
   return S_OK;
 }
 
@@ -156,7 +156,7 @@ HRESULT CUpdateCallbackGUI::ReportExtractResult(Int32 opRes, Int32 isEncrypted, 
   return S_OK;
 }
 
-HRESULT CUpdateCallbackGUI::ReportUpdateOpeartion(UInt32 op, const wchar_t *name, bool isDir)
+HRESULT CUpdateCallbackGUI::ReportUpdateOperation(UInt32 op, const wchar_t *name, bool isDir)
 {
   return SetOperation_Base(op, name, isDir);
 }

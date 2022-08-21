@@ -10,14 +10,6 @@
 #include "Lzma2Encoder.h"
 #include "../../../C/fast-lzma2/fl2_errors.h"
 
-#ifndef max
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-#define min(a, b) (((a) < (b)) ? (a) : (b))
-#endif
-
 namespace NCompress {
 
 namespace NLzma {
@@ -26,13 +18,12 @@ HRESULT SetLzmaProp(PROPID propID, const PROPVARIANT &prop, CLzmaEncProps &ep);
 
 }
 
-
 namespace NLzma2 {
 
 CEncoder::CEncoder()
 {
   _encoder = NULL;
-  _encoder = Lzma2Enc_Create(&g_Alloc, &g_BigAlloc);
+  _encoder = Lzma2Enc_Create(&g_AlignedAlloc, &g_BigAlloc);
   if (!_encoder)
     throw 1;
 }
@@ -44,6 +35,7 @@ CEncoder::~CEncoder()
 }
 
 
+HRESULT SetLzma2Prop(PROPID propID, const PROPVARIANT &prop, CLzma2EncProps &lzma2Props);
 HRESULT SetLzma2Prop(PROPID propID, const PROPVARIANT &prop, CLzma2EncProps &lzma2Props)
 {
   switch (propID)
@@ -59,7 +51,10 @@ HRESULT SetLzma2Prop(PROPID propID, const PROPVARIANT &prop, CLzma2EncProps &lzm
       break;
     }
     case NCoderPropID::kNumThreads:
-      if (prop.vt != VT_UI4) return E_INVALIDARG; lzma2Props.numTotalThreads = (int)(prop.ulVal); break;
+      if (prop.vt != VT_UI4)
+        return E_INVALIDARG;
+      lzma2Props.numTotalThreads = (int)(prop.ulVal);
+      break;
     default:
       RINOK(NLzma::SetLzmaProp(propID, prop, lzma2Props.lzmaProps));
   }
@@ -109,24 +104,25 @@ STDMETHODIMP CEncoder::WriteCoderProperties(ISequentialOutStream *outStream)
 STDMETHODIMP CEncoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
     const UInt64 * /* inSize */, const UInt64 * /* outSize */, ICompressProgressInfo *progress)
 {
-  CSeqInStreamWrap inWrap(inStream);
-  CSeqOutStreamWrap outWrap(outStream);
-  CCompressProgressWrap progressWrap(progress);
+  CSeqInStreamWrap inWrap;
+  CSeqOutStreamWrap outWrap;
+  CCompressProgressWrap progressWrap;
 
-  // SRes res = Lzma2Enc_Encode(_encoder, &outWrap.p, &inWrap.p, progress ? &progressWrap.p : NULL);
-  
+  inWrap.Init(inStream);
+  outWrap.Init(outStream);
+  progressWrap.Init(progress);
+
   SRes res = Lzma2Enc_Encode2(_encoder,
       &outWrap.vt, NULL, NULL,
       &inWrap.vt, NULL, 0,
       progress ? &progressWrap.vt : NULL);
-      
+
   RET_IF_WRAP_ERROR(inWrap.Res, res, SZ_ERROR_READ)
   RET_IF_WRAP_ERROR(outWrap.Res, res, SZ_ERROR_WRITE)
   RET_IF_WRAP_ERROR(progressWrap.Res, res, SZ_ERROR_PROGRESS)
 
   return SResToHRESULT(res);
 }
-
 
 
 // Fast LZMA2 encoder
@@ -391,5 +387,5 @@ STDMETHODIMP CFastEncoder::Code(ISequentialInStream *inStream, ISequentialOutStr
 
   return S_OK;
 }
-  
+
 }}

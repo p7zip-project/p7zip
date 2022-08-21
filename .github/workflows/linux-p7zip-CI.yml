@@ -22,7 +22,7 @@ jobs:
         INSTALL_PREFIX=$PROJECT_ROOT/linux-p7zip make -f makefile.gcc install
         git clone  https://github.com/jinfeihan57/p7zip_test_utils.git
         cd p7zip_test_utils/check
-        bash check_7za.sh 7za
+        bash check_7za.sh $PROJECT_ROOT/linux-p7zip/bin/7za
     - name: build 7zz & check
       run: |
         export PROJECT_ROOT=`pwd`
@@ -31,7 +31,7 @@ jobs:
         INSTALL_PREFIX=$PROJECT_ROOT/linux-p7zip make -f makefile.gcc install
         git clone  https://github.com/jinfeihan57/p7zip_test_utils.git
         cd p7zip_test_utils/check
-        bash check.sh 7zz
+        bash check.sh $PROJECT_ROOT/linux-p7zip/bin/7zz
     - name: build 7z.so
       run: |
         export PROJECT_ROOT=`pwd`

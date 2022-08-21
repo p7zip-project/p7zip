@@ -25,6 +25,7 @@ jobs:
         bash check_7za.sh 7za
     - name: build 7zz & check
       run: |
+        export PROJECT_ROOT=`pwd`
         cd CPP/7zip/Bundles/Alone2
         make -f makefile.gcc
         INSTALL_PREFIX=$PROJECT_ROOT/macos-p7zip make -f makefile.gcc install
@@ -33,6 +34,7 @@ jobs:
         bash check.sh 7zz
     - name: build 7z.so
       run: |
+        export PROJECT_ROOT=`pwd`
         cd CPP/7zip/Bundles/Format7zF
         make -f makefile.gcc
         INSTALL_PREFIX=$PROJECT_ROOT/macos-p7zip make -f makefile.gcc install

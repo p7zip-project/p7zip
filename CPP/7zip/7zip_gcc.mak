@@ -1325,7 +1325,7 @@ $O/liblz4.so: ../../../../C/lz4/lib/lz4.h
 	$(RM) lz4_build
 	$(MY_MKDIR) -p lz4_build
 	$(CD) lz4_build; \
-	cmake ../../../../../C/lz4/build/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
+	cmake ../../../../../C/lz4/build/cmake -DCMAKE_BUILD_TYPE=Release -DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
 	$(MAKE) -j; \
 	$(CD) $$OLDPWD; \
 	$(CP) lz4_build/liblz4.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
@@ -1455,5 +1455,6 @@ clean:
 	$(RM) lz4_build
 	$(RM) brotli_build
 	$(RM) lzham_build
+	$(RM) b
 	$(MAKE) -C ../../../../C/lizard/lib clean
 	$(MAKE) -C ../../../../C/lz5/lib clean

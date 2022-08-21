@@ -42,25 +42,25 @@ This is the place for 7zz (Well known as 7zip-22.00 Linux version) to include ma
 ```
    cd p7zip/CPP/7zip/Bundles/Alone2 && make -f makefile.gcc
    OR
-   cd p7zip/CPP/7zip/Bundles/Alone2 && make -j -f ../../cmpl_gcc.mak
+   cd p7zip/CPP/7zip/Bundles/Alone2 && make -f ../../cmpl_gcc.mak
 ```
 If you want build 7za:
 ```
    cd p7zip/CPP/7zip/Bundles/Alone && make -f makefile.gcc
    OR
-   cd p7zip/CPP/7zip/Bundles/Alone && make -j -f ../../cmpl_gcc.mak
+   cd p7zip/CPP/7zip/Bundles/Alone && make -f ../../cmpl_gcc.mak
 ```
 7zr:
 ```
    cd p7zip/CPP/7zip/Bundles/Alone7z && make -f makefile.gcc
    OR
-   cd p7zip/CPP/7zip/Bundles/Alone7z && make -j -f ../../cmpl_gcc.mak
+   cd p7zip/CPP/7zip/Bundles/Alone7z && make -f ../../cmpl_gcc.mak
 ```
 or build 7z.so:
 ```
    cd p7zip/CPP/7zip/Bundles/Format7zF && make -f makefile.gcc
    OR
-   cd p7zip/CPP/7zip/Bundles/Format7zF && make -j -f ../../cmpl_gcc.mak
+   cd p7zip/CPP/7zip/Bundles/Format7zF && make -f ../../cmpl_gcc.mak
 ```
 3. Install & Uninstall
 ```
@@ -68,7 +68,7 @@ Install:
    // build with sudo make -f makefile.gcc
    cd p7zip/CPP/7zip/Bundles/Alone2 && sudo make -f makefile.gcc install
    OR
-   // build with  make -j -f ../../cmpl_gcc.mak
+   // build with  make -f ../../cmpl_gcc.mak
    cd p7zip/CPP/7zip/Bundles/Alone2 && sudo make -f ../../cmpl_gcc.mak install
 Unstall:
    // install with sudo make -f makefile.gcc install

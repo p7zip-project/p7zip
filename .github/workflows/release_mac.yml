@@ -31,8 +31,8 @@ jobs:
         INSTALL_PREFIX=$PROJECT_ROOT/mac-p7zip make -f makefile.gcc install
     - name: p7zip
       run: |
-        ./mac-p7zip/bin/7zz a mac-p7zip.7z linux-p7zip -y
-        ./mac-p7zip/bin/7zz a mac-p7zip.zip linux-p7zip -y
+        ./mac-p7zip/bin/7zz a mac-p7zip.7z mac-p7zip -y
+        ./mac-p7zip/bin/7zz a mac-p7zip.zip mac-p7zip -y
     - name: Upload p7zip binary
       uses: svenstaro/upload-release-action@v2
       with:
@@ -42,4 +42,4 @@ jobs:
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true
-        body: "This is linux binary release using make"
+        body: "This is mac binary release using make"

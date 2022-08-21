@@ -16,6 +16,8 @@ jobs:
     - name: build 7za & check
       run: |
         mkdir linux-p7zip
+        mkdir linux-p7zip/bin
+        mkdir linux-p7zip/lib
         export PROJECT_ROOT=`pwd`
         cd CPP/7zip/Bundles/Alone
         make -f makefile.gcc

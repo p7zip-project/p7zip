@@ -35,11 +35,11 @@ jobs:
         7zz a linux-p7zip.zip linux-p7zip -y
     - name: Upload p7zip binary
       uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: linux-p7zip.*
-          asset_name: linux-p7zip
-          tag: ${{ github.ref }}
-          overwrite: true
-          file_glob: true
-          body: "This is linux binary release using make"
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: linux-p7zip.*
+        asset_name: linux-p7zip
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+        body: "This is linux binary release using make"

@@ -1312,7 +1312,7 @@ $O/libzstd.so: ../../../../C/zstd/lib/zstd.h
 	$(CD) zstd_build; \
 	cmake ../../../../../C/zstd/build/cmake -DCMAKE_BUILD_TYPE=Release -DZSTD_BUILD_PROGRAMS=OFF -DZSTD_BUILD_STATIC=OFF -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
 	$(MAKE) -j; \
-	$(CD) $$OLDPWD; \
+	$(CD) ../; \
 	$(CP) zstd_build/lib/libzstd.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
 # Compile zstd method and Handler
@@ -1332,7 +1332,7 @@ $O/liblz4.so: ../../../../C/lz4/lib/lz4.h
 	$(CD) lz4_build; \
 	cmake ../../../../../C/lz4/build/cmake -DCMAKE_BUILD_TYPE=Release -DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
 	$(MAKE) -j; \
-	$(CD) $$OLDPWD; \
+	$(CD) ../; \
 	$(CP) lz4_build/liblz4.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
 # Compile lz4 method and Handler
@@ -1352,7 +1352,7 @@ $O/libbrotlicommon.so $O/libbrotlienc.so $O/libbrotlidec.so: ../../../../C/brotl
 	$(CD) brotli_build; \
 	cmake ../../../../../C/brotli/ -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
 	$(MAKE) -j; \
-	$(CD) $$OLDPWD; \
+	$(CD) ../; \
 	$(CP) brotli_build/libbrotlicommon.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 	$(CP) brotli_build/libbrotlidec.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 	$(CP) brotli_build/libbrotlienc.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
@@ -1404,7 +1404,7 @@ $O/liblzhamdll.so $O/liblzhamcomp.so $O/liblzhamdecomp.so: ../../../../C/lzham_c
 	$(CD) lzham_build; \
 	cmake ../../../../../C/lzham_codec/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
 	$(MAKE) -j; \
-	$(CD) $$OLDPWD; \
+	$(CD) ../; \
 	$(CP) lzham_build/lzhamcomp/liblzhamcomp.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 	$(CP) lzham_build/lzhamdecomp/liblzhamdecomp.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 	$(CP) lzham_build/lzhamdll/liblzhamdll.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
@@ -1421,7 +1421,6 @@ $O/libfast-lzma2.so: ../../../../C/fast-lzma2/fast-lzma2.h
 	$(CD) $O/$(7z_LIB)/$(7Z_ADDON_CODEC); \
 	ln -sf libfast-lzma2.so.1.0 libfast-lzma2.so.1; \
 	ln -sf libfast-lzma2.so.1 libfast-lzma2.so; \
-	$(CD) $$OLDPWD
 # only for 7zr
 $O/libfast-lzma2.a: ../../../../C/fast-lzma2/fast-lzma2.h
 	$(MAKE) -C ../../../../C/fast-lzma2

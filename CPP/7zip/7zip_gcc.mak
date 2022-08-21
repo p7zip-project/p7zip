@@ -1441,7 +1441,7 @@ predef: predef_cc predef_cxx
 
 install:
 	$(MY_MKDIR) $(INSTALL_PREFIX)/bin
-	$(CP) $(O)/$(7z_BIN)/* $(INSTALL_PREFIX)/bin
+	$(CP) $(O)/$(7z_BIN)/* $(INSTALL_PREFIX)/bin 2>/dev/null || :
 	$(MY_MKDIR) $(INSTALL_PREFIX)/lib
 	$(CP) $(O)/$(7z_LIB)/* $(INSTALL_PREFIX)/lib
 

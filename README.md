@@ -65,13 +65,17 @@ or build 7z.so:
 3. Install & Uninstall
 ```
 Install:
+   // build with sudo make -f makefile.gcc
    cd p7zip/CPP/7zip/Bundles/Alone2 && sudo make -f makefile.gcc install
    OR
-   cd p7zip/CPP/7zip/Bundles/Alone2 && sudo make -j -f ../../cmpl_gcc.mak install
+   // build with  make -j -f ../../cmpl_gcc.mak
+   cd p7zip/CPP/7zip/Bundles/Alone2 && sudo make -f ../../cmpl_gcc.mak install
 Unstall:
+   // install with sudo make -f makefile.gcc install
    cd p7zip/CPP/7zip/Bundles/Alone2 && sudo make -f makefile.gcc uninstall
    OR
-   cd p7zip/CPP/7zip/Bundles/Alone2 && sudo make -j -f ../../cmpl_gcc.mak uninstall
+   // install with sudo make -f ../../cmpl_gcc.mak install
+   cd p7zip/CPP/7zip/Bundles/Alone2 && sudo make -f ../../cmpl_gcc.mak uninstall
 ```
 4. Test:
 ```

@@ -1439,11 +1439,11 @@ predef_cxx:
 
 predef: predef_cc predef_cxx
 
-install: all
+install:
 	$(MY_MKDIR) $(INSTALL_PREFIX)/bin
-	$(CP) $(O)/$(7z_BIN)/* $(INSTALL_PREFIX)/bin 2>/dev/null || :
+	$(CP) $(O)/$(7z_BIN)/* $(INSTALL_PREFIX)/bin
 	$(MY_MKDIR) $(INSTALL_PREFIX)/lib
-	$(CP) $(O)/$(7z_LIB)/* $(INSTALL_PREFIX)/lib 2>/dev/null || :
+	$(CP) $(O)/$(7z_LIB)/* $(INSTALL_PREFIX)/lib
 
 uninstall:
 	$(RM) $(INSTALL_PREFIX)/bin/7z*

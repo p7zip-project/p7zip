@@ -1305,7 +1305,7 @@ $O/libzstd.so: ../../../../C/zstd/lib/zstd.h
 	$(RM) zstd_build
 	$(MY_MKDIR) -p zstd_build
 	$(CD) zstd_build; \
-	cmake ../../../../../C/zstd/build/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
+	cmake ../../../../../C/zstd/build/cmake -DCMAKE_BUILD_TYPE=Release -DZSTD_BUILD_PROGRAMS=OFF -DZSTD_BUILD_STATIC=OFF -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
 	$(MAKE) -j; \
 	$(CD) $$OLDPWD; \
 	$(CP) zstd_build/lib/libzstd.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
@@ -1345,7 +1345,7 @@ $O/libbrotlicommon.so $O/libbrotlienc.so $O/libbrotlidec.so: ../../../../C/brotl
 	$(RM) brotli_build
 	$(MY_MKDIR) -p brotli_build
 	$(CD) brotli_build; \
-	cmake ../../../../../C/brotli/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
+	cmake ../../../../../C/brotli/ -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
 	$(MAKE) -j; \
 	$(CD) $$OLDPWD; \
 	$(CP) brotli_build/libbrotlicommon.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)

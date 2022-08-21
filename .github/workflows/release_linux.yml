@@ -1,0 +1,44 @@
+name: p7zip-release
+
+on:
+  release:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Ubuntu-Release
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: build 7zz & check
+      run: |
+        cd CPP/7zip/Bundles/Alone2
+        make -f makefile.gcc
+        make -f makefile.gcc install
+        git clone  https://github.com/jinfeihan57/p7zip_test_utils.git
+        cd p7zip_test_utils/check
+        bash check.sh 7zz
+    - name: build 7z.so
+      run: |
+        cd CPP/7zip/Bundles/Format7zF
+        make -f makefile.gcc
+        make -f makefile.gcc install
+    - name: p7zip
+      run: |
+        mkdir linux-p7zip
+        cp -rf CPP/7zip/Bundles/Alone2/_o/bin linux-p7zip
+        cp -rf CPP/7zip/Bundles/Format7zF/_o/lib linux-p7zip
+        7zz a linux-p7zip.7z linux-p7zip -y
+        7zz a linux-p7zip.zip linux-p7zip -y
+    - name: Upload p7zip binary
+      uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: linux-p7zip.*
+          asset_name: linux-p7zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
+          body: "This is linux binary release using make"

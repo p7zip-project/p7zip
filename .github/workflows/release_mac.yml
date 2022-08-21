@@ -14,31 +14,31 @@ jobs:
     - uses: actions/checkout@v3
     - name: build 7zz & check
       run: |
-        mkdir linux-p7zip
-        mkdir linux-p7zip/bin
-        mkdir linux-p7zip/lib
+        mkdir mac-p7zip
+        mkdir mac-p7zip/bin
+        mkdir mac-p7zip/lib
         export PROJECT_ROOT=`pwd`
         cd CPP/7zip/Bundles/Alone2
         make -f makefile.gcc
-        INSTALL_PREFIX=$PROJECT_ROOT/linux-p7zip make -f makefile.gcc install
+        INSTALL_PREFIX=$PROJECT_ROOT/mac-p7zip make -f makefile.gcc install
         git clone  https://github.com/jinfeihan57/p7zip_test_utils.git
         cd p7zip_test_utils/check
-        bash check.sh $PROJECT_ROOT/linux-p7zip/bin/7zz
+        bash check.sh $PROJECT_ROOT/mac-p7zip/bin/7zz
     - name: build 7z.so
       run: |
         cd CPP/7zip/Bundles/Format7zF
         make -f makefile.gcc
-        INSTALL_PREFIX=$PROJECT_ROOT/linux-p7zip make -f makefile.gcc install
+        INSTALL_PREFIX=$PROJECT_ROOT/mac-p7zip make -f makefile.gcc install
     - name: p7zip
       run: |
-        ./linux-p7zip/bin/7zz a linux-p7zip.7z linux-p7zip -y
-        ./linux-p7zip/bin/7zz a linux-p7zip.zip linux-p7zip -y
+        ./mac-p7zip/bin/7zz a mac-p7zip.7z linux-p7zip -y
+        ./mac-p7zip/bin/7zz a mac-p7zip.zip linux-p7zip -y
     - name: Upload p7zip binary
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: linux-p7zip.*
-        asset_name: linux-p7zip
+        file: mac-p7zip.*
+        asset_name: mac-p7zip
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true

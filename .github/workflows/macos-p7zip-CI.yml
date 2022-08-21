@@ -15,9 +15,11 @@ jobs:
     - uses: actions/checkout@v3
     - name: build 7za & check
       run: |
+        mkdir macos-p7zip
+        export PROJECT_ROOT=`pwd`
         cd CPP/7zip/Bundles/Alone
         make -f makefile.gcc
-        make -f makefile.gcc install
+        INSTALL_PREFIX=$PROJECT_ROOT/macos-p7zip make -f makefile.gcc install
         git clone  https://github.com/jinfeihan57/p7zip_test_utils.git
         cd p7zip_test_utils/check
         bash check_7za.sh 7za
@@ -25,7 +27,7 @@ jobs:
       run: |
         cd CPP/7zip/Bundles/Alone2
         make -f makefile.gcc
-        make -f makefile.gcc install
+        INSTALL_PREFIX=$PROJECT_ROOT/macos-p7zip make -f makefile.gcc install
         git clone  https://github.com/jinfeihan57/p7zip_test_utils.git
         cd p7zip_test_utils/check
         bash check.sh 7zz
@@ -33,4 +35,4 @@ jobs:
       run: |
         cd CPP/7zip/Bundles/Format7zF
         make -f makefile.gcc
-        make -f makefile.gcc install
+        INSTALL_PREFIX=$PROJECT_ROOT/macos-p7zip make -f makefile.gcc install

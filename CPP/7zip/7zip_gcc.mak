@@ -112,7 +112,12 @@ else
 RM = rm -rf
 MY_MKDIR=mkdir -p
 CD = cd
+
+ifeq ($(shell uname),Darwin)
+CP = cp -rf
+else
 CP = cp -drf
+endif
 MAKE = make
 # CFLAGS_BASE := $(CFLAGS_BASE) -D_7ZIP_ST
 # CXXFLAGS_EXTRA = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE

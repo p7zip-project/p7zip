@@ -3,6 +3,11 @@ include ../../LzmaDec_gcc.mak
 LOCAL_FLAGS_ST =
 MT_OBJS =
 
+ifeq ($(shell uname),Darwin)
+DYSUFFIX=dylib
+else
+DYSUFFIX=so
+endif
 
 ifdef ST_MODE
 
@@ -376,17 +381,17 @@ C_OBJS = \
   $O/Sha1.o \
   $O/Sha1Opt.o \
 
-ZSTD_LIB = $O/libzstd.so
-LZ4_LIB = $O/liblz4.so
-BROTLI_LIB = $O/libbrotlienc.so \
-  $O/libbrotlidec.so \
-  $O/libbrotlicommon.so
-LIZARD_LIB = $O/liblizard.so
-LZ5_LIB = $O/liblz5.so
-FAST-LZMA2_LIB = $O/libfast-lzma2.so
-LZHAM_LIB = $O/liblzhamdll.so \
-  $O/liblzhamdecomp.so \
-  $O/liblzhamcomp.so
+ZSTD_LIB = $O/libzstd.$(DYSUFFIX)
+LZ4_LIB = $O/liblz4.$(DYSUFFIX)
+BROTLI_LIB = $O/libbrotlienc.$(DYSUFFIX) \
+  $O/libbrotlidec.$(DYSUFFIX) \
+  $O/libbrotlicommon.$(DYSUFFIX)
+LIZARD_LIB = $O/liblizard.$(DYSUFFIX)
+LZ5_LIB = $O/liblz5.$(DYSUFFIX)
+FAST-LZMA2_LIB = $O/libfast-lzma2.$(DYSUFFIX)
+LZHAM_LIB = $O/liblzhamdll.$(DYSUFFIX) \
+  $O/liblzhamdecomp.$(DYSUFFIX) \
+  $O/liblzhamcomp.$(DYSUFFIX)
 
 ADDED_HASH_OBJS = \
   $O/md2.o \

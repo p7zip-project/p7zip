@@ -130,6 +130,17 @@ ifndef INSTALL_PREFIX
 INSTALL_PREFIX = /usr/local
 endif
 
+ifndef DYSUFFIX
+
+ifeq ($(shell uname),Darwin)
+DYSUFFIX=dylib
+else
+DYSUFFIX=so
+endif
+
+endif
+
+
 DEL_OBJ_EXE = -$(RM) $(O)
 
 endif
@@ -1306,14 +1317,14 @@ $O/lz5-mt_decompress.o: ../../../../C/zstdmt/lz5-mt_decompress.c
 
 
 # Build zstd lib static and dynamic
-$O/libzstd.so: ../../../../C/zstd/lib/zstd.h
+$O/libzstd.$(DYSUFFIX): ../../../../C/zstd/lib/zstd.h
 	$(RM) zstd_build
 	$(MY_MKDIR) -p zstd_build
 	$(CD) zstd_build; \
 	cmake ../../../../../C/zstd/build/cmake -DCMAKE_BUILD_TYPE=Release -DZSTD_BUILD_PROGRAMS=OFF -DZSTD_BUILD_STATIC=OFF -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
 	$(MAKE) -j; \
 	$(CD) ../; \
-	$(CP) zstd_build/lib/libzstd.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CP) zstd_build/lib/libzstd.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
 # Compile zstd method and Handler
 $O/ZstdDecoder.o: ../../Compress/ZstdDecoder.cpp
@@ -1326,14 +1337,14 @@ $O/ZstdHandler.o: ../../Archive/ZstdHandler.cpp
 	$(CXX) $(CXXFLAGS) $<
 
 # Build lz4 lib static and dynamic
-$O/liblz4.so: ../../../../C/lz4/lib/lz4.h
+$O/liblz4.$(DYSUFFIX): ../../../../C/lz4/lib/lz4.h
 	$(RM) lz4_build
 	$(MY_MKDIR) -p lz4_build
 	$(CD) lz4_build; \
 	cmake ../../../../../C/lz4/build/cmake -DCMAKE_BUILD_TYPE=Release -DLZ4_BUILD_CLI=OFF -DLZ4_BUILD_LEGACY_LZ4C=OFF -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
 	$(MAKE) -j; \
 	$(CD) ../; \
-	$(CP) lz4_build/liblz4.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CP) lz4_build/liblz4.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
 # Compile lz4 method and Handler
 $O/Lz4Decoder.o: ../../Compress/Lz4Decoder.cpp
@@ -1346,18 +1357,18 @@ $O/Lz4Handler.o: ../../Archive/Lz4Handler.cpp
 	$(CXX) $(CXXFLAGS) $<
 
 # Build brotli lib static and dynamic
-$O/libbrotlicommon.so $O/libbrotlienc.so $O/libbrotlidec.so: ../../../../C/brotli/c/include/brotli/decode.h
+$O/libbrotlicommon.$(DYSUFFIX) $O/libbrotlienc.$(DYSUFFIX) $O/libbrotlidec.$(DYSUFFIX): ../../../../C/brotli/c/include/brotli/decode.h
 	$(RM) brotli_build
 	$(MY_MKDIR) -p brotli_build
 	$(CD) brotli_build; \
 	cmake ../../../../../C/brotli/ -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
 	$(MAKE) -j; \
 	$(CD) ../; \
-	$(CP) brotli_build/libbrotlicommon.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
-	$(CP) brotli_build/libbrotlidec.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
-	$(CP) brotli_build/libbrotlienc.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
-	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/libbrotlidec.so*
-	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/libbrotlienc.so*
+	$(CP) brotli_build/libbrotlicommon.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CP) brotli_build/libbrotlidec.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CP) brotli_build/libbrotlienc.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/libbrotlidec.$(DYSUFFIX)*
+	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/libbrotlienc.$(DYSUFFIX)*
 
 # Compile brotli method and Handler 
 $O/BrotliDecoder.o: ../../Compress/BrotliDecoder.cpp
@@ -1368,9 +1379,9 @@ $O/BrotliRegister.o: ../../Compress/BrotliRegister.cpp
 	$(CXX) $(CXXFLAGS) $< -I ../../../../C/brotli/c/include
 
 # Build lizard lib static and dynamic
-$O/liblizard.so: ../../../../C/lizard/lib/lizard_frame.h
+$O/liblizard.$(DYSUFFIX): ../../../../C/lizard/lib/lizard_frame.h
 	$(MAKE) -C ../../../../C/lizard/lib
-	$(CP) ../../../../C/lizard/lib/liblizard.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CP) ../../../../C/lizard/lib/liblizard.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
 # Compile lizard method and Handler
 $O/LizardDecoder.o: ../../Compress/LizardDecoder.cpp
@@ -1383,9 +1394,9 @@ $O/LizardHandler.o: ../../Archive/LizardHandler.cpp
 	$(CXX) $(CXXFLAGS) $<
 
 # Build lz5 lib static and dynamic
-$O/liblz5.so: ../../../../C/lz5/lib/lz5frame.h
+$O/liblz5.$(DYSUFFIX): ../../../../C/lz5/lib/lz5frame.h
 	$(MAKE) -C ../../../../C/lz5/lib
-	$(CP) ../../../../C/lz5/lib/liblz5.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CP) ../../../../C/lz5/lib/liblz5.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 
 # Compile lz5 method and Handler
 $O/Lz5Decoder.o: ../../Compress/Lz5Decoder.cpp
@@ -1398,29 +1409,29 @@ $O/Lz5Handler.o: ../../Archive/Lz5Handler.cpp
 	$(CXX) $(CXXFLAGS) $<
 
 # Build lzham lib static and dynamic
-$O/liblzhamdll.so $O/liblzhamcomp.so $O/liblzhamdecomp.so: ../../../../C/lzham_codec/lzhamdll/lzham_api.cpp
+$O/liblzhamdll.$(DYSUFFIX) $O/liblzhamcomp.$(DYSUFFIX) $O/liblzhamdecomp.$(DYSUFFIX): ../../../../C/lzham_codec/lzhamdll/lzham_api.cpp
 	$(RM) lzham_build
 	$(MY_MKDIR) -p lzham_build
 	$(CD) lzham_build; \
 	cmake ../../../../../C/lzham_codec/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=$(CC) -DCMAKE_CXX_COMPILER=$(CXX); \
 	$(MAKE) -j; \
 	$(CD) ../; \
-	$(CP) lzham_build/lzhamcomp/liblzhamcomp.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
-	$(CP) lzham_build/lzhamdecomp/liblzhamdecomp.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
-	$(CP) lzham_build/lzhamdll/liblzhamdll.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
-	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/liblzhamdll.so*
+	$(CP) lzham_build/lzhamcomp/liblzhamcomp.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CP) lzham_build/lzhamdecomp/liblzhamdecomp.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CP) lzham_build/lzhamdll/liblzhamdll.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/liblzhamdll.$(DYSUFFIX)*
 
 # Compile lzham register
 $O/LzhamRegister.o: ../../Compress/LzhamRegister.cpp
 	$(CXX) $(CXXFLAGS) $< -I ../../../../C/lzham_codec/include
 
 # Compile FastLzma2 method
-$O/libfast-lzma2.so: ../../../../C/fast-lzma2/fast-lzma2.h
+$O/libfast-lzma2.$(DYSUFFIX): ../../../../C/fast-lzma2/fast-lzma2.h
 	$(MAKE) -C ../../../../C/fast-lzma2
-	$(CP) ../../../../C/fast-lzma2/libfast-lzma2.so* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
+	$(CP) ../../../../C/fast-lzma2/libfast-lzma2.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 	$(CD) $O/$(7z_LIB)/$(7Z_ADDON_CODEC); \
-	ln -sf libfast-lzma2.so.1.0 libfast-lzma2.so.1; \
-	ln -sf libfast-lzma2.so.1 libfast-lzma2.so; \
+	ln -sf libfast-lzma2.$(DYSUFFIX).1.0 libfast-lzma2.$(DYSUFFIX).1; \
+	ln -sf libfast-lzma2.$(DYSUFFIX).1 libfast-lzma2.$(DYSUFFIX); \
 # only for 7zr
 $O/libfast-lzma2.a: ../../../../C/fast-lzma2/fast-lzma2.h
 	$(MAKE) -C ../../../../C/fast-lzma2

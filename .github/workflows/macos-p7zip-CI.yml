@@ -1,4 +1,4 @@
-name: macod-p7zip-CI
+name: macos-p7zip-CI
 
 on:
   push:

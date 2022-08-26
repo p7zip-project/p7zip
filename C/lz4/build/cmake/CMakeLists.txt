@@ -103,7 +103,9 @@ option(LZ4_POSITION_INDEPENDENT_LIB "Use position independent code for static li
 set(LZ4_LIBRARIES_BUILT)
 if(BUILD_SHARED_LIBS)
   add_library(lz4_shared SHARED ${LZ4_SOURCES})
-  set_target_properties(lz4_shared PROPERTIES LINK_FLAGS -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/lz4api.map)
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set_target_properties(lz4_shared PROPERTIES LINK_FLAGS -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/lz4api.map)
+  endif()
   set_target_properties(lz4_shared PROPERTIES
     OUTPUT_NAME lz4
     SOVERSION "${LZ4_VERSION_MAJOR}"

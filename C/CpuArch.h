@@ -123,6 +123,13 @@ MY_CPU_64BIT means that processor can work with 64-bit registers.
 #endif
 
 
+#if defined(__riscv) && (__riscv_xlen == 64)
+  #define MY_CPU_NAME "riscv64"
+  #define MY_CPU_64BIT
+  #define MY_CPU_LE
+#endif
+
+
 #if  defined(__sparc64__)
   #define MY_CPU_NAME "sparc64"
   #define MY_CPU_64BIT

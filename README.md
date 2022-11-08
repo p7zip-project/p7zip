@@ -30,7 +30,7 @@ This is the place for 7zz (Well known as 7zip-22.00 Linux version) to include ma
    - Levels: 1..9
    - Level: 1 best speed
    - Level: 9 best compression
-   - Level: 10 best with extreme parsing (can be very slow) NOT RECOMMEND
+   - Level: 10 best with extreme parsing (can be very slow; not recommended)
 
 ## Build Binary
 #### (Currently only supports CLI, if you want to do GUI please contact us)
@@ -216,11 +216,11 @@ Hashers:
 
 ## Usage
 
-- You can create `.7z` files, with [LZ4]、[Fast LZMA2]、[Brotli]、[LZ5]、[Lizard]、[Lzham] and [Zstandard] method.
+- You can create `.7z` files, with [LZ4], [Fast LZMA2], [Brotli], [LZ5], [Lizard], [Lzham] and [Zstandard] method.
 ```
-7z a archiv.7z -m0=zstd 
+7z a archiv.7z -m0=zstd
 7z a archiv.7z -m0=zstd -mx3
-7z a archiv.7z -m0=zstd -mx22 
+7z a archiv.7z -m0=zstd -mx22
 7z a archiv.7z -m0=lz4 -mxN  ...
 ```
 

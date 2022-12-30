@@ -1,6 +1,6 @@
 /*
     bench.c - Demo program to benchmark open-source compression algorithm
-    Copyright (C) Yann Collet 2012-2016
+    Copyright (C) Yann Collet 2012-2020
 
     GPL v2 License
 
@@ -312,6 +312,13 @@ static int local_LZ4_decompress_safe_usingDict(const char* in, char* out, int in
     return outSize;
 }
 
+static int local_LZ4_decompress_safe_partial_usingDict(const char* in, char* out, int inSize, int outSize)
+{
+    int result = LZ4_decompress_safe_partial_usingDict(in, out, inSize, outSize - 5, outSize, out - 65536, 65536);
+    if (result < 0) return result;
+    return outSize;
+}
+
 #ifndef LZ4_DLL_IMPORT
 #if defined (__cplusplus)
 extern "C" {
@@ -325,8 +332,26 @@ extern int LZ4_decompress_safe_forceExtDict(const char* in, char* out, int inSiz
 
 static int local_LZ4_decompress_safe_forceExtDict(const char* in, char* out, int inSize, int outSize)
 {
-    (void)inSize;
     LZ4_decompress_safe_forceExtDict(in, out, inSize, outSize, out - 65536, 65536);
+    return outSize;
+}
+#endif
+
+#ifndef LZ4_DLL_IMPORT
+#if defined (__cplusplus)
+extern "C" {
+#endif
+
+extern int LZ4_decompress_safe_partial_forceExtDict(const char* in, char* out, int inSize, int targetOutputSize, int dstCapacity, const void* dict, size_t dictSize);
+
+#if defined (__cplusplus)
+}
+#endif
+
+static int local_LZ4_decompress_safe_partial_forceExtDict(const char* in, char* out, int inSize, int outSize)
+{
+    int result = LZ4_decompress_safe_partial_forceExtDict(in, out, inSize, outSize - 5, outSize, out - 65536, 65536);
+    if (result < 0) return result;
     return outSize;
 }
 #endif
@@ -344,6 +369,33 @@ static int local_LZ4F_compressFrame(const char* in, char* out, int inSize)
 {
     assert(inSize >= 0);
     return (int)LZ4F_compressFrame(out, LZ4F_compressFrameBound((size_t)inSize, NULL), in, (size_t)inSize, NULL);
+}
+
+LZ4F_cctx* g_cctx = NULL;
+static int local_LZ4F_compress(const char* in, char* out, int inSize)
+{
+    /* output buffer size is assumed */
+    size_t const outSize = LZ4F_compressFrameBound((size_t)inSize, NULL);
+    size_t cSize = 0;
+    assert(inSize >= 0);
+    if (g_cctx == NULL) {
+        /* create and initialize LZ4F compression context the first time */
+        LZ4F_createCompressionContext(&g_cctx, LZ4F_VERSION);
+        assert(g_cctx != NULL);
+    } /* re-use existing compression context otherwise */
+    {   size_t const cbSize = LZ4F_compressBegin(g_cctx, out, outSize, NULL);
+        assert(!LZ4F_isError(cbSize));
+        cSize += cbSize;
+    }
+    {   size_t const cuSize = LZ4F_compressUpdate(g_cctx, out+cSize, outSize-cSize, in, (size_t)inSize, NULL);
+        assert(!LZ4F_isError(cuSize));
+        cSize += cuSize;
+    }
+    {   size_t const ceSize = LZ4F_compressEnd(g_cctx, out+cSize, outSize-cSize, NULL);
+        assert(!LZ4F_isError(ceSize));
+        cSize += ceSize;
+    }
+    return (int)cSize;
 }
 
 static LZ4F_decompressionContext_t g_dCtx;
@@ -372,7 +424,8 @@ static int local_LZ4F_decompress_followHint(const char* src, char* dst, int srcS
     size_t outRemaining = maxOutSize - outPos;
 
     for (;;) {
-        size_t const sizeHint = LZ4F_decompress(g_dCtx, dst+outPos, &outRemaining, src+inPos, &inSize, NULL);
+        size_t const sizeHint =
+            LZ4F_decompress(g_dCtx, dst+outPos, &outRemaining, src+inPos, &inSize, NULL);
         assert(!LZ4F_isError(sizeHint));
 
         inPos += inSize;
@@ -560,6 +613,9 @@ int fullSpeedBench(const char** fileNamesTable, int nbFiles)
             case 30: compressionFunction = local_LZ4F_compressFrame; compressorName = "LZ4F_compressFrame";
                         chunkP[0].origSize = (int)benchedSize; nbChunks=1;
                         break;
+            case 31: compressionFunction = local_LZ4F_compress; compressorName = "LZ4F_compressUpdate";
+                        chunkP[0].origSize = (int)benchedSize; nbChunks=1;
+                        break;
             case 40: compressionFunction = local_LZ4_saveDict; compressorName = "LZ4_saveDict";
                         if (chunkP[0].origSize < 8) { DISPLAY(" cannot bench %s with less then 8 bytes \n", compressorName); continue; }
                         LZ4_loadDict(&LZ4_stream, chunkP[0].origBuffer, chunkP[0].origSize);
@@ -657,15 +713,17 @@ int fullSpeedBench(const char** fileNamesTable, int nbFiles)
             case 5: decompressionFunction = local_LZ4_decompress_safe_withPrefix64k; dName = "LZ4_decompress_safe_withPrefix64k"; break;
             case 6: decompressionFunction = local_LZ4_decompress_safe_usingDict; dName = "LZ4_decompress_safe_usingDict"; break;
             case 7: decompressionFunction = local_LZ4_decompress_safe_partial; dName = "LZ4_decompress_safe_partial"; checkResult = 0; break;
+            case 8: decompressionFunction = local_LZ4_decompress_safe_partial_usingDict; dName = "LZ4_decompress_safe_partial_usingDict"; checkResult = 0; break;
 #ifndef LZ4_DLL_IMPORT
-            case 8: decompressionFunction = local_LZ4_decompress_safe_forceExtDict; dName = "LZ4_decompress_safe_forceExtDict"; break;
+            case 9: decompressionFunction = local_LZ4_decompress_safe_partial_forceExtDict; dName = "LZ4_decompress_safe_partial_forceExtDict"; checkResult = 0; break;
+            case 10: decompressionFunction = local_LZ4_decompress_safe_forceExtDict; dName = "LZ4_decompress_safe_forceExtDict"; break;
 #endif
-            case 10:
             case 11:
             case 12:
-                if (dAlgNb == 10) { decompressionFunction = local_LZ4F_decompress; dName = "LZ4F_decompress"; }  /* can be skipped */
-                if (dAlgNb == 11) { decompressionFunction = local_LZ4F_decompress_followHint; dName = "LZ4F_decompress_followHint"; }  /* can be skipped */
-                if (dAlgNb == 12) { decompressionFunction = local_LZ4F_decompress_noHint; dName = "LZ4F_decompress_noHint"; }  /* can be skipped */
+            case 13:
+                if (dAlgNb == 11) { decompressionFunction = local_LZ4F_decompress; dName = "LZ4F_decompress"; }  /* can be skipped */
+                if (dAlgNb == 12) { decompressionFunction = local_LZ4F_decompress_followHint; dName = "LZ4F_decompress_followHint"; }  /* can be skipped */
+                if (dAlgNb == 13) { decompressionFunction = local_LZ4F_decompress_noHint; dName = "LZ4F_decompress_noHint"; }  /* can be skipped */
                 /* prepare compressed data using frame format */
                 {   size_t const fcsize = LZ4F_compressFrame(compressed_buff, (size_t)compressedBuffSize, orig_buff, benchedSize, NULL);
                     assert(!LZ4F_isError(fcsize));

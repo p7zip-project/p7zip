@@ -3,11 +3,11 @@ LZ4 Frame Format Description
 
 ### Notices
 
-Copyright (c) 2013-2015 Yann Collet
+Copyright (c) 2013-2020 Yann Collet
 
 Permission is granted to copy and distribute this document
-for any  purpose and without charge,
-including translations into other  languages
+for any purpose and without charge,
+including translations into other languages
 and incorporation into compilations,
 provided that the copyright notice and this notice are preserved,
 and that any substantive changes or deletions from the original
@@ -16,7 +16,7 @@ Distribution of this document is unlimited.
 
 ### Version
 
-1.6.2 (12/08/2020)
+1.6.3 (12/09/2022)
 
 
 Introduction
@@ -47,7 +47,7 @@ at the level of bits and other primitive data representations.
 Unless otherwise indicated below,
 a compliant compressor must produce data sets
 that conform to the specifications presented here.
-It doesn’t need to support all options though.
+It doesn't need to support all options though.
 
 A compliant decompressor must be able to decompress
 at least one working set of parameters
@@ -61,9 +61,9 @@ and associated error message explaining which parameter is unsupported.
 General Structure of LZ4 Frame format
 -------------------------------------
 
-| MagicNb | F. Descriptor | Block | (...) | EndMark | C. Checksum |
-|:-------:|:-------------:| ----- | ----- | ------- | ----------- |
-| 4 bytes |  3-15 bytes   |       |       | 4 bytes | 0-4 bytes   |
+| MagicNb | F. Descriptor | Data Block | (...) | EndMark | C. Checksum |
+|:-------:|:-------------:| ---------- | ----- | ------- | ----------- |
+| 4 bytes |  3-15 bytes   |            |       | 4 bytes | 0-4 bytes   |
 
 __Magic Number__
 
@@ -244,8 +244,7 @@ One-byte checksum of combined descriptor fields, including optional ones.
 The value is the second byte of `xxh32()` : ` (xxh32()>>8) & 0xFF `
 using zero as a seed, and the full Frame Descriptor as an input
 (including optional fields when they are present).
-A wrong checksum indicates an error in the descriptor.
-Header checksum is informational and can be skipped.
+A wrong checksum indicates that the descriptor is erroneous.
 
 
 Data Blocks
@@ -270,7 +269,7 @@ The size does not include the block checksum if present.
 
 _Block_Size_ shall never be larger than _Block_Maximum_Size_.
 Such an outcome could potentially happen for non-compressible sources.
-In such a case, such data block must be passed using uncompressed format.
+In such a case, such data block **must** be passed using uncompressed format.
 
 A value of `0x00000000` is invalid, and signifies an _EndMark_ instead.
 Note that this is different from a value of `0x80000000` (highest bit set),
@@ -385,7 +384,7 @@ __EndMark__
 
 End of legacy frame is implicit only.
 It must be followed by a standard EOF (End Of File) signal,
-wether it is a file or a stream.
+whether it is a file or a stream.
 
 Alternatively, if the frame is followed by a valid Frame Magic Number,
 it is considered completed.
@@ -397,6 +396,8 @@ and trigger an error if it does not fit within acceptable range.
 
 Version changes
 ---------------
+
+1.6.3 : minor : clarify Data Block
 
 1.6.2 : clarifies specification of _EndMark_
 

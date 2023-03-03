@@ -4,7 +4,7 @@
 This is the place for the active development of p7zip to include major modern codecs such as Brotli, Fast LZMA2, LZ4, LZ5, Lizard and Zstd. In order to support multithreading for those addional codecs, this project depends on the [Multithreading Library](https://github.com/mcmilk/zstdmt).
 
 # status Ubuntu && mac
-[![linux](https://github.com/jinfeihan57/p7zip/actions/workflows/linux-%20build.yml/badge.svg)](https://github.com/jinfeihan57/p7zip/actions/workflows/linux-%20build.yml)[![macos](https://github.com/jinfeihan57/p7zip/actions/workflows/macos-build.yml/badge.svg)](https://github.com/jinfeihan57/p7zip/actions/workflows/macos-build.yml)
+[![linux](https://github.com/p7zip-project/p7zip/actions/workflows/linux-%20build.yml/badge.svg)](https://github.com/p7zip-project/p7zip/actions/workflows/linux-%20build.yml)[![macos](https://github.com/p7zip-project/p7zip/actions/workflows/macos-build.yml/badge.svg)](https://github.com/p7zip-project/p7zip/actions/workflows/macos-build.yml)
 
 ## Codec overview
 1. [Zstandard] v1.4.9 is a real-time compression algorithm, providing high compression ratios. It offers a very wide range of compression / speed trade-off, while being backed by a very fast decoder.
@@ -49,7 +49,7 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
 #### (Currently only supports CLI, if you want to do GUI please contact us)
 1. Download src:
 ```
-   git clone https://github.com/jinfeihan57/p7zip.git
+   git clone https://github.com/p7zip-project/p7zip.git
 ```
 2. Using makefile directly:
 ```
@@ -68,8 +68,8 @@ We use [silesia](http://sun.aei.polsl.pl/~sdeor/index.php?page=silesia) files(to
 
 The output should look like this:
 ```
-7-Zip (a) [64] 17.04 : Copyright (c) 1999-2021 Igor Pavlov
-p7zip Version 17.04 (locale=zh_CN.UTF-8,Utf16=on,HugeFiles=on,64 bits,12 CPUs x64)
+7-Zip (a) [64] 17.05 : Copyright (c) 1999-2021 Igor Pavlov
+p7zip Version 17.05 (locale=zh_CN.UTF-8,Utf16=on,HugeFiles=on,64 bits,12 CPUs x64)
 
 Formats:
 ...

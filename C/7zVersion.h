@@ -1,8 +1,8 @@
 #define MY_VER_MAJOR 17
 #define MY_VER_MINOR 04
 #define MY_VER_BUILD 0
-#define MY_VERSION_NUMBERS "17.04 beta"
-#define MY_VERSION "17.04"
+#define MY_VERSION_NUMBERS "17.05 beta"
+#define MY_VERSION "17.05"
 #define MY_DATE "2017-08-28"
 #undef MY_COPYRIGHT
 #undef MY_VERSION_COPYRIGHT_DATE
@@ -18,5 +18,5 @@
 
 #define MY_VERSION_COPYRIGHT_DATE MY_VERSION " : " MY_COPYRIGHT " : " MY_DATE
 
-#define P7ZIP_VERSION "17.04"
+#define P7ZIP_VERSION "17.05"
 

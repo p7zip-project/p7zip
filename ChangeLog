@@ -1,3 +1,9 @@
+Version 17.05
+=============
+
+- add UTF-8 support for Client7z
+- fix issue 130
+
 Version 17.04
 =============
 

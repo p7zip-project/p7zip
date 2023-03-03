@@ -1,7 +1,7 @@
-    p7zip 17.04
+    p7zip 17.05
     ===========
 
-Homepage : https://github.com/jinfeihan57/p7zip
+Homepage : https://github.com/p7zip-project/p7zip
 
 p7zip is a port of the Windows programs 7z.exe and 7za.exe provided by 7-zip.
 

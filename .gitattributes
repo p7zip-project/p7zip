@@ -1,0 +1,68 @@
+# default behavior
+* text eol=lf
+
+.*    eol=lf
+*.txt eol=lf
+
+# source files
+*.asm text eol=lf
+*.c text eol=lf
+*.cc text eol=lf
+*.cpp text eol=lf
+*.h text eol=lf
+*.lua text eol=lf
+*.py text eol=lf
+*.s text eol=lf
+# building sources
+*.md  eol=lf
+*.cmake  eol=lf
+makefile* text eol=lf
+*.mak text eol=lf
+*.mk text eol=lf
+*.sh text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+# other sources
+*.hhp text eol=lf
+*.inf text eol=lf
+*.nsi text eol=lf
+*.wxs text eol=lf
+
+# binaries
+*.bmp binary
+*.exe binary
+*.gif binary
+*.ico binary
+*.jpeg binary
+*.jpg binary
+*.odt binary
+*.png binary
+# binary sources
+*.pyc binary
+*.sfx binary
+# archives
+*.7z binary
+*.bz2 binary
+*.gz binary
+*.lz binary
+*.lzma binary
+*.xz binary
+*.rar binary
+*.zip binary
+
+# visual studio
+*.def text eol=lf
+*.dsp text eol=crlf
+*.dsw text eol=crlf
+*.manifest text eol=lf
+*.rc text eol=lf
+*.res binary
+*.sln text eol=lf
+*.suo binary
+*.vcxproj* text eol=lf
+*.vcproj* text eol=lf
+
+# Windows
+#*.bat text eol=crlf
+#*.cmd text eol=crlf
+

@@ -1,5 +1,10 @@
 // Archive/ZipItem.cpp
 
+#ifndef _WIN32
+#include <iconv.h>
+#include <locale.h>
+#endif
+
 #include "StdAfx.h"
 
 #include "../../../../C/CpuArch.h"

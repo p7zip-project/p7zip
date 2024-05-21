@@ -50,7 +50,7 @@ static const CUInt32PCharPair g_ExtraTypes[] =
 
 void CExtraSubBlock::PrintInfo(AString &s) const
 {
-  for (unsigned i = 0; i < ARRAY_SIZE(g_ExtraTypes); i++)
+  for (unsigned i = 0; i < Z7_ARRAY_SIZE(g_ExtraTypes); i++)
   {
     const CUInt32PCharPair &pair = g_ExtraTypes[i];
     if (pair.Value == ID)
@@ -60,15 +60,15 @@ void CExtraSubBlock::PrintInfo(AString &s) const
       {
         if (Data.Size() >= 1)
         {
-          s += ':';
+          s.Add_Colon();
           const Byte flags = Data[0];
-          if (flags & 1) s += 'M';
-          if (flags & 2) s += 'A';
-          if (flags & 4) s += 'C';
+          if (flags & 1) s.Add_Char('M');
+          if (flags & 2) s.Add_Char('A');
+          if (flags & 4) s.Add_Char('C');
           const UInt32 size = (UInt32)(Data.Size()) - 1;
           if (size % 4 == 0)
           {
-            s += ':';
+            s.Add_Colon();
             s.Add_UInt32(size / 4);
           }
         }
@@ -93,7 +93,7 @@ void CExtraSubBlock::PrintInfo(AString &s) const
     }
   }
   {
-    char sz[32];
+    char sz[16];
     sz[0] = '0';
     sz[1] = 'x';
     ConvertUInt32ToHex(ID, sz + 2);
@@ -296,6 +296,7 @@ bool CItem::IsDir() const
       case NHostOS::kHPFS:
       case NHostOS::kVFAT:
         return true;
+      default: break;
     }
   }
 
@@ -365,6 +366,7 @@ UInt32 CItem::GetWinAttrib() const
         // #endif
       }
       break;
+    default: break;
   }
   if (IsDir()) // test it;
     winAttrib |= FILE_ATTRIBUTE_DIRECTORY;
@@ -555,7 +557,7 @@ void CItem::GetUnicodeString(UString &res, const AString &s, bool isComment, boo
 
     if (lc && lc[0]) {
       // Compare up to the dot, if it exists, e.g. en_US.UTF-8
-      for (lcLen = 0; lc[lcLen] != '.' && lc[lcLen] != '\0'; ++lcLen);
+      for (lcLen = 0; lc[lcLen] != '.' && lc[lcLen] != ':' && lc[lcLen] != '\0'; ++lcLen);
 
       for (i = 0; i < tableLen; i += 2)
         if (strncmp(lc, (isOem ? lcToOemTable[i] : lcToAnsiTable[i]), lcLen) == 0) {
@@ -569,23 +571,27 @@ void CItem::GetUnicodeString(UString &res, const AString &s, bool isComment, boo
       if ((cd = iconv_open("UTF-8", legacyCp)) != (iconv_t)-1) {
 
         AString s_utf8;
-        const char* src = s.Ptr();
-        size_t slen = s.Len();
-        size_t dlen = slen * 4;
-        char* dest = s_utf8.GetBuf_SetEnd(dlen + 1); // (source length * 4) + null termination
 
-        char* srcPtr = const_cast<char*>(src); // iconv requires non-const input pointer
-        char* destPtr = dest;
-        size_t done = iconv(cd, &srcPtr, &slen, &destPtr, &dlen);
+        size_t slen = s.Len();
+        char* src = s.Ptr_non_const();
+
+        size_t dlen = slen * 4 + 1; // (source length * 4) + null termination
+        char* dst = s_utf8.GetBuf_SetEnd(dlen);
+
+        memset(dst, 0, dlen);
+
+        size_t done = iconv(cd, &src, &slen, &dst, &dlen);
+
         if (done == (size_t)-1) {
-          // Handle iconv error
           iconv_close(cd);
-          // Add proper error handling or logging here
+
+          // iconv failed. Falling back to default behavior
+          MultiByteToUnicodeString2(res, s, useSpecifiedCodePage ? codePage : GetCodePage());
           return;
         }
 
         // Null-terminate the result
-        *destPtr = '\0';
+        *dst = '\0';
 
         iconv_close(cd);
 

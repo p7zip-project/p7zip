@@ -448,12 +448,8 @@ void CItem::GetUnicodeString(UString &res, const AString &s, bool isComment, boo
   if (isOem || isAnsi) {
 
     const char *legacyCp = nullptr;
-    int tableLen;
-    if (isOem) {
-        tableLen = sizeof(lcToOemTable) / sizeof(lcToOemTable[0]);
-    } else {
-        tableLen = sizeof(lcToAnsiTable) / sizeof(lcToAnsiTable[0]);
-    }
+    // lcToOemTable and lcToAnsiTable should have equal size as locales list is the same
+    int tableLen = sizeof(lcToOemTable) / sizeof(lcToOemTable[0]);
     int lcLen = 0, i;
 
     // Detect required code page name from current locale 

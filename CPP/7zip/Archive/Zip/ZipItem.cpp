@@ -570,16 +570,18 @@ void CItem::GetUnicodeString(UString &res, const AString &s, bool isComment, boo
 
         AString sUtf8;
 
-        size_t slen = s.Len();
+        unsigned slen = s.Len();
         char* src = s.Ptr_non_const();
 
-        size_t dlen = slen * 4 + 1; // (source length * 4) + null termination
+        unsigned dlen = slen * 4 + 1; // (source length * 4) + null termination
         char* dst = sUtf8.GetBuf_SetEnd(dlen);
         const char* dstStart = dst;
 
         memset(dst, 0, dlen);
 
-        size_t done = iconv(cd, &src, &slen, &dst, &dlen);
+        size_t slen_size_t = static_cast<size_t>(slen);
+        size_t dlen_size_t = static_cast<size_t>(dlen);
+        size_t done = iconv(cd, &src, &slen_size_t, &dst, &dlen_size_t);
 
         if (done == (size_t)-1) {
           iconv_close(cd);

@@ -575,6 +575,7 @@ void CItem::GetUnicodeString(UString &res, const AString &s, bool isComment, boo
 
         size_t dlen = slen * 4 + 1; // (source length * 4) + null termination
         char* dst = s_utf8.GetBuf_SetEnd(dlen);
+        const char* dstStart = dst;
 
         memset(dst, 0, dlen);
 
@@ -593,9 +594,11 @@ void CItem::GetUnicodeString(UString &res, const AString &s, bool isComment, boo
 
         iconv_close(cd);
 
-        if (ConvertUTF8ToUnicode(s_utf8, res) /*|| ignore_Utf8_Errors*/) {
+        AString sUtf8CorrectLength;
+        unsigned dstCorrectLength = dst - dstStart;
+        sUtf8CorrectLength.SetFrom(sUtf8, dstCorrectLength);
+        if (ConvertUTF8ToUnicode(sUtf8CorrectLength, res) /*|| ignore_Utf8_Errors*/)
           return;
-        }
       }
     }
   }

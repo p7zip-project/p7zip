@@ -568,13 +568,13 @@ void CItem::GetUnicodeString(UString &res, const AString &s, bool isComment, boo
       iconv_t cd;
       if ((cd = iconv_open("UTF-8", legacyCp)) != (iconv_t)-1) {
 
-        AString s_utf8;
+        AString sUtf8;
 
         size_t slen = s.Len();
         char* src = s.Ptr_non_const();
 
         size_t dlen = slen * 4 + 1; // (source length * 4) + null termination
-        char* dst = s_utf8.GetBuf_SetEnd(dlen);
+        char* dst = sUtf8.GetBuf_SetEnd(dlen);
         const char* dstStart = dst;
 
         memset(dst, 0, dlen);

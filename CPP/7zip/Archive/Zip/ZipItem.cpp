@@ -498,8 +498,8 @@ void CItem::GetUnicodeString(UString &res, const AString &s, bool isComment, boo
         iconv_close(cd);
 
         AString sUtf8CorrectLength;
-        unsigned dstCorrectLength = dst - dstStart;
-        sUtf8CorrectLength.SetFrom(sUtf8, dstCorrectLength);
+        size_t dstCorrectLength = dst - dstStart;
+        sUtf8CorrectLength.SetFrom(sUtf8, static_cast<unsigned>(dstCorrectLength));
         if (ConvertUTF8ToUnicode(sUtf8CorrectLength, res) /*|| ignore_Utf8_Errors*/)
           return;
       }

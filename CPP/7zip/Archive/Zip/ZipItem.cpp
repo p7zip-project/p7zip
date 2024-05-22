@@ -448,7 +448,12 @@ void CItem::GetUnicodeString(UString &res, const AString &s, bool isComment, boo
   if (isOem || isAnsi) {
 
     const char *legacyCp = nullptr;
-    int tableLen = sizeof(isOem ? lcToOemTable : lcToAnsiTable) / sizeof(char *);
+    int tableLen;
+    if (isOem) {
+        tableLen = sizeof(lcToOemTable) / sizeof(lcToOemTable[0]);
+    } else {
+        tableLen = sizeof(lcToAnsiTable) / sizeof(lcToAnsiTable[0]);
+    }
     int lcLen = 0, i;
 
     // Detect required code page name from current locale 
@@ -463,6 +468,11 @@ void CItem::GetUnicodeString(UString &res, const AString &s, bool isComment, boo
           legacyCp = isOem ? lcToOemTable[i + 1] : lcToAnsiTable[i + 1];
           break; // Stop searching once a match is found
         }
+    }
+
+    // not found; use 437 by default
+    if (!legacyCp) {
+      legacyCp = "CP437";
     }
 
     if (legacyCp) {

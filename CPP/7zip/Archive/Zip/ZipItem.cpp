@@ -3,6 +3,7 @@
 #if (!defined _WIN32) && (!defined __CYGWIN__) && (!defined __APPLE__)
 #include <iconv.h>
 #include <locale.h>
+#include <cstdio>
 #endif
 
 #include "StdAfx.h"

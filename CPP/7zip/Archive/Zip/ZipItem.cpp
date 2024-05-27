@@ -533,17 +533,23 @@ void CItem::GetUnicodeString(UString &res, const AString &s, bool isComment, boo
     "wa_BE", "CP1252", "zh_HK", "CP950", "zh_SG", "CP936"};
 
   bool isOem = false;
+  bool isAnsi = false;
 
   if (!isUtf8 &&
-             (MadeByVersion.HostOS == NFileHeader::NHostOS::kNTFS ||
-              MadeByVersion.HostOS == NFileHeader::NHostOS::kFAT)) {
+      MadeByVersion.HostOS == NFileHeader::NHostOS::kNTFS &&
+      MadeByVersion.Version >= 20) {
+    isAnsi = true;
+  } else 
+  if (!isUtf8 &&
+      (MadeByVersion.HostOS == NFileHeader::NHostOS::kNTFS ||
+      MadeByVersion.HostOS == NFileHeader::NHostOS::kFAT)) {
     isOem = true;
   }
 
   const char *legacyCp = nullptr;
   const char *legacyCpAnsi = nullptr;
 
-  if (isOem || (useSpecifiedCodePage && (codePage != 65001))) {
+  if (isOem || isAnsi || (useSpecifiedCodePage && (codePage != 65001))) {
 
     int tableLen = sizeof(lcToOemTable) / sizeof(lcToOemTable[0]);
     int lcLen = 0, i;
@@ -582,7 +588,7 @@ void CItem::GetUnicodeString(UString &res, const AString &s, bool isComment, boo
       }
       
       iconv_t cd;
-      if ((cd = iconv_open("UTF-8", useSpecifiedCodePage ? specCP : legacyCp)) != (iconv_t)-1) {
+      if ((cd = iconv_open("UTF-8", useSpecifiedCodePage ? specCP : (isOem ? legacyCp : legacyCpAnsi))) != (iconv_t)-1) {
 
         AString sUtf8;
 

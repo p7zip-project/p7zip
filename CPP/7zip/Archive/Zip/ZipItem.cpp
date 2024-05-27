@@ -3,6 +3,7 @@
 #ifndef _WIN32
 #include <iconv.h>
 #include <locale.h>
+#include <cstdio>
 #endif
 
 #include "StdAfx.h"

@@ -11,6 +11,7 @@ jobs:
     name: Ubuntu-Check
     runs-on: ubuntu-latest
 
+    if: "startsWith(github.ref, 'refs/tags/') || (!contains(github.event.head_commit.message, '[skip CI]') && !contains(github.event.head_commit.message, '[skip Linux]'))"
     steps:
     - uses: actions/checkout@v3
     - name: build 7za & check

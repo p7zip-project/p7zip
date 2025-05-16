@@ -1,5 +1,6 @@
 # #############################################################################
-# Copyright (c) 2018-present    lzutao <taolzu(at)gmail.com>
+# Copyright (c) 2018-present        lzutao <taolzu(at)gmail.com>
+# Copyright (c) 2022-present        Tristan Partin <tristan(at)partin.io>
 # All rights reserved.
 #
 # This source code is licensed under both the BSD-style license (found in the
@@ -7,87 +8,151 @@
 # in the COPYING file in the root directory of this source tree).
 # #############################################################################
 
-lz4_root_dir = '../../../..'
-programs_dir_inc = include_directories(join_paths(lz4_root_dir, 'programs'))
-lib_dir_inc = include_directories(join_paths(lz4_root_dir, 'lib'))
+lz4_source_root = '../../../..'
 
-# =============================================================================
-# Test flags
-# =============================================================================
+fuzzer_time = 90
+test_exes = {
+  'abiTest': {
+    'sources': files(lz4_source_root / 'tests/abiTest.c'),
+    'test': false,
+  },
+  'checkFrame': {
+    'sources': files(lz4_source_root / 'tests/checkFrame.c'),
+    'include_directories': include_directories(lz4_source_root / 'programs'),
+  },
+  'checkTag': {
+    'sources': files(lz4_source_root / 'tests/checkTag.c'),
+    'test': false,
+  },
+  'datagen': {
+    'sources': files(lz4_source_root / 'tests/datagencli.c'),
+    'objects': lz4.extract_objects(lz4_source_root / 'programs/datagen.c'),
+    'include_directories': include_directories(lz4_source_root / 'programs'),
+  },
+  'decompress-partial-usingDict.c': {
+    'sources': files(lz4_source_root / 'tests/decompress-partial-usingDict.c'),
+  },
+  'decompress-partial.c': {
+    'sources': files(lz4_source_root / 'tests/decompress-partial.c'),
+  },
+  'frametest': {
+    'sources': files(lz4_source_root / 'tests/frametest.c'),
+    'include_directories': include_directories(lz4_source_root / 'programs'),
+    'args': ['-v', '-T@0@s'.format(fuzzer_time)],
+    'test': false,
+  },
+  'freestanding': {
+    'sources': files(lz4_source_root / 'tests/freestanding.c'),
+    'c_args': ['-ffreestanding', '-Wno-unused-parameter', '-Wno-declaration-after-statement'],
+    'link_args': ['-nostdlib'],
+    'build': cc.get_id() in ['gcc', 'clang'] and
+      host_machine.system() == 'linux' and host_machine.cpu_family() == 'x86_64',
+    'override_options': ['optimization=1'],
+  },
+  'fullbench': {
+    'sources': files(lz4_source_root / 'tests/fullbench.c'),
+    'include_directories': include_directories(lz4_source_root / 'programs'),
+    'args': ['--no-prompt', '-i1', files(lz4_source_root / 'tests/COPYING')],
+    'test': false,
+  },
+  'fuzzer': {
+    'sources': files(lz4_source_root / 'tests/fuzzer.c'),
+    'include_directories': include_directories(lz4_source_root / 'programs'),
+    'args': ['-T@0@s'.format(fuzzer_time)],
+    'test': false,
+  },
+  'roundTripTest': {
+    'sources': files(lz4_source_root / 'tests/roundTripTest.c'),
+    'test': false,
+  },
+}
 
-TEST_FILES   = join_paths(meson.current_source_dir(), lz4_root_dir, 'tests/COPYING')
-FUZZER_TIME  = '-T90s'
-NB_LOOPS     = '-i1'
+targets = {}
 
-# =============================================================================
-# Executables
-# =============================================================================
+foreach e, attrs : test_exes
+  if not attrs.get('build', true)
+    targets += {e: disabler()}
+    continue
+  endif
 
-fullbench_sources = [join_paths(lz4_root_dir, 'tests/fullbench.c')]
-fullbench = executable('fullbench',
-  fullbench_sources,
-  include_directories: programs_dir_inc,
-  dependencies: liblz4_dep,
-  install: false)
+  t = executable(
+    e,
+    attrs.get('sources'),
+    c_args: attrs.get('c_args', []),
+    link_args: attrs.get('link_args', []),
+    objects: attrs.get('objects', []),
+    dependencies: [liblz4_internal_dep],
+    include_directories: attrs.get('include_directories', []),
+    install: false,
+    override_options: attrs.get('override_options', [])
+  )
 
-fuzzer_sources = [join_paths(lz4_root_dir, 'tests/fuzzer.c')]
-fuzzer = executable('fuzzer',
-  fuzzer_sources,
-  c_args: ['-D_DEFAULT_SOURCE', '-D_BSD_SOURCE'], # since glibc 2.19
-  include_directories: programs_dir_inc,
-  dependencies: liblz4_dep,
-  install: false)
+  targets += {e: t}
 
-frametest_sources = [join_paths(lz4_root_dir, 'tests/frametest.c')]
-frametest = executable('frametest',
-  frametest_sources,
-  include_directories: programs_dir_inc,
-  dependencies: liblz4_dep,
-  install: false)
+  if not attrs.get('test', true)
+    continue
+  endif
 
-roundTripTest_sources = [join_paths(lz4_root_dir, 'tests/roundTripTest.c')]
-roundTripTest = executable('roundTripTest',
-  roundTripTest_sources,
-  dependencies: [ liblz4_dep ],
-  install: false)
+  test(
+    e,
+    t,
+    args: attrs.get('params', []),
+    timeout: 120
+  )
+endforeach
 
-datagen_sources = [join_paths(lz4_root_dir, 'tests/datagencli.c')]
-datagen = executable('datagen',
-  datagen_sources,
-  objects: lz4.extract_objects(join_paths(lz4_root_dir, 'programs/datagen.c')),
-  include_directories: lz4_includes,
-  dependencies: [ liblz4_dep ],
-  install: false)
+fs = import('fs')
 
-checkFrame_sources = [join_paths(lz4_root_dir, 'tests/checkFrame.c')]
-checkFrame = executable('checkFrame',
-  checkFrame_sources,
-  include_directories: programs_dir_inc,
-  dependencies: [ liblz4_dep ],
-  install: false)
+run_env.prepend('PATH', meson.current_build_dir())
 
-checkTag_sources = [join_paths(lz4_root_dir, 'tests/checkTag.c')]
-checkTag = executable('checkTag',
-  checkTag_sources,
-  include_directories: lib_dir_inc,
-  install: false)
+test_scripts = {
+  'lz4-basic': {
+    'depends': [lz4, lz4cat, unlz4, targets['datagen']],
+  },
+  'lz4-dict': {
+    'depends': [lz4, targets['datagen']],
+  },
+  'lz4-contentSize': {
+    'depends': [lz4, targets['datagen']],
+  },
+  'lz4-fast-hugefile': {
+    'depends': [lz4, targets['datagen']],
+  },
+  'lz4-frame-concatenation': {
+    'depends': [lz4, targets['datagen']],
+  },
+  'lz4-multiple': {
+    'depends': [lz4, targets['datagen']],
+  },
+  'lz4-multiple-legacy': {
+    'depends': [lz4, targets['datagen']],
+  },
+  'lz4-opt-parser': {
+    'depends': [lz4, targets['datagen']],
+  },
+  'lz4-skippable': {
+    'depends': [lz4],
+  },
+  'lz4-sparse': {
+    'depends': [lz4, targets['datagen']],
+  },
+  'lz4-testmode': {
+    'depends': [lz4, targets['datagen']],
+  },
+  'lz4hc-hugefile': {
+    'depends': [lz4, targets['datagen']],
+  },
+}
 
-# =============================================================================
-# Tests (Use "meson test --list" to list all tests)
-# =============================================================================
+foreach s, attrs : test_scripts
+  script = find_program(lz4_source_root / 'tests/test-@0@.sh'.format(s))
 
-# XXX: (Need TEST) These timeouts (in seconds) when running on a HDD should be
-# at least six times bigger than on a SSD
-
-test('test-fullbench',
-  fullbench,
-  args: ['--no-prompt', NB_LOOPS, TEST_FILES],
-  timeout: 420) # Should enough when running on HDD
-test('test-fuzzer',
-  fuzzer,
-  args: [FUZZER_TIME],
-  timeout: 100)
-test('test-frametest',
-  frametest,
-  args: [FUZZER_TIME],
-  timeout: 100)
+  test(
+    '@0@'.format(s),
+    script,
+    depends: attrs.get('depends', []),
+    workdir: fs.parent(script.full_path()),
+    env: run_env,
+    timeout: 360
+  )
+endforeach

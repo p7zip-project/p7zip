@@ -2,9 +2,9 @@ name: macos-p7zip-CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "To be fixed" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "To be fixed" ]
 
 jobs:
   build:

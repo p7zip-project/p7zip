@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
     - name: build 7za & check
       run: |
         brew install patchelf
@@ -27,18 +29,18 @@ jobs:
         # git clone  https://github.com/jinfeihan57/p7zip_test_utils.git
         # cd p7zip_test_utils/check
         # bash check_7za.sh $PROJECT_ROOT/macos-p7zip/bin/7za
-    - name: build 7zz & check
-      run: |
-        export PROJECT_ROOT=`pwd`
-        cd CPP/7zip/Bundles/Alone2
-        make -f makefile.gcc
-        INSTALL_PREFIX=$PROJECT_ROOT/macos-p7zip make -f makefile.gcc install
-        git clone  https://github.com/jinfeihan57/p7zip_test_utils.git
-        cd p7zip_test_utils/check
-        bash check.sh $PROJECT_ROOT/macos-p7zip/bin/7zz
-    - name: build 7z.so
-      run: |
-        export PROJECT_ROOT=`pwd`
-        cd CPP/7zip/Bundles/Format7zF
-        make -f makefile.gcc
-        INSTALL_PREFIX=$PROJECT_ROOT/macos-p7zip make -f makefile.gcc install
+    # - name: build 7zz & check
+    #   run: |
+    #     export PROJECT_ROOT=`pwd`
+    #     cd CPP/7zip/Bundles/Alone2
+    #     make -f makefile.gcc
+    #     INSTALL_PREFIX=$PROJECT_ROOT/macos-p7zip make -f makefile.gcc install
+    #     git clone  https://github.com/jinfeihan57/p7zip_test_utils.git
+    #     cd p7zip_test_utils/check
+    #     bash check.sh $PROJECT_ROOT/macos-p7zip/bin/7zz
+    # - name: build 7z.so
+    #   run: |
+    #     export PROJECT_ROOT=`pwd`
+    #     cd CPP/7zip/Bundles/Format7zF
+    #     make -f makefile.gcc
+    #     INSTALL_PREFIX=$PROJECT_ROOT/macos-p7zip make -f makefile.gcc install

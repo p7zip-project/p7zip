@@ -115,8 +115,10 @@ CD = cd
 
 ifeq ($(shell uname),Darwin)
 CP = cp -rf
+SET_RPATH = install_name_tool -add_rpath
 else
 CP = cp -drf
+SET_RPATH = patchelf --force-rpath --set-rpath
 endif
 MAKE = make
 # CFLAGS_BASE := $(CFLAGS_BASE) -D_7ZIP_ST
@@ -1367,8 +1369,8 @@ $O/libbrotlicommon.$(DYSUFFIX) $O/libbrotlienc.$(DYSUFFIX) $O/libbrotlidec.$(DYS
 	$(CP) brotli_build/libbrotlicommon.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 	$(CP) brotli_build/libbrotlidec.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 	$(CP) brotli_build/libbrotlienc.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
-	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/libbrotlidec.$(DYSUFFIX)*
-	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/libbrotlienc.$(DYSUFFIX)*
+	$(SET_RPATH) '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/libbrotlidec.$(DYSUFFIX)*
+	$(SET_RPATH) '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/libbrotlienc.$(DYSUFFIX)*
 
 # Compile brotli method and Handler 
 $O/BrotliDecoder.o: ../../Compress/BrotliDecoder.cpp
@@ -1419,7 +1421,7 @@ $O/liblzhamdll.$(DYSUFFIX) $O/liblzhamcomp.$(DYSUFFIX) $O/liblzhamdecomp.$(DYSUF
 	$(CP) lzham_build/lzhamcomp/liblzhamcomp.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 	$(CP) lzham_build/lzhamdecomp/liblzhamdecomp.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
 	$(CP) lzham_build/lzhamdll/liblzhamdll.$(DYSUFFIX)* $O/$(7z_LIB)/$(7Z_ADDON_CODEC)
-	patchelf --force-rpath --set-rpath '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/liblzhamdll.$(DYSUFFIX)*
+	$(SET_RPATH) '$$ORIGIN/' $O/$(7z_LIB)/$(7Z_ADDON_CODEC)/liblzhamdll.$(DYSUFFIX)*
 
 # Compile lzham register
 $O/LzhamRegister.o: ../../Compress/LzhamRegister.cpp

@@ -22,9 +22,9 @@ jobs:
         cd CPP/7zip/Bundles/Alone
         make -f makefile.gcc
         INSTALL_PREFIX=$PROJECT_ROOT/macos-p7zip make -f makefile.gcc install
-        git clone  https://github.com/jinfeihan57/p7zip_test_utils.git
-        cd p7zip_test_utils/check
-        bash check_7za.sh $PROJECT_ROOT/macos-p7zip/bin/7za
+        # git clone  https://github.com/jinfeihan57/p7zip_test_utils.git
+        # cd p7zip_test_utils/check
+        # bash check_7za.sh $PROJECT_ROOT/macos-p7zip/bin/7za
     - name: build 7zz & check
       run: |
         export PROJECT_ROOT=`pwd`

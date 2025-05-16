@@ -38,8 +38,14 @@ ifeq ($(x86_64),1)
 	OBJ+=lzma_dec_x86_64.o
 endif
 
+ifeq ($(shell uname),Darwin)
+SHARED_LINKER_FLAGS = -dynamiclib
+else
+SHARED_LINKER_FLAGS = -soname,$(SONAME)
+endif
+
 libfast-lzma2 : $(OBJ)
-	$(CC) -shared -pthread -Wl,-soname,$(SONAME) -o $(REAL_NAME) $(OBJ)
+	$(CC) -shared -pthread -Wl,$(SHARED_LINKER_FLAGS) -o $(REAL_NAME) $(OBJ)
 
 -include $(DEP)
 

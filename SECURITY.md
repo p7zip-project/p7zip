@@ -12,8 +12,8 @@ currently being supported with security updates.
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+Thank you for improving the security of p7zip. We appreciate your dedication to responsible disclosure and will make every effort to acknowledge your contributions.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+p7zip leverages [GitHub's private vulnerability reporting](https://github.com/p7zip-project/p7zip/security/advisories/new).
+
+To learn more about this feature and how to submit a vulnerability report, review [GitHub's documentation on private reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability).
